@@ -1,0 +1,138 @@
+/* ==========================================================================
+   Compliance Hub — Enterprise Monochrome Design System
+   Strict Black & White Palette with Dual Theme Support (Light / Dark)
+   Clean, authoritative, high-contrast typography and layout.
+   ========================================================================== */
+
+/* ─── Default / Light Theme Tokens (Preferred by Client) ─── */
+:root,
+[data-theme="light"],
+.light-theme {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f4f4f5;
+  --bg-input: #ffffff;
+
+  --border-subtle: #e4e4e7;
+  --border-hover: #a1a1aa;
+  --border-active: #09090b;
+
+  --text-primary: #09090b;
+  --text-secondary: #52525b;
+  --text-muted: #71717a;
+  --text-subtle: #a1a1aa;
+
+  --btn-primary-bg: #09090b;
+  --btn-primary-text: #ffffff;
+  --btn-primary-hover: #27272a;
+
+  --btn-secondary-bg: #ffffff;
+  --btn-secondary-border: #e4e4e7;
+  --btn-secondary-text: #09090b;
+  --btn-secondary-hover: #f4f4f5;
+
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --header-bg: rgba(255, 255, 255, 0.92);
+
+  /* Alert / Banner */
+  --alert-bg: #f4f4f5;
+  --alert-border: #d4d4d8;
+  --alert-text: #18181b;
+}
+
+/* ─── Dark Theme Tokens ─── */
+[data-theme="dark"],
+.dark-theme {
+  --bg-primary: #09090b;
+  --bg-secondary: #121214;
+  --bg-card: #121214;
+  --bg-card-hover: #18181b;
+  --bg-input: #09090b;
+
+  --border-subtle: #27272a;
+  --border-hover: #3f3f46;
+  --border-active: #ffffff;
+
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --text-subtle: #52525b;
+
+  --btn-primary-bg: #ffffff;
+  --btn-primary-text: #09090b;
+  --btn-primary-hover: #e4e4e7;
+
+  --btn-secondary-bg: #18181b;
+  --btn-secondary-border: #27272a;
+  --btn-secondary-text: #ffffff;
+  --btn-secondary-hover: #27272a;
+
+  --card-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  --header-bg: rgba(18, 18, 20, 0.92);
+
+  /* Alert / Banner */
+  --alert-bg: #1c1917;
+  --alert-border: #44403c;
+  --alert-text: #f5f5f4;
+}
+
+/* ─── Typography & Shared Tokens ─── */
+:root {
+  --font-heading: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.5;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--text-primary);
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+input, select, textarea {
+  font-family: var(--font-body);
+}

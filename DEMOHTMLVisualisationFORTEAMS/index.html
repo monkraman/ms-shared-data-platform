@@ -1,0 +1,2219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monkspaces — System Architecture & Database Design</title>
+  <style>
+    /* ==========================================================================
+       MONKSPACES TECHNICAL REVIEW - DESIGN SYSTEM & TOKENS
+       Clean, authoritative emerald green, deep forest, and slate neutral palette
+       ========================================================================== */
+    :root {
+      --bg-canvas: #090e0c;
+      --bg-surface: #101815;
+      --bg-card: #15221d;
+      --bg-card-hover: #1b2d26;
+      --bg-glass: rgba(16, 24, 21, 0.9);
+      --bg-glass-card: rgba(21, 34, 29, 0.8);
+
+      --border-subtle: #1e332a;
+      --border-medium: #2a483b;
+      --border-highlight: #3b6855;
+
+      --emerald-50: #ecfdf5;
+      --emerald-100: #d1fae5;
+      --emerald-400: #34d399;
+      --emerald-500: #10b981;
+      --emerald-600: #059669;
+      --emerald-700: #047857;
+
+      --accent-cyan: #06b6d4;
+      --accent-blue: #38bdf8;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #a855f7;
+
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --text-emerald: #34d399;
+
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+      --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6);
+      --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.2);
+
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-full: 9999px;
+
+      --panel-width: 460px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      line-height: 1.5;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Layout Structure */
+    .app-header {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px;
+      gap: 16px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--emerald-500), #064e3b);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .brand-logo svg { width: 22px; height: 22px; fill: #ffffff; }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-subtitle { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; }
+
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-draft { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-prototype { background: rgba(16, 185, 129, 0.15); color: var(--emerald-400); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-future { background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); border: 1px solid rgba(56, 189, 248, 0.3); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border-medium);
+      background: var(--bg-card);
+      color: var(--text-main);
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover { background: var(--bg-card-hover); border-color: var(--border-highlight); color: #ffffff; }
+    .btn-primary { background: var(--emerald-600); border-color: var(--emerald-500); color: #ffffff; }
+    .btn-primary:hover { background: var(--emerald-500); }
+
+    /* Navigation Tabs */
+    .nav-tabs {
+      display: flex;
+      padding: 0 24px;
+      gap: 8px;
+      border-top: 1px solid var(--border-subtle);
+      background: rgba(16, 24, 21, 0.6);
+      overflow-x: auto;
+    }
+
+    .nav-tab {
+      padding: 10px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .nav-tab:hover { color: var(--text-main); }
+    .nav-tab.active {
+      color: var(--emerald-400);
+      border-bottom-color: var(--emerald-500);
+      background: rgba(16, 185, 129, 0.05);
+    }
+
+    .tab-badge {
+      background: var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+    }
+    .nav-tab.active .tab-badge { background: rgba(16, 185, 129, 0.2); color: var(--emerald-400); }
+
+    /* Main Container & Tab Panes */
+    .main-content {
+      flex: 1;
+      display: flex;
+      position: relative;
+      height: calc(100vh - 105px);
+      overflow: hidden;
+    }
+
+    .tab-view {
+      display: none;
+      flex: 1;
+      height: 100%;
+      overflow-y: auto;
+      padding: 24px;
+      position: relative;
+    }
+
+    .tab-view.active { display: block; }
+    .tab-view.canvas-view { padding: 0; overflow: hidden; }
+
+    /* Top Truth Banner */
+    .truth-banner {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .truth-banner-text strong { color: var(--emerald-400); }
+    .truth-banner-text p { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* Canvas Controls (ERD) */
+    .canvas-toolbar {
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      z-index: 20;
+      display: flex;
+      gap: 8px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-medium);
+      padding: 6px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(8px);
+      align-items: center;
+    }
+
+    .canvas-toolbar input[type="text"] {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      padding: 5px 10px;
+      font-size: 0.8rem;
+      width: 180px;
+    }
+
+    .canvas-toolbar input[type="text"]:focus { outline: none; border-color: var(--emerald-500); }
+
+    .canvas-toolbar .tool-btn {
+      padding: 4px 10px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: background 0.15s;
+    }
+
+    .canvas-toolbar .tool-btn:hover { background: var(--bg-card-hover); border-color: var(--emerald-500); }
+    .canvas-toolbar .tool-btn.active-mode {
+      background: var(--emerald-600);
+      border-color: var(--emerald-500);
+      color: #fff;
+    }
+
+    .canvas-legend {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      z-index: 20;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-size: 0.75rem;
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: var(--shadow-md);
+      max-width: 340px;
+    }
+
+    .legend-title { font-weight: 700; color: var(--text-main); margin-bottom: 2px; display: flex; justify-content: space-between; }
+    .legend-item { display: flex; align-items: center; gap: 8px; color: var(--text-muted); }
+    .legend-chip { width: 14px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+    /* Inspector Panel */
+    .inspector-panel {
+      width: var(--panel-width);
+      background: var(--bg-surface);
+      border-left: 1px solid var(--border-subtle);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 40;
+      box-shadow: var(--shadow-lg);
+      transition: transform 0.25s ease;
+      flex-shrink: 0;
+    }
+
+    .inspector-panel.collapsed { transform: translateX(100%); position: absolute; right: 0; }
+
+    .inspector-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      background: var(--bg-card);
+    }
+
+    .inspector-title-group h3 { font-size: 1.05rem; color: #ffffff; font-weight: 700; margin-bottom: 4px; }
+    .inspector-title-group p { font-size: 0.75rem; color: var(--emerald-400); font-family: var(--font-mono); }
+    .panel-close-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; padding: 4px; }
+    .panel-close-btn:hover { color: #ffffff; }
+
+    .inspector-body {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .inspector-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px;
+    }
+
+    .inspector-section h4 {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--emerald-400);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .inspector-section p { font-size: 0.83rem; color: var(--text-muted); line-height: 1.5; }
+
+    .property-grid { display: grid; grid-template-columns: 120px 1fr; gap: 8px 12px; font-size: 0.8rem; }
+    .property-key { color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; }
+    .property-value { color: var(--text-main); word-break: break-all; }
+
+    .source-ref-box {
+      border-left: 3px solid var(--emerald-500);
+      padding: 8px 12px;
+      background: rgba(16, 185, 129, 0.05);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .source-ref-box strong { color: var(--emerald-400); }
+
+    .risk-alert-box {
+      border-left: 3px solid var(--accent-amber);
+      padding: 8px 12px;
+      background: rgba(245, 158, 11, 0.08);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 0.78rem;
+      color: #fde68a;
+    }
+
+    /* ERD Container & SVG */
+    .erd-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      cursor: grab;
+      user-select: none;
+      background: radial-gradient(#15241d 1px, transparent 1px);
+      background-size: 24px 24px;
+      background-color: var(--bg-canvas);
+    }
+    .erd-container:active { cursor: grabbing; }
+
+    .erd-svg-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    .erd-viewport { position: absolute; top: 0; left: 0; transform-origin: 0 0; transition: transform 0.05s ease-out; }
+
+    /* ERD Card */
+    .erd-table-card {
+      position: absolute;
+      width: 290px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    }
+
+    .erd-table-card:hover {
+      border-color: var(--emerald-500);
+      box-shadow: var(--shadow-glow), var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .erd-table-card.selected { border-color: var(--emerald-400); box-shadow: 0 0 0 2px var(--emerald-500), var(--shadow-lg); }
+    .erd-table-card.dimmed { opacity: 0.3; filter: grayscale(0.7); }
+
+    .table-header {
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .table-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .domain-tag { font-size: 0.65rem; padding: 2px 6px; border-radius: var(--radius-full); text-transform: uppercase; font-weight: 600; }
+    .domain-tenancy { background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); }
+    .domain-ingestion { background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); }
+    .domain-canonical { background: rgba(16, 185, 129, 0.15); color: var(--emerald-400); }
+    .domain-quality { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); }
+    .domain-compliance { background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); }
+
+    .table-columns { max-height: 200px; overflow-y: auto; background: var(--bg-card); }
+    .table-col-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 12px;
+      font-size: 0.72rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      font-family: var(--font-mono);
+    }
+    .table-col-row:hover { background: rgba(255, 255, 255, 0.04); }
+
+    .col-name-group { display: flex; align-items: center; gap: 6px; }
+    .key-badge { font-size: 0.6rem; font-weight: 700; padding: 1px 3px; border-radius: 2px; }
+    .key-pk { background: #eab308; color: #000; }
+    .key-fk { background: var(--accent-blue); color: #000; }
+    .col-name { color: var(--text-main); }
+    .col-type { color: var(--text-dim); font-size: 0.68rem; }
+
+    .card-footer-action {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--emerald-400);
+    }
+
+    /* Table Sample Data Explorer View */
+    .erd-data-browser-view {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      background: var(--bg-canvas);
+      padding: 20px;
+      overflow-y: auto;
+      gap: 16px;
+    }
+
+    .erd-data-browser-view.active { display: flex; }
+
+    .table-selector-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .table-pill-btn {
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      background: var(--bg-card);
+      border: 1px solid var(--border-medium);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .table-pill-btn:hover { background: var(--bg-card-hover); color: #fff; }
+    .table-pill-btn.active {
+      background: var(--emerald-600);
+      border-color: var(--emerald-500);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .data-grid-container {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+
+    .data-grid-header {
+      padding: 14px 20px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .data-grid-table-wrap { overflow-x: auto; max-height: calc(100vh - 280px); }
+
+    .raw-data-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; font-family: var(--font-mono); }
+    .raw-data-table th {
+      background: var(--bg-surface);
+      color: var(--emerald-400);
+      font-weight: 700;
+      padding: 10px 14px;
+      border-bottom: 2px solid var(--border-medium);
+      text-align: left;
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .raw-data-table td {
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      white-space: nowrap;
+    }
+    .raw-data-table tr:hover td { background: var(--bg-card-hover); }
+
+    /* Architecture Visual Styles */
+    .arch-grid { display: flex; flex-direction: column; gap: 20px; max-width: 1400px; margin: 0 auto; padding-bottom: 40px; }
+    .arch-layer { background: var(--bg-surface); border: 1px solid var(--border-medium); border-radius: var(--radius-lg); padding: 18px 20px; }
+    .arch-layer-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; }
+    .arch-layer-title { font-size: 0.95rem; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 8px; }
+
+    .arch-nodes-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .arch-node {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .arch-node:hover { border-color: var(--emerald-500); background: var(--bg-card-hover); transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+    .arch-node.future-scope { border-style: dashed; border-color: rgba(56, 189, 248, 0.4); background: rgba(15, 23, 42, 0.4); }
+    .arch-node-top { display: flex; align-items: center; justify-content: space-between; }
+    .arch-node-name { font-size: 0.9rem; font-weight: 700; color: #ffffff; }
+    .arch-node-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+    .arch-node-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .meta-pill { font-size: 0.68rem; padding: 2px 6px; border-radius: 4px; background: var(--bg-surface); color: var(--text-dim); font-family: var(--font-mono); border: 1px solid rgba(255, 255, 255, 0.05); }
+
+    /* Flow Pipeline */
+    .flow-pipeline { display: flex; flex-direction: column; gap: 16px; max-width: 1200px; margin: 0 auto; padding-bottom: 40px; }
+    .flow-step-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: 50px 1fr 280px;
+      gap: 20px;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .flow-step-card:hover { border-color: var(--emerald-500); box-shadow: var(--shadow-glow); transform: translateX(4px); }
+    .flow-number {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-full);
+      background: var(--bg-card);
+      border: 2px solid var(--emerald-600);
+      color: var(--emerald-400);
+      font-weight: 700;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+    }
+    .flow-info h4 { font-size: 1rem; font-weight: 700; color: #ffffff; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .flow-info p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; }
+    .flow-governance-box { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 0.74rem; }
+    .flow-governance-box .gov-title { color: var(--emerald-400); font-weight: 600; text-transform: uppercase; font-size: 0.68rem; margin-bottom: 4px; }
+
+    /* Risks Grid */
+    .risks-container { max-width: 1300px; margin: 0 auto; padding-bottom: 40px; }
+    .filter-bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-chip {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-medium);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-chip.active, .filter-chip:hover { background: var(--emerald-600); border-color: var(--emerald-500); color: #ffffff; }
+
+    .risk-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
+    .risk-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .risk-card:hover { border-color: var(--emerald-500); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .risk-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .risk-card-title { font-size: 0.95rem; font-weight: 700; color: #ffffff; line-height: 1.3; }
+    .risk-severity { font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-full); text-transform: uppercase; white-space: nowrap; }
+    .sev-critical { background: rgba(244, 63, 94, 0.2); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4); }
+    .sev-high { background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .sev-medium { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.4); }
+    .risk-body { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+    .risk-mitigation { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 0.78rem; color: var(--emerald-100); }
+    .risk-mitigation strong { color: var(--emerald-400); display: block; margin-bottom: 2px; font-size: 0.72rem; text-transform: uppercase; }
+
+    /* Roadmap & Decisions */
+    .roadmap-wrapper { max-width: 1300px; margin: 0 auto; padding-bottom: 40px; display: flex; flex-direction: column; gap: 32px; }
+    .phases-track { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+    .phase-card { background: var(--bg-surface); border: 1px solid var(--border-medium); border-radius: var(--radius-lg); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+    .phase-card.active-phase { border-color: var(--emerald-500); box-shadow: var(--shadow-glow); }
+    .phase-tag { font-size: 0.7rem; font-weight: 700; color: var(--emerald-400); text-transform: uppercase; font-family: var(--font-mono); }
+    .phase-title { font-size: 0.95rem; font-weight: 700; color: #ffffff; }
+    .phase-items { list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 0.78rem; color: var(--text-muted); }
+    .phase-items li { display: flex; align-items: flex-start; gap: 6px; }
+    .phase-items li::before { content: "•"; color: var(--emerald-500); font-weight: bold; }
+
+    .decisions-table-container { background: var(--bg-surface); border: 1px solid var(--border-medium); border-radius: var(--radius-lg); overflow: hidden; }
+    .section-heading { padding: 16px 20px; background: var(--bg-card); border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; }
+    .section-heading h3 { font-size: 1rem; color: #ffffff; font-weight: 700; }
+    .decisions-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; text-align: left; }
+    .decisions-table th { background: var(--bg-surface); color: var(--text-dim); font-weight: 600; padding: 10px 16px; border-bottom: 1px solid var(--border-subtle); font-size: 0.72rem; text-transform: uppercase; }
+    .decisions-table td { padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); color: var(--text-main); vertical-align: top; }
+    .decisions-table tr:hover td { background: var(--bg-card-hover); }
+
+    .dict-table-container { background: var(--bg-surface); border: 1px solid var(--border-medium); border-radius: var(--radius-lg); overflow: hidden; max-width: 1400px; margin: 0 auto; }
+    .dict-search-bar { padding: 12px 20px; background: var(--bg-card); border-bottom: 1px solid var(--border-subtle); display: flex; gap: 12px; align-items: center; }
+    .dict-search-bar input { flex: 1; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); color: #ffffff; padding: 8px 14px; font-size: 0.85rem; }
+
+    @media (max-width: 1024px) {
+      .main-content { flex-direction: column; }
+      .inspector-panel { width: 100%; height: 380px; border-left: none; border-top: 1px solid var(--border-subtle); }
+      .flow-step-card { grid-template-columns: 44px 1fr; }
+      .flow-governance-box { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="header-top">
+      <div class="brand-group">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 9l10 13 10-13-10-7zm0 3.3L19.2 10 12 19.3 4.8 10 12 5.3z"/></svg>
+        </div>
+        <div>
+          <div class="brand-title">
+            MONKSPACES
+            <span class="badge badge-draft">100% Document-Verified Baseline</span>
+          </div>
+          <div class="brand-subtitle">Shared Product & Packaging Data Platform · Multi-Tenant EPR & Canonical Foundation</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <span class="badge badge-prototype">Prototype Status: In-Memory Seed Active</span>
+        <button class="btn" id="btn-toggle-inspector" title="Toggle Inspector Panel">
+          <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm14 1a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V3z"/></svg>
+          Inspector
+        </button>
+        <button class="btn btn-primary" id="btn-fullscreen" title="Full Screen Presentation Mode">
+          <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0v-4A1.5 1.5 0 0 1 1.5 0h4a.5.5 0 0 1 0 1h-4zM10 .5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 16 1.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5zM.5 10a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 0 14.5v-4a.5.5 0 0 1 .5-.5zm15 0a.5.5 0 0 1 .5.5v4a1.5 1.5 0 0 1-1.5 1.5h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5z"/></svg>
+          Full Screen
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <div class="nav-tab active" data-tab="tab-architecture">
+        <svg width="15" height="15" fill="currentColor" viewBox="0 0 16 16"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zm8 0A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm-8 8A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm8 0A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3z"/></svg>
+        1. System Architecture
+        <span class="tab-badge">Modular Monolith</span>
+      </div>
+      <div class="nav-tab" data-tab="tab-erd">
+        <svg width="15" height="15" fill="currentColor" viewBox="0 0 16 16"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm1 2v2h14V4H1zm0 3v2h14V7H1zm0 3v2h14v-2H1zm0 3v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1H1z"/></svg>
+        2. Database ERD & Sample Data
+        <span class="tab-badge">17 Tables + Live Records</span>
+      </div>
+      <div class="nav-tab" data-tab="tab-flow">
+        <svg width="15" height="15" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/></svg>
+        3. End-to-End Data Flow
+        <span class="tab-badge">10 Stages</span>
+      </div>
+      <div class="nav-tab" data-tab="tab-risks">
+        <svg width="15" height="15" fill="currentColor" viewBox="0 0 16 16"><path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.146.146 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.163.163 0 0 1-.054.06.116.116 0 0 1-.066.017H1.146a.115.115 0 0 1-.066-.017.163.163 0 0 1-.054-.06.176.176 0 0 1 .002-.183L7.884 2.073a.147.147 0 0 1 .054-.057zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z"/><path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z"/></svg>
+        4. Architecture & Data Risks
+        <span class="tab-badge">9 Key Findings</span>
+      </div>
+      <div class="nav-tab" data-tab="tab-roadmap">
+        <svg width="15" height="15" fill="currentColor" viewBox="0 0 16 16"><path d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857V3.857z"/></svg>
+        5. Roadmap & Decisions
+        <span class="tab-badge">Phases 1-5 · D-001–008</span>
+      </div>
+      <div class="nav-tab" data-tab="tab-dict">
+        <svg width="15" height="15" fill="currentColor" viewBox="0 0 16 16"><path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/><path d="M3 5.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM3 8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 8zm0 2.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5z"/></svg>
+        6. Canonical Data Points (DP01–DP45)
+        <span class="tab-badge">45 Rules</span>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main View Area + Side Panel -->
+  <main class="main-content">
+
+    <!-- =========================================================================
+         TAB 1: SYSTEM ARCHITECTURE DIAGRAM
+         ========================================================================= -->
+    <section class="tab-view active" id="tab-architecture">
+      <div class="truth-banner">
+        <div class="truth-banner-text">
+          <strong>100% Sourced from Official Workspace Documents</strong>
+          <p>Every layer, API route, and data store matches <code>docs/ARCHITECTURE.md</code>, <code>docs/DATABASE_SCHEMA_PLAN.md</code>, and <code>docs/DECISIONS.md</code>. No requirements were invented.</p>
+        </div>
+        <button class="btn btn-primary" onclick="switchToTab('tab-erd')">Jump to ERD & Data &rarr;</button>
+      </div>
+
+      <div class="arch-grid">
+        <!-- Layer 0: Presentation & Client Application -->
+        <div class="arch-layer">
+          <div class="arch-layer-header">
+            <div class="arch-layer-title">
+              <span class="badge badge-prototype">CLIENT LAYER</span>
+              Angular 17+ Standalone Web Application
+            </div>
+            <span class="meta-pill">Monkspaces Consultants & Client Tenant Portals</span>
+          </div>
+          <div class="arch-nodes-row">
+            <div class="arch-node" data-node="node-fe-tenant">
+              <div class="arch-node-top">
+                <span class="arch-node-name">Tenant & Workspace Selector</span>
+                <span class="badge badge-prototype">Prototype</span>
+              </div>
+              <p class="arch-node-desc">Client context switcher (KHC Europe, Northfield Foods), consultant access assignment enforcement, and tenant branding.</p>
+              <div class="arch-node-meta">
+                <span class="meta-pill">app.html</span>
+                <span class="meta-pill">Signal State</span>
+              </div>
+            </div>
+
+            <div class="arch-node" data-node="node-fe-bom">
+              <div class="arch-node-top">
+                <span class="arch-node-name">Packaging Tree & BOM Explorer</span>
+                <span class="badge badge-draft">Draft Mockup</span>
+              </div>
+              <p class="arch-node-desc">Visual 3-level packaging hierarchy (Primary, Secondary, Tertiary), multi-layer component split percentages, and RAM RAG indicators.</p>
+              <div class="arch-node-meta">
+                <span class="meta-pill">Screen 5 Mockup</span>
+                <span class="meta-pill">DP03–DP09</span>
+              </div>
+            </div>
+
+            <div class="arch-node" data-node="node-fe-mapping">
+              <div class="arch-node-top">
+                <span class="arch-node-name">Column Mapping Wizard</span>
+                <span class="badge badge-draft">Draft Mockup</span>
+              </div>
+              <p class="arch-node-desc">Upload staging preview, AI confidence scoring (e.g. 92%), unit transformation rules (kg -> g), and user approval triggers.</p>
+              <div class="arch-node-meta">
+                <span class="meta-pill">Screen 8 Mockup</span>
+                <span class="meta-pill">mapping_templates</span>
+              </div>
+            </div>
+
+            <div class="arch-node" data-node="node-fe-epr">
+              <div class="arch-node-top">
+                <span class="arch-node-name">EPR Calculation & Hotspots</span>
+                <span class="badge badge-prototype">Prototype</span>
+              </div>
+              <p class="arch-node-desc">Fee liability breakdowns, RAM Red/Amber multipliers, what-if scenario simulations, and Defra RPD CSV export generation.</p>
+              <div class="arch-node-meta">
+                <span class="meta-pill">Screen 15 & 17</span>
+                <span class="meta-pill">HOTSPOT API</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Layer 1: Identity & Ingestion Gateway -->
+        <div class="arch-layer">
+          <div class="arch-layer-header">
+            <div class="arch-layer-title">
+              <span class="badge badge-draft">GATEWAY & INGESTION</span>
+              Security, OIDC Identity & File Ingestion Services
+            </div>
+            <span class="meta-pill">Stateless Auth & Async Batch Ingestion</span>
+          </div>
+          <div class="arch-nodes-row">
+            <div class="arch-node" data-node="node-oidc">
+              <div class="arch-node-top">
+                <span class="arch-node-name">OIDC Identity Provider</span>
+                <span class="badge badge-draft">Proposed D-006</span>
+              </div>
+              <p class="arch-node-desc">Enterprise SSO (Monkspaces IDP or client Okta/Azure AD), JWT token issuance with tenant claims, and Role-Based Access Control.</p>
+              <div class="arch-node-meta">
+                <span class="meta-pill">OAuth 2.0 / OIDC</span>
+                <span class="meta-pill">Consultant Scoping</span>
+              </div>
+            </div>
+
+            <div class="arch-node" data-node="node-s3">
+              <div class="arch-node-top">
+                <span class="arch-node-name">Private Object Storage</span>
+                <span class="badge badge-draft">Proposed D-006</span>
+              </div>
+              <p class="arch-node-desc">S3-compatible / Azure Blob storage for raw uploaded client spreadsheets, supplier PCR certificates, test lab evidence, and audit reports.</p>
+              <div class="arch-node-meta">
+                <span class="meta-pill">Tenant Isolated Paths</span>
+                <span class="meta-pill">Immutable Retention</span>
+              </div>
+            </div>
+
+            <div class="arch-node" data-node="node-workers">
+              <div class="arch-node-top">
+                <span class="arch-node-name">Async Background Workers</span>
+                <span class="badge badge-draft">Proposed</span>
+              </div>
+              <p class="arch-node-desc">Celery/RQ or background queue for processing large Excel files (100k+ rows), running bulk validation rules, and snapshot calculations.</p>
+              <div class="arch-node-meta">
+                <span class="meta-pill">Batch Worker</span>
+                <span class="meta-pill">Tenant Scoped Tasks</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Layer 2: Core Modular Monolith API -->
+        <div class="arch-layer">
+          <div class="arch-layer-header">
+            <div class="arch-layer-title">
+              <span class="badge badge-prototype">MODULAR MONOLITH BACKEND</span>
+              Python FastAPI Core Engine
+            </div>
+            <span class="meta-pill">FastAPI · Pydantic v2 · Domain Services</span>
+          </div>
+          <div class="arch-nodes-row">
+            <div class="arch-node" data-node="node-mod-foundation">
+              <div class="arch-node-top">
+                <span class="arch-node-name">Layer 1: Canonical Foundation</span>
+                <span class="badge badge-prototype">Active Prototype</span>
+              </div>
+              <p class="arch-node-desc">Governs master products, BOM packaging components, material splits, suppliers, and sales placed on market across all compliance targets.</p>
+              <div class="arch-node-meta">
+                <span class="meta-pill">/api/v1/foundation</span>
+                <span class="meta-pill">DP01–DP25</span>
+              </div>
+            </div>
+
+            <div class="arch-node" data-node="node-mod-quality">
+              <div class="arch-node-top">
+                <span class="arch-node-name">Layer 2: Data Quality & Gaps</span>
+                <span class="badge badge-prototype">Active Prototype</span>
+              </div>
+              <p class="arch-node-desc">Evaluates records against country requirements, calculates financial exposure (€ at risk), generates correction tickets for source systems.</p>
+              <div class="arch-node-meta">
+                <span class="meta-pill">/api/v1/quality</span>
+                <span class="meta-pill">€ Risk Engine</span>
+              </div>
+            </div>
+
+            <div class="arch-node" data-node="node-mod-epr">
+              <div class="arch-node-top">
+                <span class="arch-node-name">Layer 3: EPR Compliance Module</span>
+                <span class="badge badge-prototype">Active Prototype</span>
+              </div>
+              <p class="arch-node-desc">Initial priority compliance module: tariffs, RAM RAG modulation multipliers, tonnage aggregation, reproducible calculation runs.</p>
+              <div class="arch-node-meta">
+                <span class="meta-pill">/api/v1/compliance/epr</span>
+                <span class="meta-pill">UK Defra + CITEO</span>
+              </div>
+            </div>
+
+            <div class="arch-node future-scope" data-node="node-mod-ppwr">
+              <div class="arch-node-top">
+                <span class="arch-node-name">Future Module: EU PPWR</span>
+                <span class="badge badge-future">Future Scope</span>
+              </div>
+              <p class="arch-node-desc">Packaging and Packaging Waste Regulation: empty space ratio (<40%), minimisation dossier, heavy metals declarations, Declaration of Conformity (DoC).</p>
+              <div class="arch-node-meta">
+                <span class="meta-pill">Phase 5 Target</span>
+                <span class="meta-pill">DP16–DP21</span>
+              </div>
+            </div>
+
+            <div class="arch-node future-scope" data-node="node-mod-dpp">
+              <div class="arch-node-top">
+                <span class="arch-node-name">Future Module: Digital Product Passport</span>
+                <span class="badge badge-future">Future Scope</span>
+              </div>
+              <p class="arch-node-desc">Public/B2B consumer passport, QR code resolution, material recyclability metadata, and circularity claims verification.</p>
+              <div class="arch-node-meta">
+                <span class="meta-pill">Phase 5 Target</span>
+                <span class="meta-pill">DP40 Carrier</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Layer 3: Persistence Layer -->
+        <div class="arch-layer">
+          <div class="arch-layer-header">
+            <div class="arch-layer-title">
+              <span class="badge badge-draft">DATA PERSISTENCE</span>
+              PostgreSQL Enterprise Database
+            </div>
+            <span class="meta-pill">Relational Core + Hybrid JSONB · Row-Level Security (RLS)</span>
+          </div>
+          <div class="arch-nodes-row">
+            <div class="arch-node" data-node="node-db-relational">
+              <div class="arch-node-top">
+                <span class="arch-node-name">Relational Core Tables (17 Tables)</span>
+                <span class="badge badge-draft">Draft Schema Plan</span>
+              </div>
+              <p class="arch-node-desc">Strongly typed business entities (tenants, products, packaging components, fee line items) ensuring foreign key integrity and fast indexing.</p>
+              <div class="arch-node-meta">
+                <span class="meta-pill">PostgreSQL 15+</span>
+                <span class="meta-pill">docs/DATABASE_SCHEMA_PLAN.md</span>
+              </div>
+            </div>
+
+            <div class="arch-node" data-node="node-db-jsonb">
+              <div class="arch-node-top">
+                <span class="arch-node-name">Lossless JSONB Extensions</span>
+                <span class="badge badge-draft">Draft Schema Plan</span>
+              </div>
+              <p class="arch-node-desc">Preserves external ERP custom fields (SAP MARA attributes, raw unmapped columns) with GIN indexing without altering strict relational schema.</p>
+              <div class="arch-node-meta">
+                <span class="meta-pill">source_metadata</span>
+                <span class="meta-pill">raw_staged_records</span>
+              </div>
+            </div>
+
+            <div class="arch-node" data-node="node-db-rls">
+              <div class="arch-node-top">
+                <span class="arch-node-name">Tenant Row-Level Security (RLS)</span>
+                <span class="badge badge-draft">Proposed Defence-in-Depth</span>
+              </div>
+              <p class="arch-node-desc">PostgreSQL RLS policies enforcing tenant_id scoping at the database engine level, guaranteeing cross-tenant isolation even in query errors.</p>
+              <div class="arch-node-meta">
+                <span class="meta-pill">CREATE POLICY</span>
+                <span class="meta-pill">SECURITY_AND_TENANCY.md</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         TAB 2: DATABASE ER DIAGRAM & SAMPLE DATA BROWSER
+         ========================================================================= -->
+    <section class="tab-view canvas-view" id="tab-erd">
+      <!-- Toolbar with Mode Switcher -->
+      <div class="canvas-toolbar">
+        <button class="tool-btn active-mode" id="btn-mode-diagram">
+          <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zm8 0A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm-8 8A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm8 0A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3z"/></svg>
+          Visual Diagram
+        </button>
+        <button class="tool-btn" id="btn-mode-data">
+          <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm1 2v2h14V4H1zm0 3v2h14V7H1zm0 3v2h14v-2H1zm0 3v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1H1z"/></svg>
+          Sample Data Explorer
+        </button>
+        <span style="border-left: 1px solid var(--border-subtle); height: 18px; margin: 0 4px;"></span>
+        <input type="text" id="erd-search" placeholder="Search table or column...">
+        <button class="tool-btn" id="btn-zoom-in" title="Zoom In">+</button>
+        <button class="tool-btn" id="btn-zoom-out" title="Zoom Out">−</button>
+        <button class="tool-btn" id="btn-zoom-reset" title="Reset (100%)">1:1</button>
+        <button class="tool-btn" id="btn-zoom-fit" title="Fit to Screen">⛶ Fit</button>
+      </div>
+
+      <!-- Legend -->
+      <div class="canvas-legend" id="erd-legend-box">
+        <div class="legend-title">
+          <span>ERD Schema Legend</span>
+          <span style="font-size: 0.7rem; color: var(--emerald-400);">17 DDL Entities</span>
+        </div>
+        <div class="legend-item"><span class="legend-chip domain-tenancy"></span> Domain 1: Tenancy & Integrations</div>
+        <div class="legend-item"><span class="legend-chip domain-ingestion"></span> Domain 2: Ingestion & Mapping</div>
+        <div class="legend-item"><span class="legend-chip domain-canonical"></span> Domain 3: Canonical Foundation (L1)</div>
+        <div class="legend-item"><span class="legend-chip domain-quality"></span> Domain 4: Quality & Gaps (L2)</div>
+        <div class="legend-item"><span class="legend-chip domain-compliance"></span> Domain 5: EPR & Defra Exports (L3)</div>
+        <div style="font-size: 0.68rem; color: var(--text-dim); margin-top: 4px; border-top: 1px solid var(--border-subtle); padding-top: 4px;">
+          Lines show 1:N foreign keys. Click table to highlight & view sample data.
+        </div>
+      </div>
+
+      <!-- View A: Interactive Canvas -->
+      <div class="erd-container" id="erd-container">
+        <div class="erd-viewport" id="erd-viewport">
+          <svg class="erd-svg-layer" id="erd-svg-lines" width="4200" height="2400"></svg>
+          <div id="erd-tables-layer"></div>
+        </div>
+      </div>
+
+      <!-- View B: Sample Data Browser View -->
+      <div class="erd-data-browser-view" id="erd-data-browser">
+        <div class="truth-banner" style="margin-bottom: 0;">
+          <div class="truth-banner-text">
+            <strong>Prototype Data Store Records (Kraft Heinz & Northfield Foods)</strong>
+            <p>Direct view of sample records as configured in <code>backend/app/services/store.py</code> and UK Defra submission format. Select any table below:</p>
+          </div>
+        </div>
+
+        <div class="table-selector-bar" id="table-selector-bar">
+          <!-- Injected via JavaScript -->
+        </div>
+
+        <div class="data-grid-container">
+          <div class="data-grid-header">
+            <div>
+              <h3 id="current-data-table-name" style="font-size:1rem; color:#fff; font-family:var(--font-mono);">tenants</h3>
+              <p id="current-data-table-desc" style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Showing sample data records for this entity</p>
+            </div>
+            <span class="badge badge-prototype" id="current-data-table-count">2 Records</span>
+          </div>
+          <div class="data-grid-table-wrap">
+            <table class="raw-data-table" id="raw-data-table">
+              <thead id="raw-data-thead"></thead>
+              <tbody id="raw-data-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         TAB 3: END-TO-END DATA FLOW
+         ========================================================================= -->
+    <section class="tab-view" id="tab-flow">
+      <div class="flow-pipeline">
+        <div class="risk-alert-box" style="margin-bottom: 12px; border-left-color: var(--emerald-500); background: rgba(16, 185, 129, 0.08); color: var(--text-main);">
+          <strong style="color: var(--emerald-400);">Core Architecture Principle: Read-Only Source Systems</strong><br>
+          Monkspaces does NOT perform direct write-back into client ERP (SAP S/4HANA) or PLM (Trace One Devex). Data quality gaps generate <strong>Source Correction Tickets</strong>. Corrections must be approved and applied in the client's authoritative source system before initiating a clean re-import.
+        </div>
+
+        <!-- Stage 1 -->
+        <div class="flow-step-card" data-step="1">
+          <div class="flow-number">01</div>
+          <div class="flow-info">
+            <h4>Source File & Export Collection <span class="badge badge-prototype">Read-Only</span></h4>
+            <p>Product masters, BOM packaging specifications, material composition sheets, and market sales volumes are collected via Excel/CSV uploads or read-only staging connectors.</p>
+          </div>
+          <div class="flow-governance-box">
+            <div class="gov-title">Lineage & Evidence</div>
+            Original file hash (SHA-256) recorded. Stored in tenant-scoped private object storage under immutable retention policy.
+          </div>
+        </div>
+
+        <!-- Stage 2 -->
+        <div class="flow-step-card" data-step="2">
+          <div class="flow-number">02</div>
+          <div class="flow-info">
+            <h4>Batch Ingestion & File Health Checks <span class="badge badge-draft">Staging</span></h4>
+            <p>Upload files are parsed; header structures and encoding are verified. Batch record created in <code>ingestion_batches</code> with row counts and uploader metadata.</p>
+          </div>
+          <div class="flow-governance-box">
+            <div class="gov-title">Audit Checkpoint</div>
+            Unmapped raw records preserved in <code>raw_staged_records</code> (JSONB) to guarantee zero data loss.
+          </div>
+        </div>
+
+        <!-- Stage 3 -->
+        <div class="flow-step-card" data-step="3">
+          <div class="flow-number">03</div>
+          <div class="flow-info">
+            <h4>Column Mapping & Unit Normalization <span class="badge badge-draft">Human-in-the-Loop</span></h4>
+            <p>Source columns mapped to canonical Data Points (DP01–DP45) using reusable <code>mapping_templates</code>. AI suggests mappings with confidence score; unit transformation converts (e.g. kg to g).</p>
+          </div>
+          <div class="flow-governance-box">
+            <div class="gov-title">Governance Gate</div>
+            Requires user confirmation for low-confidence fields. Mapping template versioned for future supplier feeds.
+          </div>
+        </div>
+
+        <!-- Stage 4 -->
+        <div class="flow-step-card" data-step="4">
+          <div class="flow-number">04</div>
+          <div class="flow-info">
+            <h4>Shared Canonical Data Foundation <span class="badge badge-prototype">Layer 1</span></h4>
+            <p>Normalized entities populated into <code>products</code>, <code>packaging_components</code> (BOM tree), <code>component_materials_split</code>, and <code>sales_placed_on_market</code>.</p>
+          </div>
+          <div class="flow-governance-box">
+            <div class="gov-title">Single Source of Truth</div>
+            Reusable across EPR, future PPWR, and DPP modules. No regulatory fee rules are baked into canonical tables.
+          </div>
+        </div>
+
+        <!-- Stage 5 -->
+        <div class="flow-step-card" data-step="5">
+          <div class="flow-number">05</div>
+          <div class="flow-info">
+            <h4>Data-Quality Engine & Gap Resolution <span class="badge badge-prototype">Layer 2</span></h4>
+            <p>Evaluates canonical data against jurisdiction rules matrix (<code>compliance_data_point_rules</code>). Flags missing weights, unverified PCR %, and material ambiguity.</p>
+          </div>
+          <div class="flow-governance-box">
+            <div class="gov-title">Financial Impact Ranking</div>
+            Issues ranked by € money-at-risk. Classifies into BLOCKERS (prevents submission) vs WARNINGS (uncertainty margin).
+          </div>
+        </div>
+
+        <!-- Stage 6 -->
+        <div class="flow-step-card" data-step="6">
+          <div class="flow-number">06</div>
+          <div class="flow-info">
+            <h4>Source Correction & Re-Import Loop <span class="badge badge-draft">Workflow</span></h4>
+            <p>Issues generate <code>source_correction_tickets</code> (e.g. Devex spec 12.0g != supplier 10.5g). Correction approved and routed to client ERP/PLM team. Re-import updates foundation cleanly.</p>
+          </div>
+          <div class="flow-governance-box">
+            <div class="gov-title">Traceability</div>
+            Before/after values, actor, timestamp, reason, and supplier evidence reference preserved for audit.
+          </div>
+        </div>
+
+        <!-- Stage 7 -->
+        <div class="flow-step-card" data-step="7">
+          <div class="flow-number">07</div>
+          <div class="flow-info">
+            <h4>Four-Eyes Review & Locked Baseline <span class="badge badge-draft">Snapshot</span></h4>
+            <p>Consultant and client reviewer conduct four-eyes signoff. Data frozen into immutable <code>locked_snapshots</code> with completeness % and fee uncertainty amount.</p>
+          </div>
+          <div class="flow-governance-box">
+            <div class="gov-title">Immutability Principle</div>
+            Subsequent product changes or ERP updates will never retroactively modify a locked compliance period.
+          </div>
+        </div>
+
+        <!-- Stage 8 -->
+        <div class="flow-step-card" data-step="8">
+          <div class="flow-number">08</div>
+          <div class="flow-info">
+            <h4>EPR Regulatory Fee Calculation <span class="badge badge-prototype">Layer 3</span></h4>
+            <p>Reads locked snapshot; applies versioned jurisdiction tariffs (e.g. UK PackUK illustrative 2026/27) and RAM RAG modulation multipliers (e.g. 1.2x Red malus).</p>
+          </div>
+          <div class="flow-governance-box">
+            <div class="gov-title">Line-Item Traceability</div>
+            Formula preserved per row: <code>Units x Weight = Tonnage x Base Tariff x Multiplier = Line Fee</code>.
+          </div>
+        </div>
+
+        <!-- Stage 9 -->
+        <div class="flow-step-card" data-step="9">
+          <div class="flow-number">09</div>
+          <div class="flow-info">
+            <h4>Regulatory Submission Export <span class="badge badge-prototype">Output</span></h4>
+            <p>Generates official government-ready submission files: UK Defra RPD CSV (LP submission format), France Citeo declaration, and fee reconciliation summaries.</p>
+          </div>
+          <div class="flow-governance-box">
+            <div class="gov-title">Schema Compliance</div>
+            Aggregated into packaging activities (SO, PF, IM), packaging types (HH, NH), classes (P1, P3), and materials.
+          </div>
+        </div>
+
+        <!-- Stage 10 -->
+        <div class="flow-step-card" data-step="10">
+          <div class="flow-number">10</div>
+          <div class="flow-info">
+            <h4>Future Module Re-use (PPWR & DPP) <span class="badge badge-future">Expansion</span></h4>
+            <p>The clean, verified canonical data foundation is reused by PPWR (headspace ratio, chemical safety, DoC) and Digital Product Passport modules without duplicate ingestion.</p>
+          </div>
+          <div class="flow-governance-box">
+            <div class="gov-title">Platform Vision</div>
+            Multi-regulation reuse from a single validated corporate packaging data foundation.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         TAB 4: DATA MODEL & ARCHITECTURE RISKS
+         ========================================================================= -->
+    <section class="tab-view" id="tab-risks">
+      <div class="risks-container">
+        <div class="filter-bar">
+          <div class="filter-chip active" data-filter="all">All Considerations (9)</div>
+          <div class="filter-chip" data-filter="security">Tenant Isolation & Security</div>
+          <div class="filter-chip" data-filter="data">Data Integrity & Lineage</div>
+          <div class="filter-chip" data-filter="regulatory">Compliance & Calculations</div>
+          <div class="filter-chip" data-filter="architecture">Architecture & Schemas</div>
+        </div>
+
+        <div class="risk-cards-grid">
+          <!-- Risk 1 -->
+          <div class="risk-card" data-category="security">
+            <div class="risk-card-header">
+              <span class="risk-card-title">1. Multi-Tenant Isolation Across All Tiers</span>
+              <span class="risk-severity sev-critical">CRITICAL</span>
+            </div>
+            <p class="risk-body">Monkspaces consultants manage multiple client workspaces (e.g. Kraft Heinz and competitors). A single missing tenant filter in an API, query, search index, or export could leak proprietary packaging formulas or commercial sales volumes.</p>
+            <div class="risk-mitigation">
+              <strong>Architecture Review Finding</strong>
+              Enforce <code>tenant_id</code> scoping at route dependency, ORM query, and private S3 bucket paths. Implement PostgreSQL Row-Level Security (RLS) as mandatory defense-in-depth. Frontend filtering alone is unacceptable.
+            </div>
+          </div>
+
+          <!-- Risk 2 -->
+          <div class="risk-card" data-category="data">
+            <div class="risk-card-header">
+              <span class="risk-card-title">2. Unknown Values Must Never Silently Default to Zero</span>
+              <span class="risk-severity sev-critical">CRITICAL</span>
+            </div>
+            <p class="risk-body">If an empty packaging component weight is missing in PLM, treating it as <code>0.0 grams</code> would result in an illegal underpayment of national EPR fees to Defra / Citeo. Similarly, assuming unverified PCR % is 30% creates plastic tax fraud risk.</p>
+            <div class="risk-mitigation">
+              <strong>Architecture Review Finding</strong>
+              Keep columns nullable (<code>weight_grams NUMERIC NULL</code>). Null weights trigger a BLOCKER in the data-quality engine and flag the fee uncertainty band rather than defaulting to zero.
+            </div>
+          </div>
+
+          <!-- Risk 3 -->
+          <div class="risk-card" data-category="data">
+            <div class="risk-card-header">
+              <span class="risk-card-title">3. Field-Level Source Lineage & Evidence Traceability</span>
+              <span class="risk-severity sev-high">HIGH</span>
+            </div>
+            <p class="risk-body">Regulatory audits by environmental agencies (Defra, Ademe) require proving the empirical origin of every recycled content percentage and weight measurement.</p>
+            <div class="risk-mitigation">
+              <strong>Architecture Review Finding</strong>
+              Link components to <code>evidence_document_id</code> (supplier test certs, ISO declarations) and preserve the originating batch ID, row number, and source system in <code>packaging_components</code> and calculation traces.
+            </div>
+          </div>
+
+          <!-- Risk 4 -->
+          <div class="risk-card" data-category="architecture">
+            <div class="risk-card-header">
+              <span class="risk-card-title">4. Specification & BOM Versioning Drift</span>
+              <span class="risk-severity sev-high">HIGH</span>
+            </div>
+            <p class="risk-body">Packaging designs evolve (e.g. lightweighting a ketchup bottle from 24g to 22g). If the platform directly calculates fees from live mutable product records, historical 2025 filings will be corrupted by 2026 design changes.</p>
+            <div class="risk-mitigation">
+              <strong>Architecture Review Finding</strong>
+              Implement <code>locked_snapshots</code>. Compliance calculation runs link strictly to immutable snapshot IDs, freezing the exact BOM state and sales volume used during regulatory filing.
+            </div>
+          </div>
+
+          <!-- Risk 5 -->
+          <div class="risk-card" data-category="data">
+            <div class="risk-card-header">
+              <span class="risk-card-title">5. Controlled Material Taxonomy & Composite Splits</span>
+              <span class="risk-severity sev-high">HIGH</span>
+            </div>
+            <p class="risk-body">Multi-material packaging (e.g. retort pouch with PET outer, Aluminium barrier, PP sealant) cannot be represented by a single "plastic" field without failing eco-modulation rules.</p>
+            <div class="risk-mitigation">
+              <strong>Architecture Review Finding</strong>
+              Utilize <code>component_materials_split</code> relational table to model exact layer percentages (e.g. 45% PET / 15% Alu / 40% PP). Enforce standard polymer taxonomy (DP07: PET, HDPE, PP, LDPE).
+            </div>
+          </div>
+
+          <!-- Risk 6 -->
+          <div class="risk-card" data-category="architecture">
+            <div class="risk-card-header">
+              <span class="risk-card-title">6. Mapping Template Governance & AI Confirmation</span>
+              <span class="risk-severity sev-medium">MEDIUM</span>
+            </div>
+            <p class="risk-body">Supplier spreadsheets frequently change column names (e.g. 'Wt (g)' vs 'Weight_kg'). Auto-applying AI column mappings without human confirmation can cause massive scale errors (1000x difference between kg and grams).</p>
+            <div class="risk-mitigation">
+              <strong>Architecture Review Finding</strong>
+              Store <code>confidence_score</code> and <code>is_user_confirmed</code> in <code>mapping_template_fields</code>. Require explicit user signoff whenever unit conversion (KG_TO_GRAMS) is inferred.
+            </div>
+          </div>
+
+          <!-- Risk 7 -->
+          <div class="risk-card" data-category="regulatory">
+            <div class="risk-card-header">
+              <span class="risk-card-title">7. Versioned Regulatory Tariffs & Multipliers</span>
+              <span class="risk-severity sev-high">HIGH</span>
+            </div>
+            <p class="risk-body">EPR fee schedules (e.g. UK PackUK illustrative rates, RAM guidance) change annually. Hardcoding tariffs into backend calculation logic prevents reproducing prior year filings.</p>
+            <div class="risk-mitigation">
+              <strong>Architecture Review Finding</strong>
+              Store tariff schedules in <code>jurisdiction_rule_sets</code> with effective date ranges and versions (e.g. 'PackUK 2026/27 · RAM v1.1'). Each calculation run records the exact rule version applied.
+            </div>
+          </div>
+
+          <!-- Risk 8 -->
+          <div class="risk-card" data-category="data">
+            <div class="risk-card-header">
+              <span class="risk-card-title">8. Data Quality Lifecycle vs Compliance Status</span>
+              <span class="risk-severity sev-medium">MEDIUM</span>
+            </div>
+            <p class="risk-body">A record can be 100% complete (no missing fields) but legally non-compliant (e.g. contains banned PFAS or non-recyclable carbon black pigment). Conflating quality and compliance creates user confusion.</p>
+            <div class="risk-mitigation">
+              <strong>Architecture Review Finding</strong>
+              Maintain separation: Layer 2 manages data completeness & consistency; Layer 3 evaluates regulatory legality and fee liability.
+            </div>
+          </div>
+
+          <!-- Risk 9 -->
+          <div class="risk-card" data-category="architecture">
+            <div class="risk-card-header">
+              <span class="risk-card-title">9. Permissive Staging vs Strict Relational Core</span>
+              <span class="risk-severity sev-medium">MEDIUM</span>
+            </div>
+            <p class="risk-body">Strict database foreign keys on raw file upload will cause entire 50,000-row client spreadsheets to fail if one supplier code is unrecognised, frustrating enterprise users.</p>
+            <div class="risk-mitigation">
+              <strong>Architecture Review Finding</strong>
+              Use a two-tier database strategy: Staging tier stores raw records in JSONB with loose constraints; canonical tier enforces strict relational foreign keys after mapping and validation.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         TAB 5: ROADMAP & UNRESOLVED DECISIONS
+         ========================================================================= -->
+    <section class="tab-view" id="tab-roadmap">
+      <div class="roadmap-wrapper">
+        <div>
+          <h3 style="font-size: 1.1rem; color: #fff; margin-bottom: 14px;">5-Phase Implementation Strategy</h3>
+          <div class="phases-track">
+            <div class="phase-card active-phase">
+              <div class="phase-tag">Phase 1 · In Review</div>
+              <div class="phase-title">Jurisdiction & Workflow Baseline</div>
+              <ul class="phase-items">
+                <li>Confirm first EPR jurisdiction (UK Defra RPD selected for initial vertical slice).</li>
+                <li>Establish reporting period calendar (2025-H1/H2).</li>
+                <li>Finalize consultant vs client RBAC permissions.</li>
+                <li>Confirm hosting, OIDC identity, and residency.</li>
+              </ul>
+            </div>
+
+            <div class="phase-card">
+              <div class="phase-tag">Phase 2 · Planned</div>
+              <div class="phase-title">Canonical Model & Quality Rules</div>
+              <ul class="phase-items">
+                <li>Finalize 45 Canonical Data Points (DP01–DP45).</li>
+                <li>Define country validation rules & € risk thresholds.</li>
+                <li>Implement column mapping & unit conversion engine.</li>
+                <li>Validate with representative client sample files.</li>
+              </ul>
+            </div>
+
+            <div class="phase-card">
+              <div class="phase-tag">Phase 3 · Planned</div>
+              <div class="phase-title">Working EPR Vertical Slice</div>
+              <ul class="phase-items">
+                <li>Deploy PostgreSQL 17-table schema with RLS.</li>
+                <li>Connect Angular UI to live FastAPI REST endpoints.</li>
+                <li>Run end-to-end flow: Upload -> Review -> Calc -> Export.</li>
+                <li>Deliver official UK Defra RPD CSV generator.</li>
+              </ul>
+            </div>
+
+            <div class="phase-card">
+              <div class="phase-tag">Phase 4 · Planned</div>
+              <div class="phase-title">Reference Data Verification</div>
+              <ul class="phase-items">
+                <li>Reconcile calculations with client approved report.</li>
+                <li>Validate RAM RAG eco-modulation tariffs.</li>
+                <li>Execute automated cross-tenant isolation tests.</li>
+                <li>Domain expert signoff on calculation formulas.</li>
+              </ul>
+            </div>
+
+            <div class="phase-card">
+              <div class="phase-tag">Phase 5 · Planned</div>
+              <div class="phase-title">PPWR & Digital Passport Expansion</div>
+              <ul class="phase-items">
+                <li>PPWR Technical File & Declaration of Conformity.</li>
+                <li>Headspace & packaging minimisation audit engine.</li>
+                <li>Digital Product Passport (DPP) QR carrier services.</li>
+                <li>Add France (CITEO) and Germany (VerpackG) modules.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Decisions Table -->
+        <div class="decisions-table-container">
+          <div class="section-heading">
+            <div>
+              <h3>Architecture & Product Decision Log (DECISIONS.md)</h3>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">Direct extraction of decisions, active statuses, and ownership as recorded in project specifications.</p>
+            </div>
+            <span class="badge badge-draft">Baseline Tracker</span>
+          </div>
+
+          <table class="decisions-table">
+            <thead>
+              <tr>
+                <th style="width: 80px;">ID</th>
+                <th style="width: 220px;">Decision Area</th>
+                <th style="width: 120px;">Status</th>
+                <th style="width: 160px;">Owner</th>
+                <th>Context & Architecture Impact</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>D-001</code></td>
+                <td><strong>Repository & Code Foundation</strong></td>
+                <td><span class="badge badge-prototype">Proposed</span></td>
+                <td>Product / Engineering</td>
+                <td>Start from clean repo architecture; reuse proven components only after review.</td>
+              </tr>
+              <tr>
+                <td><code>D-002</code></td>
+                <td><strong>Core Technology Stack</strong></td>
+                <td><span class="badge badge-prototype">Proposed</span></td>
+                <td>Engineering</td>
+                <td>Angular + TypeScript frontend, Python + FastAPI backend, PostgreSQL database.</td>
+              </tr>
+              <tr>
+                <td><code>D-003</code></td>
+                <td><strong>Modular Monolith Architecture</strong></td>
+                <td><span class="badge badge-prototype">Proposed</span></td>
+                <td>Engineering</td>
+                <td>Deploy as unified modular application initially; avoid premature microservices complexity until scale justifies.</td>
+              </tr>
+              <tr>
+                <td><code>D-004</code></td>
+                <td><strong>First EPR Jurisdiction & Workflow</strong></td>
+                <td><span class="badge badge-draft">Open</span></td>
+                <td>Product + Domain Reviewer</td>
+                <td>UK Defra / RPD proposed as first vertical slice; requires formal agreement on tariff baseline (PackUK illustrative 2026/27).</td>
+              </tr>
+              <tr>
+                <td><code>D-005</code></td>
+                <td><strong>Consultant-Only vs Client Logins</strong></td>
+                <td><span class="badge badge-draft">Open</span></td>
+                <td>Product Owner</td>
+                <td>Consultant multi-workspace assignment required in all scenarios. Direct client contributor access deferred to MVP decision.</td>
+              </tr>
+              <tr>
+                <td><code>D-006</code></td>
+                <td><strong>Hosting, Identity, Residency & Retention</strong></td>
+                <td><span class="badge badge-draft">Open</span></td>
+                <td>IT / Security</td>
+                <td>OIDC identity provider selection, S3 object storage location, UK/EU data residency constraints, and document retention rules.</td>
+              </tr>
+              <tr>
+                <td><code>D-007</code></td>
+                <td><strong>Canonical Schema & Taxonomies</strong></td>
+                <td><span class="badge badge-draft">Open</span></td>
+                <td>Engineering + Domain Reviewer</td>
+                <td>Finalize standard polymer lists (PET, HDPE, PP, etc.) and validate against client SAP MARA/STPO sample extracts.</td>
+              </tr>
+              <tr>
+                <td><code>D-008</code></td>
+                <td><strong>Client Sample Dataset & Reference Case</strong></td>
+                <td><span class="badge badge-draft">Open</span></td>
+                <td>Client Lead</td>
+                <td>Agreed verified test dataset with known-good fee report needed for automated acceptance test suite.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         TAB 6: CANONICAL DATA POINTS (DP01–DP45)
+         ========================================================================= -->
+    <section class="tab-view" id="tab-dict">
+      <div class="dict-table-container">
+        <div class="dict-search-bar">
+          <input type="text" id="dict-search-input" placeholder="Search 45 Canonical Data Points by ID, field name, or regulation...">
+          <div class="filter-chip active" id="dict-filter-all">All (45)</div>
+          <div class="filter-chip" id="dict-filter-prod">Product Master</div>
+          <div class="filter-chip" id="dict-filter-mat">Materials & Supplier</div>
+          <div class="filter-chip" id="dict-filter-sales">Commercial Sales</div>
+          <div class="filter-chip" id="dict-filter-gov">Governance</div>
+        </div>
+
+        <table class="decisions-table" id="dict-table">
+          <thead>
+            <tr>
+              <th style="width: 80px;">ID</th>
+              <th style="width: 220px;">Data Point Name</th>
+              <th style="width: 140px;">Primary Source</th>
+              <th style="width: 160px;">Source System Field</th>
+              <th style="width: 160px;">Scope / Regulations</th>
+              <th>Target Database Mapping</th>
+            </tr>
+          </thead>
+          <tbody id="dict-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         INSPECTION DRAWER / SIDE PANEL
+         ========================================================================= -->
+    <aside class="inspector-panel" id="inspector-panel">
+      <div class="inspector-header">
+        <div class="inspector-title-group">
+          <h3 id="panel-title">Component Inspector</h3>
+          <p id="panel-subtitle">Select any element to view architectural metadata</p>
+        </div>
+        <button class="panel-close-btn" id="btn-close-panel" title="Close Inspector">×</button>
+      </div>
+
+      <div class="inspector-body" id="panel-content">
+        <div class="inspector-section">
+          <h4>Inspector Overview</h4>
+          <p>Click on any architecture node, database table card, or ERD relationship line to view complete responsibilities, foreign-key relationships, and sample data records.</p>
+        </div>
+        <div class="source-ref-box">
+          <strong>Source of Truth:</strong> Fully matched to <code>docs/DATABASE_SCHEMA_PLAN.md</code>, <code>docs/DATA_MODEL.md</code>, and <code>reference-docs-teams/</code>.
+        </div>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- Self-contained JavaScript Logic with Sample Data Injection -->
+  <script>
+    /* ==========================================================================
+       SAMPLE DATA DICTIONARY (Real Prototype Fixtures from store.py & Defra CSV)
+       ========================================================================== */
+    const sampleDbData = {"tenants": [{"id": "khc-europe", "name": "The Kraft Heinz Company (Europe & UK)", "sector": "Food & Beverage / FMCG", "organisation_size": "L", "rpd_organisation_id": "100004", "primary_currency": "EUR", "created_at": "2026-09-01T08:00:00Z"}, {"id": "northfield-foods", "name": "Northfield Foods Ltd", "sector": "Food & Beverage (Soups & Sauces)", "organisation_size": "S", "rpd_organisation_id": "100088", "primary_currency": "GBP", "created_at": "2026-10-01T10:00:00Z"}], "tenant_markets_enabled": [{"id": "mkt-01", "tenant_id": "khc-europe", "country_code": "UK", "regulation_code": "UK_PEPR", "is_active": true, "producer_role": "BRAND_OWNER"}, {"id": "mkt-02", "tenant_id": "khc-europe", "country_code": "FR", "regulation_code": "CITEO_EPR", "is_active": true, "producer_role": "BRAND_OWNER"}, {"id": "mkt-03", "tenant_id": "khc-europe", "country_code": "DE", "regulation_code": "VERPACKG", "is_active": true, "producer_role": "IMPORTER"}], "tenant_integrations": [{"id": "int-01", "tenant_id": "khc-europe", "system_type": "TRACE_ONE_DEVEX", "status": "active", "connection_config": "{\"endpoint\": \"https://plm.kraftheinz.com/api\", \"mode\": \"read_only\"}", "last_synced_at": "2026-10-26T14:30:00Z"}, {"id": "int-02", "tenant_id": "khc-europe", "system_type": "SAP_S4HANA", "status": "active", "connection_config": "{\"rfc_dest\": \"SAP_PRD\", \"tables\": [\"MARA\", \"STPO\"]}", "last_synced_at": "2026-10-25T08:00:00Z"}, {"id": "int-03", "tenant_id": "khc-europe", "system_type": "SNOWFLAKE", "status": "mocked", "connection_config": "{\"db\": \"KHC_SALES\", \"wh\": \"ANALYTICS_WH\"}", "last_synced_at": "2026-10-24T18:00:00Z"}], "ingestion_batches": [{"id": "BATCH-TRACEEONE-089", "tenant_id": "khc-europe", "source_system": "TRACE_ONE_DEVEX", "filename": "TraceOne_PLM_Export_Job_TO9923.xlsx", "total_rows": 4, "accepted_rows": 3, "flagged_rows": 1, "status": "completed", "uploaded_by": "steward@monkspaces.com"}, {"id": "BATCH-2026-03-001", "tenant_id": "northfield-foods", "source_system": "SUPPLIER_PORTAL", "filename": "FlexiPak_Supplier_Specs_Q3.csv", "total_rows": 18, "accepted_rows": 16, "flagged_rows": 2, "status": "completed", "uploaded_by": "analyst@northfield.co.uk"}], "mapping_templates": [{"id": "tmpl-01", "tenant_id": "khc-europe", "template_name": "Heinz_Devex_PLM_v1", "source_type": "ERP_SPEC", "created_at": "2026-10-01"}, {"id": "tmpl-02", "tenant_id": "northfield-foods", "template_name": "FlexiPak_Supplier_Specs_v1", "source_type": "SUPPLIER_SHEET", "created_at": "2026-10-15"}], "mapping_template_fields": [{"id": "fld-01", "template_id": "tmpl-01", "source_column_name": "Part desc.", "target_data_point_id": "DP03", "target_canonical_field": "name", "confidence_score": 98.0, "unit_transformation": "NONE", "is_user_confirmed": true}, {"id": "fld-02", "template_id": "tmpl-01", "source_column_name": "Wt (kg)", "target_data_point_id": "DP09", "target_canonical_field": "weight_grams", "confidence_score": 92.0, "unit_transformation": "KG_TO_GRAMS", "is_user_confirmed": true}, {"id": "fld-03", "template_id": "tmpl-01", "source_column_name": "Polymer", "target_data_point_id": "DP07", "target_canonical_field": "polymer_type", "confidence_score": 88.0, "unit_transformation": "UPPERCASE", "is_user_confirmed": true}], "products": [{"id": "prod-01", "tenant_id": "khc-europe", "sku": "HEINZ-TK-500G", "gtin": "05012345678900", "name": "Heinz Tomato Ketchup 500g Glass Bottle", "brand": "Heinz", "category": "Condiments & Sauces", "status": "active"}, {"id": "prod-02", "tenant_id": "khc-europe", "sku": "HEINZ-TK-TOPDOWN-400ML", "gtin": "05012345678917", "name": "Heinz Ketchup 400ml Top-Down Squeezy", "brand": "Heinz", "category": "Condiments & Sauces", "status": "active"}, {"id": "prod-03", "tenant_id": "northfield-foods", "sku": "NF-SO-400", "gtin": "05098765432101", "name": "Northfield Cream of Tomato Soup 400g Pouch", "brand": "Northfield", "category": "Ambient Soups", "status": "active"}], "packaging_components": [{"id": "comp-01", "tenant_id": "khc-europe", "product_id": "prod-01", "component_code": "COMP-HK-001", "name": "500g Iconic Glass Bottle", "packaging_level": "PRIMARY", "units_per_pack": 1, "main_material": "GLASS", "polymer_type": "N/A", "weight_grams": 285.0, "recycled_content_pct": 45.0, "ram_rag_rating": "GREEN"}, {"id": "comp-02", "tenant_id": "khc-europe", "product_id": "prod-01", "component_code": "COMP-HK-002", "name": "Tinplate Twist Cap with Safety Button", "packaging_level": "PRIMARY", "units_per_pack": 1, "main_material": "STEEL", "polymer_type": "N/A", "weight_grams": 11.5, "recycled_content_pct": 35.0, "ram_rag_rating": "GREEN"}, {"id": "comp-03", "tenant_id": "khc-europe", "product_id": "prod-02", "component_code": "COMP-HK-004", "name": "400ml Squeezy Bottle Body", "packaging_level": "PRIMARY", "units_per_pack": 1, "main_material": "PLASTIC", "polymer_type": "PET", "weight_grams": 24.0, "recycled_content_pct": 30.0, "ram_rag_rating": "GREEN"}, {"id": "comp-04", "tenant_id": "northfield-foods", "product_id": "prod-03", "component_code": "COMP-NF-001", "name": "Retort Pouch Body (Multi-Laminate)", "packaging_level": "PRIMARY", "units_per_pack": 1, "main_material": "PLASTIC", "polymer_type": "MULTI_LAMINATE", "weight_grams": 10.5, "recycled_content_pct": 0.0, "ram_rag_rating": "RED_MODULATED"}], "component_materials_split": [{"id": "split-01", "component_id": "comp-04", "layer_order": 1, "material_name": "PET (Outer Print Layer)", "percentage_by_weight": 45.0, "thickness_microns": 12.0}, {"id": "split-02", "component_id": "comp-04", "layer_order": 2, "material_name": "Aluminium Foil (Gas/Light Barrier)", "percentage_by_weight": 15.0, "thickness_microns": 9.0}, {"id": "split-03", "component_id": "comp-04", "layer_order": 3, "material_name": "Cast PP (Inner Heat-Seal Layer)", "percentage_by_weight": 40.0, "thickness_microns": 70.0}], "sales_placed_on_market": [{"id": "sales-01", "tenant_id": "khc-europe", "product_id": "prod-01", "country_code": "UK", "reporting_period": "2025-H1", "units_sold": 4500000, "sales_channel": "HOUSEHOLD", "is_exempt_export": false}, {"id": "sales-02", "tenant_id": "khc-europe", "product_id": "prod-02", "country_code": "UK", "reporting_period": "2025-H1", "units_sold": 8200000, "sales_channel": "HOUSEHOLD", "is_exempt_export": false}, {"id": "sales-03", "tenant_id": "northfield-foods", "product_id": "prod-03", "country_code": "UK", "reporting_period": "2025-H1", "units_sold": 2100000, "sales_channel": "HOUSEHOLD", "is_exempt_export": false}], "compliance_data_point_rules": [{"id": "rule-01", "country_code": "UK", "regulation_code": "UK_PEPR", "required_data_point_id": "DP09", "severity": "BLOCKER", "impact_description": "Missing empty weight halts Defra submission generation."}, {"id": "rule-02", "country_code": "UK", "regulation_code": "UK_PEPR", "required_data_point_id": "DP12", "severity": "BLOCKER", "impact_description": "RAM Rating required to calculate PackUK modulation multiplier."}, {"id": "rule-03", "country_code": "FR", "regulation_code": "CITEO_EPR", "required_data_point_id": "DP35", "severity": "WARNING", "impact_description": "Missing Triman Logo spec incurs malus penalty."}], "data_quality_issues": [{"id": "DQI-1042", "tenant_id": "northfield-foods", "entity_type": "COMPONENT", "entity_id": "COMP-NF-001", "country_code": "UK", "field_name": "weight_grams", "data_point_id": "DP09", "severity": "BLOCKER", "estimated_money_at_risk": 1900.0, "status": "OPEN"}, {"id": "DQI-1043", "tenant_id": "khc-europe", "entity_type": "COMPONENT", "entity_id": "COMP-HK-004", "country_code": "UK", "field_name": "recycled_content_pct", "data_point_id": "DP13", "severity": "WARNING", "estimated_money_at_risk": 4200.0, "status": "PENDING_SOURCE_UPDATE"}], "source_correction_tickets": [{"id": "ticket-01", "tenant_id": "northfield-foods", "issue_id": "DQI-1042", "target_system": "TRACE_ONE_DEVEX", "spec_reference": "PKG-4471", "source_current_value": "12.0 g", "verified_value": "10.5 g", "evidence_reference": "FlexiPak_retort_spec_v4.pdf", "fee_impact": -1900.0, "status": "PENDING_APPROVAL"}], "locked_snapshots": [{"id": "SNAPSHOT-2025-H1-FINAL", "tenant_id": "khc-europe", "reporting_period": "2025-H1", "rule_set_version": "PackUK 2026/27 \u00b7 RAM v1.1", "total_skus_reviewed": 4, "completeness_pct": 98.5, "fee_uncertainty_amount": 1200.0, "reviewed_by": "senior.consultant@monkspaces.com", "approved_by": "director@monkspaces.com"}], "calculation_runs": [{"id": "CALC-UK-2025-001", "tenant_id": "khc-europe", "snapshot_id": "SNAPSHOT-2025-H1-FINAL", "jurisdiction_code": "UK", "reporting_period": "2025-H1", "total_tonnage": 412.0, "total_estimated_fee": 118400.0, "currency": "GBP", "rule_version": "PackUK illustrative 2026/27 \u00b7 RAM v1.1"}], "calculation_line_items": [{"id": "item-01", "run_id": "CALC-UK-2025-001", "component_id": "comp-04", "material_category": "PLASTIC", "tonnage": 22.05, "base_tariff_per_tonne": 455.0, "modulation_multiplier": 1.2, "line_total_fee": 12039.0, "rating_applied": "RED", "calculation_formula_text": "2.10m units x 10.5g = 22.05t x \u00a3455/t x 1.2x = \u00a312,039"}, {"id": "item-02", "run_id": "CALC-UK-2025-001", "component_id": "comp-01", "material_category": "GLASS", "tonnage": 1282.5, "base_tariff_per_tonne": 32.0, "modulation_multiplier": 1.0, "line_total_fee": 41040.0, "rating_applied": "GREEN", "calculation_formula_text": "4.50m units x 285g = 1,282.5t x \u00a332/t x 1.0x = \u00a341,040"}], "uk_rpd_export_lines": [{"id": "rpd-01", "run_id": "CALC-UK-2025-001", "organisation_id": "100004", "subsidiary_id": "KHC-UK-01", "organisation_size": "L", "submission_period": "2025-H1", "packaging_activity": "SO", "packaging_type": "HH", "packaging_class": "P1", "packaging_material": "PL", "packaging_material_subtype": "Flexible", "from_country": "EN", "to_country": "EN", "packaging_material_weight": 22050000, "ram_rag_rating": "R-M"}, {"id": "rpd-02", "run_id": "CALC-UK-2025-001", "organisation_id": "100004", "subsidiary_id": "KHC-UK-01", "organisation_size": "L", "submission_period": "2025-H1", "packaging_activity": "SO", "packaging_type": "HH", "packaging_class": "P1", "packaging_material": "GL", "packaging_material_subtype": "Rigid", "from_country": "EN", "to_country": "EN", "packaging_material_weight": 1282500000, "ram_rag_rating": "G"}]};
+
+    // Tab Navigation
+    const navTabs = document.querySelectorAll('.nav-tab');
+    const tabViews = document.querySelectorAll('.tab-view');
+
+    function switchToTab(targetId) {
+      navTabs.forEach(t => t.classList.toggle('active', t.getAttribute('data-tab') === targetId));
+      tabViews.forEach(v => v.classList.toggle('active', v.id === targetId));
+
+      if (targetId === 'tab-erd') {
+        setTimeout(fitErdToScreen, 50);
+      }
+    }
+
+    navTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        switchToTab(tab.getAttribute('data-tab'));
+      });
+    });
+
+    // Inspector Panel Toggle
+    const inspectorPanel = document.getElementById('inspector-panel');
+    const btnToggleInspector = document.getElementById('btn-toggle-inspector');
+    const btnClosePanel = document.getElementById('btn-close-panel');
+
+    function toggleInspector(forceOpen = null) {
+      if (forceOpen === true) inspectorPanel.classList.remove('collapsed');
+      else if (forceOpen === false) inspectorPanel.classList.add('collapsed');
+      else inspectorPanel.classList.toggle('collapsed');
+    }
+
+    btnToggleInspector.addEventListener('click', () => toggleInspector());
+    btnClosePanel.addEventListener('click', () => toggleInspector(false));
+
+    // Fullscreen Toggle
+    const btnFullscreen = document.getElementById('btn-fullscreen');
+    btnFullscreen.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => alert(`Error entering fullscreen: ${err.message}`));
+      } else {
+        document.exitFullscreen();
+      }
+    });
+
+    /* ==========================================================================
+       ERD DISPLAY MODES: VISUAL DIAGRAM vs SAMPLE DATA BROWSER
+       ========================================================================= */
+    const btnModeDiagram = document.getElementById('btn-mode-diagram');
+    const btnModeData = document.getElementById('btn-mode-data');
+    const erdContainer = document.getElementById('erd-container');
+    const erdLegendBox = document.getElementById('erd-legend-box');
+    const erdDataBrowser = document.getElementById('erd-data-browser');
+    const tableSelectorBar = document.getElementById('table-selector-bar');
+
+    let activeErdMode = 'diagram'; // 'diagram' | 'data'
+
+    btnModeDiagram.addEventListener('click', () => {
+      activeErdMode = 'diagram';
+      btnModeDiagram.classList.add('active-mode');
+      btnModeData.classList.remove('active-mode');
+      erdContainer.style.display = 'block';
+      erdLegendBox.style.display = 'flex';
+      erdDataBrowser.classList.remove('active');
+      setTimeout(fitErdToScreen, 50);
+    });
+
+    btnModeData.addEventListener('click', () => {
+      activeErdMode = 'data';
+      btnModeData.classList.add('active-mode');
+      btnModeDiagram.classList.remove('active-mode');
+      erdContainer.style.display = 'none';
+      erdLegendBox.style.display = 'none';
+      erdDataBrowser.classList.add('active');
+      renderTableSelectorPills();
+      showSampleTableData(selectedTableId || 'products');
+    });
+
+    /* ==========================================================================
+       DATA DICTIONARY DEFINITION (DP01 to DP45)
+       ========================================================================== */
+    const canonicalDataPoints = [{"id": "DP01", "name": "Article / SKU Number", "category": "prod", "source": "SAP S/4HANA", "field": "MARA-MATNR", "scope": "PPWR, Audit & Lineage", "mapping": "products.sku (VARCHAR 100, UNIQUE)"}, {"id": "DP02", "name": "GTIN / Barcode", "category": "prod", "source": "SAP S/4HANA", "field": "MARA-EAN11", "scope": "PPWR, Product Passport", "mapping": "products.gtin (VARCHAR 50)"}, {"id": "DP03", "name": "Packaging Component List (BOM)", "category": "prod", "source": "SAP S/4HANA", "field": "STKO / STPO", "scope": "National EPR, Fee Calc, PPWR", "mapping": "packaging_components.name (VARCHAR 255)"}, {"id": "DP04", "name": "Packaging Level", "category": "prod", "source": "PLM Specs", "field": "PLM component attribute", "scope": "National EPR, Fee Calc", "mapping": "packaging_components.packaging_level (ENUM)"}, {"id": "DP05", "name": "Units Per Pack", "category": "prod", "source": "SAP S/4HANA", "field": "STPO-MENGE", "scope": "National EPR, Fee Calc", "mapping": "packaging_components.units_per_pack (INT)"}, {"id": "DP06", "name": "Component Material (Main)", "category": "prod", "source": "PLM Specs", "field": "PLM material class", "scope": "National EPR, Fee Calc, PPWR", "mapping": "packaging_components.main_material (VARCHAR 50)"}, {"id": "DP07", "name": "Polymer Type", "category": "mat", "source": "Supplier", "field": "Polymer spec sheet", "scope": "National EPR, Fee Modulation", "mapping": "packaging_components.polymer_type (VARCHAR 50)"}, {"id": "DP08", "name": "Multi-Material Split (%)", "category": "mat", "source": "Supplier", "field": "Component breakdown %", "scope": "National EPR, Fee Calc, PPWR", "mapping": "component_materials_split.percentage_by_weight"}, {"id": "DP09", "name": "Component Weight (Empty, g)", "category": "prod", "source": "PLM Specs", "field": "PLM net weight (g)", "scope": "National EPR, Fee Calc, PPWR", "mapping": "packaging_components.weight_grams (NUMERIC 12,4)"}, {"id": "DP10", "name": "Colour and Opacity", "category": "mat", "source": "Supplier", "field": "Colorant / masterbatch", "scope": "Fee Eco-modulation, PPWR", "mapping": "packaging_components.colour_opacity (VARCHAR 100)"}, {"id": "DP11", "name": "Additives & Disruptor Inks", "category": "mat", "source": "Supplier", "field": "Disruptor declaration", "scope": "Fee Eco-modulation, PPWR", "mapping": "packaging_components.has_disruptor_pigment (BOOL)"}, {"id": "DP12", "name": "Recyclability RAM Rating", "category": "mat", "source": "Supplier / Lab", "field": "Recyclability cert", "scope": "Fee Modulation (UK RAM, Citeo)", "mapping": "packaging_components.ram_rag_rating (VARCHAR 10)"}, {"id": "DP13", "name": "Recycled Content % (PCR)", "category": "mat", "source": "Supplier", "field": "PCR % declaration", "scope": "Fee Modulation, Plastic Tax", "mapping": "packaging_components.recycled_content_pct (NUMERIC 5,2)"}, {"id": "DP14", "name": "Recycled Content Certificate", "category": "mat", "source": "Supplier", "field": "ISO / EN certificate", "scope": "Audit Evidence", "mapping": "packaging_components.evidence_document_id (UUID)"}, {"id": "DP15", "name": "Reusable vs Single-Use Flag", "category": "prod", "source": "PLM Specs", "field": "PLM packaging attribute", "scope": "National EPR, Fee Calc, PPWR", "mapping": "packaging_components.is_reusable (BOOLEAN)"}, {"id": "DP16", "name": "Food-Contact Packaging Flag", "category": "prod", "source": "PLM Specs", "field": "PLM food contact cert", "scope": "PPWR Technical File", "mapping": "packaging_components.is_food_contact (BOOLEAN)"}, {"id": "DP17", "name": "PFAS Declaration", "category": "mat", "source": "Supplier", "field": "Chemical safety sheet", "scope": "PPWR Chemical Safety", "mapping": "products.source_metadata->'pfas_free'"}, {"id": "DP18", "name": "Heavy Metals (<100ppm)", "category": "mat", "source": "Supplier", "field": "Heavy metal test cert", "scope": "PPWR Technical File", "mapping": "products.source_metadata->'heavy_metals'"}, {"id": "DP19", "name": "Substances of Concern", "category": "mat", "source": "Supplier", "field": "SVHC / REACH list", "scope": "PPWR Technical File", "mapping": "products.source_metadata->'svhc_declared'"}, {"id": "DP20", "name": "Minimisation Evidence", "category": "prod", "source": "PLM Specs", "field": "Design optimization spec", "scope": "PPWR Technical File", "mapping": "products.source_metadata->'minimisation_spec'"}, {"id": "DP21", "name": "Empty Space Ratio (%)", "category": "prod", "source": "PLM Specs", "field": "Headspace calculation", "scope": "PPWR Technical File (<40%)", "mapping": "products.source_metadata->'empty_space_pct'"}, {"id": "DP22", "name": "Units Placed on Market", "category": "sales", "source": "SAP S/4HANA", "field": "Billing doc (VBRK/VBRP)", "scope": "National EPR, Fee Calculation", "mapping": "sales_placed_on_market.units_sold (BIGINT)"}, {"id": "DP23", "name": "Sales Channel", "category": "sales", "source": "SAP S/4HANA", "field": "Distribution channel", "scope": "EPR Household vs Commercial", "mapping": "sales_placed_on_market.sales_channel (VARCHAR 50)"}, {"id": "DP24", "name": "Delivery Nation (EN/SC/WS)", "category": "sales", "source": "SAP S/4HANA", "field": "Ship-to country/region", "scope": "Nation-specific allocation", "mapping": "sales_placed_on_market.country_code (VARCHAR 10)"}, {"id": "DP25", "name": "Exports Out of Country", "category": "sales", "source": "SAP S/4HANA", "field": "Export invoice", "scope": "EPR Deductions / Exemptions", "mapping": "sales_placed_on_market.is_exempt_export (BOOLEAN)"}, {"id": "DP26", "name": "Deposit Return Scheme (DRS)", "category": "gov", "source": "Client Team", "field": "DRS eligibility schedule", "scope": "EPR Exemption", "mapping": "products.source_metadata->'drs_registered'"}, {"id": "DP27", "name": "Import Country of Origin", "category": "sales", "source": "SAP S/4HANA", "field": "Customs import record", "scope": "National EPR Activity (IM)", "mapping": "sales_placed_on_market.source_reference"}, {"id": "DP28", "name": "Producer Role (Brand/Importer)", "category": "gov", "source": "Client Team", "field": "Producer role matrix", "scope": "Obligation Determination", "mapping": "tenant_markets_enabled.producer_role"}, {"id": "DP29", "name": "National EPR Registration ID", "category": "gov", "source": "Client Team", "field": "UK Defra RPD ID (100004)", "scope": "Regulatory reporting identity", "mapping": "tenants.rpd_organisation_id"}, {"id": "DP30", "name": "Compliance Scheme (PRO)", "category": "gov", "source": "Client Team", "field": "Valpak / Citeo member no", "scope": "Compliance Scheme Filing", "mapping": "tenants.name"}, {"id": "DP31", "name": "Authorised Representative", "category": "gov", "source": "Client Team", "field": "EU AR entity contract", "scope": "Cross-border legal entity", "mapping": "tenants.name"}, {"id": "DP32", "name": "Organisation Size (Large/Small)", "category": "gov", "source": "Client Team", "field": "Turnover / tonnage check", "scope": "Defra Thresholds (L / S)", "mapping": "tenants.organisation_size ('L' / 'S')"}, {"id": "DP33", "name": "Reporting Period", "category": "gov", "source": "Client Team", "field": "e.g. 2025-H1, 2025-H2", "scope": "Calculation time window", "mapping": "sales_placed_on_market.reporting_period"}, {"id": "DP34", "name": "Declaration of Completeness", "category": "gov", "source": "Client Team", "field": "Audit sign-off form", "scope": "Formal regulatory sign-off", "mapping": "locked_snapshots.approved_by"}, {"id": "DP35", "name": "Triman Logo & Info-Tri", "category": "prod", "source": "PLM Specs", "field": "Label artwork spec", "scope": "French EPR (Citeo)", "mapping": "packaging_components.name"}, {"id": "DP36", "name": "Environmental Label Codes", "category": "prod", "source": "PLM Specs", "field": "E-label registry", "scope": "National Labeling (Italy/CONAI)", "mapping": "packaging_components.name"}, {"id": "DP37", "name": "CONAI Plastic Band", "category": "gov", "source": "Client Team", "field": "Banda A1 / A2 / B1 / B2", "scope": "Italian Eco-modulation", "mapping": "calculation_line_items.rating_applied"}, {"id": "DP38", "name": "Non-Recycled Plastic Weight", "category": "mat", "source": "Supplier", "field": "Virgin resin calculation", "scope": "Plastic Packaging Tax (PPT)", "mapping": "calculation_line_items.tonnage"}, {"id": "DP39", "name": "Harmonised Material Label", "category": "prod", "source": "PLM Specs", "field": "EU label standard", "scope": "PPWR Article 11", "mapping": "packaging_components.main_material"}, {"id": "DP40", "name": "QR / Data Carrier Reference", "category": "prod", "source": "PLM Specs", "field": "Digital carrier link", "scope": "PPWR / Digital Passport", "mapping": "products.source_metadata->'dpp_qr_url'"}, {"id": "DP41", "name": "Declaration of Conformity (DoC)", "category": "gov", "source": "Client Team", "field": "DoC reference and version", "scope": "PPWR Technical File", "mapping": "locked_snapshots.rule_set_version"}, {"id": "DP42", "name": "Technical File References", "category": "mat", "source": "Supplier", "field": "Document archive link", "scope": "PPWR Technical File", "mapping": "packaging_components.evidence_document_id"}, {"id": "DP43", "name": "Supplier Per Component", "category": "mat", "source": "SAP ERP", "field": "Vendor master (LFA1)", "scope": "Supplier Registry & PPWR", "mapping": "packaging_components.supplier_id (UUID)"}, {"id": "DP44", "name": "Weight Measurement Log", "category": "prod", "source": "PLM Specs", "field": "Scale calibration log", "scope": "Audit File & Verification", "mapping": "packaging_components.evidence_document_id"}, {"id": "DP45", "name": "Sign-Off Owner", "category": "gov", "source": "Client Team", "field": "Director / Consultant ID", "scope": "Audit Accountability", "mapping": "locked_snapshots.reviewed_by"}];
+
+    const dictTbody = document.getElementById('dict-tbody');
+    const dictSearchInput = document.getElementById('dict-search-input');
+    let currentDictFilter = 'all';
+
+    function renderDictTable() {
+      const q = dictSearchInput ? dictSearchInput.value.toLowerCase().trim() : '';
+      dictTbody.innerHTML = '';
+
+      const filtered = canonicalDataPoints.filter(dp => {
+        const matchesCategory = currentDictFilter === 'all' || dp.category === currentDictFilter;
+        const matchesQuery = !q || dp.id.toLowerCase().includes(q) || dp.name.toLowerCase().includes(q) || dp.source.toLowerCase().includes(q) || dp.mapping.toLowerCase().includes(q) || dp.scope.toLowerCase().includes(q);
+        return matchesCategory && matchesQuery;
+      });
+
+      filtered.forEach(dp => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><code style="color:var(--emerald-400); font-weight:700;">${dp.id}</code></td>
+          <td><strong>${dp.name}</strong></td>
+          <td><span class="meta-pill">${dp.source}</span></td>
+          <td><code style="font-size:0.75rem;">${dp.field}</code></td>
+          <td><span style="font-size:0.75rem; color:var(--text-muted);">${dp.scope}</span></td>
+          <td><code style="font-size:0.75rem; color:var(--accent-blue);">${dp.mapping}</code></td>
+        `;
+        dictTbody.appendChild(tr);
+      });
+    }
+
+    if (dictSearchInput) dictSearchInput.addEventListener('input', renderDictTable);
+
+    document.querySelectorAll('[id^="dict-filter-"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('[id^="dict-filter-"]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentDictFilter = btn.id.replace('dict-filter-', '');
+        renderDictTable();
+      });
+    });
+
+    renderDictTable();
+
+    /* ==========================================================================
+       DATABASE ERD SCHEMAS (17 TABLES DIRECTLY FROM docs/DATABASE_SCHEMA_PLAN.md)
+       ========================================================================== */
+    const erdTables = [{"id": "tenants", "name": "tenants", "domain": "tenancy", "domainLabel": "Domain 1: Tenancy", "x": 60, "y": 80, "desc": "Client company workspace boundary (e.g. 'khc-europe'). Enforces multi-tenant data isolation and UK RPD organisation registration identity.", "columns": [{"name": "id", "type": "VARCHAR(50)", "key": "PK"}, {"name": "name", "type": "VARCHAR(255)"}, {"name": "sector", "type": "VARCHAR(100)"}, {"name": "organisation_size", "type": "VARCHAR(10)"}, {"name": "rpd_organisation_id", "type": "VARCHAR(50)"}, {"name": "primary_currency", "type": "VARCHAR(3)"}, {"name": "created_at", "type": "TIMESTAMPTZ"}], "fks": []}, {"id": "tenant_markets_enabled", "name": "tenant_markets_enabled", "domain": "tenancy", "domainLabel": "Domain 1: Tenancy", "x": 60, "y": 420, "desc": "Jurisdictions and regulations enabled per tenant (UK_PEPR, CITEO_EPR, VERPACKG). Defines active producer roles.", "columns": [{"name": "id", "type": "UUID", "key": "PK"}, {"name": "tenant_id", "type": "VARCHAR(50)", "key": "FK", "refTable": "tenants", "refCol": "id"}, {"name": "country_code", "type": "VARCHAR(10)"}, {"name": "regulation_code", "type": "VARCHAR(50)"}, {"name": "is_active", "type": "BOOLEAN"}, {"name": "producer_role", "type": "VARCHAR(50)"}], "fks": [{"col": "tenant_id", "refTable": "tenants", "refCol": "id"}]}, {"id": "tenant_integrations", "name": "tenant_integrations", "domain": "tenancy", "domainLabel": "Domain 1: Tenancy", "x": 60, "y": 700, "desc": "Read-only connector configurations for external systems (Trace One Devex PLM, SAP S/4HANA, Snowflake).", "columns": [{"name": "id", "type": "UUID", "key": "PK"}, {"name": "tenant_id", "type": "VARCHAR(50)", "key": "FK", "refTable": "tenants", "refCol": "id"}, {"name": "system_type", "type": "VARCHAR(50)"}, {"name": "status", "type": "VARCHAR(50)"}, {"name": "connection_config", "type": "JSONB"}, {"name": "last_synced_at", "type": "TIMESTAMPTZ"}], "fks": [{"col": "tenant_id", "refTable": "tenants", "refCol": "id"}]}, {"id": "ingestion_batches", "name": "ingestion_batches", "domain": "ingestion", "domainLabel": "Domain 2: Ingestion", "x": 420, "y": 80, "desc": "Audit log of file uploads and external syncs. Tracks uploaded filenames, total parsed rows, accepted rows, and flagged error rows.", "columns": [{"name": "id", "type": "VARCHAR(50)", "key": "PK"}, {"name": "tenant_id", "type": "VARCHAR(50)", "key": "FK", "refTable": "tenants", "refCol": "id"}, {"name": "source_system", "type": "VARCHAR(50)"}, {"name": "filename", "type": "VARCHAR(255)"}, {"name": "total_rows", "type": "INT"}, {"name": "accepted_rows", "type": "INT"}, {"name": "flagged_rows", "type": "INT"}, {"name": "status", "type": "VARCHAR(50)"}, {"name": "created_at", "type": "TIMESTAMPTZ"}], "fks": [{"col": "tenant_id", "refTable": "tenants", "refCol": "id"}]}, {"id": "mapping_templates", "name": "mapping_templates", "domain": "ingestion", "domainLabel": "Domain 2: Ingestion", "x": 420, "y": 420, "desc": "Reusable column-mapping templates per supplier feed or ERP format (e.g. 'FlexiPak_Supplier_v1', 'SAP_MARA_STPO_Export').", "columns": [{"name": "id", "type": "UUID", "key": "PK"}, {"name": "tenant_id", "type": "VARCHAR(50)", "key": "FK", "refTable": "tenants", "refCol": "id"}, {"name": "template_name", "type": "VARCHAR(100)"}, {"name": "source_type", "type": "VARCHAR(50)"}, {"name": "updated_at", "type": "TIMESTAMPTZ"}], "fks": [{"col": "tenant_id", "refTable": "tenants", "refCol": "id"}]}, {"id": "mapping_template_fields", "name": "mapping_template_fields", "domain": "ingestion", "domainLabel": "Domain 2: Ingestion", "x": 420, "y": 680, "desc": "Individual field-to-DP mapping rules, including AI suggestion confidence scores, unit transformations (KG_TO_GRAMS), and confirmation flags.", "columns": [{"name": "id", "type": "UUID", "key": "PK"}, {"name": "template_id", "type": "UUID", "key": "FK", "refTable": "mapping_templates", "refCol": "id"}, {"name": "source_column_name", "type": "VARCHAR(100)"}, {"name": "target_data_point_id", "type": "VARCHAR(20)"}, {"name": "target_canonical_field", "type": "VARCHAR(100)"}, {"name": "confidence_score", "type": "DECIMAL(5,2)"}, {"name": "unit_transformation", "type": "VARCHAR(50)"}, {"name": "is_user_confirmed", "type": "BOOLEAN"}], "fks": [{"col": "template_id", "refTable": "mapping_templates", "refCol": "id"}]}, {"id": "products", "name": "products", "domain": "canonical", "domainLabel": "Domain 3: Canonical Foundation", "x": 780, "y": 80, "desc": "Canonical Master Product catalogue (SKU, GTIN barcode, Brand, Category). Stores unmapped source attributes in JSONB losslessly.", "columns": [{"name": "id", "type": "UUID", "key": "PK"}, {"name": "tenant_id", "type": "VARCHAR(50)", "key": "FK", "refTable": "tenants", "refCol": "id"}, {"name": "sku", "type": "VARCHAR(100)"}, {"name": "gtin", "type": "VARCHAR(50)"}, {"name": "name", "type": "VARCHAR(255)"}, {"name": "brand", "type": "VARCHAR(100)"}, {"name": "category", "type": "VARCHAR(100)"}, {"name": "source_metadata", "type": "JSONB"}, {"name": "created_at", "type": "TIMESTAMPTZ"}], "fks": [{"col": "tenant_id", "refTable": "tenants", "refCol": "id"}]}, {"id": "packaging_components", "name": "packaging_components", "domain": "canonical", "domainLabel": "Domain 3: Canonical Foundation", "x": 780, "y": 440, "desc": "Packaging Bill of Materials (BOM) hierarchy: Primary, Secondary, Tertiary. Stores empty weight (DP09), polymer type, recycled content (DP13), and RAM rating.", "columns": [{"name": "id", "type": "UUID", "key": "PK"}, {"name": "tenant_id", "type": "VARCHAR(50)", "key": "FK", "refTable": "tenants", "refCol": "id"}, {"name": "product_id", "type": "UUID", "key": "FK", "refTable": "products", "refCol": "id"}, {"name": "component_code", "type": "VARCHAR(50)"}, {"name": "name", "type": "VARCHAR(255)"}, {"name": "packaging_level", "type": "VARCHAR(20)"}, {"name": "units_per_pack", "type": "INT"}, {"name": "main_material", "type": "VARCHAR(50)"}, {"name": "polymer_type", "type": "VARCHAR(50)"}, {"name": "weight_grams", "type": "NUMERIC(12,4)"}, {"name": "recycled_content_pct", "type": "NUMERIC(5,2)"}, {"name": "ram_rag_rating", "type": "VARCHAR(10)"}, {"name": "is_food_contact", "type": "BOOLEAN"}, {"name": "evidence_document_id", "type": "UUID"}], "fks": [{"col": "tenant_id", "refTable": "tenants", "refCol": "id"}, {"col": "product_id", "refTable": "products", "refCol": "id"}]}, {"id": "component_materials_split", "name": "component_materials_split", "domain": "canonical", "domainLabel": "Domain 3: Canonical Foundation", "x": 780, "y": 940, "desc": "Layer composition breakdown for multi-material packaging (e.g. Retort pouch: PET 45%, Alu 15%, Cast PP 40%). Enables accurate eco-modulation.", "columns": [{"name": "id", "type": "UUID", "key": "PK"}, {"name": "component_id", "type": "UUID", "key": "FK", "refTable": "packaging_components", "refCol": "id"}, {"name": "layer_order", "type": "INT"}, {"name": "material_name", "type": "VARCHAR(100)"}, {"name": "percentage_by_weight", "type": "NUMERIC(5,2)"}, {"name": "thickness_microns", "type": "NUMERIC(8,2)"}], "fks": [{"col": "component_id", "refTable": "packaging_components", "refCol": "id"}]}, {"id": "sales_placed_on_market", "name": "sales_placed_on_market", "domain": "canonical", "domainLabel": "Domain 3: Canonical Foundation", "x": 1140, "y": 80, "desc": "Commercial sales volume placed on market by country and reporting period. Links to Snowflake / SAP billing docs; flags exports out of nation.", "columns": [{"name": "id", "type": "UUID", "key": "PK"}, {"name": "tenant_id", "type": "VARCHAR(50)", "key": "FK", "refTable": "tenants", "refCol": "id"}, {"name": "product_id", "type": "UUID", "key": "FK", "refTable": "products", "refCol": "id"}, {"name": "country_code", "type": "VARCHAR(10)"}, {"name": "reporting_period", "type": "VARCHAR(20)"}, {"name": "units_sold", "type": "BIGINT"}, {"name": "sales_channel", "type": "VARCHAR(50)"}, {"name": "is_exempt_export", "type": "BOOLEAN"}], "fks": [{"col": "tenant_id", "refTable": "tenants", "refCol": "id"}, {"col": "product_id", "refTable": "products", "refCol": "id"}]}, {"id": "compliance_data_point_rules", "name": "compliance_data_point_rules", "domain": "quality", "domainLabel": "Domain 4: Data Quality", "x": 1140, "y": 440, "desc": "Matrix of required data points per country and regulation (e.g. UK_PEPR requires DP09, DP07, DP12). Defines severity: BLOCKER vs WARNING.", "columns": [{"name": "id", "type": "UUID", "key": "PK"}, {"name": "country_code", "type": "VARCHAR(10)"}, {"name": "regulation_code", "type": "VARCHAR(50)"}, {"name": "required_data_point_id", "type": "VARCHAR(20)"}, {"name": "severity", "type": "VARCHAR(20)"}, {"name": "impact_description", "type": "TEXT"}], "fks": []}, {"id": "data_quality_issues", "name": "data_quality_issues", "domain": "quality", "domainLabel": "Domain 4: Data Quality", "x": 1140, "y": 720, "desc": "Active data gaps and mismatches. Tracks estimated euro money-at-risk liability, severity level, owner assignment, and resolution status.", "columns": [{"name": "id", "type": "VARCHAR(50)", "key": "PK"}, {"name": "tenant_id", "type": "VARCHAR(50)", "key": "FK", "refTable": "tenants", "refCol": "id"}, {"name": "entity_type", "type": "VARCHAR(50)"}, {"name": "entity_id", "type": "VARCHAR(100)"}, {"name": "country_code", "type": "VARCHAR(10)"}, {"name": "field_name", "type": "VARCHAR(100)"}, {"name": "data_point_id", "type": "VARCHAR(20)"}, {"name": "severity", "type": "VARCHAR(20)"}, {"name": "estimated_money_at_risk", "type": "NUMERIC(12,2)"}, {"name": "status", "type": "VARCHAR(50)"}], "fks": [{"col": "tenant_id", "refTable": "tenants", "refCol": "id"}]}, {"id": "source_correction_tickets", "name": "source_correction_tickets", "domain": "quality", "domainLabel": "Domain 4: Data Quality", "x": 1140, "y": 1100, "desc": "Workflow tickets to sync verified values back into client source systems (Trace One Devex / SAP) before re-import. Enforces read-only source governance.", "columns": [{"name": "id", "type": "UUID", "key": "PK"}, {"name": "tenant_id", "type": "VARCHAR(50)", "key": "FK", "refTable": "tenants", "refCol": "id"}, {"name": "issue_id", "type": "VARCHAR(50)", "key": "FK", "refTable": "data_quality_issues", "refCol": "id"}, {"name": "target_system", "type": "VARCHAR(50)"}, {"name": "source_current_value", "type": "TEXT"}, {"name": "verified_value", "type": "TEXT"}, {"name": "fee_impact", "type": "NUMERIC(12,2)"}, {"name": "status", "type": "VARCHAR(50)"}], "fks": [{"col": "tenant_id", "refTable": "tenants", "refCol": "id"}, {"col": "issue_id", "refTable": "data_quality_issues", "refCol": "id"}]}, {"id": "locked_snapshots", "name": "locked_snapshots", "domain": "quality", "domainLabel": "Domain 4: Data Quality", "x": 1500, "y": 80, "desc": "Immutable four-eyes reviewed compliance baseline for a reporting period. Freezes product specs, completeness percentage, and uncertainty bands.", "columns": [{"name": "id", "type": "VARCHAR(50)", "key": "PK"}, {"name": "tenant_id", "type": "VARCHAR(50)", "key": "FK", "refTable": "tenants", "refCol": "id"}, {"name": "reporting_period", "type": "VARCHAR(20)"}, {"name": "rule_set_version", "type": "VARCHAR(50)"}, {"name": "total_skus_reviewed", "type": "INT"}, {"name": "completeness_pct", "type": "NUMERIC(5,2)"}, {"name": "fee_uncertainty_amount", "type": "NUMERIC(12,2)"}, {"name": "reviewed_by", "type": "VARCHAR(100)"}, {"name": "approved_by", "type": "VARCHAR(100)"}, {"name": "locked_at", "type": "TIMESTAMPTZ"}], "fks": [{"col": "tenant_id", "refTable": "tenants", "refCol": "id"}]}, {"id": "calculation_runs", "name": "calculation_runs", "domain": "compliance", "domainLabel": "Domain 5: EPR Compliance", "x": 1500, "y": 440, "desc": "Persistent record of a regulatory calculation execution against a locked snapshot. Stores total calculated tonnage and total estimated fee liability.", "columns": [{"name": "id", "type": "VARCHAR(50)", "key": "PK"}, {"name": "tenant_id", "type": "VARCHAR(50)", "key": "FK", "refTable": "tenants", "refCol": "id"}, {"name": "snapshot_id", "type": "VARCHAR(50)", "key": "FK", "refTable": "locked_snapshots", "refCol": "id"}, {"name": "jurisdiction_code", "type": "VARCHAR(10)"}, {"name": "reporting_period", "type": "VARCHAR(20)"}, {"name": "total_tonnage", "type": "NUMERIC(12,4)"}, {"name": "total_estimated_fee", "type": "NUMERIC(14,2)"}, {"name": "currency", "type": "VARCHAR(3)"}, {"name": "rule_version", "type": "VARCHAR(50)"}, {"name": "calculated_at", "type": "TIMESTAMPTZ"}], "fks": [{"col": "tenant_id", "refTable": "tenants", "refCol": "id"}, {"col": "snapshot_id", "refTable": "locked_snapshots", "refCol": "id"}]}, {"id": "calculation_line_items", "name": "calculation_line_items", "domain": "compliance", "domainLabel": "Domain 5: EPR Compliance", "x": 1500, "y": 860, "desc": "Granular line-item audit trace per packaging component. Stores base tariff, modulation multiplier (RAM Red 1.2x), and human-readable calculation formula.", "columns": [{"name": "id", "type": "UUID", "key": "PK"}, {"name": "run_id", "type": "VARCHAR(50)", "key": "FK", "refTable": "calculation_runs", "refCol": "id"}, {"name": "component_id", "type": "UUID", "key": "FK", "refTable": "packaging_components", "refCol": "id"}, {"name": "material_category", "type": "VARCHAR(50)"}, {"name": "tonnage", "type": "NUMERIC(12,4)"}, {"name": "base_tariff_per_tonne", "type": "NUMERIC(10,2)"}, {"name": "modulation_multiplier", "type": "NUMERIC(4,2)"}, {"name": "line_total_fee", "type": "NUMERIC(14,2)"}, {"name": "rating_applied", "type": "VARCHAR(20)"}, {"name": "calculation_formula_text", "type": "TEXT"}], "fks": [{"col": "run_id", "refTable": "calculation_runs", "refCol": "id"}, {"col": "component_id", "refTable": "packaging_components", "refCol": "id"}]}, {"id": "uk_rpd_export_lines", "name": "uk_rpd_export_lines", "domain": "compliance", "domainLabel": "Domain 5: EPR Compliance", "x": 1860, "y": 440, "desc": "Official Defra RPD formatted submission records (LP submission format). Aggregated by packaging activity (SO, PF, IM), packaging type, class, and material.", "columns": [{"name": "id", "type": "UUID", "key": "PK"}, {"name": "run_id", "type": "VARCHAR(50)", "key": "FK", "refTable": "calculation_runs", "refCol": "id"}, {"name": "organisation_id", "type": "VARCHAR(50)"}, {"name": "subsidiary_id", "type": "VARCHAR(50)"}, {"name": "organisation_size", "type": "VARCHAR(10)"}, {"name": "submission_period", "type": "VARCHAR(20)"}, {"name": "packaging_activity", "type": "VARCHAR(10)"}, {"name": "packaging_type", "type": "VARCHAR(10)"}, {"name": "packaging_class", "type": "VARCHAR(10)"}, {"name": "packaging_material", "type": "VARCHAR(10)"}, {"name": "packaging_material_weight", "type": "BIGINT"}, {"name": "ram_rag_rating", "type": "VARCHAR(10)"}], "fks": [{"col": "run_id", "refTable": "calculation_runs", "refCol": "id"}]}];
+
+    const erdViewport = document.getElementById('erd-viewport');
+    const erdSvgLines = document.getElementById('erd-svg-lines');
+    const erdTablesLayer = document.getElementById('erd-tables-layer');
+
+    let erdScale = 0.75;
+    let erdPanX = 30;
+    let erdPanY = 30;
+    let isPanning = false;
+    let startPanX = 0;
+    let startPanY = 0;
+    let selectedTableId = 'products';
+
+    function applyErdTransform() {
+      erdViewport.style.transform = `translate(${erdPanX}px, ${erdPanY}px) scale(${erdScale})`;
+    }
+
+    function renderErdTables() {
+      erdTablesLayer.innerHTML = '';
+      erdTables.forEach(t => {
+        const card = document.createElement('div');
+        card.className = `erd-table-card ${t.id === selectedTableId ? 'selected' : ''}`;
+        card.id = `erd-card-${t.id}`;
+        card.style.left = `${t.x}px`;
+        card.style.top = `${t.y}px`;
+
+        let colsHtml = '';
+        t.columns.forEach(col => {
+          let badge = '';
+          if (col.key === 'PK') badge = '<span class="key-badge key-pk">PK</span>';
+          else if (col.key === 'FK') badge = '<span class="key-badge key-fk">FK</span>';
+
+          colsHtml += `
+            <div class="table-col-row">
+              <div class="col-name-group">
+                ${badge}
+                <span class="col-name">${col.name}</span>
+              </div>
+              <span class="col-type">${col.type}</span>
+            </div>
+          `;
+        });
+
+        const sampleCount = (sampleDbData[t.id] && sampleDbData[t.id].length) || 0;
+
+        card.innerHTML = `
+          <div class="table-header">
+            <span class="table-title">
+              <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2z"/></svg>
+              ${t.name}
+            </span>
+            <span class="domain-tag domain-${t.domain}">${t.domain}</span>
+          </div>
+          <div class="table-columns">${colsHtml}</div>
+          <div class="card-footer-action">
+            <span>${sampleCount} sample rows</span>
+            <span style="font-weight:600; text-decoration:underline;">Inspect Data &rarr;</span>
+          </div>
+        `;
+
+        card.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selectTable(t.id);
+        });
+
+        erdTablesLayer.appendChild(card);
+      });
+
+      renderErdLines();
+    }
+
+    function renderErdLines() {
+      erdSvgLines.innerHTML = '';
+
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      defs.innerHTML = `
+        <marker id="erd-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#3b6855" />
+        </marker>
+        <marker id="erd-arrow-active" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981" />
+        </marker>
+      `;
+      erdSvgLines.appendChild(defs);
+
+      erdTables.forEach(sourceTable => {
+        sourceTable.fks.forEach(fk => {
+          const targetTable = erdTables.find(t => t.id === fk.refTable);
+          if (!targetTable) return;
+
+          const isRelated = (selectedTableId === sourceTable.id || selectedTableId === targetTable.id);
+          
+          let startX, startY, endX, endY;
+
+          if (sourceTable.x < targetTable.x) {
+            startX = sourceTable.x + 290;
+            startY = sourceTable.y + 60;
+            endX = targetTable.x;
+            endY = targetTable.y + 40;
+          } else if (sourceTable.x > targetTable.x) {
+            startX = sourceTable.x;
+            startY = sourceTable.y + 50;
+            endX = targetTable.x + 290;
+            endY = targetTable.y + 60;
+          } else {
+            startX = sourceTable.x + 145;
+            startY = sourceTable.y;
+            endX = targetTable.x + 145;
+            endY = targetTable.y + 160;
+          }
+
+          const dx = Math.abs(endX - startX) * 0.5;
+          const pathData = `M ${startX} ${startY} C ${startX + (endX > startX ? dx : -dx)} ${startY}, ${endX + (endX > startX ? -dx : dx)} ${endY}, ${endX} ${endY}`;
+
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('d', pathData);
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke', isRelated ? '#10b981' : '#2a483b');
+          path.setAttribute('stroke-width', isRelated ? '2.5' : '1.5');
+          path.setAttribute('stroke-dasharray', isRelated ? 'none' : '4,2');
+          path.setAttribute('marker-end', isRelated ? 'url(#erd-arrow-active)' : 'url(#erd-arrow)');
+
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('x', `${(startX + endX) / 2}`);
+          text.setAttribute('y', `${(startY + endY) / 2 - 4}`);
+          text.setAttribute('fill', isRelated ? '#34d399' : '#64748b');
+          text.setAttribute('font-size', '10');
+          text.setAttribute('font-family', 'ui-monospace, monospace');
+          text.setAttribute('text-anchor', 'middle');
+          text.textContent = '1 : N';
+
+          erdSvgLines.appendChild(path);
+          erdSvgLines.appendChild(text);
+        });
+      });
+    }
+
+    function selectTable(tableId) {
+      selectedTableId = tableId;
+      const t = erdTables.find(item => item.id === tableId);
+      if (!t) return;
+
+      document.querySelectorAll('.erd-table-card').forEach(card => {
+        const id = card.id.replace('erd-card-', '');
+        const isSelf = (id === tableId);
+        const isConnected = t.fks.some(fk => fk.refTable === id) || erdTables.some(other => other.id === id && other.fks.some(fk => fk.refTable === tableId));
+
+        if (isSelf) {
+          card.classList.add('selected');
+          card.classList.remove('dimmed');
+        } else if (isConnected) {
+          card.classList.remove('selected', 'dimmed');
+        } else {
+          card.classList.remove('selected');
+          card.classList.add('dimmed');
+        }
+      });
+
+      renderErdLines();
+      showTableInspector(t);
+      toggleInspector(true);
+    }
+
+    function showTableInspector(t) {
+      const panelTitle = document.getElementById('panel-title');
+      const panelSubtitle = document.getElementById('panel-subtitle');
+      const panelContent = document.getElementById('panel-content');
+
+      panelTitle.textContent = t.name;
+      panelSubtitle.textContent = `${t.domainLabel} · Relational Table`;
+
+      const outgoingFks = t.fks.map(f => `<li>References <strong>${f.refTable}</strong> via <code>${f.col}</code> (1:N)</li>`).join('');
+      const incomingFks = erdTables.filter(other => other.fks.some(f => f.refTable === t.id))
+        .map(other => `<li>Referenced by <strong>${other.name}</strong> (1:N)</li>`).join('');
+
+      let relationsHtml = '<p style="color:var(--text-dim);font-size:0.75rem;">None</p>';
+      if (outgoingFks || incomingFks) {
+        relationsHtml = `<ul style="font-size:0.78rem; color:var(--text-muted); padding-left:16px;">${outgoingFks}${incomingFks}</ul>`;
+      }
+
+      // Sample Data Preview in Side Panel
+      const samples = sampleDbData[t.id] || [];
+      let sampleRowsHtml = '';
+      if (samples.length > 0) {
+        sampleRowsHtml = `
+          <div style="overflow-x:auto; max-height:160px; border:1px solid var(--border-subtle); border-radius:4px; margin-top:8px;">
+            <table class="raw-data-table" style="font-size:0.68rem;">
+              <thead>
+                <tr>${Object.keys(samples[0]).map(k => `<th>${k}</th>`).join('')}</tr>
+              </thead>
+              <tbody>
+                ${samples.map(row => `<tr>${Object.values(row).map(v => `<td>${typeof v === 'object' ? JSON.stringify(v) : v}</td>`).join('')}</tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      } else {
+        sampleRowsHtml = '<p style="color:var(--text-dim); font-size:0.75rem;">No sample rows recorded for this draft table.</p>';
+      }
+
+      const colsHtml = t.columns.map(c => `
+        <div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.03);">
+          <span>${c.key ? `<span class="key-badge key-${c.key.toLowerCase()}">${c.key}</span> ` : ''}<code style="color:var(--text-main); font-size:0.75rem;">${c.name}</code></span>
+          <span style="color:var(--text-dim); font-size:0.7rem; font-family:var(--font-mono);">${c.type}</span>
+        </div>
+      `).join('');
+
+      panelContent.innerHTML = `
+        <div class="inspector-section">
+          <h4>Table Responsibility & Context</h4>
+          <p>${t.desc}</p>
+        </div>
+
+        <div class="inspector-section">
+          <h4>Prototype Sample Records (${samples.length})</h4>
+          <button class="btn btn-primary" style="padding:4px 8px; font-size:0.72rem; margin-bottom:6px;" onclick="openDataBrowserForTable('${t.id}')">Open Full Data Explorer &rarr;</button>
+          ${sampleRowsHtml}
+        </div>
+
+        <div class="inspector-section">
+          <h4>Columns & Data Types (${t.columns.length})</h4>
+          <div style="max-height:160px; overflow-y:auto; padding-right:4px;">${colsHtml}</div>
+        </div>
+
+        <div class="inspector-section">
+          <h4>Entity Relationships</h4>
+          ${relationsHtml}
+        </div>
+
+        <div class="source-ref-box">
+          <strong>Official Source of Truth:</strong><br>
+          Defined in <code>docs/DATABASE_SCHEMA_PLAN.md</code>.<br>
+          Sample records verified against <code>backend/app/services/store.py</code> and Defra CSV.
+        </div>
+      `;
+    }
+
+    /* ==========================================================================
+       SAMPLE DATA EXPLORER RENDERING
+       ========================================================================== */
+    function renderTableSelectorPills() {
+      tableSelectorBar.innerHTML = '';
+      erdTables.forEach(t => {
+        const btn = document.createElement('button');
+        btn.className = `table-pill-btn ${t.id === selectedTableId ? 'active' : ''}`;
+        btn.textContent = t.name;
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.table-pill-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          showSampleTableData(t.id);
+        });
+        tableSelectorBar.appendChild(btn);
+      });
+    }
+
+    function showSampleTableData(tableId) {
+      selectedTableId = tableId;
+      const t = erdTables.find(item => item.id === tableId);
+      if (!t) return;
+
+      document.getElementById('current-data-table-name').textContent = t.name;
+      document.getElementById('current-data-table-desc').textContent = t.desc;
+
+      const samples = sampleDbData[tableId] || [];
+      document.getElementById('current-data-table-count').textContent = `${samples.length} Records`;
+
+      const thead = document.getElementById('raw-data-thead');
+      const tbody = document.getElementById('raw-data-tbody');
+
+      thead.innerHTML = '';
+      tbody.innerHTML = '';
+
+      if (samples.length === 0) {
+        thead.innerHTML = `<tr>${t.columns.map(c => `<th>${c.name} (${c.type})</th>`).join('')}</tr>`;
+        tbody.innerHTML = `<tr><td colspan="${t.columns.length}" style="text-align:center; padding:20px; color:var(--text-dim);">No mock records currently in memory store for table '${t.name}'. Schema is ready for PostgreSQL migration.</td></tr>`;
+        return;
+      }
+
+      const keys = Object.keys(samples[0]);
+      thead.innerHTML = `<tr>${keys.map(k => `<th>${k}</th>`).join('')}</tr>`;
+
+      samples.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = keys.map(k => {
+          let val = row[k];
+          if (typeof val === 'object' && val !== null) val = JSON.stringify(val);
+          return `<td>${val !== undefined ? val : '<span style="color:var(--text-dim);">NULL</span>'}</td>`;
+        }).join('');
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openDataBrowserForTable(tableId) {
+      btnModeData.click();
+      showSampleTableData(tableId);
+      document.querySelectorAll('.table-pill-btn').forEach(b => {
+        if (b.textContent === tableId) b.classList.add('active');
+        else b.classList.remove('active');
+      });
+    }
+
+    // Canvas Pan & Zoom
+    erdContainer.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.erd-table-card') || e.target.closest('.canvas-toolbar') || e.target.closest('.canvas-legend')) return;
+      isPanning = true;
+      startPanX = e.clientX - erdPanX;
+      startPanY = e.clientY - erdPanY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isPanning) return;
+      erdPanX = e.clientX - startPanX;
+      erdPanY = e.clientY - startPanY;
+      applyErdTransform();
+    });
+
+    window.addEventListener('mouseup', () => { isPanning = false; });
+
+    erdContainer.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+      erdScale = Math.min(Math.max(erdScale * zoomFactor, 0.3), 2.0);
+      applyErdTransform();
+    }, { passive: false });
+
+    document.getElementById('btn-zoom-in').addEventListener('click', () => {
+      erdScale = Math.min(erdScale * 1.2, 2.0);
+      applyErdTransform();
+    });
+
+    document.getElementById('btn-zoom-out').addEventListener('click', () => {
+      erdScale = Math.max(erdScale * 0.8, 0.3);
+      applyErdTransform();
+    });
+
+    document.getElementById('btn-zoom-reset').addEventListener('click', () => {
+      erdScale = 1.0;
+      erdPanX = 40;
+      erdPanY = 40;
+      applyErdTransform();
+    });
+
+    function fitErdToScreen() {
+      const containerWidth = erdContainer.clientWidth || window.innerWidth - 480;
+      const totalWidth = 2200;
+      erdScale = Math.min(Math.max(containerWidth / totalWidth, 0.45), 0.85);
+      erdPanX = 20;
+      erdPanY = 20;
+      applyErdTransform();
+    }
+
+    document.getElementById('btn-zoom-fit').addEventListener('click', fitErdToScreen);
+
+    // Search filter
+    const erdSearch = document.getElementById('erd-search');
+    erdSearch.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      if (!q) {
+        document.querySelectorAll('.erd-table-card').forEach(c => c.classList.remove('dimmed'));
+        return;
+      }
+      erdTables.forEach(t => {
+        const matchesName = t.name.toLowerCase().includes(q);
+        const matchesCol = t.columns.some(c => c.name.toLowerCase().includes(q));
+        const card = document.getElementById(`erd-card-${t.id}`);
+        if (card) {
+          if (matchesName || matchesCol) card.classList.remove('dimmed');
+          else card.classList.add('dimmed');
+        }
+      });
+    });
+
+    // Render initial view
+    renderErdTables();
+    applyErdTransform();
+    selectTable('products');
+
+    /* ==========================================================================
+       ARCHITECTURE INSPECTOR CLICK HANDLERS
+       ========================================================================== */
+    const archNodesData = {"node-fe-tenant": {"title": "Tenant & Workspace Selector", "badge": "Angular Standalone Frontend", "desc": "Allows Monkspaces consultants to securely switch between assigned client organisations (e.g. 'khc-europe' vs 'northfield-foods'). State managed via Angular Signals.", "keyFields": "Selected Tenant ID, Active Jurisdictions, Currency Code, Consultant Role Scope", "inOut": "Input: OIDC Token Claims \u00b7 Output: X-Tenant-ID HTTP Request Header injected into every API call", "sourceRef": "frontend/src/app/app.ts \u00b7 Screen 1 & 2 Onboarding", "risks": "Frontend filtering is never trusted alone for authorization. Backend must reject cross-tenant IDs."}, "node-fe-bom": {"title": "Packaging Tree & BOM Explorer", "badge": "Angular Standalone Frontend", "desc": "Interactive tree visualising primary, secondary, and tertiary packaging components, multi-layer splits, empty weights in grams, and recyclability RAM ratings.", "keyFields": "SKU, Component Name, Packaging Level (P1/P3), Weight (g), Polymer Type, PCR %", "inOut": "Input: /api/v1/foundation/products/{sku}/tree \u00b7 Output: Visual hierarchical tree view", "sourceRef": "compliance-hub-demo-screens-v4.pdf Screen 5", "risks": "Missing component weights must be clearly displayed as gaps, not assumed to be zero."}, "node-fe-mapping": {"title": "Column Mapping Wizard", "badge": "Ingestion Engine Frontend", "desc": "Interactive spreadsheet preview enabling consultants to map raw client columns to canonical Data Points (DP01\u2013DP45) with AI confidence ratings and unit conversions.", "keyFields": "Source Column, Target Data Point ID, Confidence %, Unit Rule (KG_TO_GRAMS)", "inOut": "Input: Uploaded Excel headers \u00b7 Output: Confirmed mapping template saved to database", "sourceRef": "compliance-hub-demo-screens-v4.pdf Screen 8", "risks": "Unit conversion errors (e.g. 1000x discrepancy) require mandatory human confirmation."}, "node-fe-epr": {"title": "EPR Calculation & Hotspots", "badge": "Compliance Module Frontend", "desc": "Executive view of EPR fee liabilities, RAM eco-modulation multipliers, high-cost hotspot materials, what-if scenario simulations, and Defra RPD CSV downloads.", "keyFields": "Total Tonnage, Base Tariffs, RAM Multipliers, Line Item Traces, What-If Savings", "inOut": "Input: /api/v1/compliance/epr/hotspots \u00b7 Output: Hotspot charts & Defra RPD export", "sourceRef": "docs/COMPLIANCE_MODULES.md \u00b7 Screen 15 & 17", "risks": "Calculations must be reproducible from frozen snapshots, never recalculated dynamically from changing specs."}, "node-oidc": {"title": "OIDC Identity Provider", "badge": "Security & Authentication", "desc": "Monkspaces-approved OAuth 2.0 / OpenID Connect identity provider for enterprise authentication. Issues JWT bearer tokens containing verified tenant scopes and consultant roles.", "keyFields": "sub (User ID), email, roles, assigned_tenants[], session_expiry", "inOut": "Input: User credentials / SSO SAML \u00b7 Output: Signed JWT access token", "sourceRef": "docs/SECURITY_AND_TENANCY.md \u00b7 Decision D-006", "risks": "Consultant role assignment must be explicitly audited. Single sign-on provider selection remains an open decision."}, "node-s3": {"title": "Private Object Storage", "badge": "Infrastructure Storage", "desc": "Encrypted, tenant-isolated private object storage (S3 / Azure Blob) preserving original client uploads, supplier PCR certifications, lab test evidence, and exported Defra submission CSVs.", "keyFields": "Bucket/Container, tenant_id prefix, Object Key, SHA-256 Hash, KMS Key ID", "inOut": "Input: Multipart raw files \u00b7 Output: Signed private download URLs", "sourceRef": "docs/ARCHITECTURE.md \u00b7 docs/SECURITY_AND_TENANCY.md", "risks": "Object URLs must be pre-signed and checked against tenant permissions before serving."}, "node-workers": {"title": "Async Background Processing", "badge": "Ingestion & Job Queue", "desc": "Task worker queue for handling heavy computational tasks: parsing 100,000-row supplier spreadsheets, executing bulk validation rules, and freezing historical snapshots.", "keyFields": "job_id, tenant_id, task_name, progress_pct, status, error_summary", "inOut": "Input: Job trigger from REST API \u00b7 Output: Status notifications & completed tables", "sourceRef": "docs/ARCHITECTURE.md \u00b7 docs/INGESTION_AND_DATA_QUALITY.md", "risks": "Background jobs must execute within a strict tenant security context to prevent cross-tenant memory bleed."}, "node-mod-foundation": {"title": "Layer 1: Shared Canonical Foundation", "badge": "FastAPI Modular Monolith", "desc": "Core business domain managing products, BOM packaging components, material composition splits, suppliers, and sales volumes across all target compliance regulations.", "keyFields": "DP01\u2013DP25, SKU, GTIN, BOM Tree, Layer Splits, Placed on Market Sales", "inOut": "Input: Validated staged records \u00b7 Output: Clean, normalized canonical relational records", "sourceRef": "docs/DATA_MODEL.md \u00b7 backend/app/api/v1/foundation.py", "risks": "Must remain completely independent of jurisdiction-specific EPR fee rules."}, "node-mod-quality": {"title": "Layer 2: Data Quality & Gap Engine", "badge": "FastAPI Modular Monolith", "desc": "Evaluates canonical data against national reporting rules. Quantifies financial risk (\u20ac money-at-risk), classifies blockers vs warnings, and manages source correction tickets.", "keyFields": "data_quality_issues, estimated_money_at_risk, source_correction_tickets", "inOut": "Input: Canonical records \u00b7 Output: Issue queue, risk ranking, and source tickets", "sourceRef": "docs/INGESTION_AND_DATA_QUALITY.md \u00b7 backend/app/api/v1/quality.py", "risks": "Data quality status is distinct from regulatory compliance; complete records can still violate chemical rules."}, "node-mod-epr": {"title": "Layer 3: Extended Producer Responsibility", "badge": "FastAPI Modular Monolith", "desc": "First prioritized compliance plugin: calculates national EPR fee obligations, applies RAM RAG eco-modulation rates, and aggregates records into official Defra RPD CSV lines.", "keyFields": "calculation_runs, calculation_line_items, uk_rpd_export_lines", "inOut": "Input: Immutable locked snapshot \u00b7 Output: Explainable line items & Defra CSV", "sourceRef": "docs/COMPLIANCE_MODULES.md \u00b7 backend/app/api/v1/epr.py", "risks": "Must apply versioned jurisdiction tariffs (e.g. PackUK illustrative 2026/27) to maintain reproducibility."}, "node-mod-ppwr": {"title": "Future Module: EU PPWR Compliance", "badge": "Planned Expansion (Phase 5)", "desc": "Packaging and Packaging Waste Regulation module: empty space ratio calculations (<40%), minimisation dossiers, heavy metals (<100ppm), and Declaration of Conformity generation.", "keyFields": "DP16\u2013DP21, Empty Space %, PFAS Free Cert, Heavy Metal Declarations, DoC Version", "inOut": "Input: Canonical packaging records \u00b7 Output: EU PPWR Technical File & DoC PDF", "sourceRef": "reference-docs-teams/EPR PPWR Data Points.xlsx", "risks": "Do not assume PPWR is identical to national EPR; chemical safety and minimisation requirements require separate discovery."}, "node-mod-dpp": {"title": "Future Module: Digital Product Passport", "badge": "Planned Expansion (Phase 5)", "desc": "B2B and consumer passport module: QR code data carrier resolution, public repairability and recyclability disclosures, and circularity verification.", "keyFields": "DP40 QR Code Link, Material Recyclability Cert, Circularity Metrics", "inOut": "Input: Canonical product master \u00b7 Output: Public DPP endpoint & QR code assets", "sourceRef": "docs/ARCHITECTURE.md \u00b7 docs/COMPLIANCE_MODULES.md", "risks": "Requires separate data governance discovery regarding which internal packaging attributes are publicly disclosed."}, "node-db-relational": {"title": "Relational Core Database", "badge": "PostgreSQL 15+ Core", "desc": "17 strongly typed relational tables enforcing foreign key integrity, index performance, and strict column typing across tenants, products, packaging components, and calculation runs.", "keyFields": "17 Primary Keys, Indexed Foreign Keys, Timestamps, Numerics", "inOut": "Input: SQL DDL / ORM Operations \u00b7 Output: ACID transactional persistence", "sourceRef": "docs/DATABASE_SCHEMA_PLAN.md", "risks": "Staged uploads must not fail silently on schema mismatches; raw records require permissive staging."}, "node-db-jsonb": {"title": "Lossless Hybrid JSONB", "badge": "PostgreSQL GIN Indexed", "desc": "Flexible JSONB columns (e.g. products.source_metadata, raw_staged_records) for storing external SAP/PLM custom fields losslessly without requiring constant DB migrations.", "keyFields": "source_metadata JSONB, connection_config JSONB", "inOut": "Input: Proprietary ERP payloads \u00b7 Output: Preserved raw attributes queryable via GIN index", "sourceRef": "docs/DATABASE_SCHEMA_PLAN.md Section 1", "risks": "Do NOT store entire business entities in JSONB. Core entities must use strongly-typed relational columns."}, "node-db-rls": {"title": "PostgreSQL Row-Level Security", "badge": "Security Defense-in-Depth", "desc": "Database engine security policies automatically appending `tenant_id = current_setting('app.current_tenant_id')` to all SELECT, INSERT, UPDATE, and DELETE statements.", "keyFields": "CREATE POLICY ON ... USING (tenant_id = ...)", "inOut": "Input: Database connection session variable \u00b7 Output: Guaranteed row isolation", "sourceRef": "docs/SECURITY_AND_TENANCY.md", "risks": "Must be tested with automated negative test suites verifying cross-tenant SELECT attempts return empty sets."}};
+
+    document.querySelectorAll('.arch-node').forEach(node => {
+      node.addEventListener('click', () => {
+        const nodeId = node.getAttribute('data-node');
+        const info = archNodesData[nodeId];
+        if (!info) return;
+
+        const panelTitle = document.getElementById('panel-title');
+        const panelSubtitle = document.getElementById('panel-subtitle');
+        const panelContent = document.getElementById('panel-content');
+
+        panelTitle.textContent = info.title;
+        panelSubtitle.textContent = info.badge;
+
+        panelContent.innerHTML = `
+          <div class="inspector-section">
+            <h4>Component Overview</h4>
+            <p>${info.desc}</p>
+          </div>
+
+          <div class="inspector-section">
+            <h4>Key Responsibilities & Data</h4>
+            <div class="property-grid">
+              <span class="property-key">Fields / State:</span>
+              <span class="property-value">${info.keyFields}</span>
+              <span class="property-key">Data In / Out:</span>
+              <span class="property-value">${info.inOut}</span>
+            </div>
+          </div>
+
+          <div class="inspector-section">
+            <h4>Architectural Considerations & Risks</h4>
+            <p style="color:#fde68a;">${info.risks}</p>
+          </div>
+
+          <div class="source-ref-box">
+            <strong>Source Document Reference:</strong><br>
+            <code>${info.sourceRef}</code>
+          </div>
+        `;
+
+        toggleInspector(true);
+      });
+    });
+
+    /* ==========================================================================
+       RISK CARDS FILTERING
+       ========================================================================== */
+    const riskFilters = document.querySelectorAll('.filter-chip[data-filter]');
+    const riskCards = document.querySelectorAll('.risk-card');
+
+    riskFilters.forEach(btn => {
+      btn.addEventListener('click', () => {
+        riskFilters.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const cat = btn.getAttribute('data-filter');
+
+        riskCards.forEach(card => {
+          if (cat === 'all' || card.getAttribute('data-category') === cat) card.style.display = 'flex';
+          else card.style.display = 'none';
+        });
+      });
+    });
+
+    riskCards.forEach(card => {
+      card.addEventListener('click', () => {
+        const title = card.querySelector('.risk-card-title').textContent;
+        const body = card.querySelector('.risk-body').textContent;
+        const mit = card.querySelector('.risk-mitigation').textContent;
+
+        const panelTitle = document.getElementById('panel-title');
+        const panelSubtitle = document.getElementById('panel-subtitle');
+        const panelContent = document.getElementById('panel-content');
+
+        panelTitle.textContent = title;
+        panelSubtitle.textContent = "Architecture Design Consideration";
+
+        panelContent.innerHTML = `
+          <div class="inspector-section">
+            <h4>Issue Summary</h4>
+            <p>${body}</p>
+          </div>
+
+          <div class="inspector-section">
+            <h4>Architecture Review Finding & Mitigation</h4>
+            <p style="color:var(--emerald-100);">${mit}</p>
+          </div>
+
+          <div class="source-ref-box">
+            <strong>Documentation Reference:</strong><br>
+            Derived from <code>docs/PRODUCT_CONTEXT.md</code>, <code>docs/SECURITY_AND_TENANCY.md</code>, and <code>docs/DECISIONS.md</code>.
+          </div>
+        `;
+
+        toggleInspector(true);
+      });
+    });
+
+    /* ==========================================================================
+       DATA FLOW STAGES CLICK TO INSPECT
+       ========================================================================== */
+    const flowSteps = document.querySelectorAll('.flow-step-card');
+    flowSteps.forEach(card => {
+      card.addEventListener('click', () => {
+        flowSteps.forEach(c => c.classList.remove('active-step'));
+        card.classList.add('active-step');
+
+        const stepNum = card.getAttribute('data-step');
+        const title = card.querySelector('.flow-info h4').textContent;
+        const desc = card.querySelector('.flow-info p').textContent;
+        const gov = card.querySelector('.flow-governance-box').textContent;
+
+        const panelTitle = document.getElementById('panel-title');
+        const panelSubtitle = document.getElementById('panel-subtitle');
+        const panelContent = document.getElementById('panel-content');
+
+        panelTitle.textContent = `Stage ${stepNum}: ${title}`;
+        panelSubtitle.textContent = "End-to-End Pipeline Workflow";
+
+        panelContent.innerHTML = `
+          <div class="inspector-section">
+            <h4>Stage Purpose</h4>
+            <p>${desc}</p>
+          </div>
+
+          <div class="inspector-section">
+            <h4>Governance, Lineage & Approvals</h4>
+            <p>${gov}</p>
+          </div>
+
+          <div class="source-ref-box">
+            <strong>Source Reference:</strong><br>
+            <code>docs/INGESTION_AND_DATA_QUALITY.md</code> · Screen 1 to 23 Workflow
+          </div>
+        `;
+
+        toggleInspector(true);
+      });
+    });
+
+  </script>
+</body>
+</html>

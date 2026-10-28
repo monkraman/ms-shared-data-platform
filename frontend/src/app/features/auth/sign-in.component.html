@@ -1,0 +1,373 @@
+<div class="auth-wrapper" id="sign-in-screen">
+
+  <div class="auth-card">
+
+    <!-- Brand Header -->
+    <header class="auth-header">
+      <div class="header-top-row">
+        <div class="brand-badge">
+          <span class="brand-monogram">M</span>
+          <span class="brand-title">Compliance Hub</span>
+        </div>
+
+        <!-- Enterprise Theme Switcher (Light / Dark) -->
+        <button
+          type="button"
+          class="btn-theme-toggle"
+          (click)="themeService.toggleTheme()"
+          [title]="'Switch to ' + (themeService.theme() === 'light' ? 'Dark' : 'Light') + ' Mode'"
+        >
+          @if (themeService.theme() === 'light') {
+            <svg class="theme-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+            <span>Dark</span>
+          } @else {
+            <svg class="theme-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"/>
+              <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+            </svg>
+            <span>Light</span>
+          }
+        </button>
+      </div>
+
+      @if (screenMode() === 'login') {
+        <h1 class="auth-headline">Sign in to your account</h1>
+        <p class="auth-subline">
+          Packaging master data, automated EPR filings, and fee intelligence.
+        </p>
+      }
+
+      @if (screenMode() === 'mfa') {
+        <h1 class="auth-headline">Two-Factor Authentication</h1>
+        <p class="auth-subline">
+          Enter the 6-digit verification code from your enterprise authenticator app.
+        </p>
+      }
+
+      @if (screenMode() === 'forgot_password') {
+        <h1 class="auth-headline">Reset your password</h1>
+        <p class="auth-subline">
+          Enter your work email address to receive a secure recovery or magic sign-in link.
+        </p>
+      }
+
+      @if (screenMode() === 'magic_link_sent') {
+        <h1 class="auth-headline">Check your inbox</h1>
+        <p class="auth-subline">
+          {{ infoMessage() }}
+        </p>
+      }
+    </header>
+
+    <!-- Error Alert Banner -->
+    @if (errorMessage()) {
+      <div class="alert-banner alert-error" role="alert">
+        <span class="alert-icon">!</span>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- VIEW 1: STANDARD SIGN IN ([P1] SSO & Password)              -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    @if (screenMode() === 'login') {
+
+      <!-- [P1] Company SSO Section (Microsoft, Google, SAML) -->
+      <div class="sso-section">
+        <button type="button" class="btn-sso" (click)="onSsoLogin('Microsoft')" [disabled]="authenticating()">
+          <svg class="sso-svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <rect x="2" y="2" width="9" height="9" />
+            <rect x="13" y="2" width="9" height="9" />
+            <rect x="2" y="13" width="9" height="9" />
+            <rect x="13" y="13" width="9" height="9" />
+          </svg>
+          <span>Continue with Microsoft 365 / Azure AD</span>
+        </button>
+
+        <button type="button" class="btn-sso" (click)="onSsoLogin('Google')" [disabled]="authenticating()">
+          <svg class="sso-svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"/>
+          </svg>
+          <span>Continue with Google Workspace</span>
+        </button>
+
+        <button type="button" class="btn-sso" (click)="onSsoLogin('SAML')" [disabled]="authenticating()">
+          <svg class="sso-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <span>Continue with Corporate SAML / Okta</span>
+        </button>
+      </div>
+
+      <!-- Divider -->
+      <div class="auth-divider">
+        <span>or continue with work email</span>
+      </div>
+
+      <!-- [P1] Email & Password Form -->
+      <form [formGroup]="signInForm" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
+        
+        <div class="form-field">
+          <label for="work-email" class="field-label">Work Email Address</label>
+          <input
+            id="work-email"
+            type="email"
+            formControlName="email"
+            class="field-input"
+            placeholder="name@company.com"
+            autocomplete="email"
+            required
+          />
+        </div>
+
+        <div class="form-field">
+          <div class="field-header">
+            <label for="work-password" class="field-label">Password</label>
+            <!-- [P2] Forgot password / magic link -->
+            <button
+              type="button"
+              class="link-action"
+              (click)="setScreenMode('forgot_password')"
+            >
+              Forgot password?
+            </button>
+          </div>
+          <div class="input-wrapper">
+            <input
+              id="work-password"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              class="field-input with-toggle"
+              placeholder="••••••••••••"
+              autocomplete="current-password"
+              required
+            />
+            <button
+              type="button"
+              class="btn-toggle-pw"
+              (click)="togglePassword()"
+              [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+            >
+              {{ showPassword() ? 'Hide' : 'Show' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="form-aux">
+          <label class="checkbox-control">
+            <input type="checkbox" formControlName="rememberMe" />
+            <span class="checkbox-text">Keep me signed in on this device</span>
+          </label>
+        </div>
+
+        <button
+          type="submit"
+          class="btn-primary-action"
+          [disabled]="authenticating() || signInForm.invalid"
+        >
+          @if (authenticating()) {
+            <span>Authenticating...</span>
+          } @else {
+            <span>Sign In</span>
+          }
+        </button>
+
+      </form>
+
+      <!-- Clean Role Presets (Minimalist text link, zero visual noise) -->
+      <div class="preset-links">
+        <span class="preset-label">Quick load test account:</span>
+        <button type="button" class="preset-btn" (click)="applyPreset('client')">Client User</button>
+        <span class="preset-sep">/</span>
+        <button type="button" class="preset-btn" (click)="applyPreset('admin')">SuperAdmin</button>
+      </div>
+
+    }
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- VIEW 2: [P2] MFA CODE STEP                                  -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    @if (screenMode() === 'mfa') {
+
+      <div class="mfa-view">
+        <div class="mfa-target-box">
+          <span class="mfa-target-label">Account</span>
+          <span class="mfa-target-value">{{ pendingEmail() }}</span>
+        </div>
+
+        <form [formGroup]="mfaForm" (ngSubmit)="onVerifyMfa()" class="auth-form">
+
+          <div class="mfa-digits-group">
+            <input
+              id="digit-1"
+              type="text"
+              inputmode="numeric"
+              maxlength="1"
+              formControlName="digit1"
+              class="digit-box"
+              (input)="onDigitInput($event, 'digit-2')"
+              autofocus
+            />
+            <input
+              id="digit-2"
+              type="text"
+              inputmode="numeric"
+              maxlength="1"
+              formControlName="digit2"
+              class="digit-box"
+              (input)="onDigitInput($event, 'digit-3')"
+            />
+            <input
+              id="digit-3"
+              type="text"
+              inputmode="numeric"
+              maxlength="1"
+              formControlName="digit3"
+              class="digit-box"
+              (input)="onDigitInput($event, 'digit-4')"
+            />
+            <span class="digit-separator">—</span>
+            <input
+              id="digit-4"
+              type="text"
+              inputmode="numeric"
+              maxlength="1"
+              formControlName="digit4"
+              class="digit-box"
+              (input)="onDigitInput($event, 'digit-5')"
+            />
+            <input
+              id="digit-5"
+              type="text"
+              inputmode="numeric"
+              maxlength="1"
+              formControlName="digit5"
+              class="digit-box"
+              (input)="onDigitInput($event, 'digit-6')"
+            />
+            <input
+              id="digit-6"
+              type="text"
+              inputmode="numeric"
+              maxlength="1"
+              formControlName="digit6"
+              class="digit-box"
+              (input)="onDigitInput($event, null)"
+            />
+          </div>
+
+          <div class="form-aux">
+            <label class="checkbox-control">
+              <input type="checkbox" formControlName="trustDevice" />
+              <span class="checkbox-text">Trust this browser for 30 days</span>
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            class="btn-primary-action"
+            [disabled]="authenticating()"
+          >
+            @if (authenticating()) {
+              <span>Verifying Code...</span>
+            } @else {
+              <span>Verify &amp; Enter Workspace</span>
+            }
+          </button>
+
+          <div class="form-footer-action">
+            <button
+              type="button"
+              class="link-action"
+              (click)="setScreenMode('login')"
+            >
+              ← Back to password login
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    }
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- VIEW 3: [P2] FORGOT PASSWORD / MAGIC LINK                   -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    @if (screenMode() === 'forgot_password') {
+
+      <form [formGroup]="forgotForm" (ngSubmit)="onSendMagicLink()" class="auth-form">
+        
+        <div class="form-field">
+          <label for="recovery-email" class="field-label">Registered Work Email</label>
+          <input
+            id="recovery-email"
+            type="email"
+            formControlName="email"
+            class="field-input"
+            placeholder="name@company.com"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="btn-primary-action"
+          [disabled]="forgotForm.invalid"
+        >
+          Send Magic Sign-In Link
+        </button>
+
+        <div class="form-footer-action">
+          <button
+            type="button"
+            class="link-action"
+            (click)="setScreenMode('login')"
+          >
+            ← Return to sign in
+          </button>
+        </div>
+
+      </form>
+
+    }
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- VIEW 4: MAGIC LINK SENT CONFIRMATION                        -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    @if (screenMode() === 'magic_link_sent') {
+
+      <div class="confirmation-view">
+        <p class="confirm-text">
+          If an active workspace profile exists for this email, you will receive a single-use authentication link shortly.
+        </p>
+
+        <button
+          type="button"
+          class="btn-primary-action"
+          (click)="setScreenMode('login')"
+        >
+          Return to Sign In
+        </button>
+      </div>
+
+    }
+
+    <!-- [P3] Active Sessions and Devices Footer -->
+    <footer class="auth-footer">
+      <div class="security-meta">
+        <span class="meta-item">SOC 2 Type II</span>
+        <span class="meta-dot">·</span>
+        <span class="meta-item">ISO 27001</span>
+        <span class="meta-dot">·</span>
+        <span class="meta-item">Read-Only Connectors</span>
+      </div>
+      <div class="session-notice">
+        Active sessions are audited per tenant boundary.
+      </div>
+    </footer>
+
+  </div>
+
+</div>

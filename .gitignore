@@ -1,0 +1,69 @@
+# ==============================================================================
+# Compliance Hub — Root .gitignore
+# Prevents secrets, build artifacts, virtualenvs, and dependencies from leaking
+# ==============================================================================
+
+# OS & Editor specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# CRITICAL: Secrets & Environment Credentials
+# Protects Neon DB connection string, API keys, and JWT secrets
+.env
+.env.*
+*.env
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+*.pem
+*.key
+*.cert
+
+# Python Dependencies & Virtual Environments
+.venv/
+**/.venv/
+venv/
+**/venv/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+**/.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node.js & Angular Build Output
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.angular/
+**/.angular/
+.sass-cache/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local Logs & Temporary Storage
+*.log
+**/*.log
+uploads/
+local-data/
+*.sqlite3
+tmp/
+temp/

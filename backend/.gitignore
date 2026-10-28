@@ -1,0 +1,30 @@
+# Python Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environment & Secrets (NEVER COMMIT SENSITIVE KEYS)
+.env
+.env.*
+!.env.example
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Local logs & database files
+*.log
+*.sqlite3
+uploads/
+local-data/
+
