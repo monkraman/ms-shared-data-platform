@@ -1,142 +1,111 @@
-# Monkspaces Shared Product & Packaging Data Platform
+# Compliance Hub — Shared Product & Packaging Data Platform
 
-A multi-tenant SaaS platform for collecting, normalising, governing, and reusing product and packaging data across compliance workflows.
-
-- **Initial vertical slice:** One validated EPR reporting workflow for one explicitly selected jurisdiction.
-- **Future modules:** PPWR (Packaging and Packaging Waste Regulation), Digital Product Passport (DPP), and other compliance workflows.
-- **Stack:** Angular + TypeScript (Frontend), Python + FastAPI (Backend), PostgreSQL (Database).
+An enterprise multi-tenant platform for centralising packaging Bill of Materials (BOM), identifying data quality gaps, and calculating compliance liabilities across national Extended Producer Responsibility (EPR) regulations and emerging EU Packaging & Packaging Waste Regulations (PPWR).
 
 ---
 
-## Architecture Principles
-
-1. **Shared Foundation, Decoupled Modules:** Product master data, packaging specifications, BOM components, and materials are stored once in canonical relational tables; compliance-specific logic and rule-sets reside in separate modules.
-2. **Strict Multi-Tenancy:** Tenant isolation is enforced at every backend route, query, background job, file access, and export. Monkspaces consultants only access assigned client workspaces. Frontend checks are never trusted alone for security.
-3. **Auditability & Lineage:** Every import retains source file lineage, raw values, and mapped units. Missing values are never converted to zero or silently overwritten.
-4. **Reproducibility:** Compliance runs link to an immutable snapshot of input data and versioned rule-sets, ensuring reports are reproducible over time.
-5. **Quality vs. Compliance Separation:** Data-quality issues (missing fields, unverified supplier evidence) are managed separately from regulatory compliance status.
-
----
-
-## Repository Structure
+## Architecture Overview
 
 ```text
-├── backend/                        # FastAPI modular monolith application
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── v1/
-│   │   │   │   └── health.py       # Health check endpoint (/api/v1/health)
-│   │   │   └── router.py           # Combined API router
-│   │   ├── core/
-│   │   │   └── config.py           # Application settings using pydantic-settings
-│   │   ├── modules/                # Domain boundaries (tenants, products, packaging, ingestion, etc.)
-│   │   │   └── __init__.py
-│   │   ├── __init__.py
-│   │   └── main.py                 # FastAPI application factory and entry point
-│   ├── tests/
-│   │   ├── conftest.py             # Test fixtures and TestClient
-│   │   └── test_health.py          # Automated tests for health and CORS
-│   ├── .env.example                # Backend environment configuration template
-│   ├── pyproject.toml              # Build tool and pytest configuration
-│   └── requirements.txt            # Backend dependencies manifest
-├── frontend/                       # Modern Angular standalone application
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── app.ts              # Root standalone component with signal state
-│   │   │   ├── app.html            # Premium interface, health monitoring, tenant selector
-│   │   │   ├── app.css             # Glassmorphism and dark mode styling
-│   │   │   └── app.spec.ts         # Angular unit tests
-│   │   ├── index.html              # HTML shell with Google Fonts
-│   │   ├── main.ts                 # Angular bootstrap
-│   │   └── styles.css              # Global design tokens and typography
-│   ├── angular.json                # Angular CLI workspace configuration
-│   ├── package.json                # Frontend dependencies and npm scripts
-│   └── tsconfig.json               # TypeScript configuration
-├── docs/                           # Architecture, data model, security & decision logs
-├── .gitignore                      # Git ignore rules for Python, Node, and secrets
-├── .env.example                    # Root environment variable template
-└── README.md                       # Platform overview and setup instructions
+[ Client ERP / PLM / Excel Source ]
+                 │
+                 ▼
+    ┌─────────────────────────────┐
+    │  1. Ingestion & Lineage     │  (Saved mapping templates per source feed)
+    └──────────────┬──────────────┘
+                   │
+                   ▼
+    ┌─────────────────────────────┐
+    │  2. Canonical Foundation    │  (Master Products + Packaging BOM Components)
+    │     (STORED ONCE)           │
+    └──────────────┬──────────────┘
+                   │
+                   ▼
+    ┌─────────────────────────────┐
+    │  3. Data Quality Shield     │  (Automated gap detection + € liability risk)
+    └──────────────┬──────────────┘
+                   │
+                   ├───► Module 1: UK Defra RPD EPR Filing (Statutory CSV export)
+                   ├───► Module 2: France CITEO & Germany LUCID Fee Runs
+                   ├───► Module 3: EU PPWR Recyclability Scorecard
+                   └───► Module 4: Digital Product Passport (DPP QR Carriers)
 ```
 
----
-
-## Local Development Guide
-
-### Prerequisites
-
-- **Python:** 3.11+
-- **Node.js:** 20+ (Node 24 tested)
-- **npm:** 10+ (npm 11 tested)
+### Core Engineering Principles
+1. **Single Source of Truth:** Packaging master data and sales volumes are ingested once and normalized into canonical tables, eliminating repetitive data collection for each regulation.
+2. **Read-Only Source System Boundary:** The platform audits and analyzes data without modifying client ERP (SAP S/4HANA) or PLM (Trace One Devex) databases directly. Corrections are routed via structured tickets to be updated at source.
+3. **Reusable Mapping Templates:** Field mappings are configured once and retained. Subsequent re-imports or scheduled API syncs require zero manual mapping.
+4. **No Silent Guessing:** Missing component weights or unverified recycled content (PCR%) are never defaulted to zero; they are tracked as explicit gaps with financial uncertainty margins.
+5. **Strict Multi-Tenancy:** Workspaces, audit logs, and reports are isolated per client organization.
 
 ---
 
-### Backend Setup (FastAPI)
+## Tech Stack
 
-1. **Navigate to the backend directory:**
-   ```bash
-   cd backend
-   ```
-
-2. **Configure environment variables:**
-   ```bash
-   cp .env.example .env
-   ```
-
-3. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Start the development server:**
-   ```bash
-   python -m uvicorn app.main:app --reload --port 8000
-   ```
-
-5. **Verify API endpoints:**
-   - Health check: [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health)
-   - Interactive Swagger API docs: [http://localhost:8000/docs](http://localhost:8000/docs)
-
-6. **Run backend automated tests:**
-   ```bash
-   pytest tests
-   ```
+- **Frontend:** Angular 17+ (Standalone Components, Signals Reactive State, Dual Light/Dark Theme, Strict Monochrome UI).
+- **Backend:** Python 3.11+, FastAPI, Pydantic v2.
+- **Database:** PostgreSQL (with Neon Serverless driver support via `psycopg`).
+- **Deployment:** Render Blueprint (`render.yaml`).
 
 ---
 
-### Frontend Setup (Angular)
+## Local Development Quickstart
 
-1. **Navigate to the frontend directory:**
-   ```bash
-   cd frontend
-   ```
+### 1. Backend (FastAPI)
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+```bash
+cd backend
 
-3. **Start the development server:**
-   ```bash
-   npm start
-   ```
-   *The application will be accessible at [http://localhost:4200](http://localhost:4200).*
+# Create & activate Python virtual environment
+python -m venv .venv
+source .venv/Scripts/activate  # On Windows Git Bash
+# or: .\.venv\Scripts\Activate.ps1 on PowerShell
 
-4. **Run frontend unit tests:**
-   ```bash
-   npm run test:ci
-   ```
+# Install dependencies
+pip install -r requirements.txt
 
-5. **Build production bundle:**
-   ```bash
-   npm run build
-   ```
+# Start backend server
+uvicorn app.main:app --reload --port 8000
+```
+
+- **Interactive Swagger Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
+- **Health Probe:** [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health)
+
+### 2. Frontend (Angular)
+
+```bash
+cd frontend
+
+# Install Node dependencies
+npm install
+
+# Start development server
+npm start
+```
+
+- **Web Application:** [http://localhost:4200](http://localhost:4200)
+- **Sign In & Workspace Entry:** [http://localhost:4200/sign-in](http://localhost:4200/sign-in)
+- **SuperAdmin Panel:** [http://localhost:4200/admin](http://localhost:4200/admin)
 
 ---
 
-## Verification & Automated Test Status
+## Deployment to Render
 
-| Component | Test Suite | Command | Status |
-| :--- | :--- | :--- | :--- |
-| **Backend** | Health checks, CORS headers | `python -m pytest backend/tests` | **3 / 3 PASSED** |
-| **Frontend** | Component creation, headings, tenant switching | `npm run test:ci` | **4 / 4 PASSED** |
-| **Frontend Build** | Production bundle generation | `npm run build` | **SUCCESS** |
+The repository includes a ready-to-use Render Blueprint (`render.yaml`):
+
+1. Push your repository to GitHub.
+2. In [Render Dashboard](https://dashboard.render.com/), select **New +** > **Blueprint**.
+3. Select your repository. Render automatically configures:
+   - `compliance-hub-backend` (Python Web Service)
+   - `compliance-hub-frontend` (Static Site with SPA rewrite rules)
+4. Add your `DATABASE_URL` (Neon PostgreSQL connection string) in the backend environment settings.
+5. Click **Apply** to deploy both services simultaneously.
+
+---
+
+## Documentation Index
+
+- [`docs/PRODUCT_CONTEXT.md`](docs/PRODUCT_CONTEXT.md) — Product vision, 5-stage loop, and module roadmap.
+- [`docs/DATABASE_SCHEMA_PLAN.md`](docs/DATABASE_SCHEMA_PLAN.md) — Relational schema design and DDL.
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — Multi-tier system boundaries and integration architecture.
+- [`ERD_DOCUMENT.md`](ERD_DOCUMENT.md) — Visual Entity Relationship Diagram and 5-domain data dictionary.

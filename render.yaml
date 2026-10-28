@@ -1,0 +1,39 @@
+services:
+  # ============================================================================
+  # 1. FastAPI Python Backend Web Service
+  # ============================================================================
+  - type: web
+    name: compliance-hub-backend
+    env: python
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: CORS_ORIGINS
+        value: '["*"]'
+      - key: DATABASE_URL
+        sync: false # Set this in Render Dashboard from your Neon connection string
+
+  # ============================================================================
+  # 2. Angular Frontend Static Site
+  # ============================================================================
+  - type: web
+    name: compliance-hub-frontend
+    env: static
+    region: oregon
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist/frontend/browser
+    routes:
+      # Single Page Application (SPA) catch-all redirect
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
