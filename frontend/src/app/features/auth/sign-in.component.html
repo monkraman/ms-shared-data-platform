@@ -70,43 +70,11 @@
     }
 
     <!-- ═══════════════════════════════════════════════════════════ -->
-    <!-- VIEW 1: STANDARD SIGN IN ([P1] SSO & Password)              -->
+    <!-- VIEW 1: STANDARD SIGN IN (Email & Password)                 -->
     <!-- ═══════════════════════════════════════════════════════════ -->
     @if (screenMode() === 'login') {
 
-      <!-- [P1] Company SSO Section (Microsoft, Google, SAML) -->
-      <div class="sso-section">
-        <button type="button" class="btn-sso" (click)="onSsoLogin('Microsoft')" [disabled]="authenticating()">
-          <svg class="sso-svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-            <rect x="2" y="2" width="9" height="9" />
-            <rect x="13" y="2" width="9" height="9" />
-            <rect x="2" y="13" width="9" height="9" />
-            <rect x="13" y="13" width="9" height="9" />
-          </svg>
-          <span>Continue with Microsoft 365 / Azure AD</span>
-        </button>
-
-        <button type="button" class="btn-sso" (click)="onSsoLogin('Google')" [disabled]="authenticating()">
-          <svg class="sso-svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-            <path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"/>
-          </svg>
-          <span>Continue with Google Workspace</span>
-        </button>
-
-        <button type="button" class="btn-sso" (click)="onSsoLogin('SAML')" [disabled]="authenticating()">
-          <svg class="sso-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          </svg>
-          <span>Continue with Corporate SAML / Okta</span>
-        </button>
-      </div>
-
-      <!-- Divider -->
-      <div class="auth-divider">
-        <span>or continue with work email</span>
-      </div>
-
-      <!-- [P1] Email & Password Form -->
+      <!-- Email & Password Form -->
       <form [formGroup]="signInForm" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
         
         <div class="form-field">

@@ -4,7 +4,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.core.security import get_current_tenant_id
-from app.schemas.canonical import IngestionBatch, ProductResponse
+from app.schemas.canonical import IngestionBatch, ProductResponse, SkuImportPayload, SkuImportResponse
 from app.services.layer1_foundation import Layer1FoundationService
 
 router = APIRouter(prefix="/foundation", tags=["Layer 1: Shared Data Foundation"])
@@ -45,3 +45,10 @@ def trigger_traceone_sync(
 ) -> IngestionBatch:
     """Simulate on-demand read-only delta sync from KHC Trace One PLM (Devex)."""
     return Layer1FoundationService.simulate_trace_one_sync(tenant_id, spec_id)
+
+
+@router.post("/import", response_model=SkuImportResponse, status_code=201)
+def import_sku_catalog(payload: SkuImportPayload) -> SkuImportResponse:
+    """Import flat SKU catalog, resolve packaging components, and register data quality gaps."""
+    return Layer1FoundationService.import_skus(payload)
+

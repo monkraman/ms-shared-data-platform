@@ -3,51 +3,37 @@
   <!-- Sidebar -->
   <aside class="admin-sidebar">
     <div class="sidebar-brand">
-      <div class="brand-mark">M</div>
+      <div class="brand-mark">C</div>
       <div class="brand-info">
-        <span class="brand-name">Monkspaces</span>
-        <span class="brand-sub">SuperAdmin Panel</span>
+        <span class="brand-name">Compliance Hub</span>
+        <span class="brand-sub">Platform SuperAdmin</span>
       </div>
     </div>
 
     <div class="sidebar-user">
-      <div class="user-avatar">{{ authService.currentUser()?.avatarInitials }}</div>
+      <div class="user-avatar">{{ authService.currentUser()?.avatarInitials || 'SA' }}</div>
       <div class="user-info">
-        <span class="user-name">{{ authService.currentUser()?.fullName }}</span>
+        <span class="user-name">{{ authService.currentUser()?.fullName || 'SuperAdmin User' }}</span>
         <span class="user-role">Platform Administrator</span>
       </div>
     </div>
 
     <nav class="sidebar-nav">
       <button class="nav-item" [class.active]="activeTab() === 'organisations'" (click)="setTab('organisations')">
-        <span class="nav-icon">🏢</span>
+        <span class="nav-bullet"></span>
         <span>Organisations</span>
       </button>
-      <button class="nav-item" [class.active]="activeTab() === 'users'" (click)="setTab('users')">
-        <span class="nav-icon">👥</span>
-        <span>Users & SSO</span>
-      </button>
-      <button class="nav-item" [class.active]="activeTab() === 'ingestion'" (click)="setTab('ingestion')">
-        <span class="nav-icon">📥</span>
-        <span>Data Ingestion</span>
-      </button>
-      <button class="nav-item" [class.active]="activeTab() === 'tariffs'" (click)="setTab('tariffs')">
-        <span class="nav-icon">💶</span>
-        <span>Fee Tariffs</span>
-      </button>
-      <button class="nav-item" [class.active]="activeTab() === 'audit'" (click)="setTab('audit')">
-        <span class="nav-icon">📋</span>
-        <span>Audit Log</span>
+      <button class="nav-item" [class.active]="activeTab() === 'batches'" (click)="setTab('batches')">
+        <span class="nav-bullet"></span>
+        <span>Ingestion Batches</span>
       </button>
     </nav>
 
     <div class="sidebar-bottom">
-      <a routerLink="/dashboard" class="nav-item view-client">
-        <span class="nav-icon">👁️</span>
-        <span>Client View</span>
+      <a routerLink="/products" class="nav-item view-client">
+        <span>Client Hub View →</span>
       </a>
       <button class="nav-item logout-btn" (click)="logout()">
-        <span class="nav-icon">🚪</span>
         <span>Sign Out</span>
       </button>
     </div>
@@ -60,323 +46,476 @@
     <header class="admin-topbar">
       <div class="topbar-left">
         <h1 class="page-title">
-          @if (activeTab() === 'organisations') { Organisation Management }
-          @if (activeTab() === 'users') { Users & SSO Configuration }
-          @if (activeTab() === 'ingestion') { Data Ingestion Control }
-          @if (activeTab() === 'tariffs') { EPR Fee Tariffs }
-          @if (activeTab() === 'audit') { Platform Audit Log }
+          @if (activeTab() === 'organisations') { Multi-Tenant Workspace Directory }
+          @if (activeTab() === 'batches') { Ingestion History & Lineage Batches }
         </h1>
-        <p class="page-sub">Multi-tenant Shared Data Foundation · Platform Administration</p>
+        <p class="page-sub">Canonical FMCG Data Foundation · Step-by-Step Managed Onboarding</p>
       </div>
       <div class="topbar-actions">
-        <div class="system-status">
-          <span class="status-dot"></span>
-          <span>All systems operational</span>
-        </div>
-        @if (activeTab() === 'organisations') {
-          <button class="btn-primary">+ New Organisation</button>
-        }
+        <button class="btn-secondary" (click)="openImportModal()">
+          Import SKU Catalog
+        </button>
+        <button class="btn-primary" (click)="openOnboardModal()">
+          + Onboard Organisation
+        </button>
       </div>
     </header>
 
     <!-- Platform KPI Strip -->
     <div class="kpi-strip">
-      <div class="kpi-mini">
+      <div class="kpi-card">
+        <span class="kpi-lbl">Active Workspaces</span>
         <span class="kpi-num">{{ totalOrgs() }}</span>
-        <span class="kpi-lbl">Active Orgs</span>
       </div>
-      <div class="kpi-mini">
+      <div class="kpi-card">
+        <span class="kpi-lbl">Canonical SKUs Stored</span>
         <span class="kpi-num">{{ totalProducts() | number }}</span>
-        <span class="kpi-lbl">Total Products</span>
       </div>
-      <div class="kpi-mini warn">
+      <div class="kpi-card" [class.alert]="totalIssues() > 0">
+        <span class="kpi-lbl">Quality Gaps Flagged</span>
         <span class="kpi-num">{{ totalIssues() }}</span>
-        <span class="kpi-lbl">Open Quality Issues</span>
       </div>
-      <div class="kpi-mini">
-        <span class="kpi-num">3</span>
-        <span class="kpi-lbl">Active Jurisdictions</span>
-      </div>
-      <div class="kpi-mini {{ orgsWithWarning() > 0 ? 'warn' : '' }}">
-        <span class="kpi-num">{{ orgsWithWarning() }}</span>
-        <span class="kpi-lbl">Needs Attention</span>
+      <div class="kpi-card">
+        <span class="kpi-lbl">Tenants Needing Review</span>
+        <span class="kpi-num">{{ orgsWithIssues() }}</span>
       </div>
     </div>
 
-    <!-- ══════════════════════ ORGANISATIONS TAB ══════════════════════ -->
+    <!-- ══════════════════════ TAB: ORGANISATIONS ══════════════════════ -->
     @if (activeTab() === 'organisations') {
       <div class="tab-content">
-        <div class="org-grid">
-          @for (org of organisations(); track org.id) {
-            <div class="org-card" [class]="'border-' + org.status">
-              <!-- Card Header -->
-              <div class="org-card-header">
-                <div class="org-avatar">{{ org.legalName.charAt(0) }}</div>
-                <div class="org-meta">
-                  <h3 class="org-name">{{ org.legalName }}</h3>
-                  <span class="org-slug">{{ org.slug }}</span>
-                </div>
-                <div class="org-badges">
-                  <span class="badge" [class]="getTierClass(org.tier)">{{ org.tier }}</span>
-                  <span class="status-pill" [class]="getStatusClass(org.status)">● {{ org.status }}</span>
-                </div>
-              </div>
-
-              <!-- Jurisdictions -->
-              <div class="org-jurisdictions">
-                @for (j of org.activeJurisdictions; track j) {
-                  <span class="j-tag">{{ j }}</span>
-                }
-              </div>
-
-              <!-- Stats Row -->
-              <div class="org-stats">
-                <div class="stat">
-                  <span class="stat-val">{{ org.productsCount | number }}</span>
-                  <span class="stat-lbl">Products</span>
-                </div>
-                <div class="stat {{ org.qualityIssues > 100 ? 'stat-warn' : '' }}">
-                  <span class="stat-val">{{ org.qualityIssues }}</span>
-                  <span class="stat-lbl">Quality Issues</span>
-                </div>
-                <div class="stat">
-                  <span class="stat-val">{{ org.members }}</span>
-                  <span class="stat-lbl">Members</span>
-                </div>
-                <div class="stat">
-                  <span class="stat-val">{{ org.primaryCurrency }}</span>
-                  <span class="stat-lbl">Currency</span>
-                </div>
-              </div>
-
-              <!-- Sync Info -->
-              <div class="org-sync">
-                <span class="sync-dot"></span>
-                <span class="sync-text">Last sync: {{ org.lastSync }}</span>
-              </div>
-
-              <!-- Actions -->
-              <div class="org-actions">
-                <button class="btn-action primary" (click)="impersonateOrg(org.slug)">
-                  👁️ View as Client
-                </button>
-                <button class="btn-action">⚙️ Configure</button>
-                <button class="btn-action">📥 Import Data</button>
-              </div>
-            </div>
-          }
-
-          <!-- Add New Org Card -->
-          <div class="org-card org-card-new">
-            <div class="new-org-inner">
-              <div class="new-org-icon">+</div>
-              <h3>Onboard New Organisation</h3>
-              <p>Create tenant schema, configure jurisdictions, set up SSO and data connectors</p>
-              <button class="btn-primary">Start Onboarding Wizard →</button>
-            </div>
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Client Workspaces</h2>
+            <p class="section-desc">Provisioned enterprise client databases with isolated packaging specifications and sales volumes.</p>
           </div>
+          <button class="btn-refresh" (click)="refreshTenants()">Refresh List</button>
         </div>
-      </div>
-    }
 
-    <!-- ══════════════════════ INGESTION TAB ══════════════════════ -->
-    @if (activeTab() === 'ingestion') {
-      <div class="tab-content">
-        <div class="ingestion-grid">
-
-          <div class="ingest-card">
-            <div class="ingest-header">
-              <span class="ingest-icon">📦</span>
-              <div>
-                <h3>Trace One Devex PLM</h3>
-                <p>Read-only BOM extraction · Packaging specs, tare weights, material data</p>
-              </div>
-              <span class="conn-badge connected">Connected</span>
-            </div>
-            <div class="ingest-stats">
-              <div class="istat"><span>Last Run</span><strong>2 min ago</strong></div>
-              <div class="istat"><span>Records</span><strong>2,847</strong></div>
-              <div class="istat"><span>Issues Found</span><strong class="warn">147</strong></div>
-            </div>
-            <div class="ingest-actions">
-              <button class="btn-action primary">▶ Run Sync Now</button>
-              <button class="btn-action">View Log</button>
-              <button class="btn-action">Column Mapping</button>
-            </div>
-          </div>
-
-          <div class="ingest-card">
-            <div class="ingest-header">
-              <span class="ingest-icon">❄️</span>
-              <div>
-                <h3>Snowflake Data Cloud</h3>
-                <p>Sales volumes, placed-on-market data, GTIN catalog, billing nations</p>
-              </div>
-              <span class="conn-badge connected">Connected</span>
-            </div>
-            <div class="ingest-stats">
-              <div class="istat"><span>Last Run</span><strong>1 hr ago</strong></div>
-              <div class="istat"><span>Records</span><strong>18,421</strong></div>
-              <div class="istat"><span>Issues Found</span><strong class="ok">0</strong></div>
-            </div>
-            <div class="ingest-actions">
-              <button class="btn-action primary">▶ Run Sync Now</button>
-              <button class="btn-action">View Log</button>
-              <button class="btn-action">Query Editor</button>
-            </div>
-          </div>
-
-          <div class="ingest-card">
-            <div class="ingest-header">
-              <span class="ingest-icon">📄</span>
-              <div>
-                <h3>Manual Excel / CSV Upload</h3>
-                <p>Fallback upload zone with AI column mapping and validation</p>
-              </div>
-              <span class="conn-badge manual">Manual</span>
-            </div>
-            <div class="upload-zone">
-              <span class="upload-icon">📤</span>
-              <p>Drag & drop CSV/Excel or click to upload</p>
-              <button class="btn-action primary">Choose File</button>
-            </div>
-          </div>
-
-          <div class="ingest-card">
-            <div class="ingest-header">
-              <span class="ingest-icon">🏢</span>
-              <div>
-                <h3>SAP S/4HANA ERP</h3>
-                <p>MARA/STPO material masters, supplier vendor tables</p>
-              </div>
-              <span class="conn-badge disconnected">Disconnected</span>
-            </div>
-            <div class="ingest-actions">
-              <button class="btn-action primary">Configure Connection</button>
-              <button class="btn-action">View Docs</button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    }
-
-    <!-- ══════════════════════ AUDIT LOG TAB ══════════════════════ -->
-    @if (activeTab() === 'audit') {
-      <div class="tab-content">
-        <div class="audit-panel">
-          <div class="audit-filters">
-            <input type="text" placeholder="🔍  Search audit log..." class="audit-search" />
-            <select class="audit-select">
-              <option>All Organisations</option>
-              <option>khc-europe</option>
-              <option>aurora-pack</option>
-            </select>
-            <select class="audit-select">
-              <option>All Severities</option>
-              <option>Warning</option>
-              <option>Critical</option>
-            </select>
-          </div>
-          <div class="audit-list">
-            @for (entry of auditLog(); track entry.id) {
-              <div class="audit-row" [class]="'sev-' + entry.severity">
-                <div class="audit-time">{{ entry.timestamp }}</div>
-                <div class="audit-actor">{{ entry.actor }}</div>
-                <div class="audit-action">
-                  <span class="action-tag">{{ entry.action }}</span>
+        @if (loading()) {
+          <div class="empty-state">Loading workspaces from database...</div>
+        } @else {
+          <div class="org-grid">
+            @for (org of tenants(); track org.id) {
+              <div class="org-card">
+                <div class="org-card-header">
+                  <div class="org-identity">
+                    <span class="org-avatar">{{ org.name.charAt(0) }}</span>
+                    <div>
+                      <h3 class="org-name">{{ org.name }}</h3>
+                      <span class="org-slug">{{ org.id }}</span>
+                    </div>
+                  </div>
+                  <span class="badge">{{ org.tier || 'enterprise' }}</span>
                 </div>
-                <div class="audit-resource">{{ entry.resource }}</div>
-                <div class="audit-org">
-                  <span class="org-tag">{{ entry.orgSlug }}</span>
+
+                <div class="org-attributes">
+                  <div class="attr-item">
+                    <span class="attr-lbl">Sector</span>
+                    <span class="attr-val">{{ org.sector }}</span>
+                  </div>
+                  <div class="attr-item">
+                    <span class="attr-lbl">Market</span>
+                    <span class="attr-val">{{ org.primary_jurisdiction || 'FR' }}</span>
+                  </div>
+                </div>
+
+                <div class="org-stats">
+                  <div class="stat-box">
+                    <span class="stat-val">{{ org.active_products_count || 0 }}</span>
+                    <span class="stat-lbl">Stored SKUs</span>
+                  </div>
+                  <div class="stat-box" [class.warn]="(org.open_quality_issues_count || 0) > 0">
+                    <span class="stat-val">{{ org.open_quality_issues_count || 0 }}</span>
+                    <span class="stat-lbl">Quality Gaps</span>
+                  </div>
+                </div>
+
+                <div class="org-actions">
+                  <button class="btn-action" (click)="openImportModal(org.id)">
+                    Import SKUs
+                  </button>
+                  <button class="btn-action primary" (click)="launchClientHub(org.id, '/products')">
+                    Packaging BOM →
+                  </button>
+                  <button class="btn-action" (click)="launchClientHub(org.id, '/quality')">
+                    Quality Gaps
+                  </button>
                 </div>
               </div>
             }
+
+            <!-- Onboard Card -->
+            <div class="org-card new-card" (click)="openOnboardModal()">
+              <div class="new-card-inner">
+                <span class="new-plus">+</span>
+                <h3>Onboard New Client</h3>
+                <p>Configure company database, activate required compliance modules, and prepare SKU catalog feed.</p>
+                <button class="btn-outline">+ Onboard</button>
+              </div>
+            </div>
           </div>
-        </div>
+        }
       </div>
     }
 
-    <!-- ══════════════════════ TARIFFS TAB ══════════════════════ -->
-    @if (activeTab() === 'tariffs') {
+    <!-- ══════════════════════ TAB: BATCHES ══════════════════════ -->
+    @if (activeTab() === 'batches') {
       <div class="tab-content">
-        <div class="tariff-panel">
-          <p class="panel-intro">
-            Manage EPR fee schedules per jurisdiction. All fee calculation runs reference these tariffs with version tracking.
-          </p>
-          <table class="tariff-table">
-            <thead>
-              <tr>
-                <th>Jurisdiction</th>
-                <th>Regulation</th>
-                <th>Material</th>
-                <th>Fee / tonne (EUR)</th>
-                <th>Eco-mod</th>
-                <th>Valid From</th>
-                <th>Valid Until</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><span class="flag-txt">🇬🇧</span> GB</td>
-                <td><span class="reg-tag">UK Defra RPD</span></td>
-                <td>PET (Clear)</td>
-                <td class="fee-val">€ 285.00</td>
-                <td>×0.85 recyclable</td>
-                <td>2026-04-01</td>
-                <td>2027-03-31</td>
-                <td><button class="btn-action">Edit</button></td>
-              </tr>
-              <tr>
-                <td><span class="flag-txt">🇬🇧</span> GB</td>
-                <td><span class="reg-tag">UK Defra RPD</span></td>
-                <td>Glass</td>
-                <td class="fee-val">€ 194.00</td>
-                <td>×0.90 recyclable</td>
-                <td>2026-04-01</td>
-                <td>2027-03-31</td>
-                <td><button class="btn-action">Edit</button></td>
-              </tr>
-              <tr>
-                <td><span class="flag-txt">🇫🇷</span> FR</td>
-                <td><span class="reg-tag">Citeo EPR</span></td>
-                <td>Paper / Board</td>
-                <td class="fee-val">€ 142.50</td>
-                <td>×0.80 recyclable</td>
-                <td>2026-01-01</td>
-                <td>2026-12-31</td>
-                <td><button class="btn-action">Edit</button></td>
-              </tr>
-              <tr>
-                <td><span class="flag-txt">🇩🇪</span> DE</td>
-                <td><span class="reg-tag">LUCID/VerpackG</span></td>
-                <td>Flexible PE</td>
-                <td class="fee-val">€ 320.00</td>
-                <td>×1.20 non-rec</td>
-                <td>2026-01-01</td>
-                <td>2026-12-31</td>
-                <td><button class="btn-action">Edit</button></td>
-              </tr>
-            </tbody>
-          </table>
-          <button class="btn-primary" style="margin-top:16px">+ Add Tariff Row</button>
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Ingestion History & Source Batches</h2>
+            <p class="section-desc">Audited record of all file uploads, ERP synchronizations, and detected quality gaps.</p>
+          </div>
+          <button class="btn-refresh" (click)="loadBatches()">Refresh Batches</button>
         </div>
-      </div>
-    }
 
-    <!-- ══════════════════════ USERS TAB ══════════════════════ -->
-    @if (activeTab() === 'users') {
-      <div class="tab-content">
-        <div class="users-placeholder">
-          <div class="placeholder-icon">👥</div>
-          <h3>User Management</h3>
-          <p>Invite users, assign org roles, configure SSO providers (Microsoft Azure AD, Okta, custom SAML) per organisation.</p>
-          <div class="coming-pill">Coming in Sprint 2</div>
-        </div>
+        @if (batches().length === 0) {
+          <div class="empty-state">No ingestion batches recorded yet. Use "Import SKU Catalog" to ingest data.</div>
+        } @else {
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Batch ID</th>
+                  <th>Source Reference</th>
+                  <th>Timestamp</th>
+                  <th>Status</th>
+                  <th>Records Ingested</th>
+                  <th>Quality Gaps Detected</th>
+                  <th>Audit Note</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (b of batches(); track b.id) {
+                  <tr>
+                    <td class="mono font-bold">{{ b.id }}</td>
+                    <td>{{ b.source_reference }}</td>
+                    <td class="mono">{{ b.created_at | date:'yyyy-MM-dd HH:mm' }}</td>
+                    <td><span class="pill-status">{{ b.status }}</span></td>
+                    <td class="mono">{{ b.records_normalized }}</td>
+                    <td class="mono" [class.text-alert]="b.quality_issues_detected > 0">{{ b.quality_issues_detected }}</td>
+                    <td class="table-msg">{{ b.message || 'Ingested successfully' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
       </div>
     }
 
   </main>
-</div>
 
+  <!-- ══════════════════════ MODAL: ONBOARD ORGANISATION ══════════════════════ -->
+  @if (showOnboardModal()) {
+    <div class="modal-backdrop" (click)="closeOnboardModal()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div>
+            <h2 class="modal-title">Onboard New Organisation</h2>
+            <p class="modal-sub">Step 1: Provision client tenant workspace in Compliance Hub</p>
+          </div>
+          <button class="modal-close" (click)="closeOnboardModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+          @if (onboardError()) {
+            <div class="banner-alert">{{ onboardError() }}</div>
+          }
+          @if (onboardSuccess()) {
+            <div class="banner-success">{{ onboardSuccess() }}</div>
+          }
+
+          <div class="form-group">
+            <label class="form-lbl">Legal Company Name <span class="req">*</span></label>
+            <input
+              type="text"
+              class="form-input"
+              [(ngModel)]="newOrgName"
+              (ngModelChange)="onOrgNameChange()"
+              placeholder="e.g. Danone France SA or Unilever UK"
+            />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-lbl">Workspace Identifier / Slug <span class="req">*</span></label>
+              <input
+                type="text"
+                class="form-input mono"
+                [(ngModel)]="newOrgSlug"
+                placeholder="e.g. danone-fr"
+              />
+              <span class="form-hint">Used for database isolation and API headers.</span>
+            </div>
+            <div class="form-group">
+              <label class="form-lbl">Industry Sector</label>
+              <select class="form-select" [(ngModel)]="newOrgSector">
+                <option value="Food & Beverage / FMCG">Food & Beverage / FMCG</option>
+                <option value="Personal Care & Cosmetics">Personal Care & Cosmetics</option>
+                <option value="Home Care & Detergents">Home Care & Detergents</option>
+                <option value="Packaging Converter">Packaging Converter</option>
+                <option value="Retail & Supermarket">Retail & Supermarket</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-lbl">Primary Reporting Market</label>
+              <select class="form-select" [(ngModel)]="newOrgJurisdiction">
+                <option value="FR">France (Citeo / Adelphe)</option>
+                <option value="DE">Germany (LUCID / ZSVR)</option>
+                <option value="GB">United Kingdom (Defra RPD)</option>
+                <option value="ES">Spain (Ecoembes)</option>
+                <option value="IT">Italy (CONAI)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-lbl">Reporting Currency</label>
+              <select class="form-select" [(ngModel)]="newOrgCurrency">
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+                <option value="USD">USD ($)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Pluggable SaaS Modules -->
+          <div class="modules-section">
+            <label class="form-lbl">Active Compliance Modules (Pluggable)</label>
+            <div class="modules-grid">
+              <label class="module-chk">
+                <input type="checkbox" [(ngModel)]="moduleEpr" />
+                <div>
+                  <strong>EPR Reporting & Fee Simulator</strong>
+                  <span>Tariff calculations, eco-modulation, and declared returns.</span>
+                </div>
+              </label>
+              <label class="module-chk">
+                <input type="checkbox" [(ngModel)]="modulePpwr" />
+                <div>
+                  <strong>PPWR Compliance</strong>
+                  <span>Packaging reduction, PCR mandates, recyclability grades.</span>
+                </div>
+              </label>
+              <label class="module-chk">
+                <input type="checkbox" [(ngModel)]="moduleDpp" />
+                <div>
+                  <strong>Digital Product Passport (DPP)</strong>
+                  <span>QR consumer passport, supplier material passports.</span>
+                </div>
+              </label>
+              <label class="module-chk">
+                <input type="checkbox" [(ngModel)]="moduleCosting" />
+                <div>
+                  <strong>Packaging Costing Engine</strong>
+                  <span>Raw material pricing, compliance fee impact on SKU margins.</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-secondary" (click)="closeOnboardModal()">Cancel</button>
+          <button class="btn-primary" [disabled]="isSubmitting()" (click)="submitOnboardOrg()">
+            @if (isSubmitting()) { Provisioning... } @else { Provision Workspace }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ══════════════════════ MODAL: IMPORT SKU DATA & COLUMN MAPPING ══════════════════════ -->
+  @if (showImportModal()) {
+    <div class="modal-backdrop" (click)="closeImportModal()">
+      <div class="modal-card modal-wide" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div>
+            <h2 class="modal-title">Import SKU Catalog & Column Mapping</h2>
+            <p class="modal-sub">Step 2: Map client source columns into Canonical Shared Foundation</p>
+          </div>
+          <button class="modal-close" (click)="closeImportModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+          @if (importError()) {
+            <div class="banner-alert">{{ importError() }}</div>
+          }
+          @if (importResult()) {
+            <div class="banner-success">
+              <p class="font-bold">{{ importResult()?.message }}</p>
+              @if (importResult()?.issues_summary?.length) {
+                <div class="import-gap-list">
+                  <span class="gap-title">Identified Data Quality Gaps:</span>
+                  <ul>
+                    @for (issue of importResult()!.issues_summary; track issue) {
+                      <li>{{ issue }}</li>
+                    }
+                  </ul>
+                </div>
+              }
+              <div class="banner-actions">
+                <button class="btn-action primary" (click)="launchClientHub(selectedTenantForImport(), '/products')">
+                  Open Packaging BOM Master →
+                </button>
+                <button class="btn-action" (click)="launchClientHub(selectedTenantForImport(), '/quality')">
+                  Open Data Quality Worklist →
+                </button>
+              </div>
+            </div>
+          }
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-lbl">Target Organisation <span class="req">*</span></label>
+              <select class="form-select" [(ngModel)]="selectedTenantForImport">
+                @for (org of tenants(); track org.id) {
+                  <option [value]="org.id">{{ org.name }} ({{ org.id }})</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-lbl">Source Feed Name / Batch Reference</label>
+              <input type="text" class="form-input" [(ngModel)]="importSourceName" />
+            </div>
+          </div>
+
+          <!-- Input Mode Tabs -->
+          <div class="mode-tabs">
+            <button
+              class="mode-btn"
+              [class.active]="importMode() === 'sample'"
+              (click)="setImportMode('sample')"
+            >
+              1-Click Realistic FMCG Sample
+            </button>
+            <button
+              class="mode-btn"
+              [class.active]="importMode() === 'paste'"
+              (click)="setImportMode('paste')"
+            >
+              Paste CSV Text
+            </button>
+            <button
+              class="mode-btn"
+              [class.active]="importMode() === 'file'"
+              (click)="setImportMode('file')"
+            >
+              Upload .CSV File
+            </button>
+          </div>
+
+          @if (importMode() === 'file') {
+            <div class="file-dropzone">
+              <input type="file" accept=".csv" (change)="handleFileUpload($event)" />
+              <p>Select or drop a CSV file containing SKU packaging data.</p>
+            </div>
+          }
+
+          @if (importMode() === 'paste') {
+            <div class="form-group">
+              <label class="form-lbl">CSV Content (Header row required)</label>
+              <textarea
+                class="form-textarea mono"
+                rows="5"
+                [ngModel]="csvTextInput()"
+                (ngModelChange)="onCsvTextChange($event)"
+                placeholder="sku,name,brand,category,material,packaging_weight_grams,recycled_content_pct,units_sold,jurisdiction"
+              ></textarea>
+            </div>
+          }
+
+          <!-- Column Mapping Information -->
+          <div class="mapping-banner">
+            <span class="mapping-title">Auto-Detected Field Mappings:</span>
+            <div class="mapping-tags">
+              <span class="tag">sku → SKU</span>
+              <span class="tag">name → Product Name</span>
+              <span class="tag">material → Packaging Material</span>
+              <span class="tag">packaging_weight_grams → Tare Weight (g)</span>
+              <span class="tag">recycled_content_pct → PCR %</span>
+              <span class="tag">units_sold → Sales Units</span>
+            </div>
+          </div>
+
+          <!-- Preview Table -->
+          <div class="preview-section">
+            <div class="preview-header">
+              <span class="preview-title">Parsed Records Preview ({{ parsedSkus().length }} Rows)</span>
+              <span class="preview-hint">Immediate schema validation before storing in database:</span>
+            </div>
+
+            <div class="table-container max-preview">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>SKU</th>
+                    <th>Product Name</th>
+                    <th>Brand</th>
+                    <th>Material</th>
+                    <th>Tare Wt (g)</th>
+                    <th>PCR %</th>
+                    <th>Units Sold</th>
+                    <th>Validation Check</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of parsedSkus(); track row.sku) {
+                    <tr>
+                      <td class="mono font-bold">{{ row.sku }}</td>
+                      <td>{{ row.name }}</td>
+                      <td>{{ row.brand }}</td>
+                      <td>
+                        @if (!row.material) {
+                          <span class="pill-warn">Unspecified</span>
+                        } @else {
+                          {{ row.material }}
+                        }
+                      </td>
+                      <td class="mono">
+                        @if (row.packaging_weight_grams === null || row.packaging_weight_grams === 0) {
+                          <span class="pill-alert">Missing Weight</span>
+                        } @else {
+                          {{ row.packaging_weight_grams }}g
+                        }
+                      </td>
+                      <td class="mono">{{ row.recycled_content_pct || 0 }}%</td>
+                      <td class="mono">{{ row.units_sold ? (row.units_sold | number) : '-' }}</td>
+                      <td>
+                        @if (!row.packaging_weight_grams) {
+                          <span class="pill-alert">Blocker Gap</span>
+                        } @else if (!row.material) {
+                          <span class="pill-alert">Blocker Gap</span>
+                        } @else if (row.recycled_content_pct && row.recycled_content_pct > 0) {
+                          <span class="pill-warn">Unverified PCR</span>
+                        } @else {
+                          <span class="pill-ok">Clean</span>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-secondary" (click)="closeImportModal()">Close</button>
+          <button
+            class="btn-primary"
+            [disabled]="isImporting() || parsedSkus().length === 0"
+            (click)="executeImport()"
+          >
+            @if (isImporting()) { Storing & Validating... } @else { Store & Ingest into Database }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

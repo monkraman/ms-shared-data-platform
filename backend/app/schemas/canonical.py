@@ -100,3 +100,33 @@ class IngestionBatch(BaseModel):
     records_normalized: int = 0
     quality_issues_detected: int = 0
     message: Optional[str] = None
+
+
+class SkuImportItem(BaseModel):
+    sku: str = Field(..., description="Unique product SKU code")
+    name: str = Field(..., description="Product commercial name")
+    brand: Optional[str] = Field(default="Standard", description="Brand name")
+    category: Optional[str] = Field(default="General Goods", description="Product category")
+    material: Optional[str] = Field(default=None, description="Packaging material category")
+    packaging_weight_grams: Optional[float] = Field(default=None, description="Gross packaging weight in grams")
+    recycled_content_pct: Optional[float] = Field(default=0.0, description="Post-consumer recycled content %")
+    is_recyclable: Optional[bool] = Field(default=True, description="Conforms to recycling stream")
+    units_sold: Optional[int] = Field(default=None, description="Annual units placed on market")
+    jurisdiction: Optional[str] = Field(default="FR", description="Target market country code")
+
+
+class SkuImportPayload(BaseModel):
+    tenant_id: str = Field(..., description="Target company/tenant ID")
+    source_name: str = Field(default="CSV / ERP File Import", description="Source document reference")
+    items: List[SkuImportItem] = Field(..., description="List of SKU records to ingest")
+
+
+class SkuImportResponse(BaseModel):
+    tenant_id: str
+    batch_id: str
+    records_received: int
+    records_imported: int
+    quality_issues_detected: int
+    issues_summary: List[str] = Field(default_factory=list)
+    message: str
+

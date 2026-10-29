@@ -9,13 +9,12 @@ export interface BackendTenantRecord {
   name: string;
   sector: string;
   tier?: string;
+  primary_jurisdiction?: string;
   active_jurisdictions?: string[];
+  active_products_count?: number;
+  open_quality_issues_count?: number;
+  source_systems?: string[];
   created_at?: string;
-  source_systems?: Array<{
-    system_type: string;
-    status: string;
-    last_synced_at?: string;
-  }>;
 }
 
 @Injectable({
@@ -56,20 +55,30 @@ export class TenantApiService {
   /**
    * Create or Onboard a new tenant workspace
    */
-  createTenantWorkspace(profile: ClientWorkspaceProfile): Observable<any> {
+  createTenantWorkspace(data: {
+    id: string;
+    name: string;
+    sector: string;
+    organisationSize?: 'L' | 'S';
+    rpdOrganisationId?: string | null;
+    primaryCurrency?: string;
+    activeJurisdictions?: string[];
+    tier?: string;
+  }): Observable<any> {
     const payload = {
-      id: profile.id,
-      name: profile.name,
-      sector: profile.sector,
-      organisation_size: profile.organisationSize,
-      rpd_organisation_id: profile.rpdOrganisationId || null,
-      primary_currency: profile.primaryCurrency,
-      active_jurisdictions: profile.markets.filter(m => m.selected).map(m => m.regulationCode),
+      id: data.id,
+      name: data.name,
+      sector: data.sector,
+      organisation_size: data.organisationSize || 'L',
+      rpd_organisation_id: data.rpdOrganisationId || null,
+      primary_currency: data.primaryCurrency || 'EUR',
+      active_jurisdictions: data.activeJurisdictions || ['FR'],
+      tier: data.tier || 'enterprise',
     };
 
     return this.http.post(`${this.baseUrl}/api/v1/tenants`, payload).pipe(
       tap(() => {
-        this.activeTenantId.set(profile.id);
+        this.activeTenantId.set(data.id);
         this.loadTenants().subscribe();
       })
     );

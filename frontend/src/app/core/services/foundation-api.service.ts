@@ -34,13 +34,45 @@ export interface CanonicalProduct {
 export interface IngestionBatch {
   id: string;
   tenant_id: string;
-  source_system: string;
-  source_batch_reference: string;
+  source_reference: string;
+  source_batch_reference?: string;
+  source_type?: string;
   status: string;
-  records_ingested: number;
-  records_failed: number;
-  started_at: string;
-  completed_at?: string;
+  records_received?: number;
+  records_normalized: number;
+  records_ingested?: number;
+  quality_issues_detected: number;
+  created_at: string;
+  message?: string;
+}
+
+export interface SkuImportItem {
+  sku: string;
+  name: string;
+  brand?: string;
+  category?: string;
+  material?: string;
+  packaging_weight_grams?: number | null;
+  recycled_content_pct?: number;
+  is_recyclable?: boolean;
+  units_sold?: number | null;
+  jurisdiction?: string;
+}
+
+export interface SkuImportPayload {
+  tenant_id: string;
+  source_name: string;
+  items: SkuImportItem[];
+}
+
+export interface SkuImportResponse {
+  tenant_id: string;
+  batch_id: string;
+  records_received: number;
+  records_imported: number;
+  quality_issues_detected: number;
+  issues_summary: string[];
+  message: string;
 }
 
 @Injectable({
@@ -108,5 +140,16 @@ export class FoundationApiService {
           error: () => this.syncing.set(false),
         })
       );
+  }
+
+  importSkus(payload: SkuImportPayload): Observable<SkuImportResponse> {
+    return this.http.post<SkuImportResponse>(`${this.baseUrl}/api/v1/foundation/import`, payload);
+  }
+
+  getBatches(tenantId?: string): Observable<IngestionBatch[]> {
+    const tid = tenantId || this.tenantService.activeTenantId();
+    return this.http.get<IngestionBatch[]>(`${this.baseUrl}/api/v1/foundation/batches`, {
+      headers: new HttpHeaders({ 'X-Tenant-ID': tid }),
+    });
   }
 }
