@@ -3,23 +3,21 @@
   <!-- Header Banner -->
   <header class="wizard-header">
     <div class="wizard-header-left">
-      <div class="wizard-badge">CLIENT WORKSPACE SETUP</div>
-      <h1 class="wizard-title">New Client Onboarding &amp; Jurisdiction Setup</h1>
       <div class="wizard-badge">ORGANISATION WORKSPACE SETUP</div>
-      <h1 class="wizard-title">Client Onboarding &amp; Jurisdiction Configuration</h1>
+      <h1 class="wizard-title">Client Onboarding &amp; Regulatory Configuration</h1>
       <p class="wizard-subtitle">
-        Configure company legal profile, target EPR regulations, and PLM/ERP read-only data connections.
+        Configure company legal profile, dynamic EPR market obligations, and PLM/ERP read-only connectors.
       </p>
     </div>
 
     <!-- Quick Demo Presets -->
     <div class="demo-presets">
-      <span class="preset-label">Load Demo Preset:</span>
-      <button type="button" class="preset-btn active" (click)="applyPreset('khc')">
-        Kraft Heinz Europe (KHC)
+      <span class="preset-label">Presets:</span>
+      <button type="button" class="preset-btn" (click)="applyPreset('khc')">
+        The Kraft Heinz Company (UK, DK, FR)
       </button>
       <button type="button" class="preset-btn" (click)="applyPreset('aurora')">
-        Aurora Packaging Group
+        Aurora Packaging Group (UK, DE)
       </button>
     </div>
   </header>
@@ -30,17 +28,17 @@
   @if (submitSuccess()) {
   <!-- Success Completion State -->
   <div class="success-card" id="onboarding-success">
-    <div class="success-icon">✓</div>
-    <h2>Workspace Created Successfully!</h2>
+    <div class="success-icon">&#10003;</div>
+    <h2>Workspace Created Successfully</h2>
     <p class="success-desc">
-      Client workspace <strong>{{ profileForm.get('companyName')?.value }}</strong>
+      Organisation workspace <strong>{{ profileForm.get('companyName')?.value }}</strong>
       (<code>{{ profileForm.get('tenantSlug')?.value }}</code>)
-      has been established with <strong>{{ markets().filter(m => m.selected).length }} target regulations</strong>.
+      has been initialized with <strong>{{ markets().filter(m => m.selected).length }} active jurisdictions</strong>.
     </p>
 
     <div class="success-actions">
       <button type="button" class="btn btn-primary" (click)="navigateToDashboard()">
-        Go to Home Dashboard &rarr;
+        Launch Workspace Dashboard &rarr;
       </button>
     </div>
   </div>
@@ -84,8 +82,8 @@
         <div class="form-group">
           <label for="organisationSize">Organisation Size Threshold *</label>
           <select id="organisationSize" formControlName="organisationSize">
-            <option value="L">Large Producer (Turnover >£2M &amp; >50 tonnes packaging)</option>
-            <option value="S">Small Producer (Turnover £1M–£2M &amp; 25–50 tonnes)</option>
+            <option value="L">Large Producer (Turnover >&pound;2M &amp; >50 tonnes packaging)</option>
+            <option value="S">Small Producer (Turnover &pound;1M&ndash;&pound;2M &amp; 25&ndash;50 tonnes)</option>
           </select>
           <span class="field-hint">Governs UK Defra RPD obligation reporting thresholds.</span>
         </div>
@@ -97,9 +95,9 @@
         </div>
 
         <div class="form-group full-width">
-          <label for="consultantEmail">Assigned Monkspaces Lead Consultant *</label>
+          <label for="consultantEmail">Lead Consultant Email *</label>
           <input id="consultantEmail" type="email" formControlName="consultantEmail"
-            placeholder="consultant@monkspaces.com" />
+            placeholder="lead@compliancehub.io" />
         </div>
       </div>
     </div>
@@ -109,39 +107,59 @@
     @if (currentStep() === 2) {
     <div class="step-panel" id="step-2-categories">
       <div class="panel-intro">
-        <h3>Sectors and Product Categories</h3>
-        <p>Select industry sector and product packaging categories managed in this workspace.</p>
+        <h3>Sectors &amp; Product Packaging Categories</h3>
+        <p>Industry sectors are fetched directly from the backend configuration engine.</p>
       </div>
 
       <div class="form-group">
         <label for="sector">Primary Industry Sector</label>
-        <select id="sector" formControlName="sector">
-          @for (sec of config.options.sectors; track sec.id) {
-          <option [value]="sec.id">{{ sec.name }}</option>
+        <select id="sector" formControlName="sector" (change)="updateComplianceMatrix()">
+          @if (backendSectors().length > 0) {
+            @for (sec of backendSectors(); track sec.id) {
+            <option [value]="sec.id">{{ sec.name }} &mdash; {{ sec.description }}</option>
+            }
+          } @else {
+            @for (sec of config.options.sectors; track sec.id) {
+            <option [value]="sec.id">{{ sec.name }}</option>
+            }
           }
         </select>
       </div>
 
       <div class="categories-section">
         <label>Product Portfolio Categories</label>
-        <p class="section-hint">Click tags to include or exclude from canonical catalog:</p>
+        <p class="section-hint">Select the packaging categories active in this workspace:</p>
 
         <div class="category-tags-grid">
-          @for (sec of config.options.sectors; track sec.id) {
-          @if (profileForm.get('sector')?.value === sec.id) {
-          @for (cat of sec.defaultCategories; track cat) {
-          <button type="button" class="cat-chip" [class.active]="selectedCategories().includes(cat)"
-            (click)="toggleCategory(cat)">
-            <span class="cat-check">{{ selectedCategories().includes(cat) ? '✓' : '+' }}</span>
-            {{ cat }}
-          </button>
-          }
-          }
+          @if (backendSectors().length > 0) {
+            @for (sec of backendSectors(); track sec.id) {
+              @if (profileForm.get('sector')?.value === sec.id) {
+                @for (cat of sec.default_categories; track cat) {
+                <button type="button" class="cat-chip" [class.active]="selectedCategories().includes(cat)"
+                  (click)="toggleCategory(cat)">
+                  <span class="cat-check">{{ selectedCategories().includes(cat) ? '&#10003;' : '+' }}</span>
+                  {{ cat }}
+                </button>
+                }
+              }
+            }
+          } @else {
+            @for (sec of config.options.sectors; track sec.id) {
+              @if (profileForm.get('sector')?.value === sec.id) {
+                @for (cat of sec.defaultCategories; track cat) {
+                <button type="button" class="cat-chip" [class.active]="selectedCategories().includes(cat)"
+                  (click)="toggleCategory(cat)">
+                  <span class="cat-check">{{ selectedCategories().includes(cat) ? '&#10003;' : '+' }}</span>
+                  {{ cat }}
+                </button>
+                }
+              }
+            }
           }
         </div>
 
         <div class="add-category-row">
-          <input type="text" formControlName="newCategoryInput" placeholder="Add custom product category..."
+          <input type="text" formControlName="newCategoryInput" placeholder="Add custom category..."
             (keydown.enter)="$event.preventDefault(); addCustomCategory()" />
           <button type="button" class="btn btn-secondary" (click)="addCustomCategory()">
             + Add Category
@@ -156,7 +174,7 @@
     <div class="step-panel" id="step-3-markets">
       <div class="panel-intro">
         <h3>Compliance Markets &amp; Regulations</h3>
-        <p>Switch on applicable national EPR laws with legal reasons and producer roles.</p>
+        <p>Jurisdictions are configured via backend regulatory models. Select operating markets to calculate data obligations.</p>
       </div>
 
       <div class="form-group" style="margin-bottom: 20px;">
@@ -172,13 +190,30 @@
         </div>
       </div>
 
-      <label style="display:block; margin-bottom:8px;">Target EPR Jurisdictions ({{ markets().length }}
-        Available)</label>
+      <!-- Live Obligation Matrix Banner -->
+      @if (complianceMatrix(); as matrix) {
+      <div class="matrix-overview-box">
+        <div class="matrix-stat">
+          <span class="stat-number">{{ matrix.applicable_regulations.length }}</span>
+          <span class="stat-label">Active Regulations</span>
+        </div>
+        <div class="matrix-stat">
+          <span class="stat-number">{{ matrix.total_data_points_required }} / 45</span>
+          <span class="stat-label">Mandatory Data Points</span>
+        </div>
+        <div class="matrix-stat">
+          <span class="stat-number">{{ matrix.source_systems_needed.length }}</span>
+          <span class="stat-label">Required Data Sources</span>
+        </div>
+      </div>
+      }
+
+      <label style="display:block; margin: 16px 0 8px;">Target Operating Markets ({{ markets().length }} Available)</label>
       <div class="markets-grid">
         @for (market of markets(); track market.countryCode) {
         <app-checkbox-card [title]="market.countryName + ' (' + market.countryCode + ')'"
-          [subtitle]="market.regulationName" [badge]="market.regulationCode" [icon]="market.flagEmoji"
-          [meta]="'Reason: ' + market.reason" [selected]="market.selected"
+          [subtitle]="market.regulationName" [badge]="market.regulationCode" [icon]="''"
+          [meta]="market.reason" [selected]="market.selected"
           (toggleChange)="toggleMarket(market.countryCode)" />
         }
       </div>
@@ -189,26 +224,24 @@
     @if (currentStep() === 4) {
     <div class="step-panel" id="step-4-integrations">
       <div class="panel-intro">
-        <h3>Connect Source Data Systems</h3>
-        <p>Connect client PLM (Trace One Devex) and data cloud (Snowflake) with read-only extraction.</p>
+        <h3>Connect Upstream Source Systems</h3>
+        <p>Integrate PLM (Trace One Devex), ERP (SAP S/4HANA), and Snowflake data lake via read-only sync.</p>
       </div>
 
       <div class="integrations-grid">
         @for (conn of integrations(); track conn.id) {
         <app-checkbox-card [title]="conn.name" [subtitle]="conn.description" [badge]="conn.status.toUpperCase()"
-          [icon]="conn.icon" [selected]="conn.selected" (toggleChange)="toggleIntegration(conn.id)" />
+          [icon]="''" [selected]="conn.selected" (toggleChange)="toggleIntegration(conn.id)" />
         }
       </div>
 
       <div class="readonly-notice">
-        <span class="notice-icon">🔒</span>
-        <span class="notice-icon">[Governance]</span>
+        <span class="notice-icon">[Audit Safe]</span>
         <div>
           <strong>Single Source of Truth Governance:</strong>
           <p>
-            Monkspaces connectors are read-only. Discrepancies generate source correction tickets
-            Compliance Hub connectors are read-only. Discrepancies generate source correction tickets
-            dispatched to client PLM/ERP teams; data is corrected in the source system before re-import.
+            All Compliance Hub connectors operate in strictly read-only mode. Discrepancies and quality flags
+            generate tracked remediation tickets rather than mutating upstream source records.
           </p>
         </div>
       </div>
@@ -219,71 +252,93 @@
     @if (currentStep() === 5) {
     <div class="step-panel" id="step-5-review">
       <div class="panel-intro">
-        <h3>Review Workspace Configuration</h3>
-        <p>Confirm the client setup details before provisioning the canonical data foundation.</p>
+        <h3>Review &amp; Provision Workspace</h3>
+        <p>Verify tenant metadata and computed compliance obligations prior to workspace initialization.</p>
       </div>
 
-      <div class="review-summary-grid">
+      <div class="review-grid">
         <div class="review-card">
-          <span class="review-label">Company &amp; Tenant</span>
-          <div class="review-val">{{ profileForm.get('companyName')?.value }}</div>
-          <div class="review-sub">Slug: <code>{{ profileForm.get('tenantSlug')?.value }}</code></div>
+          <h4>Organisation Identity</h4>
+          <dl class="review-dl">
+            <dt>Company Legal Name</dt>
+            <dd>{{ profileForm.get('companyName')?.value }}</dd>
+            <dt>Database Scope Slug</dt>
+            <dd><code>{{ profileForm.get('tenantSlug')?.value }}</code></dd>
+            <dt>Sector</dt>
+            <dd>{{ profileForm.get('sector')?.value }}</dd>
+            <dt>Reporting Currency</dt>
+            <dd>{{ profileForm.get('primaryCurrency')?.value }}</dd>
+            <dt>Threshold Category</dt>
+            <dd>{{ profileForm.get('organisationSize')?.value === 'L' ? 'Large Producer (>50t)' : 'Small Producer' }}</dd>
+          </dl>
         </div>
 
         <div class="review-card">
-          <span class="review-label">Producer Role &amp; Size</span>
-          <div class="review-val">{{ profileForm.get('producerRole')?.value }}</div>
-          <div class="review-sub">Size: {{ profileForm.get('organisationSize')?.value === 'L' ? 'Large Producer' :
-            'Small Producer' }}</div>
+          <h4>Active Regulations &amp; Filings</h4>
+          @if (complianceMatrix(); as matrix) {
+          <ul class="review-list">
+            @for (reg of matrix.applicable_regulations; track reg.regulation_code) {
+            <li>
+              <strong>{{ reg.name }}</strong>
+              <div class="review-item-sub">Report: {{ reg.national_report_name }}</div>
+              <div class="review-item-sub">Fee System: {{ reg.fee_system_name }}</div>
+            </li>
+            }
+          </ul>
+          } @else {
+          <ul class="review-list">
+            @for (m of markets().filter(m => m.selected); track m.countryCode) {
+            <li>{{ m.countryName }}: {{ m.regulationName }}</li>
+            }
+          </ul>
+          }
         </div>
 
         <div class="review-card">
-          <span class="review-label">Active Regulations</span>
-          <div class="review-val">{{ markets().filter(m => m.selected).length }} Jurisdictions</div>
-          <div class="review-sub">
-            {{ markets().filter(m => m.selected).map(m => m.countryCode).join(', ') }}
-          </div>
-        </div>
-
-        <div class="review-card">
-          <span class="review-label">Connected Systems</span>
-          <div class="review-val">{{ integrations().filter(i => i.selected).length }} Connectors</div>
-          <div class="review-sub">
-            {{ integrations().filter(i => i.selected).map(i => i.name).join(', ') }}
-          </div>
+          <h4>Required Data Points &amp; Sources</h4>
+          @if (complianceMatrix(); as matrix) {
+          <dl class="review-dl">
+            <dt>Canonical Data Points</dt>
+            <dd>{{ matrix.total_data_points_required }} of 45 required</dd>
+            <dt>Upstream Systems</dt>
+            <dd>{{ matrix.source_systems_needed.join(', ') }}</dd>
+            <dt>Active Categories</dt>
+            <dd>{{ selectedCategories().join(', ') }}</dd>
+          </dl>
+          } @else {
+          <dl class="review-dl">
+            <dt>Selected Categories</dt>
+            <dd>{{ selectedCategories().join(', ') }}</dd>
+          </dl>
+          }
         </div>
       </div>
     </div>
     }
 
-    <!-- Wizard Footer Controls -->
+    <!-- Wizard Navigation Footer -->
     <footer class="wizard-footer">
-      <div>
+      <div class="footer-left">
         @if (currentStep() > 1) {
         <button type="button" class="btn btn-secondary" (click)="prevStep()">
-          &larr; Previous Step
+          &larr; Back
         </button>
         }
       </div>
 
       <div class="footer-right">
-        @if (currentStep() < steps.length) { <button type="button" class="btn btn-primary"
-          [disabled]="!isStepValid(currentStep())" (click)="nextStep()">
+        @if (currentStep() < steps.length) {
+        <button type="button" class="btn btn-primary" [disabled]="!isStepValid(currentStep())" (click)="nextStep()">
           Continue &rarr;
-          </button>
-          } @else {
-          <button type="submit" class="btn btn-success" [disabled]="submitting() || profileForm.invalid">
-            @if (submitting()) {
-            <span>Provisioning Workspace...</span>
-            } @else {
-            <span>Launch Client Workspace &#10003;</span>
-            }
-          </button>
-          }
+        </button>
+        } @else {
+        <button type="submit" class="btn btn-primary btn-submit"
+          [disabled]="profileForm.invalid || submitting()">
+          {{ submitting() ? 'Provisioning Workspace...' : 'Launch Workspace &rarr;' }}
+        </button>
+        }
       </div>
     </footer>
-
   </form>
   }
-
 </div>

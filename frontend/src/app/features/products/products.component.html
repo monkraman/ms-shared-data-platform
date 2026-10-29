@@ -135,23 +135,19 @@
               <div class="comp-specs">
                 <div class="spec-row">
                   <span class="spec-label">Weight (Tare):</span>
-                  <span class="spec-value">{{ c.weight_grams }}g</span>
                   <span class="spec-value mono">{{ c.weight_grams }}g</span>
                 </div>
                 <div class="spec-row">
                   <span class="spec-label">PCR Content:</span>
-                  <span class="spec-value" [class.pcr-positive]="c.recycled_content_pct > 0">
+                  <span class="spec-value mono" [class.pcr-positive]="c.recycled_content_pct > 0">
                     {{ c.recycled_content_pct }}% Certified PCR
-                    <span class="spec-value mono">
-                      {{ c.recycled_content_pct }}% PCR
-                    </span>
+                  </span>
                 </div>
                 <div class="spec-row">
                   <span class="spec-label">Consumer Detachable:</span>
-                  <span class="spec-value">{{ c.separable_by_consumer ? 'Yes (Clean Separation)' : 'No (Bonded)'
-                    }}</span>
-                  <span class="spec-value">{{ c.separable_by_consumer ? 'Yes (Clean Detachment)' : 'No (Bonded)'
-                    }}</span>
+                  <span class="spec-value">
+                    {{ c.separable_by_consumer ? 'Yes (Clean Detachment)' : 'No (Bonded)' }}
+                  </span>
                 </div>
               </div>
             </div>

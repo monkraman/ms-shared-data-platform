@@ -133,17 +133,15 @@
           </div>
 
           <div class="org-actions">
-            <button class="btn-action" (click)="openImportModal(org.id)">
-              Import SKUs
-              <button class="btn-action primary" (click)="openImportModal(org.id)">
-                Import SKU Catalog
-              </button>
-              <button class="btn-action primary" (click)="launchClientHub(org.id, '/products')">
-                Packaging BOM →
-              </button>
-              <button class="btn-action" (click)="launchClientHub(org.id, '/quality')">
-                Quality Gaps
-              </button>
+            <button class="btn-action primary" (click)="openImportModal(org.id)">
+              Import SKU Catalog
+            </button>
+            <button class="btn-action primary" (click)="launchClientHub(org.id, '/products')">
+              Packaging BOM &rarr;
+            </button>
+            <button class="btn-action" (click)="launchClientHub(org.id, '/quality')">
+              Quality Gaps
+            </button>
           </div>
         </div>
         }
@@ -374,13 +372,14 @@
           }
           <div class="banner-actions">
             <button class="btn-action primary" (click)="launchClientHub(selectedTenantForImport(), '/products')">
-              Open Packaging BOM Master →
-              <button class="btn-action primary" (click)="closeImportModal()">
-                Done
-              </button>
-              <button class="btn-action" (click)="launchClientHub(selectedTenantForImport(), '/quality')">
-                Open Data Quality Worklist →
-              </button>
+              Open Packaging BOM Master &rarr;
+            </button>
+            <button class="btn-action primary" (click)="closeImportModal()">
+              Done
+            </button>
+            <button class="btn-action" (click)="launchClientHub(selectedTenantForImport(), '/quality')">
+              Open Data Quality Worklist &rarr;
+            </button>
           </div>
         </div>
         }

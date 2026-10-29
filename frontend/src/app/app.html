@@ -1,68 +1,102 @@
-<!-- Global Nav — Hidden on sign-in and admin pages (they have own layout) -->
+<!-- Global App Shell: Left Sidebar + Main Content Layout -->
 @if (showGlobalNav()) {
-<header class="app-header" id="main-navigation">
-  <div class="header-inner">
-    <!-- Brand Identity -->
-    <a routerLink="/dashboard" class="brand" id="header-brand">
-      <div class="brand-logo" aria-hidden="true">C</div>
-      <div class="brand-info">
-        <span class="brand-title">Compliance Hub</span>
-        <span class="brand-tag">Enterprise SaaS</span>
-      </div>
-    </a>
+<div class="app-layout">
+  <!-- Persistent Left Sidebar (Monkspaces & Client Enterprise Spec) -->
+  <aside class="app-sidebar" id="main-sidebar" aria-label="Main Navigation">
+    <!-- Top Brand Section -->
+    <div class="sidebar-brand-block">
+      <a routerLink="/dashboard" class="sidebar-brand" id="sidebar-brand-link">
+        <div class="brand-monogram" aria-hidden="true">C</div>
+        <div class="brand-text">
+          <span class="brand-title">Compliance Hub</span>
+          <span class="brand-subtitle">Enterprise SaaS</span>
+        </div>
+      </a>
+    </div>
 
-    <!-- Navigation Links -->
-    <nav class="nav-links">
-      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
-        <span>Overview</span>
+    <!-- Grouped Vertical Navigation Links -->
+    <nav class="sidebar-nav" id="sidebar-navigation">
+      <div class="nav-section-title">OVERVIEW</div>
+      <a routerLink="/dashboard" routerLinkActive="active" class="sidebar-nav-item" id="nav-dashboard">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Dashboard</span>
       </a>
-      <a routerLink="/products" routerLinkActive="active" class="nav-item">
-        <span>Packaging BOM</span>
+
+      <div class="nav-section-title">EPR FEES</div>
+      <a routerLink="/simulator" routerLinkActive="active" class="sidebar-nav-item" id="nav-simulator">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Fee Simulator & Trace</span>
       </a>
-      <a routerLink="/quality" routerLinkActive="active" class="nav-item">
-        <span>Data Quality</span>
+
+      <div class="nav-section-title">DATA REVIEW</div>
+      <a routerLink="/products" routerLinkActive="active" class="sidebar-nav-item" id="nav-products">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Packaging BOM & SKUs</span>
       </a>
-      <a routerLink="/simulator" routerLinkActive="active" class="nav-item">
-        <span>EPR Simulator</span>
+      <a routerLink="/quality" routerLinkActive="active" class="sidebar-nav-item" id="nav-quality">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Data Health & Quality</span>
       </a>
-      <a routerLink="/onboarding" routerLinkActive="active" class="nav-item">
-        <span>Jurisdictions</span>
+
+      <div class="nav-section-title">COMPLIANCE</div>
+      <a routerLink="/onboarding" routerLinkActive="active" class="sidebar-nav-item" id="nav-jurisdictions">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Markets & Regulations</span>
       </a>
+
+      @if (authService.isSuperAdmin()) {
+      <div class="nav-section-title">OPERATOR</div>
+      <a routerLink="/admin" routerLinkActive="active" class="sidebar-nav-item" id="nav-admin">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Organisation Hub</span>
+      </a>
+      }
     </nav>
 
-    <!-- Workspace Context & Actions -->
-    <div class="header-actions">
-      <!-- Enterprise Theme Switcher -->
-      <button type="button" class="btn-nav-theme-toggle" (click)="themeService.toggleTheme()"
-        [title]="'Switch to ' + (themeService.theme() === 'light' ? 'Dark' : 'Light') + ' Mode'">
-        @if (themeService.theme() === 'light') {
-        <span>Dark</span>
-        } @else {
-        <span>Light</span>
-        }
-      </button>
-
-      <!-- Active Org Pill -->
-      @if (authService.currentUser()) {
-      <div class="context-pill">
-        <span class="pill-dot"></span>
-        <span class="pill-label">{{ authService.currentUser()?.organisationSlug }}</span>
+    <!-- Bottom Context & User Actions -->
+    <div class="sidebar-footer">
+      <!-- Active Tenant Workspace Pill -->
+      <div class="sidebar-workspace-card">
+        <span class="workspace-dot" aria-hidden="true"></span>
+        <div class="workspace-meta">
+          <span class="workspace-hint">ACTIVE WORKSPACE</span>
+          <span class="workspace-slug" [title]="authService.currentUser()?.organisationName || authService.currentUser()?.organisationSlug || 'compliance-hub'">
+            {{ authService.currentUser()?.organisationName || authService.currentUser()?.organisationSlug || 'compliance-hub' }}
+          </span>
+        </div>
       </div>
 
-      <!-- User Avatar + Logout -->
-      <div class="user-menu">
-        <div class="user-avatar-sm">{{ authService.currentUser()?.avatarInitials }}</div>
-        <button class="btn-signout" (click)="logout()" title="Sign Out">Sign Out</button>
+      <!-- User Profile & Actions -->
+      <div class="sidebar-user-block">
+        <div class="user-meta-row">
+          <div class="user-avatar-sm" aria-hidden="true">
+            {{ authService.currentUser()?.avatarInitials || 'CH' }}
+          </div>
+          <div class="user-text-info">
+            <span class="user-display-name">{{ authService.currentUser()?.fullName || 'User' }}</span>
+            <span class="user-role-badge">{{ authService.currentUser()?.role || 'analyst' }}</span>
+          </div>
+          <button type="button" class="btn-sidebar-theme-toggle" (click)="themeService.toggleTheme()"
+            [title]="'Switch to ' + (themeService.theme() === 'light' ? 'Dark' : 'Light') + ' Mode'">
+            {{ themeService.theme() === 'light' ? 'Dark' : 'Light' }}
+          </button>
+        </div>
+
+        <button type="button" class="btn-sidebar-logout" (click)="logout()" id="btn-sidebar-signout">
+          Sign Out
+        </button>
       </div>
-      } @else {
-      <a routerLink="/sign-in" class="btn-signin">Sign In</a>
-      }
     </div>
-  </div>
-</header>
-}
+  </aside>
 
-<!-- Main App Content -->
-<main [class]="showGlobalNav() ? 'page-container' : 'page-container-full'" id="main-content">
+  <!-- Main Scrollable Content Area -->
+  <main class="app-main-content" id="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>
+} @else {
+<!-- Fullscreen Mode for Authentication / Sign-in -->
+<main class="page-container-full" id="main-content-full">
   <router-outlet></router-outlet>
 </main>
+}

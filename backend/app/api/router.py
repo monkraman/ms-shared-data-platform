@@ -1,12 +1,15 @@
 """Main API router combining domain and system endpoints."""
 
 from fastapi import APIRouter
-from app.api.v1 import health, tenants, foundation, quality, epr, auth
+from app.api.v1 import health, tenants, foundation, quality, epr, auth, config
 
 api_router = APIRouter()
 
 # System endpoints
 api_router.include_router(health.router, prefix="", tags=["System Health"])
+
+# Dynamic Regulatory Configuration Engine (Sectors, Countries, DP01-DP45)
+api_router.include_router(config.router)
 
 # Authentication & Identity ([P1] SSO & Password, [P2] MFA, [P3] Sessions)
 api_router.include_router(auth.router)
