@@ -83,475 +83,436 @@
 
     <!-- ══════════════════════ TAB: ORGANISATIONS ══════════════════════ -->
     @if (activeTab() === 'organisations') {
-      <div class="tab-content">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">Client Workspaces</h2>
-            <p class="section-desc">Provisioned enterprise client databases with isolated packaging specifications and sales volumes.</p>
-          </div>
-          <button class="btn-refresh" (click)="refreshTenants()">Refresh List</button>
+    <div class="tab-content">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Client Workspaces</h2>
+          <p class="section-desc">Provisioned enterprise client databases with isolated packaging specifications and
+            sales volumes.</p>
         </div>
+        <button class="btn-refresh" (click)="refreshTenants()">Refresh List</button>
+      </div>
 
-        @if (loading()) {
-          <div class="empty-state">Loading workspaces from database...</div>
-        } @else {
-          <div class="org-grid">
-            @for (org of tenants(); track org.id) {
-              <div class="org-card">
-                <div class="org-card-header">
-                  <div class="org-identity">
-                    <span class="org-avatar">{{ org.name.charAt(0) }}</span>
-                    <div>
-                      <h3 class="org-name">{{ org.name }}</h3>
-                      <span class="org-slug">{{ org.id }}</span>
-                    </div>
-                  </div>
-                  <span class="badge">{{ org.tier || 'enterprise' }}</span>
-                </div>
-
-                <div class="org-attributes">
-                  <div class="attr-item">
-                    <span class="attr-lbl">Sector</span>
-                    <span class="attr-val">{{ org.sector }}</span>
-                  </div>
-                  <div class="attr-item">
-                    <span class="attr-lbl">Market</span>
-                    <span class="attr-val">{{ org.primary_jurisdiction || 'FR' }}</span>
-                  </div>
-                </div>
-
-                <div class="org-stats">
-                  <div class="stat-box">
-                    <span class="stat-val">{{ org.active_products_count || 0 }}</span>
-                    <span class="stat-lbl">Stored SKUs</span>
-                  </div>
-                  <div class="stat-box" [class.warn]="(org.open_quality_issues_count || 0) > 0">
-                    <span class="stat-val">{{ org.open_quality_issues_count || 0 }}</span>
-                    <span class="stat-lbl">Quality Gaps</span>
-                  </div>
-                </div>
-
-                <div class="org-actions">
-                  <button class="btn-action" (click)="openImportModal(org.id)">
-                    Import SKUs
-                  </button>
-                  <button class="btn-action primary" (click)="launchClientHub(org.id, '/products')">
-                    Packaging BOM →
-                  </button>
-                  <button class="btn-action" (click)="launchClientHub(org.id, '/quality')">
-                    Quality Gaps
-                  </button>
-                </div>
-              </div>
-            }
-
-            <!-- Onboard Card -->
-            <div class="org-card new-card" (click)="openOnboardModal()">
-              <div class="new-card-inner">
-                <span class="new-plus">+</span>
-                <h3>Onboard New Client</h3>
-                <p>Configure company database, activate required compliance modules, and prepare SKU catalog feed.</p>
-                <button class="btn-outline">+ Onboard</button>
+      @if (loading()) {
+      <div class="empty-state">Loading workspaces from database...</div>
+      } @else {
+      <div class="org-grid">
+        @for (org of tenants(); track org.id) {
+        <div class="org-card">
+          <div class="org-card-header">
+            <div class="org-identity">
+              <span class="org-avatar">{{ org.name.charAt(0) }}</span>
+              <div>
+                <h3 class="org-name">{{ org.name }}</h3>
+                <span class="org-slug">{{ org.id }}</span>
               </div>
             </div>
+            <span class="badge">{{ org.tier || 'enterprise' }}</span>
           </div>
+
+          <div class="org-attributes">
+            <div class="attr-item">
+              <span class="attr-lbl">Sector</span>
+              <span class="attr-val">{{ org.sector }}</span>
+            </div>
+            <div class="attr-item">
+              <span class="attr-lbl">Market</span>
+              <span class="attr-val">{{ org.primary_jurisdiction || 'FR' }}</span>
+            </div>
+          </div>
+
+          <div class="org-stats">
+            <div class="stat-box">
+              <span class="stat-val">{{ org.active_products_count || 0 }}</span>
+              <span class="stat-lbl">Stored SKUs</span>
+            </div>
+            <div class="stat-box" [class.warn]="(org.open_quality_issues_count || 0) > 0">
+              <span class="stat-val">{{ org.open_quality_issues_count || 0 }}</span>
+              <span class="stat-lbl">Quality Gaps</span>
+            </div>
+          </div>
+
+          <div class="org-actions">
+            <button class="btn-action" (click)="openImportModal(org.id)">
+              Import SKUs
+              <button class="btn-action primary" (click)="openImportModal(org.id)">
+                Import SKU Catalog
+              </button>
+              <button class="btn-action primary" (click)="launchClientHub(org.id, '/products')">
+                Packaging BOM →
+              </button>
+              <button class="btn-action" (click)="launchClientHub(org.id, '/quality')">
+                Quality Gaps
+              </button>
+          </div>
+        </div>
         }
+
+        <!-- Onboard Card -->
+        <div class="org-card new-card" (click)="openOnboardModal()">
+          <div class="new-card-inner">
+            <span class="new-plus">+</span>
+            <h3>Onboard New Client</h3>
+            <p>Configure company database, activate required compliance modules, and prepare SKU catalog feed.</p>
+            <button class="btn-outline">+ Onboard</button>
+          </div>
+        </div>
       </div>
+      }
+    </div>
     }
 
     <!-- ══════════════════════ TAB: BATCHES ══════════════════════ -->
     @if (activeTab() === 'batches') {
-      <div class="tab-content">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">Ingestion History & Source Batches</h2>
-            <p class="section-desc">Audited record of all file uploads, ERP synchronizations, and detected quality gaps.</p>
-          </div>
-          <button class="btn-refresh" (click)="loadBatches()">Refresh Batches</button>
+    <div class="tab-content">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Ingestion History & Source Batches</h2>
+          <p class="section-desc">Audited record of all file uploads, ERP synchronizations, and detected quality gaps.
+          </p>
         </div>
-
-        @if (batches().length === 0) {
-          <div class="empty-state">No ingestion batches recorded yet. Use "Import SKU Catalog" to ingest data.</div>
-        } @else {
-          <div class="table-container">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Batch ID</th>
-                  <th>Source Reference</th>
-                  <th>Timestamp</th>
-                  <th>Status</th>
-                  <th>Records Ingested</th>
-                  <th>Quality Gaps Detected</th>
-                  <th>Audit Note</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (b of batches(); track b.id) {
-                  <tr>
-                    <td class="mono font-bold">{{ b.id }}</td>
-                    <td>{{ b.source_reference }}</td>
-                    <td class="mono">{{ b.created_at | date:'yyyy-MM-dd HH:mm' }}</td>
-                    <td><span class="pill-status">{{ b.status }}</span></td>
-                    <td class="mono">{{ b.records_normalized }}</td>
-                    <td class="mono" [class.text-alert]="b.quality_issues_detected > 0">{{ b.quality_issues_detected }}</td>
-                    <td class="table-msg">{{ b.message || 'Ingested successfully' }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        }
+        <button class="btn-refresh" (click)="loadBatches()">Refresh Batches</button>
       </div>
+
+      @if (batches().length === 0) {
+      <div class="empty-state">No ingestion batches recorded yet. Use "Import SKU Catalog" to ingest data.</div>
+      } @else {
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Batch ID</th>
+              <th>Source Reference</th>
+              <th>Timestamp</th>
+              <th>Status</th>
+              <th>Records Ingested</th>
+              <th>Quality Gaps Detected</th>
+              <th>Audit Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (b of batches(); track b.id) {
+            <tr>
+              <td class="mono font-bold">{{ b.id }}</td>
+              <td>{{ b.source_reference }}</td>
+              <td class="mono">{{ b.created_at | date:'yyyy-MM-dd HH:mm' }}</td>
+              <td><span class="pill-status">{{ b.status }}</span></td>
+              <td class="mono">{{ b.records_normalized }}</td>
+              <td class="mono" [class.text-alert]="b.quality_issues_detected > 0">{{ b.quality_issues_detected }}</td>
+              <td class="table-msg">{{ b.message || 'Ingested successfully' }}</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      }
+    </div>
     }
 
   </main>
 
   <!-- ══════════════════════ MODAL: ONBOARD ORGANISATION ══════════════════════ -->
   @if (showOnboardModal()) {
-    <div class="modal-backdrop" (click)="closeOnboardModal()">
-      <div class="modal-card" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <div>
-            <h2 class="modal-title">Onboard New Organisation</h2>
-            <p class="modal-sub">Step 1: Provision client tenant workspace in Compliance Hub</p>
-          </div>
-          <button class="modal-close" (click)="closeOnboardModal()">✕</button>
+  <div class="modal-backdrop" (click)="closeOnboardModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title">Onboard New Organisation</h2>
+          <p class="modal-sub">Step 1: Provision client tenant workspace in Compliance Hub</p>
+        </div>
+        <button class="modal-close" (click)="closeOnboardModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        @if (onboardError()) {
+        <div class="banner-alert">{{ onboardError() }}</div>
+        }
+        @if (onboardSuccess()) {
+        <div class="banner-success">{{ onboardSuccess() }}</div>
+        }
+
+        <div class="form-group">
+          <label class="form-lbl">Legal Company Name <span class="req">*</span></label>
+          <input type="text" class="form-input" [(ngModel)]="newOrgName" (ngModelChange)="onOrgNameChange()"
+            placeholder="e.g. Danone France SA or Unilever UK" />
         </div>
 
-        <div class="modal-body">
-          @if (onboardError()) {
-            <div class="banner-alert">{{ onboardError() }}</div>
-          }
-          @if (onboardSuccess()) {
-            <div class="banner-success">{{ onboardSuccess() }}</div>
-          }
-
+        <div class="form-row">
           <div class="form-group">
-            <label class="form-lbl">Legal Company Name <span class="req">*</span></label>
-            <input
-              type="text"
-              class="form-input"
-              [(ngModel)]="newOrgName"
-              (ngModelChange)="onOrgNameChange()"
-              placeholder="e.g. Danone France SA or Unilever UK"
-            />
+            <label class="form-lbl">Workspace Identifier / Slug <span class="req">*</span></label>
+            <input type="text" class="form-input mono" [(ngModel)]="newOrgSlug" placeholder="e.g. danone-fr" />
+            <span class="form-hint">Used for database isolation and API headers.</span>
           </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-lbl">Workspace Identifier / Slug <span class="req">*</span></label>
-              <input
-                type="text"
-                class="form-input mono"
-                [(ngModel)]="newOrgSlug"
-                placeholder="e.g. danone-fr"
-              />
-              <span class="form-hint">Used for database isolation and API headers.</span>
-            </div>
-            <div class="form-group">
-              <label class="form-lbl">Industry Sector</label>
-              <select class="form-select" [(ngModel)]="newOrgSector">
-                <option value="Food & Beverage / FMCG">Food & Beverage / FMCG</option>
-                <option value="Personal Care & Cosmetics">Personal Care & Cosmetics</option>
-                <option value="Home Care & Detergents">Home Care & Detergents</option>
-                <option value="Packaging Converter">Packaging Converter</option>
-                <option value="Retail & Supermarket">Retail & Supermarket</option>
-              </select>
-            </div>
+          <div class="form-group">
+            <label class="form-lbl">Industry Sector</label>
+            <select class="form-select" [(ngModel)]="newOrgSector">
+              <option value="Food & Beverage / FMCG">Food & Beverage / FMCG</option>
+              <option value="Personal Care & Cosmetics">Personal Care & Cosmetics</option>
+              <option value="Home Care & Detergents">Home Care & Detergents</option>
+              <option value="Packaging Converter">Packaging Converter</option>
+              <option value="Retail & Supermarket">Retail & Supermarket</option>
+            </select>
           </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-lbl">Primary Reporting Market</label>
-              <select class="form-select" [(ngModel)]="newOrgJurisdiction">
-                <option value="FR">France (Citeo / Adelphe)</option>
-                <option value="DE">Germany (LUCID / ZSVR)</option>
-                <option value="GB">United Kingdom (Defra RPD)</option>
-                <option value="ES">Spain (Ecoembes)</option>
-                <option value="IT">Italy (CONAI)</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-lbl">Reporting Currency</label>
-              <select class="form-select" [(ngModel)]="newOrgCurrency">
-                <option value="EUR">EUR (€)</option>
-                <option value="GBP">GBP (£)</option>
-                <option value="USD">USD ($)</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Initial Organisation Admin User (Multi-Tenant SaaS) -->
-          <div class="admin-user-section">
-            <label class="form-lbl">Initial Organisation Admin User</label>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-sub-lbl">Admin Full Name</label>
-                <input
-                  type="text"
-                  class="form-input"
-                  [(ngModel)]="adminFullName"
-                  placeholder="e.g. Elena Rossi"
-                />
-              </div>
-              <div class="form-group">
-                <label class="form-sub-lbl">Admin Work Email</label>
-                <input
-                  type="email"
-                  class="form-input"
-                  [(ngModel)]="adminEmail"
-                  placeholder="e.g. admin@company.com"
-                />
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-sub-lbl">Initial Password</label>
-              <input
-                type="text"
-                class="form-input mono"
-                [(ngModel)]="adminPassword"
-                placeholder="password123"
-              />
-              <span class="form-hint">This user will be provisioned as `org_admin` scoped to this tenant workspace.</span>
-            </div>
-          </div>
-
-          <!-- Pluggable SaaS Modules -->
-          <div class="modules-section">
-            <label class="form-lbl">Active Compliance Modules (Pluggable)</label>
-            <div class="modules-grid">
-              <label class="module-chk">
-                <input type="checkbox" [(ngModel)]="moduleEpr" />
-                <div>
-                  <strong>EPR Reporting & Fee Simulator</strong>
-                  <span>Tariff calculations, eco-modulation, and declared returns.</span>
-                </div>
-              </label>
-              <label class="module-chk">
-                <input type="checkbox" [(ngModel)]="modulePpwr" />
-                <div>
-                  <strong>PPWR Compliance</strong>
-                  <span>Packaging reduction, PCR mandates, recyclability grades.</span>
-                </div>
-              </label>
-              <label class="module-chk">
-                <input type="checkbox" [(ngModel)]="moduleDpp" />
-                <div>
-                  <strong>Digital Product Passport (DPP)</strong>
-                  <span>QR consumer passport, supplier material passports.</span>
-                </div>
-              </label>
-              <label class="module-chk">
-                <input type="checkbox" [(ngModel)]="moduleCosting" />
-                <div>
-                  <strong>Packaging Costing Engine</strong>
-                  <span>Raw material pricing, compliance fee impact on SKU margins.</span>
-                </div>
-              </label>
-            </div>
-          </div>
-
         </div>
 
-        <div class="modal-footer">
-          <button class="btn-secondary" (click)="closeOnboardModal()">Cancel</button>
-          <button class="btn-primary" [disabled]="isSubmitting()" (click)="submitOnboardOrg()">
-            @if (isSubmitting()) { Provisioning... } @else { Provision Workspace }
-          </button>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-lbl">Primary Reporting Market</label>
+            <select class="form-select" [(ngModel)]="newOrgJurisdiction">
+              <option value="FR">France (Citeo / Adelphe)</option>
+              <option value="DE">Germany (LUCID / ZSVR)</option>
+              <option value="GB">United Kingdom (Defra RPD)</option>
+              <option value="ES">Spain (Ecoembes)</option>
+              <option value="IT">Italy (CONAI)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-lbl">Reporting Currency</label>
+            <select class="form-select" [(ngModel)]="newOrgCurrency">
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="USD">USD ($)</option>
+            </select>
+          </div>
         </div>
+
+        <!-- Initial Organisation Admin User (Multi-Tenant SaaS) -->
+        <div class="admin-user-section">
+          <label class="form-lbl">Initial Organisation Admin User</label>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-sub-lbl">Admin Full Name</label>
+              <input type="text" class="form-input" [(ngModel)]="adminFullName" placeholder="e.g. Elena Rossi" />
+            </div>
+            <div class="form-group">
+              <label class="form-sub-lbl">Admin Work Email</label>
+              <input type="email" class="form-input" [(ngModel)]="adminEmail" placeholder="e.g. admin@company.com" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-sub-lbl">Initial Password</label>
+            <input type="text" class="form-input mono" [(ngModel)]="adminPassword" placeholder="password123" />
+            <span class="form-hint">This user will be provisioned as `org_admin` scoped to this tenant workspace.</span>
+          </div>
+        </div>
+
+        <!-- Pluggable SaaS Modules -->
+        <div class="modules-section">
+          <label class="form-lbl">Active Compliance Modules (Pluggable)</label>
+          <div class="modules-grid">
+            <label class="module-chk">
+              <input type="checkbox" [(ngModel)]="moduleEpr" />
+              <div>
+                <strong>EPR Reporting & Fee Simulator</strong>
+                <span>Tariff calculations, eco-modulation, and declared returns.</span>
+              </div>
+            </label>
+            <label class="module-chk">
+              <input type="checkbox" [(ngModel)]="modulePpwr" />
+              <div>
+                <strong>PPWR Compliance</strong>
+                <span>Packaging reduction, PCR mandates, recyclability grades.</span>
+              </div>
+            </label>
+            <label class="module-chk">
+              <input type="checkbox" [(ngModel)]="moduleDpp" />
+              <div>
+                <strong>Digital Product Passport (DPP)</strong>
+                <span>QR consumer passport, supplier material passports.</span>
+              </div>
+            </label>
+            <label class="module-chk">
+              <input type="checkbox" [(ngModel)]="moduleCosting" />
+              <div>
+                <strong>Packaging Costing Engine</strong>
+                <span>Raw material pricing, compliance fee impact on SKU margins.</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeOnboardModal()">Cancel</button>
+        <button class="btn-primary" [disabled]="isSubmitting()" (click)="submitOnboardOrg()">
+          @if (isSubmitting()) { Provisioning... } @else { Provision Workspace }
+        </button>
       </div>
     </div>
+  </div>
   }
 
   <!-- ══════════════════════ MODAL: IMPORT SKU DATA & COLUMN MAPPING ══════════════════════ -->
   @if (showImportModal()) {
-    <div class="modal-backdrop" (click)="closeImportModal()">
-      <div class="modal-card modal-wide" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <div>
-            <h2 class="modal-title">Import SKU Catalog & Column Mapping</h2>
-            <p class="modal-sub">Step 2: Map client source columns into Canonical Shared Foundation</p>
-          </div>
-          <button class="modal-close" (click)="closeImportModal()">✕</button>
+  <div class="modal-backdrop" (click)="closeImportModal()">
+    <div class="modal-card modal-wide" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title">Import SKU Catalog & Column Mapping</h2>
+          <p class="modal-sub">Step 2: Map client source columns into Canonical Shared Foundation</p>
         </div>
+        <button class="modal-close" (click)="closeImportModal()">✕</button>
+      </div>
 
-        <div class="modal-body">
-          @if (importError()) {
-            <div class="banner-alert">{{ importError() }}</div>
-          }
-          @if (importResult()) {
-            <div class="banner-success">
-              <p class="font-bold">{{ importResult()?.message }}</p>
-              @if (importResult()?.issues_summary?.length) {
-                <div class="import-gap-list">
-                  <span class="gap-title">Identified Data Quality Gaps:</span>
-                  <ul>
-                    @for (issue of importResult()!.issues_summary; track issue) {
-                      <li>{{ issue }}</li>
-                    }
-                  </ul>
-                </div>
+      <div class="modal-body">
+        @if (importError()) {
+        <div class="banner-alert">{{ importError() }}</div>
+        }
+        @if (importResult()) {
+        <div class="banner-success">
+          <p class="font-bold">{{ importResult()?.message }}</p>
+          @if (importResult()?.issues_summary?.length) {
+          <div class="import-gap-list">
+            <span class="gap-title">Identified Data Quality Gaps:</span>
+            <ul>
+              @for (issue of importResult()!.issues_summary; track issue) {
+              <li>{{ issue }}</li>
               }
-              <div class="banner-actions">
-                <button class="btn-action primary" (click)="launchClientHub(selectedTenantForImport(), '/products')">
-                  Open Packaging BOM Master →
-                </button>
-                <button class="btn-action" (click)="launchClientHub(selectedTenantForImport(), '/quality')">
-                  Open Data Quality Worklist →
-                </button>
-              </div>
-            </div>
+            </ul>
+          </div>
           }
-
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-lbl">Target Organisation <span class="req">*</span></label>
-              <select class="form-select" [(ngModel)]="selectedTenantForImport">
-                @for (org of tenants(); track org.id) {
-                  <option [value]="org.id">{{ org.name }} ({{ org.id }})</option>
-                }
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-lbl">Source Feed Name / Batch Reference</label>
-              <input type="text" class="form-input" [(ngModel)]="importSourceName" />
-            </div>
+          <div class="banner-actions">
+            <button class="btn-action primary" (click)="launchClientHub(selectedTenantForImport(), '/products')">
+              Open Packaging BOM Master →
+              <button class="btn-action primary" (click)="closeImportModal()">
+                Done
+              </button>
+              <button class="btn-action" (click)="launchClientHub(selectedTenantForImport(), '/quality')">
+                Open Data Quality Worklist →
+              </button>
           </div>
+        </div>
+        }
 
-          <!-- Input Mode Tabs -->
-          <div class="mode-tabs">
-            <button
-              class="mode-btn"
-              [class.active]="importMode() === 'sample'"
-              (click)="setImportMode('sample')"
-            >
-              1-Click Realistic FMCG Sample
-            </button>
-            <button
-              class="mode-btn"
-              [class.active]="importMode() === 'paste'"
-              (click)="setImportMode('paste')"
-            >
-              Paste CSV Text
-            </button>
-            <button
-              class="mode-btn"
-              [class.active]="importMode() === 'file'"
-              (click)="setImportMode('file')"
-            >
-              Upload .CSV File
-            </button>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-lbl">Target Organisation <span class="req">*</span></label>
+            <select class="form-select" [(ngModel)]="selectedTenantForImport">
+              @for (org of tenants(); track org.id) {
+              <option [value]="org.id">{{ org.name }} ({{ org.id }})</option>
+              }
+            </select>
           </div>
-
-          @if (importMode() === 'file') {
-            <div class="file-dropzone">
-              <input type="file" accept=".csv" (change)="handleFileUpload($event)" />
-              <p>Select or drop a CSV file containing SKU packaging data.</p>
-            </div>
-          }
-
-          @if (importMode() === 'paste') {
-            <div class="form-group">
-              <label class="form-lbl">CSV Content (Header row required)</label>
-              <textarea
-                class="form-textarea mono"
-                rows="5"
-                [ngModel]="csvTextInput()"
-                (ngModelChange)="onCsvTextChange($event)"
-                placeholder="sku,name,brand,category,material,packaging_weight_grams,recycled_content_pct,units_sold,jurisdiction"
-              ></textarea>
-            </div>
-          }
-
-          <!-- Column Mapping Information -->
-          <div class="mapping-banner">
-            <span class="mapping-title">Auto-Detected Field Mappings:</span>
-            <div class="mapping-tags">
-              <span class="tag">sku → SKU</span>
-              <span class="tag">name → Product Name</span>
-              <span class="tag">material → Packaging Material</span>
-              <span class="tag">packaging_weight_grams → Tare Weight (g)</span>
-              <span class="tag">recycled_content_pct → PCR %</span>
-              <span class="tag">units_sold → Sales Units</span>
-            </div>
+          <div class="form-group">
+            <label class="form-lbl">Source Feed Name / Batch Reference</label>
+            <input type="text" class="form-input" [(ngModel)]="importSourceName" />
           </div>
-
-          <!-- Preview Table -->
-          <div class="preview-section">
-            <div class="preview-header">
-              <span class="preview-title">Parsed Records Preview ({{ parsedSkus().length }} Rows)</span>
-              <span class="preview-hint">Immediate schema validation before storing in database:</span>
-            </div>
-
-            <div class="table-container max-preview">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>SKU</th>
-                    <th>Product Name</th>
-                    <th>Brand</th>
-                    <th>Material</th>
-                    <th>Tare Wt (g)</th>
-                    <th>PCR %</th>
-                    <th>Units Sold</th>
-                    <th>Validation Check</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (row of parsedSkus(); track row.sku) {
-                    <tr>
-                      <td class="mono font-bold">{{ row.sku }}</td>
-                      <td>{{ row.name }}</td>
-                      <td>{{ row.brand }}</td>
-                      <td>
-                        @if (!row.material) {
-                          <span class="pill-warn">Unspecified</span>
-                        } @else {
-                          {{ row.material }}
-                        }
-                      </td>
-                      <td class="mono">
-                        @if (row.packaging_weight_grams === null || row.packaging_weight_grams === 0) {
-                          <span class="pill-alert">Missing Weight</span>
-                        } @else {
-                          {{ row.packaging_weight_grams }}g
-                        }
-                      </td>
-                      <td class="mono">{{ row.recycled_content_pct || 0 }}%</td>
-                      <td class="mono">{{ row.units_sold ? (row.units_sold | number) : '-' }}</td>
-                      <td>
-                        @if (!row.packaging_weight_grams) {
-                          <span class="pill-alert">Blocker Gap</span>
-                        } @else if (!row.material) {
-                          <span class="pill-alert">Blocker Gap</span>
-                        } @else if (row.recycled_content_pct && row.recycled_content_pct > 0) {
-                          <span class="pill-warn">Unverified PCR</span>
-                        } @else {
-                          <span class="pill-ok">Clean</span>
-                        }
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          </div>
-
         </div>
 
-        <div class="modal-footer">
-          <button class="btn-secondary" (click)="closeImportModal()">Close</button>
-          <button
-            class="btn-primary"
-            [disabled]="isImporting() || parsedSkus().length === 0"
-            (click)="executeImport()"
-          >
-            @if (isImporting()) { Storing & Validating... } @else { Store & Ingest into Database }
+        <!-- Input Mode Tabs -->
+        <div class="mode-tabs">
+          <button class="mode-btn" [class.active]="importMode() === 'sample'" (click)="setImportMode('sample')">
+            1-Click Realistic FMCG Sample
+          </button>
+          <button class="mode-btn" [class.active]="importMode() === 'paste'" (click)="setImportMode('paste')">
+            Paste CSV Text
+          </button>
+          <button class="mode-btn" [class.active]="importMode() === 'file'" (click)="setImportMode('file')">
+            Upload .CSV File
           </button>
         </div>
+
+        @if (importMode() === 'file') {
+        <div class="file-dropzone">
+          <input type="file" accept=".csv" (change)="handleFileUpload($event)" />
+          <p>Select or drop a CSV file containing SKU packaging data.</p>
+        </div>
+        }
+
+        @if (importMode() === 'paste') {
+        <div class="form-group">
+          <label class="form-lbl">CSV Content (Header row required)</label>
+          <textarea class="form-textarea mono" rows="5" [ngModel]="csvTextInput()"
+            (ngModelChange)="onCsvTextChange($event)"
+            placeholder="sku,name,brand,category,material,packaging_weight_grams,recycled_content_pct,units_sold,jurisdiction"></textarea>
+        </div>
+        }
+
+        <!-- Column Mapping Information -->
+        <div class="mapping-banner">
+          <span class="mapping-title">Auto-Detected Field Mappings:</span>
+          <div class="mapping-tags">
+            <span class="tag">sku → SKU</span>
+            <span class="tag">name → Product Name</span>
+            <span class="tag">material → Packaging Material</span>
+            <span class="tag">packaging_weight_grams → Tare Weight (g)</span>
+            <span class="tag">recycled_content_pct → PCR %</span>
+            <span class="tag">units_sold → Sales Units</span>
+          </div>
+        </div>
+
+        <!-- Preview Table -->
+        <div class="preview-section">
+          <div class="preview-header">
+            <span class="preview-title">Parsed Records Preview ({{ parsedSkus().length }} Rows)</span>
+            <span class="preview-hint">Immediate schema validation before storing in database:</span>
+          </div>
+
+          <div class="table-container max-preview">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>SKU</th>
+                  <th>Product Name</th>
+                  <th>Brand</th>
+                  <th>Material</th>
+                  <th>Tare Wt (g)</th>
+                  <th>PCR %</th>
+                  <th>Units Sold</th>
+                  <th>Validation Check</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of parsedSkus(); track row.sku) {
+                <tr>
+                  <td class="mono font-bold">{{ row.sku }}</td>
+                  <td>{{ row.name }}</td>
+                  <td>{{ row.brand }}</td>
+                  <td>
+                    @if (!row.material) {
+                    <span class="pill-warn">Unspecified</span>
+                    } @else {
+                    {{ row.material }}
+                    }
+                  </td>
+                  <td class="mono">
+                    @if (row.packaging_weight_grams === null || row.packaging_weight_grams === 0) {
+                    <span class="pill-alert">Missing Weight</span>
+                    } @else {
+                    {{ row.packaging_weight_grams }}g
+                    }
+                  </td>
+                  <td class="mono">{{ row.recycled_content_pct || 0 }}%</td>
+                  <td class="mono">{{ row.units_sold ? (row.units_sold | number) : '-' }}</td>
+                  <td>
+                    @if (!row.packaging_weight_grams) {
+                    <span class="pill-alert">Blocker Gap</span>
+                    } @else if (!row.material) {
+                    <span class="pill-alert">Blocker Gap</span>
+                    } @else if (row.recycled_content_pct && row.recycled_content_pct > 0) {
+                    <span class="pill-warn">Unverified PCR</span>
+                    } @else {
+                    <span class="pill-ok">Clean</span>
+                    }
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeImportModal()">Close</button>
+        <button class="btn-primary" [disabled]="isImporting() || parsedSkus().length === 0" (click)="executeImport()">
+          @if (isImporting()) { Storing & Validating... } @else { Store & Ingest into Database }
+        </button>
       </div>
     </div>
+  </div>
   }
 
 </div>

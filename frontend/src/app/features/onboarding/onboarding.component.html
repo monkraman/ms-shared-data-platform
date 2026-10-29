@@ -5,11 +5,13 @@
     <div class="wizard-header-left">
       <div class="wizard-badge">CLIENT WORKSPACE SETUP</div>
       <h1 class="wizard-title">New Client Onboarding &amp; Jurisdiction Setup</h1>
+      <div class="wizard-badge">ORGANISATION WORKSPACE SETUP</div>
+      <h1 class="wizard-title">Client Onboarding &amp; Jurisdiction Configuration</h1>
       <p class="wizard-subtitle">
         Configure company legal profile, target EPR regulations, and PLM/ERP read-only data connections.
       </p>
     </div>
-    
+
     <!-- Quick Demo Presets -->
     <div class="demo-presets">
       <span class="preset-label">Load Demo Preset:</span>
@@ -23,313 +25,265 @@
   </header>
 
   <!-- Reusable Step Progress Indicator -->
-  <app-step-indicator 
-    [steps]="steps" 
-    [currentStep]="currentStep()"
-    (stepClick)="goToStep($event)"
-  />
+  <app-step-indicator [steps]="steps" [currentStep]="currentStep()" (stepClick)="goToStep($event)" />
 
   @if (submitSuccess()) {
-    <!-- Success Completion State -->
-    <div class="success-card" id="onboarding-success">
-      <div class="success-icon">✓</div>
-      <h2>Workspace Created Successfully!</h2>
-      <p class="success-desc">
-        Client workspace <strong>{{ profileForm.get('companyName')?.value }}</strong> (<code>{{ profileForm.get('tenantSlug')?.value }}</code>) 
-        has been established with <strong>{{ markets().filter(m => m.selected).length }} target regulations</strong>.
-      </p>
+  <!-- Success Completion State -->
+  <div class="success-card" id="onboarding-success">
+    <div class="success-icon">✓</div>
+    <h2>Workspace Created Successfully!</h2>
+    <p class="success-desc">
+      Client workspace <strong>{{ profileForm.get('companyName')?.value }}</strong>
+      (<code>{{ profileForm.get('tenantSlug')?.value }}</code>)
+      has been established with <strong>{{ markets().filter(m => m.selected).length }} target regulations</strong>.
+    </p>
 
-      <div class="success-actions">
-        <button type="button" class="btn btn-primary" (click)="navigateToDashboard()">
-          Go to Home Dashboard &rarr;
-        </button>
+    <div class="success-actions">
+      <button type="button" class="btn btn-primary" (click)="navigateToDashboard()">
+        Go to Home Dashboard &rarr;
+      </button>
+    </div>
+  </div>
+  } @else {
+  <!-- Form Wizard Container -->
+  <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="wizard-card">
+
+    <!-- ================= STEP 1: COMPANY PROFILE ================= -->
+    @if (currentStep() === 1) {
+    <div class="step-panel" id="step-1-company">
+      <div class="panel-intro">
+        <h3>Company and Legal Entities</h3>
+        <p>Define the legal producer name, registration identifiers, and primary reporting currency.</p>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label for="companyName">Legal Company Name *</label>
+          <input id="companyName" type="text" formControlName="companyName"
+            placeholder="e.g. The Kraft Heinz Company Europe" />
+          @if (profileForm.get('companyName')?.invalid && profileForm.get('companyName')?.touched) {
+          <span class="field-error">Company name is required (minimum 3 characters).</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="tenantSlug">Workspace Tenant Slug (ID) *</label>
+          <input id="tenantSlug" type="text" formControlName="tenantSlug" placeholder="e.g. khc-europe" />
+          <span class="field-hint">Unique database scope identifier (lowercase alphanumeric + hyphens).</span>
+        </div>
+
+        <div class="form-group">
+          <label for="primaryCurrency">Primary Currency *</label>
+          <select id="primaryCurrency" formControlName="primaryCurrency">
+            @for (curr of config.options.currencies; track curr.code) {
+            <option [value]="curr.code">{{ curr.label }} ({{ curr.symbol }})</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="organisationSize">Organisation Size Threshold *</label>
+          <select id="organisationSize" formControlName="organisationSize">
+            <option value="L">Large Producer (Turnover >£2M &amp; >50 tonnes packaging)</option>
+            <option value="S">Small Producer (Turnover £1M–£2M &amp; 25–50 tonnes)</option>
+          </select>
+          <span class="field-hint">Governs UK Defra RPD obligation reporting thresholds.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="rpdOrganisationId">UK Defra RPD Organisation ID</label>
+          <input id="rpdOrganisationId" type="text" formControlName="rpdOrganisationId" placeholder="e.g. 100004" />
+          <span class="field-hint">Data Point DP29: Producer registration number for official export CSV.</span>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="consultantEmail">Assigned Monkspaces Lead Consultant *</label>
+          <input id="consultantEmail" type="email" formControlName="consultantEmail"
+            placeholder="consultant@monkspaces.com" />
+        </div>
       </div>
     </div>
-  } @else {
-    <!-- Form Wizard Container -->
-    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="wizard-card">
+    }
 
-      <!-- ================= STEP 1: COMPANY PROFILE ================= -->
-      @if (currentStep() === 1) {
-        <div class="step-panel" id="step-1-company">
-          <div class="panel-intro">
-            <h3>Company and Legal Entities</h3>
-            <p>Define the legal producer name, registration identifiers, and primary reporting currency.</p>
-          </div>
+    <!-- ================= STEP 2: CATEGORIES & SECTORS ================= -->
+    @if (currentStep() === 2) {
+    <div class="step-panel" id="step-2-categories">
+      <div class="panel-intro">
+        <h3>Sectors and Product Categories</h3>
+        <p>Select industry sector and product packaging categories managed in this workspace.</p>
+      </div>
 
-          <div class="form-grid">
-            <div class="form-group full-width">
-              <label for="companyName">Legal Company Name *</label>
-              <input 
-                id="companyName" 
-                type="text" 
-                formControlName="companyName" 
-                placeholder="e.g. The Kraft Heinz Company Europe"
-              />
-              @if (profileForm.get('companyName')?.invalid && profileForm.get('companyName')?.touched) {
-                <span class="field-error">Company name is required (minimum 3 characters).</span>
-              }
-            </div>
+      <div class="form-group">
+        <label for="sector">Primary Industry Sector</label>
+        <select id="sector" formControlName="sector">
+          @for (sec of config.options.sectors; track sec.id) {
+          <option [value]="sec.id">{{ sec.name }}</option>
+          }
+        </select>
+      </div>
 
-            <div class="form-group">
-              <label for="tenantSlug">Workspace Tenant Slug (ID) *</label>
-              <input 
-                id="tenantSlug" 
-                type="text" 
-                formControlName="tenantSlug" 
-                placeholder="e.g. khc-europe"
-              />
-              <span class="field-hint">Unique database scope identifier (lowercase alphanumeric + hyphens).</span>
-            </div>
+      <div class="categories-section">
+        <label>Product Portfolio Categories</label>
+        <p class="section-hint">Click tags to include or exclude from canonical catalog:</p>
 
-            <div class="form-group">
-              <label for="primaryCurrency">Primary Currency *</label>
-              <select id="primaryCurrency" formControlName="primaryCurrency">
-                @for (curr of config.options.currencies; track curr.code) {
-                  <option [value]="curr.code">{{ curr.label }} ({{ curr.symbol }})</option>
-                }
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="organisationSize">Organisation Size Threshold *</label>
-              <select id="organisationSize" formControlName="organisationSize">
-                <option value="L">Large Producer (Turnover >£2M &amp; >50 tonnes packaging)</option>
-                <option value="S">Small Producer (Turnover £1M–£2M &amp; 25–50 tonnes)</option>
-              </select>
-              <span class="field-hint">Governs UK Defra RPD obligation reporting thresholds.</span>
-            </div>
-
-            <div class="form-group">
-              <label for="rpdOrganisationId">UK Defra RPD Organisation ID</label>
-              <input 
-                id="rpdOrganisationId" 
-                type="text" 
-                formControlName="rpdOrganisationId" 
-                placeholder="e.g. 100004"
-              />
-              <span class="field-hint">Data Point DP29: Producer registration number for official export CSV.</span>
-            </div>
-
-            <div class="form-group full-width">
-              <label for="consultantEmail">Assigned Monkspaces Lead Consultant *</label>
-              <input 
-                id="consultantEmail" 
-                type="email" 
-                formControlName="consultantEmail" 
-                placeholder="consultant@monkspaces.com"
-              />
-            </div>
-          </div>
+        <div class="category-tags-grid">
+          @for (sec of config.options.sectors; track sec.id) {
+          @if (profileForm.get('sector')?.value === sec.id) {
+          @for (cat of sec.defaultCategories; track cat) {
+          <button type="button" class="cat-chip" [class.active]="selectedCategories().includes(cat)"
+            (click)="toggleCategory(cat)">
+            <span class="cat-check">{{ selectedCategories().includes(cat) ? '✓' : '+' }}</span>
+            {{ cat }}
+          </button>
+          }
+          }
+          }
         </div>
-      }
 
-      <!-- ================= STEP 2: CATEGORIES & SECTORS ================= -->
-      @if (currentStep() === 2) {
-        <div class="step-panel" id="step-2-categories">
-          <div class="panel-intro">
-            <h3>Sectors and Product Categories</h3>
-            <p>Select industry sector and product packaging categories managed in this workspace.</p>
-          </div>
-
-          <div class="form-group">
-            <label for="sector">Primary Industry Sector</label>
-            <select id="sector" formControlName="sector">
-              @for (sec of config.options.sectors; track sec.id) {
-                <option [value]="sec.id">{{ sec.name }}</option>
-              }
-            </select>
-          </div>
-
-          <div class="categories-section">
-            <label>Product Portfolio Categories</label>
-            <p class="section-hint">Click tags to include or exclude from canonical catalog:</p>
-            
-            <div class="category-tags-grid">
-              @for (sec of config.options.sectors; track sec.id) {
-                @if (profileForm.get('sector')?.value === sec.id) {
-                  @for (cat of sec.defaultCategories; track cat) {
-                    <button 
-                      type="button" 
-                      class="cat-chip" 
-                      [class.active]="selectedCategories().includes(cat)"
-                      (click)="toggleCategory(cat)"
-                    >
-                      <span class="cat-check">{{ selectedCategories().includes(cat) ? '✓' : '+' }}</span>
-                      {{ cat }}
-                    </button>
-                  }
-                }
-              }
-            </div>
-
-            <div class="add-category-row">
-              <input 
-                type="text" 
-                formControlName="newCategoryInput" 
-                placeholder="Add custom product category..." 
-                (keydown.enter)="$event.preventDefault(); addCustomCategory()"
-              />
-              <button type="button" class="btn btn-secondary" (click)="addCustomCategory()">
-                + Add Category
-              </button>
-            </div>
-          </div>
+        <div class="add-category-row">
+          <input type="text" formControlName="newCategoryInput" placeholder="Add custom product category..."
+            (keydown.enter)="$event.preventDefault(); addCustomCategory()" />
+          <button type="button" class="btn btn-secondary" (click)="addCustomCategory()">
+            + Add Category
+          </button>
         </div>
-      }
+      </div>
+    </div>
+    }
 
-      <!-- ================= STEP 3: MARKETS & REGULATIONS ================= -->
-      @if (currentStep() === 3) {
-        <div class="step-panel" id="step-3-markets">
-          <div class="panel-intro">
-            <h3>Compliance Markets &amp; Regulations</h3>
-            <p>Switch on applicable national EPR laws with legal reasons and producer roles.</p>
-          </div>
+    <!-- ================= STEP 3: MARKETS & REGULATIONS ================= -->
+    @if (currentStep() === 3) {
+    <div class="step-panel" id="step-3-markets">
+      <div class="panel-intro">
+        <h3>Compliance Markets &amp; Regulations</h3>
+        <p>Switch on applicable national EPR laws with legal reasons and producer roles.</p>
+      </div>
 
-          <div class="form-group" style="margin-bottom: 20px;">
-            <label>Primary Producer Legal Role</label>
-            <div class="roles-grid">
-              @for (role of config.options.producerRoles; track role.id) {
-                <div 
-                  class="role-card" 
-                  [class.selected]="profileForm.get('producerRole')?.value === role.id"
-                  (click)="profileForm.patchValue({ producerRole: role.id })"
-                >
-                  <div class="role-title">{{ role.title }}</div>
-                  <p class="role-desc">{{ role.desc }}</p>
-                </div>
-              }
-            </div>
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label>Primary Producer Legal Role</label>
+        <div class="roles-grid">
+          @for (role of config.options.producerRoles; track role.id) {
+          <div class="role-card" [class.selected]="profileForm.get('producerRole')?.value === role.id"
+            (click)="profileForm.patchValue({ producerRole: role.id })">
+            <div class="role-title">{{ role.title }}</div>
+            <p class="role-desc">{{ role.desc }}</p>
           </div>
-
-          <label style="display:block; margin-bottom:8px;">Target EPR Jurisdictions ({{ markets().length }} Available)</label>
-          <div class="markets-grid">
-            @for (market of markets(); track market.countryCode) {
-              <app-checkbox-card
-                [title]="market.countryName + ' (' + market.countryCode + ')'"
-                [subtitle]="market.regulationName"
-                [badge]="market.regulationCode"
-                [icon]="market.flagEmoji"
-                [meta]="'Reason: ' + market.reason"
-                [selected]="market.selected"
-                (toggleChange)="toggleMarket(market.countryCode)"
-              />
-            }
-          </div>
+          }
         </div>
-      }
+      </div>
 
-      <!-- ================= STEP 4: INTEGRATIONS & CONNECTORS ================= -->
-      @if (currentStep() === 4) {
-        <div class="step-panel" id="step-4-integrations">
-          <div class="panel-intro">
-            <h3>Connect Source Data Systems</h3>
-            <p>Connect client PLM (Trace One Devex) and data cloud (Snowflake) with read-only extraction.</p>
-          </div>
+      <label style="display:block; margin-bottom:8px;">Target EPR Jurisdictions ({{ markets().length }}
+        Available)</label>
+      <div class="markets-grid">
+        @for (market of markets(); track market.countryCode) {
+        <app-checkbox-card [title]="market.countryName + ' (' + market.countryCode + ')'"
+          [subtitle]="market.regulationName" [badge]="market.regulationCode" [icon]="market.flagEmoji"
+          [meta]="'Reason: ' + market.reason" [selected]="market.selected"
+          (toggleChange)="toggleMarket(market.countryCode)" />
+        }
+      </div>
+    </div>
+    }
 
-          <div class="integrations-grid">
-            @for (conn of integrations(); track conn.id) {
-              <app-checkbox-card
-                [title]="conn.name"
-                [subtitle]="conn.description"
-                [badge]="conn.status.toUpperCase()"
-                [icon]="conn.icon"
-                [selected]="conn.selected"
-                (toggleChange)="toggleIntegration(conn.id)"
-              />
-            }
-          </div>
+    <!-- ================= STEP 4: INTEGRATIONS & CONNECTORS ================= -->
+    @if (currentStep() === 4) {
+    <div class="step-panel" id="step-4-integrations">
+      <div class="panel-intro">
+        <h3>Connect Source Data Systems</h3>
+        <p>Connect client PLM (Trace One Devex) and data cloud (Snowflake) with read-only extraction.</p>
+      </div>
 
-          <div class="readonly-notice">
-            <span class="notice-icon">🔒</span>
-            <div>
-              <strong>Single Source of Truth Governance:</strong>
-              <p>
-                Monkspaces connectors are read-only. Discrepancies generate source correction tickets 
-                dispatched to client PLM/ERP teams; data is corrected in the source system before re-import.
-              </p>
-            </div>
-          </div>
-        </div>
-      }
+      <div class="integrations-grid">
+        @for (conn of integrations(); track conn.id) {
+        <app-checkbox-card [title]="conn.name" [subtitle]="conn.description" [badge]="conn.status.toUpperCase()"
+          [icon]="conn.icon" [selected]="conn.selected" (toggleChange)="toggleIntegration(conn.id)" />
+        }
+      </div>
 
-      <!-- ================= STEP 5: REVIEW & LAUNCH ================= -->
-      @if (currentStep() === 5) {
-        <div class="step-panel" id="step-5-review">
-          <div class="panel-intro">
-            <h3>Review Workspace Configuration</h3>
-            <p>Confirm the client setup details before provisioning the canonical data foundation.</p>
-          </div>
-
-          <div class="review-summary-grid">
-            <div class="review-card">
-              <span class="review-label">Company &amp; Tenant</span>
-              <div class="review-val">{{ profileForm.get('companyName')?.value }}</div>
-              <div class="review-sub">Slug: <code>{{ profileForm.get('tenantSlug')?.value }}</code></div>
-            </div>
-
-            <div class="review-card">
-              <span class="review-label">Producer Role &amp; Size</span>
-              <div class="review-val">{{ profileForm.get('producerRole')?.value }}</div>
-              <div class="review-sub">Size: {{ profileForm.get('organisationSize')?.value === 'L' ? 'Large Producer' : 'Small Producer' }}</div>
-            </div>
-
-            <div class="review-card">
-              <span class="review-label">Active Regulations</span>
-              <div class="review-val">{{ markets().filter(m => m.selected).length }} Jurisdictions</div>
-              <div class="review-sub">
-                {{ markets().filter(m => m.selected).map(m => m.countryCode).join(', ') }}
-              </div>
-            </div>
-
-            <div class="review-card">
-              <span class="review-label">Connected Systems</span>
-              <div class="review-val">{{ integrations().filter(i => i.selected).length }} Connectors</div>
-              <div class="review-sub">
-                {{ integrations().filter(i => i.selected).map(i => i.name).join(', ') }}
-              </div>
-            </div>
-          </div>
-        </div>
-      }
-
-      <!-- Wizard Footer Controls -->
-      <footer class="wizard-footer">
+      <div class="readonly-notice">
+        <span class="notice-icon">🔒</span>
+        <span class="notice-icon">[Governance]</span>
         <div>
-          @if (currentStep() > 1) {
-            <button type="button" class="btn btn-secondary" (click)="prevStep()">
-              &larr; Previous Step
-            </button>
-          }
+          <strong>Single Source of Truth Governance:</strong>
+          <p>
+            Monkspaces connectors are read-only. Discrepancies generate source correction tickets
+            Compliance Hub connectors are read-only. Discrepancies generate source correction tickets
+            dispatched to client PLM/ERP teams; data is corrected in the source system before re-import.
+          </p>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- ================= STEP 5: REVIEW & LAUNCH ================= -->
+    @if (currentStep() === 5) {
+    <div class="step-panel" id="step-5-review">
+      <div class="panel-intro">
+        <h3>Review Workspace Configuration</h3>
+        <p>Confirm the client setup details before provisioning the canonical data foundation.</p>
+      </div>
+
+      <div class="review-summary-grid">
+        <div class="review-card">
+          <span class="review-label">Company &amp; Tenant</span>
+          <div class="review-val">{{ profileForm.get('companyName')?.value }}</div>
+          <div class="review-sub">Slug: <code>{{ profileForm.get('tenantSlug')?.value }}</code></div>
         </div>
 
-        <div class="footer-right">
-          @if (currentStep() < steps.length) {
-            <button 
-              type="button" 
-              class="btn btn-primary" 
-              [disabled]="!isStepValid(currentStep())"
-              (click)="nextStep()"
-            >
-              Continue &rarr;
-            </button>
+        <div class="review-card">
+          <span class="review-label">Producer Role &amp; Size</span>
+          <div class="review-val">{{ profileForm.get('producerRole')?.value }}</div>
+          <div class="review-sub">Size: {{ profileForm.get('organisationSize')?.value === 'L' ? 'Large Producer' :
+            'Small Producer' }}</div>
+        </div>
+
+        <div class="review-card">
+          <span class="review-label">Active Regulations</span>
+          <div class="review-val">{{ markets().filter(m => m.selected).length }} Jurisdictions</div>
+          <div class="review-sub">
+            {{ markets().filter(m => m.selected).map(m => m.countryCode).join(', ') }}
+          </div>
+        </div>
+
+        <div class="review-card">
+          <span class="review-label">Connected Systems</span>
+          <div class="review-val">{{ integrations().filter(i => i.selected).length }} Connectors</div>
+          <div class="review-sub">
+            {{ integrations().filter(i => i.selected).map(i => i.name).join(', ') }}
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- Wizard Footer Controls -->
+    <footer class="wizard-footer">
+      <div>
+        @if (currentStep() > 1) {
+        <button type="button" class="btn btn-secondary" (click)="prevStep()">
+          &larr; Previous Step
+        </button>
+        }
+      </div>
+
+      <div class="footer-right">
+        @if (currentStep() < steps.length) { <button type="button" class="btn btn-primary"
+          [disabled]="!isStepValid(currentStep())" (click)="nextStep()">
+          Continue &rarr;
+          </button>
           } @else {
-            <button 
-              type="submit" 
-              class="btn btn-success" 
-              [disabled]="submitting() || profileForm.invalid"
-            >
-              @if (submitting()) {
-                <span>Provisioning Workspace...</span>
-              } @else {
-                <span>Launch Client Workspace &#10003;</span>
-              }
-            </button>
+          <button type="submit" class="btn btn-success" [disabled]="submitting() || profileForm.invalid">
+            @if (submitting()) {
+            <span>Provisioning Workspace...</span>
+            } @else {
+            <span>Launch Client Workspace &#10003;</span>
+            }
+          </button>
           }
-        </div>
-      </footer>
+      </div>
+    </footer>
 
-    </form>
+  </form>
   }
 
 </div>

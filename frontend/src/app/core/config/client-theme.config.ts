@@ -40,20 +40,20 @@ export interface SinglePointAppConfig {
 export const APP_CONFIG: SinglePointAppConfig = {
   apiBaseUrl: environment.apiBaseUrl,
   brand: {
-    companyName: 'Monkspaces',
-    logoText: 'Monkspaces',
-    tagline: 'Shared Product & Packaging Data Platform',
+    companyName: 'Compliance Hub',
+    logoText: 'Compliance Hub',
+    tagline: 'Enterprise Packaging & Regulatory Compliance Platform',
   },
   theme: {
-    brandName: 'Monkspaces',
-    brandTagline: 'Shared Product & Packaging Data Platform',
-    primaryColor: '#10b981', // Emerald-500
-    primaryHover: '#059669', // Emerald-600
-    accentColor: '#34d399',  // Mint Emerald
-    surfaceBg: '#090e0c',
-    cardBg: '#121e18',
+    brandName: 'Compliance Hub',
+    brandTagline: 'Enterprise Packaging & Regulatory Compliance Platform',
+    primaryColor: '#09090b',
+    primaryHover: '#27272a',
+    accentColor: '#52525b',
+    surfaceBg: '#ffffff',
+    cardBg: '#ffffff',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif',
-    logoLetter: 'M',
+    logoLetter: 'C',
   },
   options: {
     currencies: [
@@ -87,7 +87,7 @@ export const APP_CONFIG: SinglePointAppConfig = {
       {
         countryCode: 'UK',
         countryName: 'United Kingdom',
-        flagEmoji: '🇬🇧',
+        flagEmoji: '',
         regulationCode: 'UK_PEPR',
         regulationName: 'PackUK / Defra RPD EPR',
         producerRole: 'BRAND_OWNER',
@@ -97,7 +97,7 @@ export const APP_CONFIG: SinglePointAppConfig = {
       {
         countryCode: 'FR',
         countryName: 'France',
-        flagEmoji: '🇫🇷',
+        flagEmoji: '',
         regulationCode: 'CITEO_EPR',
         regulationName: 'Citeo & Léko Household EPR',
         producerRole: 'BRAND_OWNER',
@@ -107,7 +107,7 @@ export const APP_CONFIG: SinglePointAppConfig = {
       {
         countryCode: 'DE',
         countryName: 'Germany',
-        flagEmoji: '🇩🇪',
+        flagEmoji: '',
         regulationCode: 'VERPACKG',
         regulationName: 'LUCID Packaging Register',
         producerRole: 'BRAND_OWNER',
@@ -117,7 +117,7 @@ export const APP_CONFIG: SinglePointAppConfig = {
       {
         countryCode: 'ES',
         countryName: 'Spain',
-        flagEmoji: '🇪🇸',
+        flagEmoji: '',
         regulationCode: 'ES_PLASTIC',
         regulationName: 'Real Decreto 1055/2022 & Tax',
         producerRole: 'BRAND_OWNER',
@@ -127,7 +127,7 @@ export const APP_CONFIG: SinglePointAppConfig = {
       {
         countryCode: 'IT',
         countryName: 'Italy',
-        flagEmoji: '🇮🇹',
+        flagEmoji: '',
         regulationCode: 'CONAI',
         regulationName: 'CONAI Environmental Labeling',
         producerRole: 'BRAND_OWNER',
@@ -137,7 +137,7 @@ export const APP_CONFIG: SinglePointAppConfig = {
       {
         countryCode: 'NL',
         countryName: 'Netherlands',
-        flagEmoji: '🇳🇱',
+        flagEmoji: '',
         regulationCode: 'AFVALFONDS',
         regulationName: 'Afvalfonds Verpakkingen',
         producerRole: 'BRAND_OWNER',
@@ -147,7 +147,7 @@ export const APP_CONFIG: SinglePointAppConfig = {
       {
         countryCode: 'DK',
         countryName: 'Denmark',
-        flagEmoji: '🇩🇰',
+        flagEmoji: '',
         regulationCode: 'DPA',
         regulationName: 'Dansk Producentansvar (DPA)',
         producerRole: 'BRAND_OWNER',
@@ -157,7 +157,7 @@ export const APP_CONFIG: SinglePointAppConfig = {
       {
         countryCode: 'US-CA',
         countryName: 'California (USA)',
-        flagEmoji: '🇺🇸',
+        flagEmoji: '',
         regulationCode: 'SB54',
         regulationName: 'Plastic Pollution Prevention Act',
         producerRole: 'BRAND_OWNER',
@@ -172,7 +172,7 @@ export const APP_CONFIG: SinglePointAppConfig = {
         description: 'Read-only extraction of packaging BOMs, empty weights (DP09), and material specs',
         systemType: 'TRACE_ONE_DEVEX',
         status: 'mocked',
-        icon: '📦',
+        icon: '',
         selected: true,
       },
       {
@@ -181,7 +181,7 @@ export const APP_CONFIG: SinglePointAppConfig = {
         description: 'Placed-on-market sales volume, billing delivery nations, and GTIN catalog feeds',
         systemType: 'SNOWFLAKE',
         status: 'mocked',
-        icon: '❄️',
+        icon: '',
         selected: true,
       },
       {
@@ -190,7 +190,7 @@ export const APP_CONFIG: SinglePointAppConfig = {
         description: 'MARA/STPO material masters, units per pack, and supplier vendor tables',
         systemType: 'SAP_S4HANA',
         status: 'disconnected',
-        icon: '🏢',
+        icon: '',
         selected: false,
       },
       {
@@ -199,7 +199,7 @@ export const APP_CONFIG: SinglePointAppConfig = {
         description: 'Fallback file upload dropzone with column mapping templates and AI suggestion',
         systemType: 'MANUAL_EXCEL',
         status: 'connected',
-        icon: '📄',
+        icon: '',
         selected: true,
       },
     ],

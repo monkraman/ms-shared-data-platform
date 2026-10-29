@@ -45,22 +45,21 @@ import { CommonModule } from '@angular/common';
       justify-content: space-between;
       gap: 12px;
       padding: 14px 16px;
-      background: #121e18;
-      border: 1px solid #1e332a;
-      border-radius: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all var(--transition-fast);
       user-select: none;
     }
     .selection-card:hover:not(.disabled) {
-      border-color: #10b981;
-      background: #17261f;
+      border-color: var(--border-hover);
+      background: var(--bg-card-hover);
       transform: translateY(-1px);
     }
     .selection-card.selected {
-      border-color: #10b981;
-      background: rgba(16, 185, 129, 0.08);
-      box-shadow: 0 0 12px rgba(16, 185, 129, 0.15);
+      border-color: var(--border-active);
+      background: var(--bg-secondary);
     }
     .selection-card.disabled {
       opacity: 0.5;
@@ -72,7 +71,7 @@ import { CommonModule } from '@angular/common';
       gap: 12px;
     }
     .card-icon {
-      font-size: 1.5rem;
+      font-size: 1.2rem;
       line-height: 1;
     }
     .card-text {
@@ -86,46 +85,47 @@ import { CommonModule } from '@angular/common';
       gap: 8px;
     }
     .card-title {
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 600;
-      color: #f1f5f9;
+      color: var(--text-primary);
     }
     .card-badge {
       font-size: 0.68rem;
       font-weight: 700;
-      font-family: ui-monospace, monospace;
+      font-family: var(--font-mono);
       padding: 2px 6px;
       border-radius: 4px;
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.3);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
     }
     .card-subtitle {
       font-size: 0.78rem;
-      color: #94a3b8;
+      color: var(--text-muted);
       line-height: 1.3;
     }
     .card-meta {
       font-size: 0.72rem;
-      color: #64748b;
+      color: var(--text-subtle);
       margin-top: 2px;
     }
     .card-checkbox {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       border-radius: 4px;
-      border: 1.5px solid #2a483b;
-      background: #090e0c;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-secondary);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #042f1a;
+      color: var(--bg-primary);
       flex-shrink: 0;
-      transition: all 0.2s;
+      transition: all var(--transition-fast);
     }
     .card-checkbox.checked {
-      background: #10b981;
-      border-color: #10b981;
+      background: var(--btn-primary-bg);
+      border-color: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
     }
   `],
 })

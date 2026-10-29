@@ -5,36 +5,38 @@
     <div class="header-left">
       <div class="header-badge">LAYER 1: CANONICAL PACKAGING FOUNDATION</div>
       <h1 class="page-title">Product Portfolio &amp; Packaging BOM Tree</h1>
+      <div class="header-badge">CANONICAL PACKAGING FOUNDATION</div>
+      <h1 class="page-title">Product Portfolio &amp; Packaging BOM Master</h1>
       <p class="page-subtitle">
         Hierarchical Bill of Materials (BOM) linking commercial SKUs to primary, secondary, and tertiary components.
       </p>
     </div>
 
     <div class="header-actions">
-      <button 
-        type="button" 
-        class="btn-sync" 
-        [disabled]="syncing()" 
-        (click)="syncTraceOne()"
-      >
+      <button type="button" class="btn-sync" [disabled]="syncing()" (click)="syncTraceOne()">
         <span class="sync-icon" [class.spinning]="syncing()">⚡</span>
         @if (syncing()) {
-          <span>Syncing Trace One PLM (Devex)...</span>
+        <span>Syncing Trace One PLM (Devex)...</span>
+        <span>Synchronizing PLM Catalog...</span>
         } @else {
-          <span>Pull PLM Delta Spec (Trace One)</span>
+        <span>Pull PLM Delta Spec (Trace One)</span>
+        <span>Sync PLM Specifications</span>
         }
       </button>
     </div>
   </header>
 
   @if (lastBatch()) {
-    <div class="sync-banner">
-      <span class="sync-status-icon">✓</span>
-      <div>
-        <strong>PLM Synchronization Completed:</strong>
-        <span>Batch #{{ lastBatch()?.source_batch_reference }} ingested {{ lastBatch()?.records_ingested }} specs from Trace One Devex.</span>
-      </div>
+  <div class="sync-banner">
+    <span class="sync-status-icon">✓</span>
+    <span class="sync-status-icon">[OK]</span>
+    <div>
+      <strong>PLM Synchronization Completed:</strong>
+      <span>Batch #{{ lastBatch()?.source_batch_reference }} ingested {{ lastBatch()?.records_ingested }} specs from
+        Trace One Devex.</span>
+      <span>Batch #{{ lastBatch()?.source_reference || lastBatch()?.id }} successfully normalized.</span>
     </div>
+  </div>
   }
 
   <!-- Split View: Catalog on Left, Hierarchical BOM on Right -->
@@ -43,35 +45,32 @@
     <!-- Left Column: Product Catalog -->
     <aside class="catalog-panel">
       <div class="search-bar">
-        <input 
-          type="text" 
-          placeholder="Filter by SKU or brand (e.g. Ketchup, Beanz)..." 
-          (input)="filterProducts($any($event.target).value)"
-        />
+        <input type="text" placeholder="Filter by SKU or brand (e.g. Ketchup, Beanz)..."
+          placeholder="Filter catalog by SKU, name, or brand..." (input)="filterProducts($any($event.target).value)" />
       </div>
 
       <div class="product-list">
         @for (prod of getFilteredProducts(); track prod.sku) {
-          <div 
-            class="product-item-card" 
-            [class.active]="selectedProduct()?.sku === prod.sku"
-            (click)="selectProduct(prod.sku)"
-          >
-            <div class="item-header">
-              <span class="brand-tag">{{ prod.brand }}</span>
-              <span class="sku-tag">{{ prod.sku }}</span>
-            </div>
-            <div class="item-name">{{ prod.name }}</div>
-            <div class="item-meta">
-              <span>{{ prod.components.length }} BOM Components</span>
-              <span class="weight-tag">{{ prod.total_packaging_weight_grams }}g packaging</span>
-            </div>
-            @if (prod.has_quality_issues) {
-              <div class="issue-badge">
-                ⚠️ {{ prod.open_issue_count }} Data Quality Flag
-              </div>
-            }
+        <div class="product-item-card" [class.active]="selectedProduct()?.sku === prod.sku"
+          (click)="selectProduct(prod.sku)">
+          <div class="item-header">
+            <span class="brand-tag">{{ prod.brand }}</span>
+            <span class="sku-tag">{{ prod.sku }}</span>
           </div>
+          <div class="item-name">{{ prod.name }}</div>
+          <div class="item-meta">
+            <span>{{ prod.components.length }} BOM Components</span>
+            <span class="weight-tag">{{ prod.total_packaging_weight_grams }}g packaging</span>
+            <span>{{ prod.components.length }} Components</span>
+            <span class="weight-tag mono">{{ prod.total_packaging_weight_grams }}g tare</span>
+          </div>
+          @if (prod.has_quality_issues) {
+          <div class="issue-badge">
+            ⚠️ {{ prod.open_issue_count }} Data Quality Flag
+            Data Quality Gaps Flagged
+          </div>
+          }
+        </div>
         }
       </div>
     </aside>
@@ -79,190 +78,207 @@
     <!-- Right Column: Hierarchical Packaging BOM -->
     <main class="bom-detail-panel">
       @if (selectedProduct(); as p) {
-        <div class="bom-header-card">
-          <div class="bom-title-row">
-            <div>
-              <span class="category-pill">{{ p.category }}</span>
-              <h2 class="bom-product-title">{{ p.name }}</h2>
-              <div class="bom-sku-line">
-                SKU: <code>{{ p.sku }}</code> • Net Weight: {{ p.net_content_grams || 500 }}g • Total Packaging Tare: <strong>{{ p.total_packaging_weight_grams }}g</strong>
-              </div>
-            </div>
-            <div class="bom-status-box">
-              <span class="status-indicator-dot"></span>
-              <span>Canonical Spec Active</span>
+      <div class="bom-header-card">
+        <div class="bom-title-row">
+          <div>
+            <span class="category-pill">{{ p.category }}</span>
+            <h2 class="bom-product-title">{{ p.name }}</h2>
+            <div class="bom-sku-line">
+              SKU: <code>{{ p.sku }}</code> • Net Weight: {{ p.net_content_grams || 500 }}g • Total Packaging Tare:
+              <strong>{{ p.total_packaging_weight_grams }}g</strong>
+              SKU: <code class="mono">{{ p.sku }}</code> · Total Packaging Tare: <strong class="mono">{{
+                p.total_packaging_weight_grams }}g</strong>
             </div>
           </div>
-
-          <!-- Tab Bar -->
-          <div class="bom-tabs">
-            <button 
-              type="button" 
-              class="tab-btn" 
-              [class.active]="activeTab() === 'bom'"
-              (click)="activeTab.set('bom')"
-            >
-              🌳 Packaging BOM Tree ({{ p.components.length }})
-            </button>
-            <button 
-              type="button" 
-              class="tab-btn" 
-              [class.active]="activeTab() === 'compliance'"
-              (click)="activeTab.set('compliance')"
-            >
-              ⚖️ Recyclability &amp; Regulatory Class
-            </button>
+          <div class="bom-status-box">
+            <span class="status-indicator-dot"></span>
+            <span>Canonical Spec Active</span>
           </div>
         </div>
 
-        @if (activeTab() === 'bom') {
-          <div class="tree-container">
-            
-            <!-- LEVEL 1: PRIMARY PACKAGING -->
-            <div class="tree-level-block">
-              <div class="level-header primary">
-                <span class="level-badge">LEVEL 1</span>
-                <h3>Primary Packaging (Sales Unit Consumer Direct)</h3>
-                <span class="level-count">{{ getComponentsByLevel(p.components, 'primary').length }} Components</span>
-              </div>
+        <!-- Tab Bar -->
+        <div class="bom-tabs">
+          <button type="button" class="tab-btn" [class.active]="activeTab() === 'bom'" (click)="activeTab.set('bom')">
+            🌳 Packaging BOM Tree ({{ p.components.length }})
+            Packaging BOM Tree ({{ p.components.length }})
+          </button>
+          <button type="button" class="tab-btn" [class.active]="activeTab() === 'compliance'"
+            (click)="activeTab.set('compliance')">
+            ⚖️ Recyclability &amp; Regulatory Class
+            Regulatory Material Allocation
+          </button>
+        </div>
+      </div>
 
-              <div class="components-grid">
-                @for (c of getComponentsByLevel(p.components, 'primary'); track c.id) {
-                  <div class="component-card">
-                    <div class="comp-header">
-                      <span class="comp-id">{{ c.id }}</span>
-                      <span class="material-badge">{{ c.material }}</span>
-                    </div>
-                    <div class="comp-name">{{ c.name }}</div>
-                    
-                    <div class="comp-specs">
-                      <div class="spec-row">
-                        <span class="spec-label">Weight (Tare):</span>
-                        <span class="spec-value">{{ c.weight_grams }}g</span>
-                      </div>
-                      <div class="spec-row">
-                        <span class="spec-label">PCR Content:</span>
-                        <span class="spec-value" [class.pcr-positive]="c.recycled_content_pct > 0">
-                          {{ c.recycled_content_pct }}% Certified PCR
-                        </span>
-                      </div>
-                      <div class="spec-row">
-                        <span class="spec-label">Consumer Detachable:</span>
-                        <span class="spec-value">{{ c.separable_by_consumer ? 'Yes (Clean Separation)' : 'No (Bonded)' }}</span>
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
+      @if (activeTab() === 'bom') {
+      <div class="tree-container">
 
-            <!-- LEVEL 2: SECONDARY PACKAGING -->
-            <div class="tree-level-block">
-              <div class="level-header secondary">
-                <span class="level-badge">LEVEL 2</span>
-                <h3>Secondary Packaging (Multipack / Trays)</h3>
-                <span class="level-count">{{ getComponentsByLevel(p.components, 'secondary').length }} Components</span>
-              </div>
-
-              <div class="components-grid">
-                @for (c of getComponentsByLevel(p.components, 'secondary'); track c.id) {
-                  <div class="component-card">
-                    <div class="comp-header">
-                      <span class="comp-id">{{ c.id }}</span>
-                      <span class="material-badge">{{ c.material }}</span>
-                    </div>
-                    <div class="comp-name">{{ c.name }}</div>
-                    <div class="comp-specs">
-                      <div class="spec-row">
-                        <span class="spec-label">Weight:</span>
-                        <span class="spec-value">{{ c.weight_grams }}g</span>
-                      </div>
-                      <div class="spec-row">
-                        <span class="spec-label">Recyclability:</span>
-                        <span class="spec-value">{{ c.is_recyclable ? 'Kerbside Curbside Recyclable' : 'Specialized' }}</span>
-                      </div>
-                    </div>
-                  </div>
-                } @empty {
-                  <div class="empty-level-msg">
-                    No secondary packaging defined for this consumer sales unit.
-                  </div>
-                }
-              </div>
-            </div>
-
-            <!-- LEVEL 3: TERTIARY PACKAGING -->
-            <div class="tree-level-block">
-              <div class="level-header tertiary">
-                <span class="level-badge">LEVEL 3</span>
-                <h3>Tertiary Packaging (Transport / Palletization)</h3>
-                <span class="level-count">{{ getComponentsByLevel(p.components, 'tertiary').length }} Components</span>
-              </div>
-
-              <div class="components-grid">
-                @for (c of getComponentsByLevel(p.components, 'tertiary'); track c.id) {
-                  <div class="component-card">
-                    <div class="comp-header">
-                      <span class="comp-id">{{ c.id }}</span>
-                      <span class="material-badge">{{ c.material }}</span>
-                    </div>
-                    <div class="comp-name">{{ c.name }}</div>
-                    <div class="comp-specs">
-                      <div class="spec-row">
-                        <span class="spec-label">Weight (allocated):</span>
-                        <span class="spec-value">{{ c.weight_grams }}g</span>
-                      </div>
-                    </div>
-                  </div>
-                } @empty {
-                  <div class="empty-level-msg">
-                    Tertiary transport wrap allocated at shipment batch level.
-                  </div>
-                }
-              </div>
-            </div>
-
+        <!-- LEVEL 1: PRIMARY PACKAGING -->
+        <div class="tree-level-block">
+          <div class="level-header primary">
+            <span class="level-badge">LEVEL 1</span>
+            <h3>Primary Packaging (Sales Unit Consumer Direct)</h3>
+            <h3>Primary Packaging (Direct Contact)</h3>
+            <span class="level-count">{{ getComponentsByLevel(p.components, 'primary').length }} Components</span>
           </div>
-        } @else {
-          <!-- Compliance View -->
-          <div class="compliance-view-card">
-            <h3>CITEO &amp; Defra RPD Material Allocation</h3>
-            <p>Components evaluated against standard European PRO sorting standards:</p>
-            <table class="compliance-table">
-              <thead>
-                <tr>
-                  <th>Component</th>
-                  <th>Level</th>
-                  <th>Material Stream</th>
-                  <th>Weight</th>
-                  <th>PCR Discount Eligibility</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (c of p.components; track c.id) {
-                  <tr>
-                    <td><strong>{{ c.name }}</strong></td>
-                    <td><span class="level-tag">{{ c.level | uppercase }}</span></td>
-                    <td>{{ c.material }}</td>
-                    <td>{{ c.weight_grams }}g</td>
-                    <td>
-                      @if (c.recycled_content_pct >= 30) {
-                        <span class="badge-success">Eligible (-15% Bonus)</span>
-                      } @else {
-                        <span class="badge-neutral">Standard Tariff</span>
-                      }
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
+
+          <div class="components-grid">
+            @for (c of getComponentsByLevel(p.components, 'primary'); track c.id) {
+            <div class="component-card">
+              <div class="comp-header">
+                <span class="comp-id">{{ c.id }}</span>
+                <span class="comp-id mono">{{ c.id }}</span>
+                <span class="material-badge">{{ c.material }}</span>
+              </div>
+              <div class="comp-name">{{ c.name }}</div>
+
+              <div class="comp-specs">
+                <div class="spec-row">
+                  <span class="spec-label">Weight (Tare):</span>
+                  <span class="spec-value">{{ c.weight_grams }}g</span>
+                  <span class="spec-value mono">{{ c.weight_grams }}g</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-label">PCR Content:</span>
+                  <span class="spec-value" [class.pcr-positive]="c.recycled_content_pct > 0">
+                    {{ c.recycled_content_pct }}% Certified PCR
+                    <span class="spec-value mono">
+                      {{ c.recycled_content_pct }}% PCR
+                    </span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-label">Consumer Detachable:</span>
+                  <span class="spec-value">{{ c.separable_by_consumer ? 'Yes (Clean Separation)' : 'No (Bonded)'
+                    }}</span>
+                  <span class="spec-value">{{ c.separable_by_consumer ? 'Yes (Clean Detachment)' : 'No (Bonded)'
+                    }}</span>
+                </div>
+              </div>
+            </div>
+            }
           </div>
-        }
+        </div>
+
+        <!-- LEVEL 2: SECONDARY PACKAGING -->
+        <div class="tree-level-block">
+          <div class="level-header secondary">
+            <span class="level-badge">LEVEL 2</span>
+            <h3>Secondary Packaging (Multipack / Trays)</h3>
+            <h3>Secondary Packaging (Multipack / Grouping)</h3>
+            <span class="level-count">{{ getComponentsByLevel(p.components, 'secondary').length }} Components</span>
+          </div>
+
+          <div class="components-grid">
+            @for (c of getComponentsByLevel(p.components, 'secondary'); track c.id) {
+            <div class="component-card">
+              <div class="comp-header">
+                <span class="comp-id">{{ c.id }}</span>
+                <span class="comp-id mono">{{ c.id }}</span>
+                <span class="material-badge">{{ c.material }}</span>
+              </div>
+              <div class="comp-name">{{ c.name }}</div>
+              <div class="comp-specs">
+                <div class="spec-row">
+                  <span class="spec-label">Weight:</span>
+                  <span class="spec-value">{{ c.weight_grams }}g</span>
+                  <span class="spec-value mono">{{ c.weight_grams }}g</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-label">Recyclability:</span>
+                  <span class="spec-value">{{ c.is_recyclable ? 'Kerbside Curbside Recyclable' : 'Specialized' }}</span>
+                  <span class="spec-value">{{ c.is_recyclable ? 'Standard Curbside Stream' : 'Specialized' }}</span>
+                </div>
+              </div>
+            </div>
+            } @empty {
+            <div class="empty-level-msg">
+              No secondary packaging defined for this consumer sales unit.
+              No secondary packaging defined for this SKU.
+            </div>
+            }
+          </div>
+        </div>
+
+        <!-- LEVEL 3: TERTIARY PACKAGING -->
+        <div class="tree-level-block">
+          <div class="level-header tertiary">
+            <span class="level-badge">LEVEL 3</span>
+            <h3>Tertiary Packaging (Transport / Palletization)</h3>
+            <span class="level-count">{{ getComponentsByLevel(p.components, 'tertiary').length }} Components</span>
+          </div>
+
+          <div class="components-grid">
+            @for (c of getComponentsByLevel(p.components, 'tertiary'); track c.id) {
+            <div class="component-card">
+              <div class="comp-header">
+                <span class="comp-id">{{ c.id }}</span>
+                <span class="comp-id mono">{{ c.id }}</span>
+                <span class="material-badge">{{ c.material }}</span>
+              </div>
+              <div class="comp-name">{{ c.name }}</div>
+              <div class="comp-specs">
+                <div class="spec-row">
+                  <span class="spec-label">Weight (allocated):</span>
+                  <span class="spec-value">{{ c.weight_grams }}g</span>
+                  <span class="spec-value mono">{{ c.weight_grams }}g</span>
+                </div>
+              </div>
+            </div>
+            } @empty {
+            <div class="empty-level-msg">
+              Tertiary transport wrap allocated at shipment batch level.
+            </div>
+            }
+          </div>
+        </div>
+
+      </div>
+      } @else {
+      <!-- Compliance View -->
+      <div class="compliance-view-card">
+        <h3>CITEO &amp; Defra RPD Material Allocation</h3>
+        <p>Components evaluated against standard European PRO sorting standards:</p>
+        <h3>EPR Regulatory Material Classification</h3>
+        <p>Components evaluated against European PRO sorting and eco-modulation fee schedules:</p>
+        <table class="compliance-table">
+          <thead>
+            <tr>
+              <th>Component</th>
+              <th>Level</th>
+              <th>Material Stream</th>
+              <th>Weight</th>
+              <th>PCR Discount Eligibility</th>
+              <th>PCR Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (c of p.components; track c.id) {
+            <tr>
+              <td><strong>{{ c.name }}</strong></td>
+              <td><span class="level-tag">{{ c.level | uppercase }}</span></td>
+              <td>{{ c.material }}</td>
+              <td>{{ c.weight_grams }}g</td>
+              <td class="mono">{{ c.weight_grams }}g</td>
+              <td>
+                @if (c.recycled_content_pct >= 30) {
+                <span class="badge-success">Eligible (-15% Bonus)</span>
+                <span class="badge-neutral mono">{{ c.recycled_content_pct }}% PCR (Discount Eligible)</span>
+                } @else {
+                <span class="badge-neutral">Standard Tariff</span>
+                <span class="badge-neutral mono">Standard Tariff</span>
+                }
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      }
 
       } @else {
-        <div class="no-selection-card">
-          <p>Select a product from the catalog on the left to view its packaging BOM hierarchy.</p>
-        </div>
+      <div class="no-selection-card">
+        <p>Select a product from the catalog on the left to view its packaging BOM hierarchy.</p>
+      </div>
       }
     </main>
 

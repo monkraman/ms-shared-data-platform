@@ -1,74 +1,65 @@
 <!-- Global Nav — Hidden on sign-in and admin pages (they have own layout) -->
 @if (showGlobalNav()) {
-  <header class="app-header" id="main-navigation">
-    <div class="header-inner">
-      <!-- Brand Identity -->
-      <a routerLink="/dashboard" class="brand" id="header-brand">
-        <div class="brand-logo" aria-hidden="true">M</div>
-        <div class="brand-info">
-          <span class="brand-title">{{ config.brand.companyName }}</span>
-          <span class="brand-tag">Compliance Platform</span>
-        </div>
-      </a>
-
-      <!-- Navigation Links -->
-      <nav class="nav-links">
-        <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
-          <span>Overview</span>
-        </a>
-        <a routerLink="/products" routerLinkActive="active" class="nav-item">
-          <span>Packaging BOM</span>
-        </a>
-        <a routerLink="/quality" routerLinkActive="active" class="nav-item">
-          <span>Data Quality</span>
-        </a>
-        <a routerLink="/simulator" routerLinkActive="active" class="nav-item">
-          <span>EPR Simulator</span>
-        </a>
-        <a routerLink="/onboarding" routerLinkActive="active" class="nav-item">
-          <span>Jurisdictions</span>
-        </a>
-      </nav>
-
-      <!-- Workspace Context & Actions -->
-      <div class="header-actions">
-        <!-- Enterprise Theme Switcher -->
-        <button
-          type="button"
-          class="btn-nav-theme-toggle"
-          (click)="themeService.toggleTheme()"
-          [title]="'Switch to ' + (themeService.theme() === 'light' ? 'Dark' : 'Light') + ' Mode'"
-        >
-          @if (themeService.theme() === 'light') {
-            <span>Dark</span>
-          } @else {
-            <span>Light</span>
-          }
-        </button>
-
-        <!-- Active Org Pill -->
-        @if (authService.currentUser()) {
-          <div class="context-pill">
-            <span class="pill-dot"></span>
-            <span class="pill-label">{{ authService.currentUser()?.organisationSlug }}</span>
-          </div>
-
-          <!-- User Avatar + Logout -->
-          <div class="user-menu">
-            <div class="user-avatar-sm">{{ authService.currentUser()?.avatarInitials }}</div>
-            <button class="btn-signout" (click)="logout()" title="Sign Out">Sign Out</button>
-          </div>
-        } @else {
-          <a routerLink="/sign-in" class="btn-signin">Sign In</a>
-        }
-
-        <!-- SuperAdmin Quick Link -->
-        @if (authService.isSuperAdmin()) {
-          <a routerLink="/admin" class="admin-badge">Admin</a>
-        }
+<header class="app-header" id="main-navigation">
+  <div class="header-inner">
+    <!-- Brand Identity -->
+    <a routerLink="/dashboard" class="brand" id="header-brand">
+      <div class="brand-logo" aria-hidden="true">C</div>
+      <div class="brand-info">
+        <span class="brand-title">Compliance Hub</span>
+        <span class="brand-tag">Enterprise SaaS</span>
       </div>
+    </a>
+
+    <!-- Navigation Links -->
+    <nav class="nav-links">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+        <span>Overview</span>
+      </a>
+      <a routerLink="/products" routerLinkActive="active" class="nav-item">
+        <span>Packaging BOM</span>
+      </a>
+      <a routerLink="/quality" routerLinkActive="active" class="nav-item">
+        <span>Data Quality</span>
+      </a>
+      <a routerLink="/simulator" routerLinkActive="active" class="nav-item">
+        <span>EPR Simulator</span>
+      </a>
+      <a routerLink="/onboarding" routerLinkActive="active" class="nav-item">
+        <span>Jurisdictions</span>
+      </a>
+    </nav>
+
+    <!-- Workspace Context & Actions -->
+    <div class="header-actions">
+      <!-- Enterprise Theme Switcher -->
+      <button type="button" class="btn-nav-theme-toggle" (click)="themeService.toggleTheme()"
+        [title]="'Switch to ' + (themeService.theme() === 'light' ? 'Dark' : 'Light') + ' Mode'">
+        @if (themeService.theme() === 'light') {
+        <span>Dark</span>
+        } @else {
+        <span>Light</span>
+        }
+      </button>
+
+      <!-- Active Org Pill -->
+      @if (authService.currentUser()) {
+      <div class="context-pill">
+        <span class="pill-dot"></span>
+        <span class="pill-label">{{ authService.currentUser()?.organisationSlug }}</span>
+      </div>
+
+      <!-- User Avatar + Logout -->
+      <div class="user-menu">
+        <div class="user-avatar-sm">{{ authService.currentUser()?.avatarInitials }}</div>
+        <button class="btn-signout" (click)="logout()" title="Sign Out">Sign Out</button>
+      </div>
+      } @else {
+      <a routerLink="/sign-in" class="btn-signin">Sign In</a>
+      }
     </div>
-  </header>
+  </div>
+</header>
 }
 
 <!-- Main App Content -->

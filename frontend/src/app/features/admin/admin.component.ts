@@ -17,7 +17,7 @@ type AdminTab = 'organisations' | 'batches';
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css',
 })

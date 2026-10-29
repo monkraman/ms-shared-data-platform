@@ -65,53 +65,52 @@ export interface WizardStep {
       opacity: 0.55;
     }
     .step-circle {
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 700;
-      font-family: ui-monospace, monospace;
-      background: #15241d;
-      border: 2px solid #2a483b;
-      color: #94a3b8;
-      transition: all 0.2s;
+      font-family: var(--font-mono);
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      transition: all var(--transition-fast);
     }
     .step-item.active .step-circle {
-      border-color: #10b981;
-      background: #064e3b;
-      color: #34d399;
-      box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+      border-color: var(--border-active);
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
     }
     .step-item.completed .step-circle {
-      border-color: #10b981;
-      background: #10b981;
-      color: #042f1a;
+      border-color: var(--border-active);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
     }
     .step-meta {
       display: flex;
       flex-direction: column;
     }
     .step-title {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 600;
-      color: #f1f5f9;
+      color: var(--text-primary);
     }
     .step-subtitle {
       font-size: 0.72rem;
-      color: #94a3b8;
+      color: var(--text-muted);
     }
     .step-connector {
       flex: 1;
-      height: 2px;
+      height: 1px;
       margin: 0 16px;
-      background: #1e332a;
+      background: var(--border-subtle);
       transition: background 0.3s;
     }
     .step-connector.completed {
-      background: #10b981;
+      background: var(--border-active);
     }
     @media (max-width: 768px) {
       .step-subtitle { display: none; }

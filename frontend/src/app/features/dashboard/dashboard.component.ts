@@ -54,7 +54,7 @@ export class DashboardComponent {
     {
       countryCode: 'GB',
       countryName: 'United Kingdom',
-      flagEmoji: '🇬🇧',
+      flagEmoji: '',
       regulationName: 'UK Defra RPD (EPR)',
       provisionalFee: 980450,
       uncertaintyMargin: 64200,
@@ -65,7 +65,7 @@ export class DashboardComponent {
     {
       countryCode: 'FR',
       countryName: 'France',
-      flagEmoji: '🇫🇷',
+      flagEmoji: '',
       regulationName: 'Citeo / Adelphe EPR',
       provisionalFee: 640120,
       uncertaintyMargin: 42000,
@@ -76,7 +76,7 @@ export class DashboardComponent {
     {
       countryCode: 'DE',
       countryName: 'Germany',
-      flagEmoji: '🇩🇪',
+      flagEmoji: '',
       regulationName: 'VerpackG (LUCID)',
       provisionalFee: 512300,
       uncertaintyMargin: 38100,
@@ -87,7 +87,7 @@ export class DashboardComponent {
     {
       countryCode: 'ES',
       countryName: 'Spain',
-      flagEmoji: '🇪🇸',
+      flagEmoji: '',
       regulationName: 'Real Decreto 1055/2022',
       provisionalFee: 286050,
       uncertaintyMargin: 40000,
@@ -133,9 +133,9 @@ export class DashboardComponent {
 
   // System Connector Status
   readonly connectors = signal([
-    { name: 'Trace One PLM', type: 'PLM Specifications', status: 'Healthy', lastSync: '18 mins ago', icon: '⚡' },
-    { name: 'Snowflake Cloud DW', type: 'Sales & Distribution', status: 'Healthy', lastSync: '1 hour ago', icon: '❄️' },
-    { name: 'Excel / CSV Importer', type: 'Legacy Manual Specs', status: 'Idle', lastSync: 'Yesterday', icon: '📊' },
+    { name: 'Trace One PLM', type: 'PLM Specifications', status: 'Healthy', lastSync: '18 mins ago', icon: '' },
+    { name: 'Snowflake Cloud DW', type: 'Sales & Distribution', status: 'Healthy', lastSync: '1 hour ago', icon: '' },
+    { name: 'Excel / CSV Importer', type: 'Legacy Manual Specs', status: 'Idle', lastSync: 'Yesterday', icon: '' },
   ]);
 
   formatCurrency(value: number): string {

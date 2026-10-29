@@ -6,13 +6,15 @@
       <div class="header-badge">LAYER 3: EPR COMPLIANCE &amp; SCENARIO SIMULATOR</div>
       <h1 class="page-title">EPR Fee Modeling &amp; Eco-Modulation Simulator</h1>
       <p class="page-subtitle">
-        Simulate packaging design modifications (PCR %, monomaterials, weight reduction) and assess instant financial impact on European PRO tariffs.
+        Simulate packaging design modifications (PCR %, monomaterials, weight reduction) and assess instant financial
+        impact on European PRO tariffs.
       </p>
     </div>
 
     <div class="header-actions">
       <button type="button" class="btn-defra" (click)="exportDefraRpdCsv()">
         📄 Generate UK Defra RPD CSV File
+        Generate UK Defra RPD CSV File
       </button>
     </div>
   </header>
@@ -28,13 +30,10 @@
       <!-- Jurisdiction Selector -->
       <div class="control-group">
         <label for="jurisdictionSelect">Regulatory Scheme</label>
-        <select 
-          id="jurisdictionSelect" 
-          [ngModel]="selectedJurisdiction()" 
-          (ngModelChange)="selectedJurisdiction.set($event); runBaselineCalculation(); runSimulation()"
-        >
+        <select id="jurisdictionSelect" [ngModel]="selectedJurisdiction()"
+          (ngModelChange)="selectedJurisdiction.set($event); runBaselineCalculation(); runSimulation()">
           @for (rs of availableRuleSets; track rs.id) {
-            <option [value]="rs.id">{{ rs.name }} ({{ rs.currency }})</option>
+          <option [value]="rs.id">{{ rs.name }} ({{ rs.currency }})</option>
           }
         </select>
       </div>
@@ -45,14 +44,8 @@
           <label>Target Certified PCR (rPET / rPP / rHDPE)</label>
           <span class="slider-value">{{ targetPcrPercentage() }}%</span>
         </div>
-        <input 
-          type="range" 
-          min="0" 
-          max="60" 
-          step="5" 
-          [ngModel]="targetPcrPercentage()" 
-          (ngModelChange)="onPcrSliderChange($event)"
-        />
+        <input type="range" min="0" max="60" step="5" [ngModel]="targetPcrPercentage()"
+          (ngModelChange)="onPcrSliderChange($event)" />
         <div class="slider-ticks">
           <span>0%</span>
           <span>30% (CITEO Threshold)</span>
@@ -63,11 +56,7 @@
       <!-- Monomaterial Checkbox -->
       <div class="control-group checkbox-group">
         <label class="custom-checkbox">
-          <input 
-            type="checkbox" 
-            [ngModel]="eliminateCompositeMalus()" 
-            (ngModelChange)="toggleComposites($event)"
-          />
+          <input type="checkbox" [ngModel]="eliminateCompositeMalus()" (ngModelChange)="toggleComposites($event)" />
           <span>Eliminate Composite Lid Malus (Switch to Mono-PP heat seal)</span>
         </label>
         <span class="checkbox-hint">Removes France CITEO €890/tonne composite packaging disruptor malus.</span>
@@ -77,38 +66,41 @@
     <!-- Live Financial Impact Result (Right) -->
     <div class="sim-results-card">
       <h3>Financial Impact Simulation</h3>
-      
+
       @if (simulationResult(); as res) {
-        <div class="impact-metrics-row">
-          <div class="metric-box">
-            <span class="metric-label">Baseline Annual Fee</span>
-            <div class="metric-val">{{ formatCurrency(res.baseline_fee_eur) }}</div>
-            <span class="metric-sub">Current packaging specs</span>
-          </div>
-
-          <div class="metric-arrow">&rarr;</div>
-
-          <div class="metric-box highlight">
-            <span class="metric-label">Projected Optimized Fee</span>
-            <div class="metric-val text-emerald">{{ formatCurrency(res.projected_fee_eur) }}</div>
-            <span class="metric-sub">With eco-modulation</span>
-          </div>
-
-          <div class="metric-box savings">
-            <span class="metric-label">Net Annual Savings</span>
-            <div class="metric-val text-green">-{{ formatCurrency(res.net_savings_eur) }}</div>
-            <span class="savings-tag">↓ {{ res.reduction_percentage }}% reduction</span>
-          </div>
+      <div class="impact-metrics-row">
+        <div class="metric-box">
+          <span class="metric-label">Baseline Annual Fee</span>
+          <div class="metric-val">{{ formatCurrency(res.baseline_fee_eur) }}</div>
+          <span class="metric-sub">Current packaging specs</span>
         </div>
 
-        <div class="drivers-box">
-          <strong>Key Cost Drivers &amp; Incentive Triggers:</strong>
-          <ul>
-            @for (driver of res.key_drivers; track driver) {
-              <li>{{ driver }}</li>
-            }
-          </ul>
+        <div class="metric-arrow">&rarr;</div>
+
+        <div class="metric-box highlight">
+          <span class="metric-label">Projected Optimized Fee</span>
+          <div class="metric-val text-emerald">{{ formatCurrency(res.projected_fee_eur) }}</div>
+          <div class="metric-val">{{ formatCurrency(res.projected_fee_eur) }}</div>
+          <span class="metric-sub">With eco-modulation</span>
         </div>
+
+        <div class="metric-box savings">
+          <span class="metric-label">Net Annual Savings</span>
+          <div class="metric-val text-green">-{{ formatCurrency(res.net_savings_eur) }}</div>
+          <span class="savings-tag">↓ {{ res.reduction_percentage }}% reduction</span>
+          <div class="metric-val">-{{ formatCurrency(res.net_savings_eur) }}</div>
+          <span class="savings-tag">{{ res.reduction_percentage }}% reduction</span>
+        </div>
+      </div>
+
+      <div class="drivers-box">
+        <strong>Key Cost Drivers &amp; Incentive Triggers:</strong>
+        <ul>
+          @for (driver of res.key_drivers; track driver) {
+          <li>{{ driver }}</li>
+          }
+        </ul>
+      </div>
       }
     </div>
 
@@ -121,55 +113,51 @@
         <h3>Line-Item Explainability &amp; Tariff Breakdown</h3>
         <p>Calculation details per component showing base rates and eco-modulation deltas</p>
       </div>
-      <button 
-        type="button" 
-        class="btn-refresh-calc" 
-        [disabled]="calculating()" 
-        (click)="runBaselineCalculation()"
-      >
+      <button type="button" class="btn-refresh-calc" [disabled]="calculating()" (click)="runBaselineCalculation()">
         🔄 Recalculate
+        Recalculate
       </button>
     </div>
 
     @if (calculationResult(); as calc) {
-      <div class="table-container">
-        <table class="line-items-table">
-          <thead>
-            <tr>
-              <th>SKU Code</th>
-              <th>Component</th>
-              <th>Material</th>
-              <th>Unit Tare</th>
-              <th>Total Tonnage</th>
-              <th>Base Rate / Tonne</th>
-              <th>Eco-Modulation</th>
-              <th>Net Liability</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (item of calc.line_items; track item.component_id) {
-              <tr>
-                <td><code>{{ item.sku }}</code></td>
-                <td><strong>{{ item.component_id }}</strong></td>
-                <td><span class="material-pill">{{ item.material }}</span></td>
-                <td>{{ item.weight_grams }}g</td>
-                <td>{{ item.total_tonnage.toFixed(2) }} t</td>
-                <td>{{ formatCurrency(item.base_rate_eur_per_tonne) }}/t</td>
-                <td>
-                  @if (item.eco_modulation_delta_eur < 0) {
-                    <span class="bonus-tag">{{ formatCurrency(item.eco_modulation_delta_eur) }} (Bonus)</span>
-                  } @else if (item.eco_modulation_delta_eur > 0) {
-                    <span class="malus-tag">+{{ formatCurrency(item.eco_modulation_delta_eur) }} (Malus)</span>
-                  } @else {
-                    <span class="neutral-tag">€0.00</span>
-                  }
-                </td>
-                <td class="cell-final-fee">{{ formatCurrency(item.final_fee_eur) }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+    <div class="table-container">
+      <table class="line-items-table">
+        <thead>
+          <tr>
+            <th>SKU Code</th>
+            <th>Component</th>
+            <th>Material</th>
+            <th>Unit Tare</th>
+            <th>Total Tonnage</th>
+            <th>Base Rate / Tonne</th>
+            <th>Eco-Modulation</th>
+            <th>Net Liability</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of calc.line_items; track item.component_id) {
+          <tr>
+            <td><code>{{ item.sku }}</code></td>
+            <td><strong>{{ item.component_id }}</strong></td>
+            <td><span class="material-pill">{{ item.material }}</span></td>
+            <td>{{ item.weight_grams }}g</td>
+            <td>{{ item.total_tonnage.toFixed(2) }} t</td>
+            <td>{{ formatCurrency(item.base_rate_eur_per_tonne) }}/t</td>
+            <td>
+              @if (item.eco_modulation_delta_eur < 0) { <span class="bonus-tag">{{
+                formatCurrency(item.eco_modulation_delta_eur) }} (Bonus)</span>
+                } @else if (item.eco_modulation_delta_eur > 0) {
+                <span class="malus-tag">+{{ formatCurrency(item.eco_modulation_delta_eur) }} (Malus)</span>
+                } @else {
+                <span class="neutral-tag">€0.00</span>
+                }
+            </td>
+            <td class="cell-final-fee">{{ formatCurrency(item.final_fee_eur) }}</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
     }
   </div>
 

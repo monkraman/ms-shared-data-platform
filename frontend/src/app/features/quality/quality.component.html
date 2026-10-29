@@ -6,13 +6,15 @@
       <div class="header-badge">LAYER 2: DATA QUALITY &amp; SOURCE-OF-TRUTH WORKFLOW</div>
       <h1 class="page-title">Compliance Gaps &amp; Source Correction Worklist</h1>
       <p class="page-subtitle">
-        Automated validation engine detecting regulatory blockers and routing correction tickets to upstream PLM/ERP systems.
+        Automated validation engine detecting regulatory blockers and routing correction tickets to upstream PLM/ERP
+        systems.
       </p>
     </div>
 
     <div class="header-actions">
       <button type="button" class="btn-export" (click)="exportWorklist()">
         📥 Export PLM Worklist (JSON)
+        Export PLM Worklist (JSON)
       </button>
     </div>
   </header>
@@ -20,29 +22,19 @@
   <!-- Filter Bar -->
   <div class="filter-bar">
     <span class="filter-label">Filter Severity:</span>
-    <button 
-      type="button" 
-      class="filter-chip" 
-      [class.active]="activeSeverityFilter() === 'ALL'"
-      (click)="filterBySeverity('ALL')"
-    >
+    <button type="button" class="filter-chip" [class.active]="activeSeverityFilter() === 'ALL'"
+      (click)="filterBySeverity('ALL')">
       All Findings ({{ issues().length }})
     </button>
-    <button 
-      type="button" 
-      class="filter-chip chip-blocker" 
-      [class.active]="activeSeverityFilter() === 'BLOCKER'"
-      (click)="filterBySeverity('BLOCKER')"
-    >
+    <button type="button" class="filter-chip chip-blocker" [class.active]="activeSeverityFilter() === 'BLOCKER'"
+      (click)="filterBySeverity('BLOCKER')">
       🔴 Blockers ({{ issues().filter(i => i.severity === 'blocker').length }})
+      Blockers ({{ issues().filter(i => i.severity === 'blocker').length }})
     </button>
-    <button 
-      type="button" 
-      class="filter-chip chip-warning" 
-      [class.active]="activeSeverityFilter() === 'WARNING'"
-      (click)="filterBySeverity('WARNING')"
-    >
+    <button type="button" class="filter-chip chip-warning" [class.active]="activeSeverityFilter() === 'WARNING'"
+      (click)="filterBySeverity('WARNING')">
       🟡 Warnings ({{ issues().filter(i => i.severity === 'warning').length }})
+      Warnings ({{ issues().filter(i => i.severity === 'warning').length }})
     </button>
   </div>
 
@@ -52,124 +44,110 @@
     <!-- Issue Queue Cards -->
     <div class="issues-column">
       @for (issue of getFilteredIssues(); track issue.id) {
-        <div 
-          class="issue-card" 
-          [class.active]="selectedIssue()?.id === issue.id"
-          [class.blocker]="issue.severity === 'blocker'"
-          (click)="selectIssue(issue)"
-        >
-          <div class="issue-card-top">
-            <span class="severity-badge" [class]="issue.severity">
-              {{ issue.severity | uppercase }}
-            </span>
-            <span class="rule-code">{{ issue.rule_code }}</span>
-            <span class="status-pill">{{ issue.status.replace('_', ' ') | uppercase }}</span>
-          </div>
-
-          <h3 class="issue-title">{{ issue.rule_title }}</h3>
-          <p class="issue-desc">{{ issue.description }}</p>
-
-          <div class="issue-card-meta">
-            <span>Entity: <code>{{ issue.entity_id }}</code></span>
-            <span>Field: <code>{{ issue.field_name }}</code></span>
-            <span class="source-ref">Source Ref: {{ issue.source_spec_reference }}</span>
-          </div>
+      <div class="issue-card" [class.active]="selectedIssue()?.id === issue.id"
+        [class.blocker]="issue.severity === 'blocker'" (click)="selectIssue(issue)">
+        <div class="issue-card-top">
+          <span class="severity-badge" [class]="issue.severity">
+            {{ issue.severity | uppercase }}
+          </span>
+          <span class="rule-code">{{ issue.rule_code }}</span>
+          <span class="status-pill">{{ issue.status.replace('_', ' ') | uppercase }}</span>
         </div>
+
+        <h3 class="issue-title">{{ issue.rule_title }}</h3>
+        <p class="issue-desc">{{ issue.description }}</p>
+
+        <div class="issue-card-meta">
+          <span>Entity: <code>{{ issue.entity_id }}</code></span>
+          <span>Field: <code>{{ issue.field_name }}</code></span>
+          <span class="source-ref">Source Ref: {{ issue.source_spec_reference }}</span>
+        </div>
+      </div>
       }
     </div>
 
     <!-- Source Correction Action Drawer -->
     <div class="correction-drawer">
       @if (selectedIssue(); as active) {
-        <div class="drawer-panel">
-          <div class="drawer-header">
-            <span class="severity-badge" [class]="active.severity">{{ active.severity | uppercase }}</span>
-            <span class="drawer-id">{{ active.id }}</span>
-          </div>
-
-          <h2 class="drawer-title">{{ active.rule_title }}</h2>
-
-          <!-- Architectural Governance Notice -->
-          <div class="governance-box">
-            <span class="gov-icon">🔒</span>
-            <div>
-              <strong>Single Source of Truth Rule:</strong>
-              <p>
-                Product specifications are read-only in Monkspaces. Discrepancies are logged as tickets 
-                and routed to client PLM/ERP teams for permanent source rectification.
-              </p>
-            </div>
-          </div>
-
-          <!-- Finding Details -->
-          <div class="finding-details">
-            <div class="detail-row">
-              <span class="detail-label">Current Value in Spec:</span>
-              <span class="detail-val-error">{{ active.current_value }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Upstream Source:</span>
-              <span class="detail-val">Trace One Devex ({{ active.source_spec_reference }})</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Assigned Lead:</span>
-              <span class="detail-val">{{ active.assigned_to || 'Packaging Data Steward' }}</span>
-            </div>
-            <div class="detail-row full">
-              <span class="detail-label">Recommended Remediation:</span>
-              <p class="remediation-text">{{ active.suggested_source_action }}</p>
-            </div>
-          </div>
-
-          @if (dispatchSuccessMessage()) {
-            <div class="alert-success-box">
-              ✓ {{ dispatchSuccessMessage() }}
-            </div>
-          } @else {
-            <!-- Form to Propose & Dispatch Ticket -->
-            <div class="dispatch-form">
-              <h3>Dispatch Correction Ticket to Source System</h3>
-              
-              <div class="form-group">
-                <label for="proposedVal">Proposed Value for PLM Team:</label>
-                <input 
-                  id="proposedVal" 
-                  type="text" 
-                  [(ngModel)]="proposedValue" 
-                  placeholder="e.g. Attach certified PCR certificate #CERT-PET-2025"
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="justification">Audit Justification / Reference:</label>
-                <textarea 
-                  id="justification" 
-                  rows="2" 
-                  [(ngModel)]="proposedJustification" 
-                  placeholder="e.g. Supplier test report verified under ISO 14021..."
-                ></textarea>
-              </div>
-
-              <button 
-                type="button" 
-                class="btn-dispatch" 
-                [disabled]="proposing() || !proposedValue()"
-                (click)="submitCorrectionTicket()"
-              >
-                @if (proposing()) {
-                  <span>Dispatching to PLM...</span>
-                } @else {
-                  <span>Dispatch Ticket to Trace One PLM &rarr;</span>
-                }
-              </button>
-            </div>
-          }
-
+      <div class="drawer-panel">
+        <div class="drawer-header">
+          <span class="severity-badge" [class]="active.severity">{{ active.severity | uppercase }}</span>
+          <span class="drawer-id">{{ active.id }}</span>
         </div>
+
+        <h2 class="drawer-title">{{ active.rule_title }}</h2>
+
+        <!-- Architectural Governance Notice -->
+        <div class="governance-box">
+          <span class="gov-icon">🔒</span>
+          <div>
+            <strong>Single Source of Truth Rule:</strong>
+            <p>
+              Product specifications are read-only in Monkspaces. Discrepancies are logged as tickets
+              Product specifications are read-only in Compliance Hub. Discrepancies are logged as tickets
+              and routed to client PLM/ERP teams for permanent source rectification.
+            </p>
+          </div>
+        </div>
+
+        <!-- Finding Details -->
+        <div class="finding-details">
+          <div class="detail-row">
+            <span class="detail-label">Current Value in Spec:</span>
+            <span class="detail-val-error">{{ active.current_value }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Upstream Source:</span>
+            <span class="detail-val">Trace One Devex ({{ active.source_spec_reference }})</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Assigned Lead:</span>
+            <span class="detail-val">{{ active.assigned_to || 'Packaging Data Steward' }}</span>
+          </div>
+          <div class="detail-row full">
+            <span class="detail-label">Recommended Remediation:</span>
+            <p class="remediation-text">{{ active.suggested_source_action }}</p>
+          </div>
+        </div>
+
+        @if (dispatchSuccessMessage()) {
+        <div class="alert-success-box">
+          ✓ {{ dispatchSuccessMessage() }}
+          {{ dispatchSuccessMessage() }}
+        </div>
+        } @else {
+        <!-- Form to Propose & Dispatch Ticket -->
+        <div class="dispatch-form">
+          <h3>Dispatch Correction Ticket to Source System</h3>
+
+          <div class="form-group">
+            <label for="proposedVal">Proposed Value for PLM Team:</label>
+            <input id="proposedVal" type="text" [(ngModel)]="proposedValue"
+              placeholder="e.g. Attach certified PCR certificate #CERT-PET-2025" />
+          </div>
+
+          <div class="form-group">
+            <label for="justification">Audit Justification / Reference:</label>
+            <textarea id="justification" rows="2" [(ngModel)]="proposedJustification"
+              placeholder="e.g. Supplier test report verified under ISO 14021..."></textarea>
+          </div>
+
+          <button type="button" class="btn-dispatch" [disabled]="proposing() || !proposedValue()"
+            (click)="submitCorrectionTicket()">
+            @if (proposing()) {
+            <span>Dispatching to PLM...</span>
+            } @else {
+            <span>Dispatch Ticket to Trace One PLM &rarr;</span>
+            }
+          </button>
+        </div>
+        }
+
+      </div>
       } @else {
-        <div class="empty-drawer">
-          <p>Select a compliance issue from the queue to inspect details and dispatch tickets.</p>
-        </div>
+      <div class="empty-drawer">
+        <p>Select a compliance issue from the queue to inspect details and dispatch tickets.</p>
+      </div>
       }
     </div>
 

@@ -9,17 +9,18 @@
       </div>
       <h1 class="dash-title">Enterprise EPR &amp; Packaging Intelligence</h1>
       <p class="dash-subtitle">
-        Provisional liability modeling across {{ marketSummaries().length }} active EPR jurisdictions with automated uncertainty tracking.
+        Provisional liability modeling across {{ marketSummaries().length }} active EPR jurisdictions with automated
+        uncertainty tracking.
       </p>
     </div>
 
     <div class="header-actions">
       <a routerLink="/onboarding" class="btn btn-secondary">
-        ⚙️ Manage Jurisdictions
+        Configure Jurisdictions
       </a>
-      <a href="http://127.0.0.1:8000/docs" target="_blank" class="btn btn-primary">
-        🚀 OpenAPI / Swagger Docs &rarr;
-      </a>
+        <a routerLink="/simulator" class="btn btn-primary">
+          Run Fee Simulator →
+        </a>
     </div>
   </header>
 
@@ -29,7 +30,6 @@
     <div class="kpi-card highlight">
       <div class="kpi-header">
         <span class="kpi-title">Provisional Annual EPR Fee</span>
-        <span class="kpi-icon">💶</span>
       </div>
       <div class="kpi-value">{{ formatCurrency(totalEstimatedFee()) }}</div>
       <div class="kpi-meta">
@@ -42,14 +42,13 @@
     <div class="kpi-card">
       <div class="kpi-header">
         <span class="kpi-title">Canonical Data Completeness</span>
-        <span class="kpi-icon">📈</span>
       </div>
-      <div class="kpi-value text-emerald">{{ dataCompletenessPercent() }}%</div>
+      <div class="kpi-value">{{ dataCompletenessPercent() }}%</div>
       <div class="progress-bar-container">
         <div class="progress-bar-fill" [style.width.%]="dataCompletenessPercent()"></div>
       </div>
       <div class="kpi-meta">
-        <span class="meta-desc">{{ totalTrackedSkus() }} Active SKUs evaluated (DP01–DP45)</span>
+        <span class="meta-desc">{{ totalTrackedSkus() }} Active SKUs evaluated</span>
       </div>
     </div>
 
@@ -57,11 +56,10 @@
     <div class="kpi-card">
       <div class="kpi-header">
         <span class="kpi-title">Uncertainty Drivers</span>
-        <span class="kpi-icon">⚠️</span>
       </div>
-      <div class="kpi-value text-amber">{{ unverifiedSkus() }} SKUs</div>
+      <div class="kpi-value">{{ unverifiedSkus() }} SKUs</div>
       <div class="kpi-meta">
-        <span class="meta-desc">Unverified PCR % or tare weights pending spec review</span>
+        <span class="meta-desc">Unverified PCR % or tare weights pending review</span>
       </div>
     </div>
 
@@ -69,9 +67,8 @@
     <div class="kpi-card">
       <div class="kpi-header">
         <span class="kpi-title">Next Filing Milestone</span>
-        <span class="kpi-icon">🗓️</span>
       </div>
-      <div class="kpi-value text-sky">31 Oct 2026</div>
+      <div class="kpi-value">31 Oct 2026</div>
       <div class="kpi-meta">
         <span class="meta-desc">UK Defra RPD H1 Submission (Large Producer)</span>
       </div>
@@ -87,7 +84,7 @@
         <div class="panel-header">
           <div class="panel-header-title">
             <h2>Active EPR Jurisdictions &amp; Projected Fees</h2>
-            <p>Calculated using active PRO fee schedules and eco-modulation penalties</p>
+            <p>Calculated using official PRO fee schedules and eco-modulation rules</p>
           </div>
           <span class="badge-count">{{ marketSummaries().length }} Active</span>
         </div>
@@ -106,23 +103,23 @@
             </thead>
             <tbody>
               @for (m of marketSummaries(); track m.countryCode) {
-                <tr>
-                  <td class="cell-country">
-                    <span class="table-flag">{{ m.flagEmoji }}</span>
-                    <strong>{{ m.countryName }}</strong>
-                  </td>
-                  <td>
-                    <span class="reg-pill">{{ m.regulationName }}</span>
-                  </td>
-                  <td>{{ m.skuCount }} SKUs</td>
-                  <td class="cell-fee">{{ formatCurrency(m.provisionalFee) }}</td>
-                  <td class="cell-margin">±{{ formatCurrency(m.uncertaintyMargin) }}</td>
-                  <td>
-                    <span class="status-badge" [class]="m.complianceStatus.toLowerCase()">
-                      {{ m.complianceStatus === 'ACTION_REQUIRED' ? 'Action Required' : m.complianceStatus === 'ON_TRACK' ? 'On Track' : 'Verified' }}
-                    </span>
-                  </td>
-                </tr>
+              <tr>
+                <td class="cell-country">
+                  <strong>{{ m.countryName }}</strong>
+                </td>
+                <td>
+                  <span class="reg-pill">{{ m.regulationName }}</span>
+                </td>
+                <td>{{ m.skuCount }} SKUs</td>
+                <td class="cell-fee mono">{{ formatCurrency(m.provisionalFee) }}</td>
+                <td class="cell-margin mono">±{{ formatCurrency(m.uncertaintyMargin) }}</td>
+                <td>
+                  <span class="status-badge" [class]="m.complianceStatus.toLowerCase()">
+                    {{ m.complianceStatus === 'ACTION_REQUIRED' ? 'Action Required' : m.complianceStatus === 'ON_TRACK'
+                    ? 'On Track' : 'Verified' }}
+                  </span>
+                </td>
+              </tr>
               }
             </tbody>
           </table>
@@ -136,25 +133,25 @@
             <h2>Source Discrepancy Correction Tickets</h2>
             <p>Enforcing Single Source of Truth: corrections are routed to PLM/ERP before re-extraction</p>
           </div>
-          <span class="badge-count text-amber">{{ sourceTickets().length }} Open Tickets</span>
+          <span class="badge-count">{{ sourceTickets().length }} Open Tickets</span>
         </div>
 
         <div class="tickets-list">
           @for (t of sourceTickets(); track t.id) {
-            <div class="ticket-card">
-              <div class="ticket-header">
-                <span class="ticket-id">{{ t.id }}</span>
-                <span class="ticket-status">{{ t.status.replace('_', ' ') }}</span>
-              </div>
-              <div class="ticket-body">
-                <div class="ticket-title">{{ t.productName }} (<code>{{ t.skuCode }}</code>)</div>
-                <div class="ticket-issue">{{ t.missingDataPoint }}</div>
-              </div>
-              <div class="ticket-footer">
-                <span class="ticket-source">Source: {{ t.sourceSystem }}</span>
-                <span class="ticket-impact">{{ t.impactMargin }}</span>
-              </div>
+          <div class="ticket-card">
+            <div class="ticket-header">
+              <span class="ticket-id">{{ t.id }}</span>
+              <span class="ticket-status">{{ t.status.replace('_', ' ') }}</span>
             </div>
+            <div class="ticket-body">
+              <div class="ticket-title">{{ t.productName }} (<code>{{ t.skuCode }}</code>)</div>
+              <div class="ticket-issue">{{ t.missingDataPoint }}</div>
+            </div>
+            <div class="ticket-footer">
+              <span class="ticket-source">Source: {{ t.sourceSystem }}</span>
+              <span class="ticket-impact mono">{{ t.impactMargin }}</span>
+            </div>
+          </div>
           }
         </div>
       </div>
@@ -173,14 +170,13 @@
 
         <div class="connectors-list">
           @for (conn of connectors(); track conn.name) {
-            <div class="connector-item">
-              <span class="conn-icon">{{ conn.icon }}</span>
-              <div class="conn-details">
-                <div class="conn-name">{{ conn.name }}</div>
-                <div class="conn-type">{{ conn.type }} • {{ conn.lastSync }}</div>
-              </div>
-              <span class="conn-status">{{ conn.status }}</span>
+          <div class="connector-item">
+            <div class="conn-details">
+              <div class="conn-name">{{ conn.name }}</div>
+              <div class="conn-type">{{ conn.type }} · {{ conn.lastSync }}</div>
             </div>
+            <span class="conn-status">{{ conn.status }}</span>
+          </div>
           }
         </div>
       </div>
