@@ -1,6 +1,7 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs';
 import { APP_CONFIG } from './core/config/client-theme.config';
 import { TenantApiService } from './core/services/tenant-api.service';
 import { AuthService } from './core/services/auth.service';
@@ -20,9 +21,19 @@ export class App {
   readonly themeService = inject(ThemeService);
   private readonly router = inject(Router);
 
+  readonly currentUrl = signal<string>(this.router.url);
+
+  constructor() {
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) => {
+        this.currentUrl.set(event.urlAfterRedirects || event.url);
+      });
+  }
+
   /** Hide the global nav on sign-in and admin pages (they have their own layout) */
   readonly showGlobalNav = computed(() => {
-    const url = this.router.url;
+    const url = this.currentUrl();
     return !url.includes('/sign-in') && !url.includes('/admin');
   });
 
@@ -31,3 +42,4 @@ export class App {
     this.router.navigate(['/sign-in']);
   }
 }
+
