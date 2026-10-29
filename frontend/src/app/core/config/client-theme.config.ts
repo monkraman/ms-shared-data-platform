@@ -35,7 +35,8 @@ function resolveApiBaseUrl(): string {
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem('compliance_api_base_url');
     if (stored) return stored;
-    if (window.location.hostname.includes('onrender.com')) {
+    // When running on Vercel or Render production domains, point to Render backend
+    if (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('onrender.com')) {
       return 'https://compliance-hub-backend.onrender.com';
     }
   }
