@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const targetPath = path.resolve(__dirname, '../src/environments/environment.prod.ts');
-const rawUrl = process.env.API_BASE_URL || process.env.BACKEND_URL || 'https://compliance-hub-backend.onrender.com';
+const rawUrl = process.env.API_BASE_URL || process.env.BACKEND_URL || 'https://ms-shared-data-platform.onrender.com';
 const cleanUrl = rawUrl.trim().replace(/\/$/, '');
 
 const envConfigFile = `/**
@@ -24,4 +24,3 @@ export const environment = {
 
 fs.writeFileSync(targetPath, envConfigFile, { encoding: 'utf8' });
 console.log(`[set-env] Injected production apiBaseUrl: ${cleanUrl}`);
-

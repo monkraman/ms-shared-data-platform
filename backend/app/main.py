@@ -58,11 +58,18 @@ def create_application() -> FastAPI:
         redoc_url="/redoc" if settings.debug or settings.app_env != "production" else None,
     )
 
-    # Cross-Origin Resource Sharing (CORS)
+    # Cross-Origin Resource Sharing (CORS) - Configured for Vercel & Local Dev
+    allowed_origins = [
+        "https://ms-shared-data-platform-nine.vercel.app",
+        "http://localhost:4200",
+        "http://localhost:3000",
+        "http://127.0.0.1:4200",
+    ]
     application.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=False,
+        allow_origins=allowed_origins,
+        allow_origin_regex=r"^https:\/\/.*\.vercel\.app$",
+        allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )

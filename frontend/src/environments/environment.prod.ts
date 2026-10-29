@@ -7,7 +7,7 @@ export const environment = {
   apiBaseUrl:
     (typeof window !== 'undefined' && (window as any).__ENV__?.API_BASE_URL) ||
     (typeof window !== 'undefined' && localStorage.getItem('compliance_api_base_url')) ||
-    'https://compliance-hub-backend.onrender.com',
+    'https://ms-shared-data-platform.onrender.com',
   appName: 'Compliance Hub',
   version: '1.0.0',
   enableDebugTools: false,
