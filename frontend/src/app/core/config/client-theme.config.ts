@@ -1,4 +1,5 @@
 import { TenantMarketSelection, TenantIntegrationConfig } from '../models/tenant.model';
+import { environment } from '../../../environments/environment';
 
 export interface ClientThemeTokens {
   brandName: string;
@@ -31,25 +32,13 @@ export interface SinglePointAppConfig {
   apiBaseUrl: string;
 }
 
-function resolveApiBaseUrl(): string {
-  if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem('compliance_api_base_url');
-    if (stored) return stored;
-    // When running on Vercel or Render production domains, point to Render backend
-    if (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('onrender.com')) {
-      return 'https://compliance-hub-backend.onrender.com';
-    }
-  }
-  return 'http://localhost:8000';
-}
-
 /**
  * SINGLE SOURCE OF TRUTH (DRY PRINCIPLE)
  * All design tokens, client branding, regulatory options, sectors, and integrations
  * are controlled from this single configuration file.
  */
 export const APP_CONFIG: SinglePointAppConfig = {
-  apiBaseUrl: resolveApiBaseUrl(),
+  apiBaseUrl: environment.apiBaseUrl,
   brand: {
     companyName: 'Monkspaces',
     logoText: 'Monkspaces',
