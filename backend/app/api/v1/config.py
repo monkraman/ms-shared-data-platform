@@ -10,10 +10,31 @@ from app.schemas.configuration import (
     DataPointDefinition,
     ComplianceMatrixRequest,
     ComplianceMatrixResponse,
+    TariffRate,
+    UserRoleConfig,
+    MasterDataResponse,
 )
 from app.services.regulatory_config import regulatory_service
 
 router = APIRouter(prefix="/config", tags=["Regulatory Configuration Engine"])
+
+
+@router.get("/masters", response_model=MasterDataResponse)
+def get_master_data() -> MasterDataResponse:
+    """Retrieve full master catalog: sectors, countries, regulations, versioned tariffs, and user roles."""
+    return regulatory_service.get_master_data()
+
+
+@router.get("/tariffs", response_model=List[TariffRate])
+def get_tariffs() -> List[TariffRate]:
+    """Retrieve official versioned base fee schedules and RAM eco-modulation multipliers."""
+    return regulatory_service.get_all_tariffs()
+
+
+@router.get("/roles", response_model=List[UserRoleConfig])
+def get_user_roles() -> List[UserRoleConfig]:
+    """Retrieve platform authorization roles and permission profiles."""
+    return regulatory_service.get_all_user_roles()
 
 
 @router.get("/sectors", response_model=List[SectorConfig])
@@ -48,4 +69,3 @@ def calculate_compliance_matrix(request: ComplianceMatrixRequest) -> ComplianceM
         sector_ids=request.sector_ids,
         country_codes=request.country_codes,
     )
-

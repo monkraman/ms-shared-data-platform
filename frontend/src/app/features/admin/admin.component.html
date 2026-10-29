@@ -21,7 +21,15 @@
     <nav class="sidebar-nav">
       <button class="nav-item" [class.active]="activeTab() === 'organisations'" (click)="setTab('organisations')">
         <span class="nav-bullet"></span>
-        <span>Organisations</span>
+        <span>Client Workspaces</span>
+      </button>
+      <button class="nav-item" [class.active]="activeTab() === 'tariffs'" (click)="setTab('tariffs')">
+        <span class="nav-bullet"></span>
+        <span>Rule &amp; Tariff Library</span>
+      </button>
+      <button class="nav-item" [class.active]="activeTab() === 'masters'" (click)="setTab('masters')">
+        <span class="nav-bullet"></span>
+        <span>Master Data Catalog</span>
       </button>
       <button class="nav-item" [class.active]="activeTab() === 'batches'" (click)="setTab('batches')">
         <span class="nav-bullet"></span>
@@ -47,9 +55,11 @@
       <div class="topbar-left">
         <h1 class="page-title">
           @if (activeTab() === 'organisations') { Multi-Tenant Workspace Directory }
-          @if (activeTab() === 'batches') { Ingestion History & Lineage Batches }
+          @if (activeTab() === 'tariffs') { Versioned Rule &amp; Tariff Library }
+          @if (activeTab() === 'masters') { Platform Master Data Catalog }
+          @if (activeTab() === 'batches') { Ingestion History &amp; Lineage Batches }
         </h1>
-        <p class="page-sub">Canonical FMCG Data Foundation · Step-by-Step Managed Onboarding</p>
+        <p class="page-sub">Monk Spaces Operator View &middot; Canonical FMCG Data Foundation &amp; Governance</p>
       </div>
       <div class="topbar-actions">
         <button class="btn-secondary" (click)="openImportModal()">
@@ -198,6 +208,164 @@
               <td class="mono">{{ b.records_normalized }}</td>
               <td class="mono" [class.text-alert]="b.quality_issues_detected > 0">{{ b.quality_issues_detected }}</td>
               <td class="table-msg">{{ b.message || 'Ingested successfully' }}</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      }
+    </div>
+    }
+
+    <!-- ══════════════════════ TAB: RULE & TARIFF LIBRARY ══════════════════════ -->
+    @if (activeTab() === 'tariffs') {
+    <div class="tab-content" id="tab-tariffs">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Regulatory Fee Schedules &amp; Eco-Modulation Rates</h2>
+          <p class="section-desc">Versioned national base fees, RAM RAG multipliers, and recyclability criteria cited from statutory notices.</p>
+        </div>
+        <button class="btn-refresh" (click)="loadMasterData()">Refresh Tariffs</button>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Jurisdiction</th>
+              <th>Material Classification</th>
+              <th>Base Fee (per tonne)</th>
+              <th>RAM Green Discount</th>
+              <th>RAM Amber Rate</th>
+              <th>RAM Red Penalty</th>
+              <th>Schedule Year</th>
+              <th>Statutory Citation</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (t of tariffs(); track t.material_code) {
+            <tr>
+              <td><span class="pill-status">{{ t.jurisdiction }}</span></td>
+              <td class="font-bold">{{ t.material_name }} (<code>{{ t.material_code }}</code>)</td>
+              <td class="mono font-bold">{{ t.currency }} {{ t.base_rate_per_tonne | number:'1.2-2' }}</td>
+              <td class="mono text-muted">{{ t.ram_green_discount_pct }}%</td>
+              <td class="mono text-muted">{{ t.ram_amber_rate_pct }}%</td>
+              <td class="mono text-alert font-bold">+{{ t.ram_red_penalty_pct }}%</td>
+              <td class="mono">{{ t.effective_year }}</td>
+              <td class="table-msg text-subtle">{{ t.source_citation }}</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-callout" style="margin-top: 24px; padding: 16px; border: 1px solid var(--border-subtle); border-radius: 6px; background: var(--bg-card);">
+        <h4 style="margin: 0 0 6px 0; font-size: 13px; font-weight: 700; color: var(--text-primary);">PPWR Recyclability Performance Benchmarks (Article 6)</h4>
+        <p style="margin: 0; font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+          Grade A (&ge;95% recyclability) &middot; Grade B (&ge;80% recyclability) &middot; Grade C (&ge;70% recyclability).
+          Packaging rated below Grade C is prohibited from EU placement starting 2030 under EU 2025/40.
+        </p>
+      </div>
+    </div>
+    }
+
+    <!-- ══════════════════════ TAB: MASTER DATA CATALOG ══════════════════════ -->
+    @if (activeTab() === 'masters') {
+    <div class="tab-content" id="tab-masters">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Platform Master Data Tables</h2>
+          <p class="section-desc">Governed industry sectors, country compliance obligations, and canonical data points (DP01&ndash;DP45).</p>
+        </div>
+        <button class="btn-refresh" (click)="loadMasterData()">Refresh Masters</button>
+      </div>
+
+      @if (masterData(); as masters) {
+      <!-- Sectors Table -->
+      <h3 style="font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin: 16px 0 8px;">1. Industry Sectors &amp; Default Categories</h3>
+      <div class="table-container" style="margin-bottom: 24px;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Sector Key</th>
+              <th>Display Title</th>
+              <th>Scope Description</th>
+              <th>Default Packaging Categories</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (sec of masters.sectors; track sec.id) {
+            <tr>
+              <td class="mono font-bold">{{ sec.id }}</td>
+              <td class="font-bold">{{ sec.name }}</td>
+              <td style="max-width: 280px;">{{ sec.description }}</td>
+              <td>
+                <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                  @for (cat of sec.default_categories; track cat) {
+                  <span class="cat-pill" style="font-size: 11px; padding: 2px 6px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 4px;">{{ cat }}</span>
+                  }
+                </div>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Countries & Regulations Table -->
+      <h3 style="font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin: 16px 0 8px;">2. Supported Countries &amp; Mandated Regulations</h3>
+      <div class="table-container" style="margin-bottom: 24px;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Country Code</th>
+              <th>Country Name</th>
+              <th>Currency</th>
+              <th>EU Member (PPWR)</th>
+              <th>Mandatory Data Points</th>
+              <th>Governed Regulations</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (c of masters.countries; track c.country_code) {
+            <tr>
+              <td class="mono font-bold">{{ c.country_code }}</td>
+              <td>{{ c.country_name }}</td>
+              <td class="mono">{{ c.currency }}</td>
+              <td>{{ c.is_eu_member ? 'Yes (EU PPWR Active)' : 'No (Non-EU / pEPR)' }}</td>
+              <td class="mono font-bold">{{ c.data_points_required_count }} / 45</td>
+              <td>
+                <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                  @for (r of c.regulations; track r) {
+                  <span class="pill-status">{{ r }}</span>
+                  }
+                </div>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- User Roles Table -->
+      <h3 style="font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin: 16px 0 8px;">3. Authorization Roles &amp; Permissions</h3>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Role Key</th>
+              <th>Role Title</th>
+              <th>Authority Scope</th>
+              <th>Assignable to Client</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of masters.user_roles; track r.role_key) {
+            <tr>
+              <td class="mono font-bold">{{ r.role_key }}</td>
+              <td class="font-bold">{{ r.name }}</td>
+              <td>{{ r.description }}</td>
+              <td>{{ r.is_client_assignable ? 'Yes' : 'Platform Internal Only' }}</td>
             </tr>
             }
           </tbody>

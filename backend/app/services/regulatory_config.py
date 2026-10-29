@@ -1,5 +1,5 @@
 """Regulatory configuration repository and compliance matrix calculation engine.
-Serves configurable sectors, countries, regulations, and DP01-DP45 canonical data points.
+Serves configurable sectors, countries, regulations, versioned tariffs, and DP01-DP45 canonical data points.
 """
 
 import json
@@ -11,9 +11,12 @@ from app.schemas.configuration import (
     RegulationConfig,
     DataPointDefinition,
     ComplianceMatrixResponse,
+    TariffRate,
+    UserRoleConfig,
+    MasterDataResponse,
 )
 
-# SECTOR DEFINITIONS
+# MASTER SECTORS
 SECTORS_SEED: List[SectorConfig] = [
     SectorConfig(
         id="food_beverage",
@@ -66,7 +69,7 @@ SECTORS_SEED: List[SectorConfig] = [
     ),
 ]
 
-# REGULATION DEFINITIONS
+# MASTER REGULATIONS
 REGULATIONS_SEED: List[RegulationConfig] = [
     RegulationConfig(
         regulation_code="UK_PEPR",
@@ -178,7 +181,7 @@ REGULATIONS_SEED: List[RegulationConfig] = [
     ),
 ]
 
-# COUNTRY DEFINITIONS
+# MASTER COUNTRIES
 COUNTRIES_SEED: List[CountryConfig] = [
     CountryConfig(
         country_code="UK",
@@ -254,29 +257,180 @@ COUNTRIES_SEED: List[CountryConfig] = [
     ),
 ]
 
+# MASTER USER ROLES
+USER_ROLES_SEED: List[UserRoleConfig] = [
+    UserRoleConfig(
+        role_key="superadmin",
+        name="Monk Spaces Platform Superadmin",
+        description="Full multi-tenant governance, global rule publishing, client provisioning, and system auditing.",
+        is_client_assignable=False,
+    ),
+    UserRoleConfig(
+        role_key="org_admin",
+        name="Organisation Administrator",
+        description="Manage company settings, invite client team analysts, configure source systems, and sign off returns.",
+        is_client_assignable=True,
+    ),
+    UserRoleConfig(
+        role_key="analyst",
+        name="Compliance & Packaging Analyst",
+        description="Upload BOM packaging files, review data health flags, run scenario simulations, and view calculation traces.",
+        is_client_assignable=True,
+    ),
+    UserRoleConfig(
+        role_key="viewer",
+        name="Read-Only Executive Viewer",
+        description="Access executive dashboard, annual fee liability summaries, and audit exports with read-only restriction.",
+        is_client_assignable=True,
+    ),
+    UserRoleConfig(
+        role_key="supplier_contact",
+        name="Supplier Technical Contact",
+        description="Magic-link portal access restricted strictly to requested component evidence and PCR declarations.",
+        is_client_assignable=True,
+    ),
+]
+
+# MASTER VERSIONED TARIFFS (UK Defra PackUK 2025/2026 & Denmark DPA)
+TARIFFS_SEED: List[TariffRate] = [
+    TariffRate(
+        material_code="PLASTIC_RIGID",
+        material_name="Rigid Plastic Packaging",
+        jurisdiction="UK_DEFRA",
+        currency="GBP",
+        base_rate_per_tonne=425.0,
+        ram_green_discount_pct=-10.0,
+        ram_amber_rate_pct=0.0,
+        ram_red_penalty_pct=30.0,
+        effective_year="2025/2026",
+        source_citation="Defra pEPR Illustrative Base Fee Schedule v2.1",
+    ),
+    TariffRate(
+        material_code="PLASTIC_FLEXIBLE",
+        material_name="Flexible Plastic Films",
+        jurisdiction="UK_DEFRA",
+        currency="GBP",
+        base_rate_per_tonne=560.0,
+        ram_green_discount_pct=-10.0,
+        ram_amber_rate_pct=0.0,
+        ram_red_penalty_pct=35.0,
+        effective_year="2025/2026",
+        source_citation="Defra pEPR Illustrative Base Fee Schedule v2.1",
+    ),
+    TariffRate(
+        material_code="ALUMINIUM",
+        material_name="Aluminium Cans & Foils",
+        jurisdiction="UK_DEFRA",
+        currency="GBP",
+        base_rate_per_tonne=295.0,
+        ram_green_discount_pct=-15.0,
+        ram_amber_rate_pct=0.0,
+        ram_red_penalty_pct=25.0,
+        effective_year="2025/2026",
+        source_citation="Defra pEPR Illustrative Base Fee Schedule v2.1",
+    ),
+    TariffRate(
+        material_code="FIBRE_BASED_COMPOSITE",
+        material_name="Fibre-based Composite / Beverage Cartons",
+        jurisdiction="UK_DEFRA",
+        currency="GBP",
+        base_rate_per_tonne=380.0,
+        ram_green_discount_pct=-5.0,
+        ram_amber_rate_pct=0.0,
+        ram_red_penalty_pct=25.0,
+        effective_year="2025/2026",
+        source_citation="Defra pEPR Illustrative Base Fee Schedule v2.1",
+    ),
+    TariffRate(
+        material_code="PAPER_CARD",
+        material_name="Paper & Corrugated Board",
+        jurisdiction="UK_DEFRA",
+        currency="GBP",
+        base_rate_per_tonne=185.0,
+        ram_green_discount_pct=-10.0,
+        ram_amber_rate_pct=0.0,
+        ram_red_penalty_pct=20.0,
+        effective_year="2025/2026",
+        source_citation="Defra pEPR Illustrative Base Fee Schedule v2.1",
+    ),
+    TariffRate(
+        material_code="GLASS",
+        material_name="Glass Bottles & Jars",
+        jurisdiction="UK_DEFRA",
+        currency="GBP",
+        base_rate_per_tonne=170.0,
+        ram_green_discount_pct=-10.0,
+        ram_amber_rate_pct=0.0,
+        ram_red_penalty_pct=15.0,
+        effective_year="2025/2026",
+        source_citation="Defra pEPR Illustrative Base Fee Schedule v2.1",
+    ),
+    TariffRate(
+        material_code="STEEL",
+        material_name="Steel Cans & Drums",
+        jurisdiction="UK_DEFRA",
+        currency="GBP",
+        base_rate_per_tonne=240.0,
+        ram_green_discount_pct=-10.0,
+        ram_amber_rate_pct=0.0,
+        ram_red_penalty_pct=20.0,
+        effective_year="2025/2026",
+        source_citation="Defra pEPR Illustrative Base Fee Schedule v2.1",
+    ),
+    TariffRate(
+        material_code="DK_PLASTIC_MODULATED",
+        material_name="Danish DPA Plastic (Category 1 Recyclable)",
+        jurisdiction="DK_DPA",
+        currency="DKK",
+        base_rate_per_tonne=3200.0,
+        ram_green_discount_pct=-12.0,
+        ram_amber_rate_pct=0.0,
+        ram_red_penalty_pct=40.0,
+        effective_year="2025/2026",
+        source_citation="Dansk Producentansvar (BEK nr 955 / BEK 323/2025)",
+    ),
+]
+
 
 class RegulatoryConfigService:
     def __init__(self):
         self.sectors = {s.id: s for s in SECTORS_SEED}
         self.countries = {c.country_code: c for c in COUNTRIES_SEED}
         self.regulations = {r.regulation_code: r for r in REGULATIONS_SEED}
+        self.tariffs = TARIFFS_SEED
+        self.user_roles = {u.role_key: u for u in USER_ROLES_SEED}
         self.data_points: Dict[str, DataPointDefinition] = {}
         self._load_data_points()
 
     def _load_data_points(self):
-        seed_path = Path(__file__).parent / "data_points_seed.json"
-        if seed_path.exists():
-            with open(seed_path, "r", encoding="utf-8") as f:
-                raw_dps = json.load(f)
-                for item in raw_dps:
-                    dp = DataPointDefinition(**item)
-                    self.data_points[dp.id] = dp
+        # Dedicated seeds directory first (Clean architecture)
+        candidate_paths = [
+            Path(__file__).parent.parent.parent / "seeds" / "data_points_seed.json",
+            Path(__file__).parent / "data_points_seed.json",
+        ]
+        for p in candidate_paths:
+            if p.exists():
+                try:
+                    with open(p, "r", encoding="utf-8") as f:
+                        raw_dps = json.load(f)
+                        for item in raw_dps:
+                            dp = DataPointDefinition(**item)
+                            self.data_points[dp.id] = dp
+                    break
+                except Exception as e:
+                    print(f"Warning: Failed loading data points from {p}: {e}")
 
     def get_all_sectors(self) -> List[SectorConfig]:
         return list(self.sectors.values())
 
     def get_all_countries(self) -> List[CountryConfig]:
         return list(self.countries.values())
+
+    def get_all_tariffs(self) -> List[TariffRate]:
+        return self.tariffs
+
+    def get_all_user_roles(self) -> List[UserRoleConfig]:
+        return list(self.user_roles.values())
 
     def get_regulations(self, country_code: Optional[str] = None) -> List[RegulationConfig]:
         if not country_code:
@@ -301,10 +455,19 @@ class RegulatoryConfigService:
                 matching.append(dp)
         return matching
 
+    def get_master_data(self) -> MasterDataResponse:
+        return MasterDataResponse(
+            sectors=list(self.sectors.values()),
+            countries=list(self.countries.values()),
+            regulations=list(self.regulations.values()),
+            tariffs=self.tariffs,
+            user_roles=list(self.user_roles.values()),
+            data_points_total=len(self.data_points),
+        )
+
     def calculate_compliance_matrix(self, sector_ids: List[str], country_codes: List[str]) -> ComplianceMatrixResponse:
         upper_codes = [c.upper() for c in country_codes]
         
-        # Determine applicable regulations
         active_regs: Dict[str, RegulationConfig] = {}
         has_eu_member = False
         
@@ -320,7 +483,6 @@ class RegulatoryConfigService:
         if has_eu_member and "EU_PPWR" in self.regulations:
             active_regs["EU_PPWR"] = self.regulations["EU_PPWR"]
 
-        # Required data points
         required_dps: List[DataPointDefinition] = []
         source_systems_set = set()
         for dp in self.data_points.values():
@@ -348,4 +510,3 @@ class RegulatoryConfigService:
 
 
 regulatory_service = RegulatoryConfigService()
-

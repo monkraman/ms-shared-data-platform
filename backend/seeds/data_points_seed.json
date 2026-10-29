@@ -1,0 +1,881 @@
+[
+  {
+    "id": "DP01",
+    "name": "Article / SKU number",
+    "description": "Unique product code that every packaging record links to.",
+    "comes_from": "ERP · SAP S/4HANA",
+    "system_field_example": "SAP material master · MARA-MATNR",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "PPWR DoC and technical file",
+      "Evidence and audit file"
+    ],
+    "ppwr_note": "Applies 12 Aug 2026."
+  },
+  {
+    "id": "DP02",
+    "name": "GTIN / barcode",
+    "description": "Global trade item number, used to match the product across systems and on the data carrier.",
+    "comes_from": "ERP · SAP S/4HANA",
+    "system_field_example": "SAP material master · MARA-EAN11",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "PPWR DoC and technical file",
+      "PPWR labelling"
+    ],
+    "ppwr_note": "Applies 12 Aug 2026."
+  },
+  {
+    "id": "DP03",
+    "name": "Packaging component list",
+    "description": "Every component of the pack: bottle, closure, label, carton, case, film.",
+    "comes_from": "ERP · SAP S/4HANA",
+    "system_field_example": "SAP bill of materials · STKO / STPO",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "National EPR report",
+      "EPR fee / eco-modulation",
+      "PPWR DoC and technical file"
+    ],
+    "ppwr_note": "Applies 12 Aug 2026."
+  },
+  {
+    "id": "DP04",
+    "name": "Packaging level",
+    "description": "Whether each component is primary, secondary or transit packaging.",
+    "comes_from": "PLM · packaging specs",
+    "system_field_example": "PLM component attribute · level",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "National EPR report",
+      "EPR fee / eco-modulation"
+    ],
+    "ppwr_note": null
+  },
+  {
+    "id": "DP05",
+    "name": "Units per pack",
+    "description": "How many sales units share a secondary or transit component.",
+    "comes_from": "ERP · SAP S/4HANA",
+    "system_field_example": "SAP BOM quantity · STPO-MENGE",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "National EPR report",
+      "EPR fee / eco-modulation"
+    ],
+    "ppwr_note": null
+  },
+  {
+    "id": "DP06",
+    "name": "Component material",
+    "description": "Main material of each component (glass, aluminium, paper/board, plastic, steel, wood, other).",
+    "comes_from": "PLM · packaging specs",
+    "system_field_example": "PLM spec · material class",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "National EPR report",
+      "EPR fee / eco-modulation",
+      "PPWR DoC and technical file",
+      "PPWR labelling"
+    ],
+    "ppwr_note": "Applies 12 Aug 2026."
+  },
+  {
+    "id": "DP07",
+    "name": "Polymer type",
+    "description": "Plastic type for plastic components (PET, HDPE, PP, LDPE).",
+    "comes_from": "Supplier",
+    "system_field_example": "Supplier declaration · polymer",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "National EPR report",
+      "EPR fee / eco-modulation",
+      "PPWR labelling"
+    ],
+    "ppwr_note": "Applies 12 Aug 2028."
+  },
+  {
+    "id": "DP08",
+    "name": "Multi-material split",
+    "description": "Share of each material in composite components, by weight.",
+    "comes_from": "Supplier",
+    "system_field_example": "Supplier declaration · composition %",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "National EPR report",
+      "EPR fee / eco-modulation",
+      "PPWR DoC and technical file"
+    ],
+    "ppwr_note": "Applies 12 Aug 2026."
+  },
+  {
+    "id": "DP09",
+    "name": "Component weight (empty)",
+    "description": "Weight of each empty component in grams.",
+    "comes_from": "PLM · packaging specs",
+    "system_field_example": "PLM spec · net weight (g)",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "National EPR report",
+      "EPR fee / eco-modulation",
+      "PPWR DoC and technical file"
+    ],
+    "ppwr_note": "Applies 12 Aug 2026."
+  },
+  {
+    "id": "DP10",
+    "name": "Colour and opacity",
+    "description": "Colour and opacity of each component, which affect sorting and recycling.",
+    "comes_from": "Supplier",
+    "system_field_example": "Supplier declaration · colour",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "EPR fee / eco-modulation",
+      "PPWR DoC and technical file"
+    ],
+    "ppwr_note": "Applies 2030."
+  },
+  {
+    "id": "DP11",
+    "name": "Additives, inks and adhesives",
+    "description": "Additives, inks, coatings and adhesives that can disrupt recycling.",
+    "comes_from": "Supplier",
+    "system_field_example": "Supplier declaration · additives",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "EPR fee / eco-modulation",
+      "PPWR DoC and technical file"
+    ],
+    "ppwr_note": "Applies 2030."
+  },
+  {
+    "id": "DP12",
+    "name": "Recyclability result",
+    "description": "Result of the recyclability assessment for each component.",
+    "comes_from": "Supplier",
+    "system_field_example": "Assessment record · result",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "EPR fee / eco-modulation",
+      "PPWR DoC and technical file"
+    ],
+    "ppwr_note": "Applies 2030. PPWR recyclability grade A to E applies from 2030."
+  },
+  {
+    "id": "DP13",
+    "name": "Recycled content %",
+    "description": "Share of recycled material in each component.",
+    "comes_from": "Supplier",
+    "system_field_example": "Supplier declaration · recycled %",
+    "applicable_countries": [
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "EPR fee / eco-modulation",
+      "PPWR DoC and technical file"
+    ],
+    "ppwr_note": "Applies 2030. PPWR minimum recycled content for plastic packaging from 2030."
+  },
+  {
+    "id": "DP14",
+    "name": "Recycled content certificate",
+    "description": "Chain-of-custody evidence for the recycled content claimed.",
+    "comes_from": "Supplier",
+    "system_field_example": "Certificate · ISCC PLUS or equivalent",
+    "applicable_countries": [
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "EPR fee / eco-modulation",
+      "PPWR DoC and technical file",
+      "Evidence and audit file"
+    ],
+    "ppwr_note": "Applies 2030."
+  },
+  {
+    "id": "DP15",
+    "name": "Reusable or single-use",
+    "description": "Whether the packaging is designed to be reused.",
+    "comes_from": "PLM · packaging specs",
+    "system_field_example": "PLM spec · reuse flag",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "National EPR report",
+      "EPR fee / eco-modulation",
+      "PPWR DoC and technical file",
+      "PPWR labelling"
+    ],
+    "ppwr_note": "Applies 12 Aug 2026."
+  },
+  {
+    "id": "DP16",
+    "name": "Food-contact packaging",
+    "description": "Whether the component is in contact with the product.",
+    "comes_from": "PLM · packaging specs",
+    "system_field_example": "PLM spec · food contact",
+    "applicable_countries": [
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "PPWR DoC and technical file"
+    ],
+    "ppwr_note": "Applies 12 Aug 2026."
+  },
+  {
+    "id": "DP17",
+    "name": "PFAS declaration",
+    "description": "Supplier confirmation that food-contact components meet the PFAS limits.",
+    "comes_from": "Supplier",
+    "system_field_example": "Supplier declaration · PFAS",
+    "applicable_countries": [
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "PPWR DoC and technical file"
+    ],
+    "ppwr_note": "Applies 12 Aug 2026."
+  },
+  {
+    "id": "DP18",
+    "name": "Heavy metals",
+    "description": "Combined lead, cadmium, mercury and hexavalent chromium content.",
+    "comes_from": "Supplier",
+    "system_field_example": "Test report · mg/kg",
+    "applicable_countries": [
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "PPWR DoC and technical file"
+    ],
+    "ppwr_note": "Applies 12 Aug 2026."
+  },
+  {
+    "id": "DP19",
+    "name": "Substances of concern",
+    "description": "Screening for substances of concern in each component.",
+    "comes_from": "Supplier",
+    "system_field_example": "Supplier declaration · SVHC screening",
+    "applicable_countries": [
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "PPWR DoC and technical file"
+    ],
+    "ppwr_note": "Applies 12 Aug 2026."
+  },
+  {
+    "id": "DP20",
+    "name": "Minimisation evidence",
+    "description": "Why the pack cannot be lighter or smaller (functional constraints).",
+    "comes_from": "PLM · packaging specs",
+    "system_field_example": "Design record · minimisation assessment",
+    "applicable_countries": [
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "PPWR DoC and technical file"
+    ],
+    "ppwr_note": "Applies 12 Aug 2026."
+  },
+  {
+    "id": "DP21",
+    "name": "Empty space ratio",
+    "description": "Empty space in grouped, transport and e-commerce packaging.",
+    "comes_from": "PLM · packaging specs",
+    "system_field_example": "PLM spec · volume data",
+    "applicable_countries": [
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "PPWR DoC and technical file"
+    ],
+    "ppwr_note": "Applies 2030."
+  },
+  {
+    "id": "DP22",
+    "name": "Units placed on the market",
+    "description": "Number of sales units supplied in the country during the period.",
+    "comes_from": "ERP · SAP S/4HANA",
+    "system_field_example": "SAP billing · VBRP quantity by country",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "National EPR report",
+      "EPR fee / eco-modulation"
+    ],
+    "ppwr_note": null
+  },
+  {
+    "id": "DP23",
+    "name": "Sales channel",
+    "description": "Whether units go to households (retail) or businesses (on-trade).",
+    "comes_from": "ERP · SAP S/4HANA",
+    "system_field_example": "SAP customer group · KNVV-KDGRP",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "National EPR report",
+      "EPR fee / eco-modulation"
+    ],
+    "ppwr_note": "Applies . Household and commercial packaging can be reported differently."
+  },
+  {
+    "id": "DP24",
+    "name": "Delivery nation",
+    "description": "England, Scotland, Wales or Northern Ireland.",
+    "comes_from": "ERP · SAP S/4HANA",
+    "system_field_example": "SAP delivery · ship-to region",
+    "applicable_countries": [
+      "UK"
+    ],
+    "goes_into": [
+      "National EPR report"
+    ],
+    "ppwr_note": null
+  },
+  {
+    "id": "DP25",
+    "name": "Exports out of the country",
+    "description": "Units shipped out of the country, which are removed from the obligation.",
+    "comes_from": "ERP · SAP S/4HANA",
+    "system_field_example": "SAP delivery · destination country",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "National EPR report",
+      "EPR fee / eco-modulation"
+    ],
+    "ppwr_note": null
+  },
+  {
+    "id": "DP26",
+    "name": "Deposit scheme status",
+    "description": "Whether the drinks container is in a deposit return scheme.",
+    "comes_from": "Manual · client team",
+    "system_field_example": "Manual · scheme flag",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "National EPR report",
+      "EPR fee / eco-modulation"
+    ],
+    "ppwr_note": null
+  },
+  {
+    "id": "DP27",
+    "name": "Import country of origin",
+    "description": "Country the packaged product was imported from.",
+    "comes_from": "ERP · SAP S/4HANA",
+    "system_field_example": "SAP purchasing · vendor country",
+    "applicable_countries": [
+      "UK"
+    ],
+    "goes_into": [
+      "National EPR report"
+    ],
+    "ppwr_note": null
+  },
+  {
+    "id": "DP28",
+    "name": "Producer role",
+    "description": "Brand owner, packer/filler or importer for each product.",
+    "comes_from": "Manual · client team",
+    "system_field_example": "Manual · legal entity and role",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "National EPR report",
+      "PPWR DoC and technical file"
+    ],
+    "ppwr_note": "Applies 12 Aug 2026."
+  },
+  {
+    "id": "DP29",
+    "name": "EPR registration number",
+    "description": "The producer's registration number in the national register.",
+    "comes_from": "Manual · client team",
+    "system_field_example": "Manual · registration record",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "National EPR report",
+      "PPWR labelling"
+    ],
+    "ppwr_note": "Applies 12 Aug 2028."
+  },
+  {
+    "id": "DP30",
+    "name": "Compliance scheme membership",
+    "description": "The scheme or PRO the producer belongs to in the country.",
+    "comes_from": "Manual · client team",
+    "system_field_example": "Manual · contract record",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "National EPR report",
+      "EPR fee / eco-modulation"
+    ],
+    "ppwr_note": null
+  },
+  {
+    "id": "DP31",
+    "name": "Authorised representative",
+    "description": "EU representative for EPR where the producer is not established in the country.",
+    "comes_from": "Manual · client team",
+    "system_field_example": "Manual · appointment record",
+    "applicable_countries": [
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "National EPR report",
+      "PPWR DoC and technical file"
+    ],
+    "ppwr_note": "Applies 12 Aug 2026."
+  },
+  {
+    "id": "DP32",
+    "name": "Organisation size and thresholds",
+    "description": "Turnover and tonnage that decide which obligations apply.",
+    "comes_from": "Manual · client team",
+    "system_field_example": "Finance · turnover and tonnage",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "National EPR report",
+      "EPR fee / eco-modulation"
+    ],
+    "ppwr_note": null
+  },
+  {
+    "id": "DP33",
+    "name": "Reporting period",
+    "description": "The period the report covers.",
+    "comes_from": "Manual · client team",
+    "system_field_example": "Manual · period",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "National EPR report"
+    ],
+    "ppwr_note": null
+  },
+  {
+    "id": "DP34",
+    "name": "Declaration of Completeness",
+    "description": "Annual declaration audited by an approved expert, if thresholds are exceeded.",
+    "comes_from": "Manual · client team",
+    "system_field_example": "Manual · auditor report",
+    "applicable_countries": [
+      "DE"
+    ],
+    "goes_into": [
+      "National EPR report"
+    ],
+    "ppwr_note": null
+  },
+  {
+    "id": "DP35",
+    "name": "Triman logo and Info-tri",
+    "description": "French sorting logo and sorting instructions on the pack.",
+    "comes_from": "PLM · packaging specs",
+    "system_field_example": "Artwork · label elements",
+    "applicable_countries": [
+      "FR"
+    ],
+    "goes_into": [
+      "PPWR labelling"
+    ],
+    "ppwr_note": null
+  },
+  {
+    "id": "DP36",
+    "name": "Environmental label codes",
+    "description": "Material identification codes and sorting information on the pack.",
+    "comes_from": "PLM · packaging specs",
+    "system_field_example": "Artwork · label elements",
+    "applicable_countries": [
+      "IT"
+    ],
+    "goes_into": [
+      "PPWR labelling"
+    ],
+    "ppwr_note": null
+  },
+  {
+    "id": "DP37",
+    "name": "CONAI plastic band",
+    "description": "Contribution band for plastic packaging, based on sortability and recyclability.",
+    "comes_from": "Manual · client team",
+    "system_field_example": "Manual · CONAI classification",
+    "applicable_countries": [
+      "IT"
+    ],
+    "goes_into": [
+      "EPR fee / eco-modulation"
+    ],
+    "ppwr_note": null
+  },
+  {
+    "id": "DP38",
+    "name": "Non-recycled plastic weight",
+    "description": "Weight of non-recycled plastic, used for the Spanish plastic tax.",
+    "comes_from": "Supplier",
+    "system_field_example": "Supplier declaration · virgin plastic (kg)",
+    "applicable_countries": [
+      "ES"
+    ],
+    "goes_into": [
+      "EPR fee / eco-modulation",
+      "Evidence and audit file"
+    ],
+    "ppwr_note": null
+  },
+  {
+    "id": "DP39",
+    "name": "Harmonised material label",
+    "description": "EU label showing material composition and sorting.",
+    "comes_from": "PLM · packaging specs",
+    "system_field_example": "Artwork · label elements",
+    "applicable_countries": [
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "PPWR labelling"
+    ],
+    "ppwr_note": "Applies 12 Aug 2028."
+  },
+  {
+    "id": "DP40",
+    "name": "QR code / data carrier",
+    "description": "Digital information linked from the pack.",
+    "comes_from": "PLM · packaging specs",
+    "system_field_example": "Artwork · data carrier content",
+    "applicable_countries": [
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "PPWR DoC and technical file",
+      "PPWR labelling"
+    ],
+    "ppwr_note": "Applies 12 Aug 2028."
+  },
+  {
+    "id": "DP41",
+    "name": "DoC reference and version",
+    "description": "Reference of the Declaration of Conformity for the packaging.",
+    "comes_from": "Manual · client team",
+    "system_field_example": "DoC record · reference",
+    "applicable_countries": [
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "PPWR DoC and technical file"
+    ],
+    "ppwr_note": "Applies 12 Aug 2026."
+  },
+  {
+    "id": "DP42",
+    "name": "Technical file references",
+    "description": "Test reports, certificates and assessments behind the DoC.",
+    "comes_from": "Supplier",
+    "system_field_example": "Technical file · references",
+    "applicable_countries": [
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "PPWR DoC and technical file"
+    ],
+    "ppwr_note": "Applies 12 Aug 2026."
+  },
+  {
+    "id": "DP43",
+    "name": "Supplier per component",
+    "description": "The supplier of each packaging component.",
+    "comes_from": "ERP · SAP S/4HANA",
+    "system_field_example": "SAP purchasing info record · EINA-LIFNR",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "PPWR DoC and technical file",
+      "Evidence and audit file"
+    ],
+    "ppwr_note": "Applies 12 Aug 2026."
+  },
+  {
+    "id": "DP44",
+    "name": "Weight source and sampling",
+    "description": "Whether each weight was measured, supplier-provided or estimated, with sampling records.",
+    "comes_from": "PLM · packaging specs",
+    "system_field_example": "PLM / lab record · weight source",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "Evidence and audit file"
+    ],
+    "ppwr_note": null
+  },
+  {
+    "id": "DP45",
+    "name": "Sign-off owner",
+    "description": "Named person who approves each submission.",
+    "comes_from": "Manual · client team",
+    "system_field_example": "Manual · approver",
+    "applicable_countries": [
+      "UK",
+      "DE",
+      "FR",
+      "ES",
+      "IT",
+      "DK",
+      "NL"
+    ],
+    "goes_into": [
+      "National EPR report",
+      "Evidence and audit file"
+    ],
+    "ppwr_note": null
+  }
+]

@@ -11,8 +11,16 @@ import {
   SkuImportResponse,
   IngestionBatch,
 } from '../../core/services/foundation-api.service';
+import {
+  ConfigApiService,
+  MasterDataResponse,
+  TariffRate,
+  SectorConfig,
+  CountryConfig,
+  UserRoleConfig,
+} from '../../core/services/config-api.service';
 
-type AdminTab = 'organisations' | 'batches';
+type AdminTab = 'organisations' | 'tariffs' | 'masters' | 'batches';
 
 @Component({
   selector: 'app-admin',
@@ -26,11 +34,14 @@ export class AdminComponent implements OnInit {
   readonly authService = inject(AuthService);
   readonly tenantService = inject(TenantApiService);
   readonly foundationService = inject(FoundationApiService);
+  readonly configService = inject(ConfigApiService);
 
   readonly activeTab = signal<AdminTab>('organisations');
   readonly loading = this.tenantService.loading;
   readonly tenants = this.tenantService.tenants;
   readonly batches = signal<IngestionBatch[]>([]);
+  readonly masterData = signal<MasterDataResponse | null>(null);
+  readonly tariffs = signal<TariffRate[]>([]);
 
   // Platform Metrics
   readonly totalOrgs = computed(() => this.tenants().length);
@@ -133,6 +144,17 @@ export class AdminComponent implements OnInit {
 
   ngOnInit(): void {
     this.refreshTenants();
+    this.loadMasterData();
+  }
+
+  loadMasterData(): void {
+    this.configService.getMasterData().subscribe({
+      next: (data) => {
+        this.masterData.set(data);
+        this.tariffs.set(data.tariffs);
+      },
+      error: (err) => console.warn('Failed loading master data catalog', err),
+    });
   }
 
   refreshTenants(): void {
@@ -158,6 +180,8 @@ export class AdminComponent implements OnInit {
     this.activeTab.set(tab);
     if (tab === 'batches') {
       this.loadBatches();
+    } else if (tab === 'tariffs' || tab === 'masters') {
+      this.loadMasterData();
     }
   }
 

@@ -11,6 +11,27 @@ export interface SectorConfig {
   active: boolean;
 }
 
+export interface UserRoleConfig {
+  role_key: string;
+  name: string;
+  description: string;
+  is_client_assignable: boolean;
+}
+
+export interface TariffRate {
+  material_code: string;
+  material_name: string;
+  jurisdiction: string;
+  currency: string;
+  base_rate_per_tonne: number;
+  unit: string;
+  ram_green_discount_pct: number;
+  ram_amber_rate_pct: number;
+  ram_red_penalty_pct: number;
+  effective_year: string;
+  source_citation: string;
+}
+
 export interface CountryConfig {
   country_code: string;
   country_name: string;
@@ -54,10 +75,31 @@ export interface ComplianceMatrixResponse {
   fee_systems: Record<string, string>;
 }
 
+export interface MasterDataResponse {
+  sectors: SectorConfig[];
+  countries: CountryConfig[];
+  regulations: RegulationConfig[];
+  tariffs: TariffRate[];
+  user_roles: UserRoleConfig[];
+  data_points_total: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ConfigApiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${APP_CONFIG.apiBaseUrl}/config`;
+  private readonly baseUrl = `${APP_CONFIG.apiBaseUrl}/api/v1/config`;
+
+  getMasterData(): Observable<MasterDataResponse> {
+    return this.http.get<MasterDataResponse>(`${this.baseUrl}/masters`);
+  }
+
+  getTariffs(): Observable<TariffRate[]> {
+    return this.http.get<TariffRate[]>(`${this.baseUrl}/tariffs`);
+  }
+
+  getUserRoles(): Observable<UserRoleConfig[]> {
+    return this.http.get<UserRoleConfig[]>(`${this.baseUrl}/roles`);
+  }
 
   getSectors(): Observable<SectorConfig[]> {
     return this.http.get<SectorConfig[]>(`${this.baseUrl}/sectors`);
