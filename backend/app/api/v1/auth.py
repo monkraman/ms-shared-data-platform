@@ -1,9 +1,10 @@
-"""Authentication, SSO, Sessions, and MFA endpoints for Compliance Hub."""
+"""Authentication, JWT issuance, and User Directory endpoints for Compliance Hub."""
 
 from datetime import datetime, timezone
 import secrets
-from typing import List
-from fastapi import APIRouter, HTTPException, Header, status
+from typing import List, Optional
+from uuid import uuid4
+from fastapi import APIRouter, HTTPException, Depends, status
 
 from app.schemas.auth import (
     ActiveSession,
@@ -12,112 +13,56 @@ from app.schemas.auth import (
     LoginRequest,
     MagicLinkVerifyRequest,
     MfaVerifyRequest,
-    SsoLoginRequest,
-    SsoProvider,
     UserProfile,
     UserRole,
+    UserCreateRequest,
 )
+from app.services.store import data_store
+from app.core.security import create_access_token, get_current_user, AuthenticatedUser
 
 router = APIRouter(prefix="/auth", tags=["Authentication & Identity"])
-
-# In-memory user directory for prototype / demo
-USERS_DB = {
-    "superadmin@monkspaces.com": {
-        "id": "usr-sa-001",
-        "email": "superadmin@monkspaces.com",
-        "full_name": "Platform Administrator",
-        "role": UserRole.SUPERADMIN,
-        "organisation_id": "monkspaces-internal",
-        "organisation_slug": "monkspaces",
-        "organisation_name": "Monkspaces Platform Admin",
-        "avatar_initials": "SA",
-        "mfa_enabled": True,
-    },
-    "compliance.officer@kraftheinz.com": {
-        "id": "usr-khc-001",
-        "email": "compliance.officer@kraftheinz.com",
-        "full_name": "Sarah Mitchell",
-        "role": UserRole.ORG_ADMIN,
-        "organisation_id": "khc-europe",
-        "organisation_slug": "khc-europe",
-        "organisation_name": "The Kraft Heinz Company Europe",
-        "avatar_initials": "SM",
-        "mfa_enabled": True,
-    },
-    "analyst@kraftheinz.com": {
-        "id": "usr-khc-002",
-        "email": "analyst@kraftheinz.com",
-        "full_name": "James Patel",
-        "role": UserRole.ANALYST,
-        "organisation_id": "khc-europe",
-        "organisation_slug": "khc-europe",
-        "organisation_name": "The Kraft Heinz Company Europe",
-        "avatar_initials": "JP",
-        "mfa_enabled": False,
-    },
-    "admin@aurora-pack.com": {
-        "id": "usr-aur-001",
-        "email": "admin@aurora-pack.com",
-        "full_name": "Elena Rossi",
-        "role": UserRole.ORG_ADMIN,
-        "organisation_id": "aurora-pack",
-        "organisation_slug": "aurora-pack",
-        "organisation_name": "Aurora Packaging Group",
-        "avatar_initials": "ER",
-        "mfa_enabled": True,
-    },
-}
-
-MOCK_SESSIONS = [
-    ActiveSession(
-        id="sess-01",
-        device_name="MacBook Pro 16” (Corporate Managed)",
-        browser="Chrome 131.0 on macOS Sonoma",
-        ip_address="194.207.12.89",
-        location="London, United Kingdom",
-        last_active=datetime.now(timezone.utc),
-        is_current_device=True,
-    ),
-    ActiveSession(
-        id="sess-02",
-        device_name="Windows 11 Workstation",
-        browser="Edge 131.0 on Windows",
-        ip_address="82.165.197.1",
-        location="Amsterdam, Netherlands",
-        last_active=datetime.now(timezone.utc),
-        is_current_device=False,
-    ),
-]
 
 
 @router.post(
     "/sign-in",
     response_model=AuthTokenResponse,
-    summary="[P1] Work Email & Password Sign In",
-    description="Authenticates corporate credentials. Routes SuperAdmin to /admin and Client users to /dashboard.",
+    summary="Direct Work Email & Password Sign In",
+    description="Authenticates corporate credentials, generates real JWT token with role & tenant context, and returns redirect route.",
 )
 async def sign_in(payload: LoginRequest):
     email = payload.email.lower().strip()
-    user_data = USERS_DB.get(email)
+    user = data_store.authenticate_user(email, payload.password)
 
-    if not user_data:
-        # Fallback for arbitrary work emails in demo
-        org_slug = "khc-europe" if "kraft" in email else "aurora-pack"
-        user_data = {
-            "id": f"usr-dyn-{secrets.token_hex(4)}",
-            "email": email,
-            "full_name": email.split("@")[0].replace(".", " ").title(),
-            "role": UserRole.ANALYST,
-            "organisation_id": org_slug,
-            "organisation_slug": org_slug,
-            "organisation_name": "Kraft Heinz Europe" if org_slug == "khc-europe" else "Aurora Packaging",
-            "avatar_initials": email[:2].upper(),
-            "mfa_enabled": True,
-        }
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid corporate credentials. Please check your email and password.",
+        )
 
-    token = f"jwt_mock_{secrets.token_urlsafe(32)}"
-    user_profile = UserProfile(**user_data)
-    redirect_url = "/admin" if user_profile.role == UserRole.SUPERADMIN else "/dashboard"
+    # Real signed JWT containing sub, role, tenant_id, name
+    token_claims = {
+        "sub": user["email"],
+        "name": user["full_name"],
+        "role": user["role"],
+        "tenant_id": user.get("tenant_id"),
+        "org_slug": user.get("tenant_id"),
+        "org_name": user.get("organisation_name"),
+    }
+    token = create_access_token(token_claims)
+
+    user_profile = UserProfile(
+        id=user.get("id", f"usr-{uuid4().hex[:6]}"),
+        email=user["email"],
+        full_name=user["full_name"],
+        role=UserRole(user["role"]),
+        organisation_id=user.get("tenant_id"),
+        organisation_slug=user.get("tenant_id"),
+        organisation_name=user.get("organisation_name") or ("Platform Admin" if user["role"] == "superadmin" else "Client Workspace"),
+        avatar_initials=user.get("avatar_initials", "U"),
+        mfa_enabled=False,
+    )
+
+    redirect_url = "/admin" if user["role"] == "superadmin" else "/dashboard"
 
     return AuthTokenResponse(
         access_token=token,
@@ -129,125 +74,110 @@ async def sign_in(payload: LoginRequest):
     )
 
 
-@router.post(
-    "/sso",
-    response_model=AuthTokenResponse,
-    summary="[P1] Enterprise Single Sign-On (Microsoft / Google / SAML)",
-    description="Completes OIDC / SAML token exchange and establishes authenticated session for the organisation.",
-)
-async def sso_login(payload: SsoLoginRequest):
-    provider_name = payload.provider.value.title()
-    org_slug = payload.organisation_slug or "khc-europe"
-
-    user_data = {
-        "id": f"usr-sso-{secrets.token_hex(4)}",
-        "email": f"sso.user@{org_slug}.com",
-        "full_name": f"{provider_name} Enterprise User",
-        "role": UserRole.ORG_ADMIN,
-        "organisation_id": org_slug,
-        "organisation_slug": org_slug,
-        "organisation_name": "The Kraft Heinz Company Europe" if org_slug == "khc-europe" else "Aurora Packaging",
-        "avatar_initials": "EU",
-        "mfa_enabled": True,
-    }
-
-    token = f"sso_token_{secrets.token_urlsafe(32)}"
-    return AuthTokenResponse(
-        access_token=token,
-        token_type="bearer",
-        expires_in_seconds=86400,
-        user=UserProfile(**user_data),
-        requires_mfa=False,
-        redirect_url="/dashboard",
-    )
-
-
-@router.post(
-    "/mfa/verify",
-    response_model=AuthTokenResponse,
-    summary="[P2] Multi-Factor Authentication (MFA) Verification",
-    description="Validates a 6-digit TOTP / SMS code during step-up authentication.",
-)
-async def verify_mfa(payload: MfaVerifyRequest):
-    if len(payload.code) != 6 or not payload.code.isdigit():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="MFA code must be exactly 6 digits.",
-        )
-
-    email = payload.email.lower().strip()
-    user_data = USERS_DB.get(email, USERS_DB["compliance.officer@kraftheinz.com"])
-    user_profile = UserProfile(**user_data)
-    redirect_url = "/admin" if user_profile.role == UserRole.SUPERADMIN else "/dashboard"
-
-    return AuthTokenResponse(
-        access_token=f"jwt_mfa_verified_{secrets.token_urlsafe(32)}",
-        token_type="bearer",
-        expires_in_seconds=86400 * 30 if payload.trust_device else 86400,
-        user=user_profile,
-        requires_mfa=False,
-        redirect_url=redirect_url,
-    )
-
-
-@router.post(
-    "/forgot-password",
-    status_code=status.HTTP_200_OK,
-    summary="[P2] Password Reset / Magic Link Request",
-    description="Dispatches a secure password reset or single-use magic login link to the work email.",
-)
-async def forgot_password(payload: ForgotPasswordRequest):
-    return {
-        "status": "success",
-        "message": f"A secure reset link and one-time magic token have been generated for {payload.email}.",
-        "dispatched_at": datetime.now(timezone.utc).isoformat(),
-    }
-
-
-@router.post(
-    "/magic-link/verify",
-    response_model=AuthTokenResponse,
-    summary="[P2] Magic Link Token Sign-In",
-    description="Consumes a single-use magic link token and starts an authenticated session.",
-)
-async def verify_magic_link(payload: MagicLinkVerifyRequest):
-    user_data = USERS_DB["compliance.officer@kraftheinz.com"]
-    return AuthTokenResponse(
-        access_token=f"jwt_magic_{secrets.token_urlsafe(32)}",
-        token_type="bearer",
-        expires_in_seconds=86400,
-        user=UserProfile(**user_data),
-        requires_mfa=False,
-        redirect_url="/dashboard",
-    )
-
-
 @router.get(
     "/me",
     response_model=UserProfile,
-    summary="Get Current Authenticated User",
-    description="Returns the active user profile, tenant scope, and permissions.",
+    summary="Current Authenticated User Context",
 )
-async def get_current_user(x_tenant_id: str = Header(default="khc-europe")):
-    return UserProfile(**USERS_DB["compliance.officer@kraftheinz.com"])
+async def get_current_profile(current_user: AuthenticatedUser = Depends(get_current_user)):
+    user = data_store.get_user(current_user.email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User record not found.")
 
-
-@router.get(
-    "/sessions",
-    response_model=List[ActiveSession],
-    summary="[P3] List Active Sessions & Devices",
-    description="Audit active sessions, browser agents, and IP locations for the authenticated account.",
-)
-async def list_active_sessions():
-    return MOCK_SESSIONS
+    return UserProfile(
+        id=user.get("id", f"usr-{uuid4().hex[:6]}"),
+        email=user["email"],
+        full_name=user["full_name"],
+        role=UserRole(user["role"]),
+        organisation_id=user.get("tenant_id"),
+        organisation_slug=user.get("tenant_id"),
+        organisation_name=user.get("organisation_name"),
+        avatar_initials=user.get("avatar_initials", "U"),
+        mfa_enabled=False,
+    )
 
 
 @router.post(
-    "/sign-out",
-    status_code=status.HTTP_200_OK,
-    summary="Sign Out / Revoke Session",
-    description="Invalidates current session token and terminates active workspace access.",
+    "/users",
+    response_model=UserProfile,
+    status_code=status.HTTP_201_CREATED,
+    summary="Provision a User under an Organisation",
 )
-async def sign_out():
-    return {"status": "success", "message": "Session terminated successfully."}
+async def create_user(
+    payload: UserCreateRequest,
+    current_user: AuthenticatedUser = Depends(get_current_user),
+):
+    """Allows SuperAdmin or Organisation Admin to provision a new user."""
+    # RBAC: Only superadmin or org_admin can create users
+    if current_user.role not in ["superadmin", "org_admin"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden: Only administrators can provision new users.",
+        )
 
+    # If org_admin, can only create users for their own tenant
+    target_tenant = payload.tenant_id
+    if current_user.role == "org_admin":
+        target_tenant = current_user.tenant_id
+
+    email = payload.email.lower().strip()
+    initials = "".join([part[0].upper() for part in payload.full_name.split()[:2]]) or "U"
+    new_user = {
+        "id": f"usr-{uuid4().hex[:6]}",
+        "email": email,
+        "password": payload.password,
+        "full_name": payload.full_name,
+        "role": payload.role.value,
+        "tenant_id": target_tenant,
+        "organisation_name": payload.organisation_name,
+        "avatar_initials": initials,
+    }
+    data_store.create_user(new_user)
+
+    return UserProfile(
+        id=new_user["id"],
+        email=new_user["email"],
+        full_name=new_user["full_name"],
+        role=UserRole(new_user["role"]),
+        organisation_id=new_user.get("tenant_id"),
+        organisation_slug=new_user.get("tenant_id"),
+        organisation_name=new_user.get("organisation_name"),
+        avatar_initials=new_user["avatar_initials"],
+        mfa_enabled=False,
+    )
+
+
+@router.get(
+    "/users",
+    response_model=List[UserProfile],
+    summary="List Users by Workspace Context",
+)
+async def list_users(current_user: AuthenticatedUser = Depends(get_current_user)):
+    """List users scoped to caller's role and workspace."""
+    if current_user.role == "superadmin":
+        users = data_store.list_users()
+    else:
+        users = data_store.list_users(current_user.tenant_id)
+
+    result = []
+    for u in users:
+        result.append(
+            UserProfile(
+                id=u.get("id", f"usr-{uuid4().hex[:6]}"),
+                email=u["email"],
+                full_name=u["full_name"],
+                role=UserRole(u["role"]),
+                organisation_id=u.get("tenant_id"),
+                organisation_slug=u.get("tenant_id"),
+                organisation_name=u.get("organisation_name"),
+                avatar_initials=u.get("avatar_initials", "U"),
+                mfa_enabled=False,
+            )
+        )
+    return result
+
+
+@router.post("/sign-out", summary="Sign Out")
+async def sign_out():
+    """Revoke authenticated session."""
+    return {"message": "Successfully signed out."}

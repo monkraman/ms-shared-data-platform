@@ -62,6 +62,12 @@ export class AdminComponent implements OnInit {
   moduleDpp = false;
   moduleCosting = false;
 
+  // Initial Org Administrator User
+  adminFullName = '';
+  adminEmail = '';
+  adminPassword = 'password123';
+
+
   // SKU Import & Mapping Modal State
   readonly showImportModal = signal<boolean>(false);
   readonly selectedTenantForImport = signal<string>('');
@@ -167,6 +173,9 @@ export class AdminComponent implements OnInit {
     this.modulePpwr = true;
     this.moduleDpp = false;
     this.moduleCosting = false;
+    this.adminFullName = '';
+    this.adminEmail = '';
+    this.adminPassword = 'password123';
     this.onboardError.set(null);
     this.onboardSuccess.set(null);
     this.showOnboardModal.set(true);
@@ -182,6 +191,10 @@ export class AdminComponent implements OnInit {
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '');
+    }
+    if (!this.adminEmail || this.adminEmail.endsWith('.com')) {
+      const cleanSlug = this.newOrgSlug || 'company';
+      this.adminEmail = `admin@${cleanSlug}.com`;
     }
   }
 
@@ -205,16 +218,20 @@ export class AdminComponent implements OnInit {
       primaryCurrency: this.newOrgCurrency,
       activeJurisdictions: [this.newOrgJurisdiction],
       tier: this.newOrgTier,
+      adminEmail: this.adminEmail.trim() || undefined,
+      adminName: this.adminFullName.trim() || `${this.newOrgName.trim()} Admin`,
+      adminPassword: this.adminPassword || 'password123',
     };
 
     this.tenantService.createTenantWorkspace(payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.onboardSuccess.set(`Successfully provisioned workspace "${payload.name}".`);
+        const adminMsg = payload.adminEmail ? ` and admin account "${payload.adminEmail}"` : '';
+        this.onboardSuccess.set(`Successfully provisioned workspace "${payload.name}"${adminMsg}.`);
         setTimeout(() => {
           this.closeOnboardModal();
           this.refreshTenants();
-        }, 800);
+        }, 1200);
       },
       error: (err) => {
         this.isSubmitting.set(false);

@@ -53,7 +53,7 @@ export class TenantApiService {
   }
 
   /**
-   * Create or Onboard a new tenant workspace
+   * Create or Onboard a new tenant workspace and optional organization admin
    */
   createTenantWorkspace(data: {
     id: string;
@@ -64,6 +64,9 @@ export class TenantApiService {
     primaryCurrency?: string;
     activeJurisdictions?: string[];
     tier?: string;
+    adminEmail?: string;
+    adminName?: string;
+    adminPassword?: string;
   }): Observable<any> {
     const payload = {
       id: data.id,
@@ -74,6 +77,9 @@ export class TenantApiService {
       primary_currency: data.primaryCurrency || 'EUR',
       active_jurisdictions: data.activeJurisdictions || ['FR'],
       tier: data.tier || 'enterprise',
+      admin_email: data.adminEmail || null,
+      admin_name: data.adminName || null,
+      admin_password: data.adminPassword || 'password123',
     };
 
     return this.http.post(`${this.baseUrl}/api/v1/tenants`, payload).pipe(

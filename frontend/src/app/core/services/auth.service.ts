@@ -1,4 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { APP_CONFIG } from '../config/client-theme.config';
 
 export type UserRole = 'superadmin' | 'org_admin' | 'analyst' | 'viewer' | 'supplier_contact';
 
@@ -7,64 +10,37 @@ export interface AuthUser {
   email: string;
   fullName: string;
   role: UserRole;
-  organisationId: string;
-  organisationSlug: string;
-  organisationName: string;
+  organisationId?: string | null;
+  organisationSlug?: string | null;
+  organisationName?: string | null;
   avatarInitials: string;
 }
 
-/**
- * AuthService — Single Source of Truth for authentication state.
- * In production this would validate JWT tokens from the backend.
- * For prototype: mock users are used to demonstrate role-based routing.
- */
+export interface AuthResponse {
+  access_token: string;
+  token_type: string;
+  expires_in_seconds: number;
+  user: {
+    id: string;
+    email: string;
+    full_name: string;
+    role: UserRole;
+    organisation_id?: string | null;
+    organisation_slug?: string | null;
+    organisation_name?: string | null;
+    avatar_initials: string;
+  };
+  redirect_url: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  // Mock user database — replaces real JWT validation in production
-  private readonly MOCK_USERS: Record<string, AuthUser> = {
-    'superadmin@monkspaces.com': {
-      id: 'usr-sa-001',
-      email: 'superadmin@monkspaces.com',
-      fullName: 'Platform Admin',
-      role: 'superadmin',
-      organisationId: 'monkspaces-internal',
-      organisationSlug: 'monkspaces',
-      organisationName: 'Monkspaces Ltd',
-      avatarInitials: 'SA',
-    },
-    'compliance.officer@kraftheinz.com': {
-      id: 'usr-khc-001',
-      email: 'compliance.officer@kraftheinz.com',
-      fullName: 'Sarah Mitchell',
-      role: 'org_admin',
-      organisationId: 'khc-europe',
-      organisationSlug: 'khc-europe',
-      organisationName: 'Kraft Heinz Europe',
-      avatarInitials: 'SM',
-    },
-    'analyst@kraftheinz.com': {
-      id: 'usr-khc-002',
-      email: 'analyst@kraftheinz.com',
-      fullName: 'James Patel',
-      role: 'analyst',
-      organisationId: 'khc-europe',
-      organisationSlug: 'khc-europe',
-      organisationName: 'Kraft Heinz Europe',
-      avatarInitials: 'JP',
-    },
-    'admin@aurora-pack.com': {
-      id: 'usr-aur-001',
-      email: 'admin@aurora-pack.com',
-      fullName: 'Elena Rossi',
-      role: 'org_admin',
-      organisationId: 'aurora-pack',
-      organisationSlug: 'aurora-pack',
-      organisationName: 'Aurora Packaging Group',
-      avatarInitials: 'ER',
-    },
-  };
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = APP_CONFIG.apiBaseUrl;
+  private readonly TOKEN_KEY = 'compliance_hub_jwt_token';
+  private readonly USER_KEY = 'compliance_hub_auth_user';
 
-  private readonly _currentUser = signal<AuthUser | null>(null);
+  private readonly _currentUser = signal<AuthUser | null>(this.getInitialUser());
   private readonly _isAuthenticating = signal<boolean>(false);
 
   readonly currentUser = this._currentUser.asReadonly();
@@ -73,63 +49,73 @@ export class AuthService {
   readonly isSuperAdmin = computed(() => this._currentUser()?.role === 'superadmin');
   readonly currentOrgSlug = computed(() => this._currentUser()?.organisationSlug ?? '');
 
-  /**
-   * Authenticate with email + password.
-   * Returns: 'superadmin' | 'client' | null (on failure)
-   */
-  login(email: string, _password: string): Promise<'superadmin' | 'client' | null> {
-    this._isAuthenticating.set(true);
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const user = this.MOCK_USERS[email.toLowerCase()];
-        if (user) {
-          this._currentUser.set(user);
-          this._isAuthenticating.set(false);
-          resolve(user.role === 'superadmin' ? 'superadmin' : 'client');
-        } else {
-          // Default: treat unknown email as a KHC analyst for demo
-          const fallbackUser: AuthUser = {
-            id: 'usr-demo-001',
-            email,
-            fullName: email.split('@')[0],
-            role: 'analyst',
-            organisationId: 'khc-europe',
-            organisationSlug: 'khc-europe',
-            organisationName: 'Kraft Heinz Europe',
-            avatarInitials: email.substring(0, 2).toUpperCase(),
-          };
-          this._currentUser.set(fallbackUser);
-          this._isAuthenticating.set(false);
-          resolve('client');
-        }
-      }, 600);
-    });
+  private getInitialUser(): AuthUser | null {
+    try {
+      const raw = localStorage.getItem(this.USER_KEY);
+      if (raw) {
+        return JSON.parse(raw);
+      }
+    } catch {
+      // Ignore parse errors
+    }
+    return null;
   }
 
-  loginWithSso(provider: string, orgSlug: string): Promise<'superadmin' | 'client'> {
+  getToken(): string | null {
+    try {
+      return localStorage.getItem(this.TOKEN_KEY);
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Direct corporate sign-in via backend JWT authentication.
+   * Returns: 'superadmin' | 'client' | null (on failure)
+   */
+  async login(email: string, password: string): Promise<'superadmin' | 'client' | null> {
     this._isAuthenticating.set(true);
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // SSO always lands as org_admin for the demo
-        const ssoUser: AuthUser = {
-          id: 'usr-sso-001',
-          email: `sso-user@${orgSlug}.com`,
-          fullName: `SSO User (${provider})`,
-          role: 'org_admin',
-          organisationId: orgSlug,
-          organisationSlug: orgSlug,
-          organisationName: orgSlug === 'khc-europe' ? 'Kraft Heinz Europe' : 'Aurora Packaging',
-          avatarInitials: 'SU',
-        };
-        this._currentUser.set(ssoUser);
-        this._isAuthenticating.set(false);
-        resolve('client');
-      }, 700);
-    });
+    try {
+      const payload = { email: email.trim(), password, remember_me: true };
+      const res = await firstValueFrom(
+        this.http.post<AuthResponse>(`${this.baseUrl}/api/v1/auth/sign-in`, payload)
+      );
+
+      const authUser: AuthUser = {
+        id: res.user.id,
+        email: res.user.email,
+        fullName: res.user.full_name,
+        role: res.user.role,
+        organisationId: res.user.organisation_id,
+        organisationSlug: res.user.organisation_slug,
+        organisationName: res.user.organisation_name,
+        avatarInitials: res.user.avatar_initials || 'U',
+      };
+
+      try {
+        localStorage.setItem(this.TOKEN_KEY, res.access_token);
+        localStorage.setItem(this.USER_KEY, JSON.stringify(authUser));
+      } catch {
+        // LocalStorage sandbox fallback
+      }
+
+      this._currentUser.set(authUser);
+      this._isAuthenticating.set(false);
+
+      return authUser.role === 'superadmin' ? 'superadmin' : 'client';
+    } catch (err: any) {
+      this._isAuthenticating.set(false);
+      return null;
+    }
   }
 
   logout(): void {
+    try {
+      localStorage.removeItem(this.TOKEN_KEY);
+      localStorage.removeItem(this.USER_KEY);
+    } catch {
+      // Ignore
+    }
     this._currentUser.set(null);
   }
 }
-

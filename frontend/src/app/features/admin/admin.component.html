@@ -282,6 +282,41 @@
             </div>
           </div>
 
+          <!-- Initial Organisation Admin User (Multi-Tenant SaaS) -->
+          <div class="admin-user-section">
+            <label class="form-lbl">Initial Organisation Admin User</label>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-sub-lbl">Admin Full Name</label>
+                <input
+                  type="text"
+                  class="form-input"
+                  [(ngModel)]="adminFullName"
+                  placeholder="e.g. Elena Rossi"
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-sub-lbl">Admin Work Email</label>
+                <input
+                  type="email"
+                  class="form-input"
+                  [(ngModel)]="adminEmail"
+                  placeholder="e.g. admin@company.com"
+                />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-sub-lbl">Initial Password</label>
+              <input
+                type="text"
+                class="form-input mono"
+                [(ngModel)]="adminPassword"
+                placeholder="password123"
+              />
+              <span class="form-hint">This user will be provisioned as `org_admin` scoped to this tenant workspace.</span>
+            </div>
+          </div>
+
           <!-- Pluggable SaaS Modules -->
           <div class="modules-section">
             <label class="form-lbl">Active Compliance Modules (Pluggable)</label>
@@ -316,6 +351,7 @@
               </label>
             </div>
           </div>
+
         </div>
 
         <div class="modal-footer">

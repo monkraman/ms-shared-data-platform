@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { APP_CONFIG } from '../config/client-theme.config';
 import { TenantApiService } from './tenant-api.service';
+import { AuthService } from './auth.service';
 
 export interface PackagingComponent {
   id: string;
@@ -81,6 +82,7 @@ export interface SkuImportResponse {
 export class FoundationApiService {
   private readonly http = inject(HttpClient);
   private readonly tenantService = inject(TenantApiService);
+  private readonly authService = inject(AuthService);
   private readonly baseUrl = APP_CONFIG.apiBaseUrl;
 
   readonly products = signal<CanonicalProduct[]>([]);
@@ -90,9 +92,14 @@ export class FoundationApiService {
   readonly lastSyncBatch = signal<IngestionBatch | null>(null);
 
   private getHeaders(): HttpHeaders {
-    return new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-Tenant-ID': this.tenantService.activeTenantId(),
     });
+    const token = this.authService.getToken();
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+    return headers;
   }
 
   loadProducts(): Observable<CanonicalProduct[]> {

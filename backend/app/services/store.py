@@ -4,6 +4,7 @@ import copy
 from datetime import datetime
 from threading import Lock
 from typing import Dict, List, Optional
+from uuid import uuid4
 
 from app.schemas.tenancy import TenantBase, TenantCreate, TenantResponse, TenantTier
 from app.schemas.canonical import (
@@ -42,10 +43,34 @@ class DataStore:
         self.correction_tickets: Dict[str, List[SourceCorrectionTicket]] = {} # tenant_id -> list of SourceCorrectionTicket
         self.rule_sets: Dict[str, JurisdictionRuleSet] = {}        # rule_set_id -> JurisdictionRuleSet
         self.runs: Dict[str, List[CalculationRunResponse]] = {}    # tenant_id -> list of CalculationRunResponse
+        self.users: Dict[str, dict] = {}                          # email -> user record
 
+        self._seed_users()
         self._seed_tenants()
         self._seed_rule_sets()
         self._seed_khc_data()
+
+    def _seed_users(self) -> None:
+        self.users["superadmin@monkspaces.com"] = {
+            "id": "usr-sa-001",
+            "email": "superadmin@monkspaces.com",
+            "password": "password123",
+            "full_name": "Platform Administrator",
+            "role": "superadmin",
+            "tenant_id": None,
+            "organisation_name": "Compliance Hub Platform",
+            "avatar_initials": "SA",
+        }
+        self.users["compliance.officer@kraftheinz.com"] = {
+            "id": "usr-khc-001",
+            "email": "compliance.officer@kraftheinz.com",
+            "password": "password123",
+            "full_name": "Sarah Mitchell",
+            "role": "org_admin",
+            "tenant_id": "khc-europe",
+            "organisation_name": "The Kraft Heinz Company Europe",
+            "avatar_initials": "SM",
+        }
 
     def _seed_tenants(self) -> None:
         khc_eu = TenantResponse(
@@ -668,7 +693,53 @@ class DataStore:
                 self.correction_tickets[data.id] = []
             if data.id not in self.runs:
                 self.runs[data.id] = []
+
+            # If an initial organization admin user is provided during onboarding, register them
+            if data.admin_email and data.admin_email.strip():
+                admin_email = data.admin_email.lower().strip()
+                initials = "".join([part[0].upper() for part in (data.admin_name or data.name).split()[:2]]) or "AD"
+                self.users[admin_email] = {
+                    "id": f"usr-{data.id[:4]}-{uuid4().hex[:4]}",
+                    "email": admin_email,
+                    "password": data.admin_password or "password123",
+                    "full_name": data.admin_name or f"{data.name} Administrator",
+                    "role": "org_admin",
+                    "tenant_id": data.id,
+                    "organisation_name": data.name,
+                    "avatar_initials": initials,
+                }
+
             return tenant_res
+
+    def authenticate_user(self, email: str, password: str) -> Optional[dict]:
+        """Authenticate user credentials and return user profile dict."""
+        with self._lock:
+            user = self.users.get(email.lower().strip())
+            if not user:
+                return None
+            if user["password"] != password:
+                return None
+            return user
+
+    def get_user(self, email: str) -> Optional[dict]:
+        """Retrieve user record by email."""
+        with self._lock:
+            return self.users.get(email.lower().strip())
+
+    def create_user(self, user_data: dict) -> dict:
+        """Register a new user under a specific organization or platform role."""
+        with self._lock:
+            email = user_data["email"].lower().strip()
+            self.users[email] = user_data
+            return user_data
+
+    def list_users(self, tenant_id: Optional[str] = None) -> List[dict]:
+        """List registered users, optionally filtered by tenant."""
+        with self._lock:
+            if not tenant_id:
+                return list(self.users.values())
+            return [u for u in self.users.values() if u.get("tenant_id") == tenant_id]
+
 
 
 # Singleton instance

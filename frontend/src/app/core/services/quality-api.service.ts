@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { APP_CONFIG } from '../config/client-theme.config';
 import { TenantApiService } from './tenant-api.service';
+import { AuthService } from './auth.service';
 
 export interface DataQualityIssue {
   id: string;
@@ -41,6 +42,7 @@ export interface SourceWorklistExport {
 export class QualityApiService {
   private readonly http = inject(HttpClient);
   private readonly tenantService = inject(TenantApiService);
+  private readonly authService = inject(AuthService);
   private readonly baseUrl = APP_CONFIG.apiBaseUrl;
 
   readonly issues = signal<DataQualityIssue[]>([]);
@@ -49,9 +51,14 @@ export class QualityApiService {
   readonly worklistExport = signal<SourceWorklistExport | null>(null);
 
   private getHeaders(): HttpHeaders {
-    return new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-Tenant-ID': this.tenantService.activeTenantId(),
     });
+    const token = this.authService.getToken();
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+    return headers;
   }
 
   loadIssues(): Observable<DataQualityIssue[]> {

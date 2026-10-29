@@ -32,6 +32,10 @@ class TenantCreate(BaseModel):
     primary_currency: Optional[str] = Field(default="EUR", description="Reporting currency")
     active_jurisdictions: List[str] = Field(default_factory=list, description="Target EPR jurisdictions")
     tier: TenantTier = Field(default=TenantTier.ENTERPRISE)
+    admin_email: Optional[str] = Field(default=None, description="Initial organization administrator email")
+    admin_name: Optional[str] = Field(default=None, description="Initial administrator full name")
+    admin_password: Optional[str] = Field(default="password123", description="Initial administrator password")
+
 
 
 

@@ -56,12 +56,22 @@ class UserProfile(BaseModel):
     email: str
     full_name: str
     role: UserRole
-    organisation_id: str
-    organisation_slug: str
-    organisation_name: str
-    avatar_initials: str
-    mfa_enabled: bool = True
+    organisation_id: Optional[str] = None
+    organisation_slug: Optional[str] = None
+    organisation_name: Optional[str] = None
+    avatar_initials: str = "U"
+    mfa_enabled: bool = False
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class UserCreateRequest(BaseModel):
+    email: str = Field(..., description="User corporate email")
+    password: str = Field(default="password123", min_length=6, description="Initial password")
+    full_name: str = Field(..., description="Full name of user")
+    role: UserRole = Field(default=UserRole.ORG_ADMIN, description="Role: superadmin, org_admin, analyst")
+    tenant_id: Optional[str] = Field(default=None, description="Assigned tenant workspace slug")
+    organisation_name: Optional[str] = Field(default=None, description="Organisation display name")
+
 
 
 # Auth token response
