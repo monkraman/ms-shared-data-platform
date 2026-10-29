@@ -1,6 +1,6 @@
 /**
  * Production Environment Configuration (Vercel / Render)
- * Enterprise-grade environment resolution for live cloud deployment.
+ * Auto-injected during Vercel build from environment variables.
  */
 export const environment = {
   production: true,
@@ -13,4 +13,3 @@ export const environment = {
   enableDebugTools: false,
   defaultTenantId: 'khc-europe',
 };
-
