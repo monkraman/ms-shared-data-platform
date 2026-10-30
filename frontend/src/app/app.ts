@@ -41,10 +41,10 @@ export class App {
     }
   }
 
-  /** Hide the global shell on sign-in page */
+  /** Hide the global shell on sign-in and onboarding pages (they have their own full-bleed standalone layout matching mockups) */
   readonly showGlobalNav = computed(() => {
     const url = this.currentUrl();
-    return !url.includes('/sign-in') && !url.includes('/admin');
+    return !url.includes('/sign-in') && !url.includes('/admin') && !url.includes('/onboarding');
   });
 
   toggleMobileNav(): void {

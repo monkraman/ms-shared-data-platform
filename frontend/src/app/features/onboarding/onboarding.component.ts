@@ -4,9 +4,8 @@ import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angula
 import { Router } from '@angular/router';
 import { APP_CONFIG } from '../../core/config/client-theme.config';
 import { TenantApiService } from '../../core/services/tenant-api.service';
-import { ConfigApiService, SectorConfig, CountryConfig, ComplianceMatrixResponse } from '../../core/services/config-api.service';
-import { ClientWorkspaceProfile, TenantMarketSelection, TenantIntegrationConfig } from '../../core/models/tenant.model';
-import { WizardStep } from '../../shared/components/step-indicator/step-indicator.component';
+import { ConfigApiService } from '../../core/services/config-api.service';
+import { ClientWorkspaceProfile, TenantMarketSelection } from '../../core/models/tenant.model';
 
 export interface DataPointRow {
   id: string;
@@ -20,10 +19,8 @@ export interface DataPointRow {
 export interface MarketOption {
   countryCode: string;
   countryName: string;
-  regulationCode: string;
   regulationLabel: string;
   selected: boolean;
-  mandatory?: boolean;
 }
 
 @Component({
@@ -38,43 +35,49 @@ export class OnboardingComponent implements OnInit {
   private readonly router = inject(Router);
   readonly tenantService = inject(TenantApiService);
   readonly configService = inject(ConfigApiService);
-
   readonly config = APP_CONFIG;
 
   // Wizard state: 1 · Company & entities, 2 · Markets & laws, 3 · Data points, 4 · Connect systems
-  readonly currentStep = signal<number>(2); // Default to Step 2 as in mockups, or user can click step 1
+  readonly currentStep = signal<number>(2); // Default to Screen 2 as in the client mockups
   readonly submitting = signal<boolean>(false);
-  readonly submitSuccess = signal<boolean>(false);
 
-  // Dynamic masters from backend
-  readonly backendSectors = signal<SectorConfig[]>([]);
-  readonly backendCountries = signal<CountryConfig[]>([]);
-  readonly complianceMatrix = signal<ComplianceMatrixResponse | null>(null);
+  readonly stepTitle = computed(() => {
+    switch (this.currentStep()) {
+      case 1: return 'Onboarding · company & entities';
+      case 2: return 'Onboarding · markets & laws';
+      case 3: return 'Onboarding · data points';
+      case 4: return 'Onboarding · connect systems';
+      default: return 'Onboarding';
+    }
+  });
 
-  readonly steps: WizardStep[] = [
-    { number: 1, title: 'Company & entities', subtitle: 'Legal profile & entities' },
-    { number: 2, title: 'Markets & laws', subtitle: 'Where you sell' },
-    { number: 3, title: 'Data points', subtitle: 'Hold vs Monk Spaces collects' },
-    { number: 4, title: 'Connect systems', subtitle: 'PLM, Snowflake & ERP' },
-  ];
+  readonly stepSubtitle = computed(() => {
+    switch (this.currentStep()) {
+      case 1: return 'Company legal identity and operating thresholds';
+      case 2: return 'Where you sell decides which laws apply';
+      case 3: return 'Confirm what you hold for UK and Denmark — we collect the rest from your suppliers';
+      case 4: return 'Connect once — corrections always write back into your own systems';
+      default: return '';
+    }
+  });
 
   // Markets in scope matching Mockup Screen 2 (split into 2 columns)
   readonly marketsCol1 = signal<MarketOption[]>([
-    { countryCode: 'UK', countryName: 'United Kingdom', regulationCode: 'UK pEPR', regulationLabel: 'UK pEPR', selected: true, mandatory: true },
-    { countryCode: 'FR', countryName: 'France', regulationCode: 'FR_CITEO', regulationLabel: 'Citeo / AGEC', selected: false },
-    { countryCode: 'DE', countryName: 'Germany', regulationCode: 'DE_VERPACKG', regulationLabel: 'LUCID VerpackG', selected: false },
-    { countryCode: 'ES', countryName: 'Spain', regulationCode: 'ES_RD1055', regulationLabel: 'RD 1055/2022', selected: false },
-    { countryCode: 'IT', countryName: 'Italy', regulationCode: 'IT_CONAI', regulationLabel: 'CONAI EPR', selected: false },
-    { countryCode: 'NL', countryName: 'Netherlands', regulationCode: 'NL_AFVALFONDS', regulationLabel: 'Afvalfonds', selected: false },
+    { countryCode: 'UK', countryName: 'United Kingdom', regulationLabel: 'UK pEPR', selected: true },
+    { countryCode: 'FR', countryName: 'France', regulationLabel: 'not selected', selected: false },
+    { countryCode: 'DE', countryName: 'Germany', regulationLabel: 'not selected', selected: false },
+    { countryCode: 'ES', countryName: 'Spain', regulationLabel: 'not selected', selected: false },
+    { countryCode: 'IT', countryName: 'Italy', regulationLabel: 'not selected', selected: false },
+    { countryCode: 'NL', countryName: 'Netherlands', regulationLabel: 'not selected', selected: false },
   ]);
 
   readonly marketsCol2 = signal<MarketOption[]>([
-    { countryCode: 'BE', countryName: 'Belgium', regulationCode: 'BE_VALIPAC', regulationLabel: 'Fost Plus / Valipac', selected: false },
-    { countryCode: 'DK', countryName: 'Denmark', regulationCode: 'DK_DPA', regulationLabel: 'DPA + PRO', selected: true },
-    { countryCode: 'US_CA', countryName: 'California', regulationCode: 'SB_54', regulationLabel: 'SB 54 EPR', selected: false },
-    { countryCode: 'US_OR', countryName: 'Oregon', regulationCode: 'OR_PLASTIC', regulationLabel: 'Plastic Pollution Recycling Act', selected: false },
-    { countryCode: 'US_CO', countryName: 'Colorado', regulationCode: 'CO_PRODUCER', regulationLabel: 'Producer Responsibility Act', selected: false },
-    { countryCode: 'CA', countryName: 'Canada: ON, BC', regulationCode: 'CA_RPRA', regulationLabel: 'Blue Box EPR', selected: false },
+    { countryCode: 'BE', countryName: 'Belgium', regulationLabel: 'not selected', selected: false },
+    { countryCode: 'DK', countryName: 'Denmark', regulationLabel: 'DPA + PRO', selected: true },
+    { countryCode: 'US_CA', countryName: 'California', regulationLabel: 'not selected', selected: false },
+    { countryCode: 'US_OR', countryName: 'Oregon', regulationLabel: 'not selected', selected: false },
+    { countryCode: 'US_CO', countryName: 'Colorado', regulationLabel: 'not selected', selected: false },
+    { countryCode: 'CA', countryName: 'Canada: ON, BC', regulationLabel: 'not selected', selected: false },
   ]);
 
   // Canonical 37 Data Points for UK & DK matching Mockup Screen 3
@@ -162,50 +165,46 @@ export class OnboardingComponent implements OnInit {
     return col1 + col2;
   });
 
-  // Form Controls
+  // Form Controls for Step 1
   readonly profileForm: FormGroup = this.fb.group({
     companyName: ['The Kraft Heinz Company Europe', [Validators.required, Validators.minLength(3)]],
     legalEntityName: ['Kraft Heinz UK', [Validators.required]],
     tenantSlug: ['khc-europe', [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)]],
-    sector: ['food_beverage', [Validators.required]],
-    organisationSize: ['L', [Validators.required]],
+    sector: ['Food & beverage', [Validators.required]],
+    organisationSize: ['Large producer (>£2m turnover and 50 t packaging)', [Validators.required]],
     rpdOrganisationId: ['100004'],
     primaryCurrency: ['EUR', [Validators.required]],
-    producerRole: ['BRAND_OWNER', [Validators.required]],
-    fillerRole: ['UK_FILLER'],
   });
 
-  ngOnInit(): void {
-    this.loadBackendMasters();
-  }
-
-  loadBackendMasters(): void {
-    this.configService.getSectors().subscribe({
-      next: (sectors) => {
-        if (sectors && sectors.length > 0) {
-          this.backendSectors.set(sectors);
-        }
-      },
-      error: (err) => console.warn('Could not fetch backend sectors:', err),
-    });
-
-    this.configService.getCountries().subscribe({
-      next: (countries) => {
-        if (countries && countries.length > 0) {
-          this.backendCountries.set(countries);
-        }
-      },
-      error: (err) => console.warn('Could not fetch backend countries:', err),
-    });
-  }
+  ngOnInit(): void {}
 
   // Toggle market selection
   toggleMarket(countryCode: string): void {
     this.marketsCol1.update(list =>
-      list.map(m => m.countryCode === countryCode ? { ...m, selected: !m.selected } : m)
+      list.map(m => {
+        if (m.countryCode === countryCode) {
+          const nextState = !m.selected;
+          return {
+            ...m,
+            selected: nextState,
+            regulationLabel: nextState ? (m.countryCode === 'UK' ? 'UK pEPR' : 'Selected') : 'not selected',
+          };
+        }
+        return m;
+      })
     );
     this.marketsCol2.update(list =>
-      list.map(m => m.countryCode === countryCode ? { ...m, selected: !m.selected } : m)
+      list.map(m => {
+        if (m.countryCode === countryCode) {
+          const nextState = !m.selected;
+          return {
+            ...m,
+            selected: nextState,
+            regulationLabel: nextState ? (m.countryCode === 'DK' ? 'DPA + PRO' : 'Selected') : 'not selected',
+          };
+        }
+        return m;
+      })
     );
   }
 
@@ -239,18 +238,6 @@ export class OnboardingComponent implements OnInit {
     }
   }
 
-  nextStep(): void {
-    if (this.currentStep() < 4) {
-      this.currentStep.update(s => s + 1);
-    }
-  }
-
-  prevStep(): void {
-    if (this.currentStep() > 1) {
-      this.currentStep.update(s => s - 1);
-    }
-  }
-
   // Finish setup and save workspace
   finishSetup(): void {
     this.submitting.set(true);
@@ -260,7 +247,7 @@ export class OnboardingComponent implements OnInit {
       ...this.marketsCol1().filter(m => m.selected).map(m => ({
         countryCode: m.countryCode,
         countryName: m.countryName,
-        regulationCode: m.regulationCode,
+        regulationCode: m.countryCode === 'UK' ? 'UK_PEPR' : m.countryCode,
         regulationName: m.regulationLabel,
         mandatory: m.countryCode === 'UK',
         selected: true,
@@ -271,7 +258,7 @@ export class OnboardingComponent implements OnInit {
       ...this.marketsCol2().filter(m => m.selected).map(m => ({
         countryCode: m.countryCode,
         countryName: m.countryName,
-        regulationCode: m.regulationCode,
+        regulationCode: m.countryCode === 'DK' ? 'DK_DPA' : m.countryCode,
         regulationName: m.regulationLabel,
         mandatory: false,
         selected: true,
@@ -282,13 +269,13 @@ export class OnboardingComponent implements OnInit {
     ];
 
     const profile: ClientWorkspaceProfile = {
-      id: formVals.tenantSlug,
-      name: formVals.companyName,
-      sector: formVals.sector,
+      id: formVals.tenantSlug || 'khc-europe',
+      name: formVals.companyName || 'The Kraft Heinz Company Europe',
+      sector: 'food_beverage',
       productCategories: ['Soups & Sauces', 'Condiments', 'Beans & Meals'],
-      organisationSize: formVals.organisationSize,
-      rpdOrganisationId: formVals.rpdOrganisationId,
-      primaryCurrency: formVals.primaryCurrency,
+      organisationSize: 'L',
+      rpdOrganisationId: formVals.rpdOrganisationId || '100004',
+      primaryCurrency: formVals.primaryCurrency || 'EUR',
       markets: allMarkets,
       integrations: this.config.options.availableIntegrations,
       consultantEmail: 'compliance.officer@kraftheinz.com',
@@ -297,18 +284,13 @@ export class OnboardingComponent implements OnInit {
     this.tenantService.createTenantWorkspace(profile).subscribe({
       next: () => {
         this.submitting.set(false);
-        this.submitSuccess.set(true);
+        this.router.navigate(['/dashboard']);
       },
       error: () => {
-        // Fallback for offline/demo: mark success in local state
         this.tenantService.setActiveTenant(profile.id);
         this.submitting.set(false);
-        this.submitSuccess.set(true);
+        this.router.navigate(['/dashboard']);
       },
     });
-  }
-
-  navigateToDashboard(): void {
-    this.router.navigate(['/dashboard']);
   }
 }
