@@ -73,28 +73,28 @@ class DataStore:
         }
 
     def _seed_tenants(self) -> None:
+        nordhavn_dk = TenantResponse(
+            id="nordhavn-spirits",
+            name="Nordhavn Spirits ApS",
+            sector="Spirits & Beverages",
+            tier=TenantTier.ENTERPRISE,
+            primary_jurisdiction="DK",
+            source_systems=["ERP Master Data", "Devex PLM Spec", "Supplier Portal"],
+            active_products_count=1,
+            open_quality_issues_count=1,
+        )
         khc_eu = TenantResponse(
             id="khc-europe",
             name="The Kraft Heinz Company (Europe & UK)",
             sector="Food & Beverage / FMCG",
             tier=TenantTier.ENTERPRISE,
-            primary_jurisdiction="FR",
+            primary_jurisdiction="GB",
             source_systems=["Trace One (Devex PLM)", "SAP ERP S/4HANA", "Snowflake Analytics"],
-            active_products_count=4,
-            open_quality_issues_count=3,
-        )
-        khc_na = TenantResponse(
-            id="khc-north-america",
-            name="The Kraft Heinz Company (North America)",
-            sector="Food & Beverage / FMCG",
-            tier=TenantTier.ENTERPRISE,
-            primary_jurisdiction="US",
-            source_systems=["Trace One (Devex PLM)", "SAP ERP S/4HANA"],
-            active_products_count=2,
+            active_products_count=3,
             open_quality_issues_count=1,
         )
+        self.tenants[nordhavn_dk.id] = nordhavn_dk
         self.tenants[khc_eu.id] = khc_eu
-        self.tenants[khc_na.id] = khc_na
 
     def _seed_rule_sets(self) -> None:
         # 1. France CITEO 2025 Approved Packaging Fee Schedule
