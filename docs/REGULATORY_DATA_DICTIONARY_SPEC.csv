@@ -69,3 +69,4 @@ Sales,units_placed,Units placed on the market,Sales units supplied in the period
 Sales,units_exported,Units exported,Units shipped out of the market.,Number,Whole number,,0,DP25,ERP,>= 0 and <= units placed,Prototype,Required,Required,Required,Required,Required,Required,Required,Required
 Sales,uk_nation,UK nation,"England, Scotland, Wales or Northern Ireland.",Code,,"England, Scotland, Wales, Northern Ireland",Scotland,DP24,ERP,Required for UK rows,Later markets,Market-specific,Not needed,Required,Not needed,Not needed,Not needed,Not needed,Not needed
 Sales,import_origin_country,Imported from,Country the packed product was imported from.,Code,ISO 3166 alpha-2,,IE,DP27,ERP,Required if role = Importer,Later markets,Market-specific,Not needed,Conditional,Not needed,Not needed,Not needed,Not needed,Not needed
+

@@ -268,7 +268,9 @@ export class OnboardingComponent implements OnInit {
       })),
     ];
 
-    const profile: ClientWorkspaceProfile = {
+    const selectedJurisdictions = allMarkets.map(m => m.countryCode);
+
+    const profile: ClientWorkspaceProfile & { activeJurisdictions: string[] } = {
       id: formVals.tenantSlug || 'khc-europe',
       name: formVals.companyName || 'The Kraft Heinz Company Europe',
       sector: 'food_beverage',
@@ -277,6 +279,7 @@ export class OnboardingComponent implements OnInit {
       rpdOrganisationId: formVals.rpdOrganisationId || '100004',
       primaryCurrency: formVals.primaryCurrency || 'EUR',
       markets: allMarkets,
+      activeJurisdictions: selectedJurisdictions,
       integrations: this.config.options.availableIntegrations,
       consultantEmail: 'compliance.officer@kraftheinz.com',
     };
