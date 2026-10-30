@@ -1,92 +1,272 @@
 <!-- Global App Shell: Left Sidebar + Main Content Layout -->
 @if (showGlobalNav()) {
-<div class="app-layout">
-  <!-- Persistent Left Sidebar (Monkspaces & Client Enterprise Spec) -->
-  <aside class="app-sidebar" id="main-sidebar" aria-label="Main Navigation">
-    <!-- Top Brand Section -->
-    <div class="sidebar-brand-block">
-      <a routerLink="/dashboard" class="sidebar-brand" id="sidebar-brand-link">
-        <div class="brand-monogram" aria-hidden="true">C</div>
-        <div class="brand-text">
-          <span class="brand-title">Compliance Hub</span>
-          <span class="brand-subtitle">Enterprise SaaS</span>
-        </div>
+<div class="app-layout" [class.mobile-open]="mobileNavOpen()">
+
+  <!-- Responsive Mobile Top Bar (Visible only on < 1024px) -->
+  <header class="mobile-top-bar" aria-label="Mobile Navigation Bar">
+    <button type="button" class="btn-hamburger" (click)="toggleMobileNav()" aria-label="Toggle navigation menu">
+      <span class="hamburger-bar"></span>
+      <span class="hamburger-bar"></span>
+      <span class="hamburger-bar"></span>
+    </button>
+
+    <div class="mobile-brand">
+      <span class="brand-title">Compliance Hub</span>
+      <span class="brand-tag">{{ activeView() === 'client' ? 'Client View' : 'Operator' }}</span>
+    </div>
+
+    <div class="mobile-actions">
+      @if (authService.isSuperAdmin()) {
+      <button type="button" class="btn-view-toggle-mini" (click)="toggleViewMode()" [title]="'Switch to ' + (activeView() === 'client' ? 'Operator' : 'Client') + ' view'">
+        {{ activeView() === 'client' ? 'OP' : 'CL' }}
+      </button>
+      }
+      <button type="button" class="btn-theme-mini" (click)="themeService.toggleTheme()" [title]="'Switch theme'">
+        {{ themeService.theme() === 'light' ? '☾' : '☼' }}
+      </button>
+      <div class="user-avatar-mini" [title]="authService.currentUser()?.fullName || 'User'">
+        {{ authService.currentUser()?.avatarInitials || 'CH' }}
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Backdrop Overlay -->
+  <div class="mobile-backdrop" (click)="closeMobileNav()" aria-hidden="true"></div>
+
+  <!-- Persistent / Responsive Left Sidebar Navigation -->
+  <aside class="app-sidebar" id="main-sidebar" [class.drawer-open]="mobileNavOpen()" aria-label="Main Navigation">
+
+    <!-- SuperAdmin View Switcher Pill -->
+    @if (authService.isSuperAdmin()) {
+    <div class="view-switcher-bar">
+      <button type="button" class="view-switch-btn" [class.active]="activeView() === 'client'" (click)="setViewMode('client')">
+        Client View
+      </button>
+      <button type="button" class="view-switch-btn" [class.active]="activeView() === 'operator'" (click)="setViewMode('operator')">
+        Operator View
+      </button>
+    </div>
+    }
+
+    <!-- ========================================================================= -->
+    <!-- CLIENT NAVIGATION (The Kraft Heinz Company Spec - mockups.html)           -->
+    <!-- ========================================================================= -->
+    @if (activeView() === 'client') {
+    <div class="sidebar-brand-block client-brand-block">
+      <a routerLink="/dashboard" class="sidebar-client-brand" id="sidebar-brand-link" (click)="closeMobileNav()">
+        <img alt="The Kraft Heinz Company" class="client-logo-img"
+          src="data:image/png;base64,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" />
+        <div class="client-brand-title">Compliance Hub</div>
       </a>
     </div>
 
-    <!-- Grouped Vertical Navigation Links -->
-    <nav class="sidebar-nav" id="sidebar-navigation">
-      <div class="nav-section-title">OVERVIEW</div>
-      <a routerLink="/dashboard" routerLinkActive="active" class="sidebar-nav-item" id="nav-dashboard">
+    <nav class="sidebar-nav" id="client-sidebar-navigation">
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
         <span class="nav-label">Dashboard</span>
       </a>
 
       <div class="nav-section-title">EPR FEES</div>
-      <a routerLink="/simulator" routerLinkActive="active" class="sidebar-nav-item" id="nav-simulator">
+      <a routerLink="/simulator" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Fee Simulator & Trace</span>
+        <span class="nav-label">Fee calculation trace</span>
       </a>
 
       <div class="nav-section-title">DATA REVIEW</div>
-      <a routerLink="/products" routerLinkActive="active" class="sidebar-nav-item" id="nav-products">
+      <a routerLink="/quality" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Packaging BOM & SKUs</span>
+        <span class="nav-label">Data health & corrections</span>
+        <span class="nav-badge-pill">11</span>
       </a>
-      <a routerLink="/quality" routerLinkActive="active" class="sidebar-nav-item" id="nav-quality">
+      <a routerLink="/quality" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Data Health & Quality</span>
+        <span class="nav-label">Confirm & lock</span>
       </a>
 
       <div class="nav-section-title">COMPLIANCE</div>
-      <a routerLink="/onboarding" routerLinkActive="active" class="sidebar-nav-item" id="nav-jurisdictions">
+      <a routerLink="/dashboard" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Markets & Regulations</span>
+        <span class="nav-label">Obligations & filings</span>
+      </a>
+      <a routerLink="/simulator" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">UK pEPR</span>
+      </a>
+      <a routerLink="/simulator" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Denmark</span>
+      </a>
+      <a routerLink="/products" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Reports</span>
       </a>
 
-      @if (authService.isSuperAdmin()) {
-      <div class="nav-section-title">OPERATOR</div>
-      <a routerLink="/admin" routerLinkActive="active" class="sidebar-nav-item" id="nav-admin">
+      <div class="nav-section-title">INSIGHTS</div>
+      <a routerLink="/dashboard" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Organisation Hub</span>
+        <span class="nav-label">Cost hotspots</span>
       </a>
-      }
+      <a routerLink="/simulator" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Forecast 2026–2030</span>
+      </a>
+      <a routerLink="/simulator" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Scenario planner</span>
+      </a>
+      <a routerLink="/quality" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Recommendations</span>
+      </a>
+      <a routerLink="/dashboard" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Value vs build</span>
+      </a>
     </nav>
 
-    <!-- Bottom Context & User Actions -->
-    <div class="sidebar-footer">
-      <!-- Active Tenant Workspace Pill -->
-      <div class="sidebar-workspace-card">
-        <span class="workspace-dot" aria-hidden="true"></span>
-        <div class="workspace-meta">
-          <span class="workspace-hint">ACTIVE WORKSPACE</span>
-          <span class="workspace-slug" [title]="authService.currentUser()?.organisationName || authService.currentUser()?.organisationSlug || 'compliance-hub'">
-            {{ authService.currentUser()?.organisationName || authService.currentUser()?.organisationSlug || 'compliance-hub' }}
-          </span>
-        </div>
+    <!-- Client Sidebar Footer Matching Mockup Screen 5-17 -->
+    <div class="sidebar-footer client-sidebar-footer">
+      <a routerLink="/onboarding" class="sidebar-market-link" (click)="closeMobileNav()">
+        Markets & data points →
+      </a>
+      <div class="client-org-block">
+        <b class="client-org-name">The Kraft Heinz Company</b>
+        <span class="client-org-meta">Reporting currency EUR · data review by Monk Spaces</span>
       </div>
 
-      <!-- User Profile & Actions -->
+      <!-- User actions row -->
       <div class="sidebar-user-block">
         <div class="user-meta-row">
           <div class="user-avatar-sm" aria-hidden="true">
-            {{ authService.currentUser()?.avatarInitials || 'CH' }}
+            {{ authService.currentUser()?.avatarInitials || 'KH' }}
           </div>
           <div class="user-text-info">
-            <span class="user-display-name">{{ authService.currentUser()?.fullName || 'User' }}</span>
-            <span class="user-role-badge">{{ authService.currentUser()?.role || 'analyst' }}</span>
+            <span class="user-display-name">{{ authService.currentUser()?.fullName || 'Compliance Lead' }}</span>
+            <span class="user-role-badge">Client View</span>
           </div>
           <button type="button" class="btn-sidebar-theme-toggle" (click)="themeService.toggleTheme()"
             [title]="'Switch to ' + (themeService.theme() === 'light' ? 'Dark' : 'Light') + ' Mode'">
             {{ themeService.theme() === 'light' ? 'Dark' : 'Light' }}
           </button>
         </div>
-
         <button type="button" class="btn-sidebar-logout" (click)="logout()" id="btn-sidebar-signout">
           Sign Out
         </button>
       </div>
     </div>
+    }
+
+    <!-- ========================================================================= -->
+    <!-- OPERATOR NAVIGATION (Monk Spaces Operator Spec - operator-mockups_1.html) -->
+    <!-- ========================================================================= -->
+    @if (activeView() === 'operator') {
+    <div class="sidebar-brand-block operator-brand-block">
+      <a routerLink="/admin" class="sidebar-operator-brand" id="operator-brand-link" (click)="closeMobileNav()">
+        <div class="brand-monogram operator-monogram" aria-hidden="true">MS</div>
+        <div class="brand-text">
+          <span class="brand-title">Compliance Hub</span>
+          <span class="brand-subtitle operator-badge">Monk Spaces operator</span>
+        </div>
+      </a>
+    </div>
+
+    <nav class="sidebar-nav" id="operator-sidebar-navigation">
+      <div class="nav-section-title">OVERVIEW</div>
+      <a routerLink="/admin" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">All clients</span>
+      </a>
+      <a routerLink="/dashboard" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Kraft Heinz UK</span>
+      </a>
+
+      <div class="nav-section-title">SET UP</div>
+      <a routerLink="/onboarding" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Client onboarding</span>
+      </a>
+
+      <div class="nav-section-title">1 · COLLECT</div>
+      <a routerLink="/onboarding" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Data points (DP01–DP45)</span>
+      </a>
+      <a routerLink="/products" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">PPWR data by SKU</span>
+      </a>
+      <a routerLink="/quality" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Suppliers</span>
+      </a>
+
+      <div class="nav-section-title">2 · CHECK</div>
+      <a routerLink="/quality" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Checks & Audits</span>
+      </a>
+
+      <div class="nav-section-title">3 · CORRECT</div>
+      <a routerLink="/quality" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Corrections & Gaps</span>
+        <span class="nav-badge-pill">11</span>
+      </a>
+
+      <div class="nav-section-title">4 · REPORT</div>
+      <a routerLink="/admin" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">UK RPD file</span>
+      </a>
+      <a routerLink="/admin" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Declarations of Conformity</span>
+      </a>
+      <a routerLink="/admin" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">EPR methodology</span>
+      </a>
+      <a routerLink="/admin" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Recommendation report</span>
+      </a>
+
+      <div class="nav-section-title">SETTINGS</div>
+      <a routerLink="/admin" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Rules + tariffs</span>
+      </a>
+    </nav>
+
+    <!-- Operator Sidebar Footer Matching operator-mockups_1.html -->
+    <div class="sidebar-footer operator-sidebar-footer">
+      <div class="operator-org-block">
+        <b class="operator-org-name">Monk Spaces</b>
+        <span class="operator-org-meta">Internal operator view · v2.4</span>
+      </div>
+
+      <div class="sidebar-user-block">
+        <div class="user-meta-row">
+          <div class="user-avatar-sm operator-avatar" aria-hidden="true">
+            {{ authService.currentUser()?.avatarInitials || 'MS' }}
+          </div>
+          <div class="user-text-info">
+            <span class="user-display-name">{{ authService.currentUser()?.fullName || 'SuperAdmin Operator' }}</span>
+            <span class="user-role-badge">Platform Operator</span>
+          </div>
+          <button type="button" class="btn-sidebar-theme-toggle" (click)="themeService.toggleTheme()"
+            [title]="'Switch to ' + (themeService.theme() === 'light' ? 'Dark' : 'Light') + ' Mode'">
+            {{ themeService.theme() === 'light' ? 'Dark' : 'Light' }}
+          </button>
+        </div>
+        <button type="button" class="btn-sidebar-logout" (click)="logout()" id="btn-sidebar-operator-signout">
+          Sign Out
+        </button>
+      </div>
+    </div>
+    }
+
   </aside>
 
   <!-- Main Scrollable Content Area -->

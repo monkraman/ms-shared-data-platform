@@ -22,24 +22,49 @@ export class App {
   private readonly router = inject(Router);
 
   readonly currentUrl = signal<string>(this.router.url);
+  readonly mobileNavOpen = signal<boolean>(false);
+
+  // Dynamic View Switcher: Client View vs Operator View (for internal Monk Spaces operators & SuperAdmins)
+  readonly activeView = signal<'client' | 'operator'>('client');
 
   constructor() {
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe((event) => {
         this.currentUrl.set(event.urlAfterRedirects || event.url);
+        this.mobileNavOpen.set(false); // Auto-close drawer on navigation
       });
+
+    // Automatically set default view mode based on role
+    if (this.authService.isSuperAdmin()) {
+      this.activeView.set('operator');
+    }
   }
 
-  /** Hide the global nav on sign-in and admin pages (they have their own layout) */
+  /** Hide the global shell on sign-in page */
   readonly showGlobalNav = computed(() => {
     const url = this.currentUrl();
     return !url.includes('/sign-in') && !url.includes('/admin');
   });
+
+  toggleMobileNav(): void {
+    this.mobileNavOpen.update(v => !v);
+  }
+
+  closeMobileNav(): void {
+    this.mobileNavOpen.set(false);
+  }
+
+  toggleViewMode(): void {
+    this.activeView.update(v => v === 'client' ? 'operator' : 'client');
+  }
+
+  setViewMode(mode: 'client' | 'operator'): void {
+    this.activeView.set(mode);
+  }
 
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/sign-in']);
   }
 }
-

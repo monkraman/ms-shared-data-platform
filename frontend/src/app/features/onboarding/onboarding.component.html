@@ -1,344 +1,670 @@
-<div class="onboarding-container" id="onboarding-page">
+<div class="onboarding-page" id="onboarding-wizard">
 
-  <!-- Header Banner -->
-  <header class="wizard-header">
-    <div class="wizard-header-left">
-      <div class="wizard-badge">ORGANISATION WORKSPACE SETUP</div>
-      <h1 class="wizard-title">Client Onboarding &amp; Regulatory Configuration</h1>
-      <p class="wizard-subtitle">
-        Configure company legal profile, dynamic EPR market obligations, and PLM/ERP read-only connectors.
-      </p>
+  <!-- Top Brand & Process Header -->
+  <div class="onboard-top-header">
+    <div class="client-brand-row">
+      <img alt="The Kraft Heinz Company" class="client-logo-img"
+        src="data:image/png;base64,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" />
+      <span class="header-divider"></span>
+      <span class="header-hub-label">Compliance Hub</span>
     </div>
 
-    <!-- Quick Demo Presets -->
-    <div class="demo-presets">
-      <span class="preset-label">Presets:</span>
-      <button type="button" class="preset-btn" (click)="applyPreset('khc')">
-        The Kraft Heinz Company (UK, DK, FR)
-      </button>
-      <button type="button" class="preset-btn" (click)="applyPreset('aurora')">
-        Aurora Packaging Group (UK, DE)
-      </button>
+    <!-- Stepper Navigation matching Mockups -->
+    <div class="steps-nav-bar">
+      <div class="step-nav-item" [class.done]="currentStep() > 1" [class.cur]="currentStep() === 1" (click)="goToStep(1)">
+        <span class="step-prefix">{{ currentStep() > 1 ? '✓ ' : '' }}1 ·</span> Company &amp; entities
+      </div>
+      <div class="step-nav-item" [class.done]="currentStep() > 2" [class.cur]="currentStep() === 2" (click)="goToStep(2)">
+        <span class="step-prefix">{{ currentStep() > 2 ? '✓ ' : '' }}2 ·</span> Markets &amp; laws
+      </div>
+      <div class="step-nav-item" [class.done]="currentStep() > 3" [class.cur]="currentStep() === 3" (click)="goToStep(3)">
+        <span class="step-prefix">{{ currentStep() > 3 ? '✓ ' : '' }}3 ·</span> Data points
+      </div>
+      <div class="step-nav-item" [class.done]="currentStep() > 4" [class.cur]="currentStep() === 4" (click)="goToStep(4)">
+        <span class="step-prefix">{{ currentStep() > 4 ? '✓ ' : '' }}4 ·</span> Connect systems
+      </div>
     </div>
-  </header>
-
-  <!-- Reusable Step Progress Indicator -->
-  <app-step-indicator [steps]="steps" [currentStep]="currentStep()" (stepClick)="goToStep($event)" />
+  </div>
 
   @if (submitSuccess()) {
-  <!-- Success Completion State -->
-  <div class="success-card" id="onboarding-success">
-    <div class="success-icon">&#10003;</div>
-    <h2>Workspace Created Successfully</h2>
-    <p class="success-desc">
-      Organisation workspace <strong>{{ profileForm.get('companyName')?.value }}</strong>
-      (<code>{{ profileForm.get('tenantSlug')?.value }}</code>)
-      has been initialized with <strong>{{ markets().filter(m => m.selected).length }} active jurisdictions</strong>.
+  <!-- Workspace Provisioned Confirmation Banner -->
+  <div class="onboard-card success-onboard-card">
+    <div class="success-badge-icon">✓</div>
+    <h2>Workspace Successfully Onboarded</h2>
+    <p class="success-lead">
+      <strong>{{ profileForm.get('companyName')?.value }}</strong> (<code>{{ profileForm.get('tenantSlug')?.value }}</code>)
+      is configured with <strong>{{ selectedMarketsCount() }} active markets</strong> and connected upstream to Trace One Devex and Snowflake.
     </p>
-
-    <div class="success-actions">
-      <button type="button" class="btn btn-primary" (click)="navigateToDashboard()">
-        Launch Workspace Dashboard &rarr;
+    <div class="success-button-row">
+      <button type="button" class="btn btn-primary-custom" (click)="navigateToDashboard()">
+        Go to Executive Dashboard &rarr;
       </button>
     </div>
   </div>
   } @else {
-  <!-- Form Wizard Container -->
-  <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="wizard-card">
 
-    <!-- ================= STEP 1: COMPANY PROFILE ================= -->
-    @if (currentStep() === 1) {
-    <div class="step-panel" id="step-1-company">
-      <div class="panel-intro">
-        <h3>Company and Legal Entities</h3>
-        <p>Define the legal producer name, registration identifiers, and primary reporting currency.</p>
+  <!-- ========================================================================= -->
+  <!-- STEP 1: COMPANY & ENTITIES FORM                                           -->
+  <!-- ========================================================================= -->
+  @if (currentStep() === 1) {
+  <div class="step-content-section" id="step-1-entities">
+    <div class="onboard-head">
+      <div>
+        <h1>Set up The Kraft Heinz Company</h1>
+        <p>Define legal entity, primary sector, threshold size, and reporting currency.</p>
+      </div>
+      <div class="head-actions">
+        <button type="button" class="btn btn-primary-custom" (click)="nextStep()">
+          Continue to markets &amp; laws &rarr;
+        </button>
+      </div>
+    </div>
+
+    <form [formGroup]="profileForm" class="onboard-card company-form-card">
+      <div class="form-row-2col">
+        <div class="form-field">
+          <label>Company Legal Name *</label>
+          <input type="text" formControlName="companyName" />
+        </div>
+        <div class="form-field">
+          <label>Legal Entity in Scope *</label>
+          <input type="text" formControlName="legalEntityName" />
+        </div>
       </div>
 
-      <div class="form-grid">
-        <div class="form-group full-width">
-          <label for="companyName">Legal Company Name *</label>
-          <input id="companyName" type="text" formControlName="companyName"
-            placeholder="e.g. The Kraft Heinz Company Europe" />
-          @if (profileForm.get('companyName')?.invalid && profileForm.get('companyName')?.touched) {
-          <span class="field-error">Company name is required (minimum 3 characters).</span>
-          }
+      <div class="form-row-3col">
+        <div class="form-field">
+          <label>Database Scope Slug *</label>
+          <input type="text" formControlName="tenantSlug" />
         </div>
-
-        <div class="form-group">
-          <label for="tenantSlug">Workspace Tenant Slug (ID) *</label>
-          <input id="tenantSlug" type="text" formControlName="tenantSlug" placeholder="e.g. khc-europe" />
-          <span class="field-hint">Unique database scope identifier (lowercase alphanumeric + hyphens).</span>
-        </div>
-
-        <div class="form-group">
-          <label for="primaryCurrency">Primary Currency *</label>
-          <select id="primaryCurrency" formControlName="primaryCurrency">
-            @for (curr of config.options.currencies; track curr.code) {
-            <option [value]="curr.code">{{ curr.label }} ({{ curr.symbol }})</option>
-            }
+        <div class="form-field">
+          <label>Reporting Currency *</label>
+          <select formControlName="primaryCurrency">
+            <option value="EUR">EUR (€) - Primary European Filing</option>
+            <option value="GBP">GBP (£) - UK pePR Defra Filing</option>
+            <option value="DKK">DKK (kr) - Danish DPA Filing</option>
           </select>
         </div>
-
-        <div class="form-group">
-          <label for="organisationSize">Organisation Size Threshold *</label>
-          <select id="organisationSize" formControlName="organisationSize">
-            <option value="L">Large Producer (Turnover >&pound;2M &amp; >50 tonnes packaging)</option>
-            <option value="S">Small Producer (Turnover &pound;1M&ndash;&pound;2M &amp; 25&ndash;50 tonnes)</option>
+        <div class="form-field">
+          <label>Producer Size Threshold *</label>
+          <select formControlName="organisationSize">
+            <option value="L">Large Producer (>£2m turnover &amp; >50t packaging)</option>
+            <option value="S">Small Producer (Turnover £1m–£2m &amp; 25–50t)</option>
           </select>
-          <span class="field-hint">Governs UK Defra RPD obligation reporting thresholds.</span>
-        </div>
-
-        <div class="form-group">
-          <label for="rpdOrganisationId">UK Defra RPD Organisation ID</label>
-          <input id="rpdOrganisationId" type="text" formControlName="rpdOrganisationId" placeholder="e.g. 100004" />
-          <span class="field-hint">Data Point DP29: Producer registration number for official export CSV.</span>
-        </div>
-
-        <div class="form-group full-width">
-          <label for="consultantEmail">Lead Consultant Email *</label>
-          <input id="consultantEmail" type="email" formControlName="consultantEmail"
-            placeholder="lead@compliancehub.io" />
-        </div>
-      </div>
-    </div>
-    }
-
-    <!-- ================= STEP 2: CATEGORIES & SECTORS ================= -->
-    @if (currentStep() === 2) {
-    <div class="step-panel" id="step-2-categories">
-      <div class="panel-intro">
-        <h3>Sectors &amp; Product Packaging Categories</h3>
-        <p>Industry sectors are fetched directly from the backend configuration engine.</p>
-      </div>
-
-      <div class="form-group">
-        <label for="sector">Primary Industry Sector</label>
-        <select id="sector" formControlName="sector" (change)="updateComplianceMatrix()">
-          @if (backendSectors().length > 0) {
-            @for (sec of backendSectors(); track sec.id) {
-            <option [value]="sec.id">{{ sec.name }} &mdash; {{ sec.description }}</option>
-            }
-          } @else {
-            @for (sec of config.options.sectors; track sec.id) {
-            <option [value]="sec.id">{{ sec.name }}</option>
-            }
-          }
-        </select>
-      </div>
-
-      <div class="categories-section">
-        <label>Product Portfolio Categories</label>
-        <p class="section-hint">Select the packaging categories active in this workspace:</p>
-
-        <div class="category-tags-grid">
-          @if (backendSectors().length > 0) {
-            @for (sec of backendSectors(); track sec.id) {
-              @if (profileForm.get('sector')?.value === sec.id) {
-                @for (cat of sec.default_categories; track cat) {
-                <button type="button" class="cat-chip" [class.active]="selectedCategories().includes(cat)"
-                  (click)="toggleCategory(cat)">
-                  <span class="cat-check">{{ selectedCategories().includes(cat) ? '&#10003;' : '+' }}</span>
-                  {{ cat }}
-                </button>
-                }
-              }
-            }
-          } @else {
-            @for (sec of config.options.sectors; track sec.id) {
-              @if (profileForm.get('sector')?.value === sec.id) {
-                @for (cat of sec.defaultCategories; track cat) {
-                <button type="button" class="cat-chip" [class.active]="selectedCategories().includes(cat)"
-                  (click)="toggleCategory(cat)">
-                  <span class="cat-check">{{ selectedCategories().includes(cat) ? '&#10003;' : '+' }}</span>
-                  {{ cat }}
-                </button>
-                }
-              }
-            }
-          }
-        </div>
-
-        <div class="add-category-row">
-          <input type="text" formControlName="newCategoryInput" placeholder="Add custom category..."
-            (keydown.enter)="$event.preventDefault(); addCustomCategory()" />
-          <button type="button" class="btn btn-secondary" (click)="addCustomCategory()">
-            + Add Category
-          </button>
-        </div>
-      </div>
-    </div>
-    }
-
-    <!-- ================= STEP 3: MARKETS & REGULATIONS ================= -->
-    @if (currentStep() === 3) {
-    <div class="step-panel" id="step-3-markets">
-      <div class="panel-intro">
-        <h3>Compliance Markets &amp; Regulations</h3>
-        <p>Jurisdictions are configured via backend regulatory models. Select operating markets to calculate data obligations.</p>
-      </div>
-
-      <div class="form-group" style="margin-bottom: 20px;">
-        <label>Primary Producer Legal Role</label>
-        <div class="roles-grid">
-          @for (role of config.options.producerRoles; track role.id) {
-          <div class="role-card" [class.selected]="profileForm.get('producerRole')?.value === role.id"
-            (click)="profileForm.patchValue({ producerRole: role.id })">
-            <div class="role-title">{{ role.title }}</div>
-            <p class="role-desc">{{ role.desc }}</p>
-          </div>
-          }
         </div>
       </div>
 
-      <!-- Live Obligation Matrix Banner -->
-      @if (complianceMatrix(); as matrix) {
-      <div class="matrix-overview-box">
-        <div class="matrix-stat">
-          <span class="stat-number">{{ matrix.applicable_regulations.length }}</span>
-          <span class="stat-label">Active Regulations</span>
+      <div class="form-row-2col">
+        <div class="form-field">
+          <label>Primary Role</label>
+          <input type="text" value="Brand Owner · UK Filler" readonly class="input-readonly" />
         </div>
-        <div class="matrix-stat">
-          <span class="stat-number">{{ matrix.total_data_points_required }} / 45</span>
-          <span class="stat-label">Mandatory Data Points</span>
-        </div>
-        <div class="matrix-stat">
-          <span class="stat-number">{{ matrix.source_systems_needed.length }}</span>
-          <span class="stat-label">Required Data Sources</span>
+        <div class="form-field">
+          <label>UK Defra RPD ID</label>
+          <input type="text" formControlName="rpdOrganisationId" placeholder="100004" />
         </div>
       </div>
-      }
-
-      <label style="display:block; margin: 16px 0 8px;">Target Operating Markets ({{ markets().length }} Available)</label>
-      <div class="markets-grid">
-        @for (market of markets(); track market.countryCode) {
-        <app-checkbox-card [title]="market.countryName + ' (' + market.countryCode + ')'"
-          [subtitle]="market.regulationName" [badge]="market.regulationCode" [icon]="''"
-          [meta]="market.reason" [selected]="market.selected"
-          (toggleChange)="toggleMarket(market.countryCode)" />
-        }
-      </div>
-    </div>
-    }
-
-    <!-- ================= STEP 4: INTEGRATIONS & CONNECTORS ================= -->
-    @if (currentStep() === 4) {
-    <div class="step-panel" id="step-4-integrations">
-      <div class="panel-intro">
-        <h3>Connect Upstream Source Systems</h3>
-        <p>Integrate PLM (Trace One Devex), ERP (SAP S/4HANA), and Snowflake data lake via read-only sync.</p>
-      </div>
-
-      <div class="integrations-grid">
-        @for (conn of integrations(); track conn.id) {
-        <app-checkbox-card [title]="conn.name" [subtitle]="conn.description" [badge]="conn.status.toUpperCase()"
-          [icon]="''" [selected]="conn.selected" (toggleChange)="toggleIntegration(conn.id)" />
-        }
-      </div>
-
-      <div class="readonly-notice">
-        <span class="notice-icon">[Audit Safe]</span>
-        <div>
-          <strong>Single Source of Truth Governance:</strong>
-          <p>
-            All Compliance Hub connectors operate in strictly read-only mode. Discrepancies and quality flags
-            generate tracked remediation tickets rather than mutating upstream source records.
-          </p>
-        </div>
-      </div>
-    </div>
-    }
-
-    <!-- ================= STEP 5: REVIEW & LAUNCH ================= -->
-    @if (currentStep() === 5) {
-    <div class="step-panel" id="step-5-review">
-      <div class="panel-intro">
-        <h3>Review &amp; Provision Workspace</h3>
-        <p>Verify tenant metadata and computed compliance obligations prior to workspace initialization.</p>
-      </div>
-
-      <div class="review-grid">
-        <div class="review-card">
-          <h4>Organisation Identity</h4>
-          <dl class="review-dl">
-            <dt>Company Legal Name</dt>
-            <dd>{{ profileForm.get('companyName')?.value }}</dd>
-            <dt>Database Scope Slug</dt>
-            <dd><code>{{ profileForm.get('tenantSlug')?.value }}</code></dd>
-            <dt>Sector</dt>
-            <dd>{{ profileForm.get('sector')?.value }}</dd>
-            <dt>Reporting Currency</dt>
-            <dd>{{ profileForm.get('primaryCurrency')?.value }}</dd>
-            <dt>Threshold Category</dt>
-            <dd>{{ profileForm.get('organisationSize')?.value === 'L' ? 'Large Producer (>50t)' : 'Small Producer' }}</dd>
-          </dl>
-        </div>
-
-        <div class="review-card">
-          <h4>Active Regulations &amp; Filings</h4>
-          @if (complianceMatrix(); as matrix) {
-          <ul class="review-list">
-            @for (reg of matrix.applicable_regulations; track reg.regulation_code) {
-            <li>
-              <strong>{{ reg.name }}</strong>
-              <div class="review-item-sub">Report: {{ reg.national_report_name }}</div>
-              <div class="review-item-sub">Fee System: {{ reg.fee_system_name }}</div>
-            </li>
-            }
-          </ul>
-          } @else {
-          <ul class="review-list">
-            @for (m of markets().filter(m => m.selected); track m.countryCode) {
-            <li>{{ m.countryName }}: {{ m.regulationName }}</li>
-            }
-          </ul>
-          }
-        </div>
-
-        <div class="review-card">
-          <h4>Required Data Points &amp; Sources</h4>
-          @if (complianceMatrix(); as matrix) {
-          <dl class="review-dl">
-            <dt>Canonical Data Points</dt>
-            <dd>{{ matrix.total_data_points_required }} of 45 required</dd>
-            <dt>Upstream Systems</dt>
-            <dd>{{ matrix.source_systems_needed.join(', ') }}</dd>
-            <dt>Active Categories</dt>
-            <dd>{{ selectedCategories().join(', ') }}</dd>
-          </dl>
-          } @else {
-          <dl class="review-dl">
-            <dt>Selected Categories</dt>
-            <dd>{{ selectedCategories().join(', ') }}</dd>
-          </dl>
-          }
-        </div>
-      </div>
-    </div>
-    }
-
-    <!-- Wizard Navigation Footer -->
-    <footer class="wizard-footer">
-      <div class="footer-left">
-        @if (currentStep() > 1) {
-        <button type="button" class="btn btn-secondary" (click)="prevStep()">
-          &larr; Back
-        </button>
-        }
-      </div>
-
-      <div class="footer-right">
-        @if (currentStep() < steps.length) {
-        <button type="button" class="btn btn-primary" [disabled]="!isStepValid(currentStep())" (click)="nextStep()">
-          Continue &rarr;
-        </button>
-        } @else {
-        <button type="submit" class="btn btn-primary btn-submit"
-          [disabled]="profileForm.invalid || submitting()">
-          {{ submitting() ? 'Provisioning Workspace...' : 'Launch Workspace &rarr;' }}
-        </button>
-        }
-      </div>
-    </footer>
-  </form>
+    </form>
+  </div>
   }
+
+  <!-- ========================================================================= -->
+  <!-- STEP 2: MARKETS & LAWS (Mockup Screen 2)                                  -->
+  <!-- ========================================================================= -->
+  @if (currentStep() === 2) {
+  <div class="step-content-section" id="step-2-markets">
+    <div class="onboard-head">
+      <div>
+        <h1>Set up The Kraft Heinz Company</h1>
+        <p>Tell us where you sell. We switch on the laws that apply and explain why.</p>
+      </div>
+      <div class="head-actions">
+        <button type="button" class="btn btn-secondary-custom" (click)="prevStep()">Back</button>
+        <button type="button" class="btn btn-primary-custom" (click)="nextStep()">Continue to data points</button>
+      </div>
+    </div>
+
+    <div class="mockup-row" style="gap: 16px;">
+      <!-- Left Card: Company & Sector -->
+      <div class="onboard-card card-entities" style="width: 290px; flex-shrink: 0;">
+        <h3>Company &amp; entities</h3>
+        <div class="entity-item">
+          <b>Kraft Heinz UK</b>
+          <div class="small-muted">United Kingdom · Brand owner · UK filler</div>
+        </div>
+
+        <h3 style="margin-top: 18px;">Sector</h3>
+        <div class="sector-item">
+          <span class="custom-tick on">✓</span>
+          <b>Food &amp; beverage</b>
+          <span class="small-muted float-right">Packaging EPR + PPWR</span>
+        </div>
+      </div>
+
+      <!-- Middle Card: Markets in Scope -->
+      <div class="onboard-card card-markets" style="flex: 1;">
+        <h3>Markets in scope <span class="small-muted font-normal">· {{ selectedMarketsCount() }} selected</span></h3>
+        <div class="markets-two-col">
+          <div class="market-col">
+            @for (m of marketsCol1(); track m.countryCode) {
+            <div class="market-row" [class.active-market]="m.selected" (click)="toggleMarket(m.countryCode)">
+              <span class="custom-tick" [class.on]="m.selected">{{ m.selected ? '✓' : '' }}</span>
+              <b [class.text-muted-opt]="!m.selected">{{ m.countryName }}</b>
+              <span class="small-muted float-right">{{ m.selected ? m.regulationLabel : 'not selected' }}</span>
+            </div>
+            }
+          </div>
+
+          <div class="market-col">
+            @for (m of marketsCol2(); track m.countryCode) {
+            <div class="market-row" [class.active-market]="m.selected" (click)="toggleMarket(m.countryCode)">
+              <span class="custom-tick" [class.on]="m.selected">{{ m.selected ? '✓' : '' }}</span>
+              <b [class.text-muted-opt]="!m.selected">{{ m.countryName }}</b>
+              <span class="small-muted float-right">{{ m.selected ? m.regulationLabel : 'not selected' }}</span>
+            </div>
+            }
+          </div>
+        </div>
+
+        <div class="markets-footnote">
+          This phase covers United Kingdom and Denmark. Other markets can be switched on later; national rules load as plug-ins (24 more available).
+        </div>
+      </div>
+
+      <!-- Right Card: Laws Switched On -->
+      <div class="onboard-card card-laws" style="width: 430px; flex-shrink: 0;">
+        <h3>Laws switched on</h3>
+        <table class="laws-tight-table">
+          <tbody>
+            <tr>
+              <td class="law-name-col">
+                <b>UK pEPR</b>
+                <div class="small-muted">United Kingdom</div>
+              </td>
+              <td class="law-desc-col">
+                Brand owner, over £2m turnover and 50 t packaging: large producer
+              </td>
+            </tr>
+            <tr>
+              <td class="law-name-col">
+                <b>Danish packaging EPR</b>
+                <div class="small-muted">Denmark</div>
+              </td>
+              <td class="law-desc-col">
+                Producer responsibility for packaging since 2025, via a PRO
+              </td>
+            </tr>
+            <tr>
+              <td class="law-name-col">
+                <b>EU PPWR</b>
+                <div class="small-muted">Denmark</div>
+              </td>
+              <td class="law-desc-col">
+                You make packaged goods available in the EU; applies from 12 Aug 2026
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="bottom-nav-row">
+      <button type="button" class="btn btn-secondary-custom" (click)="prevStep()">Back</button>
+      <button type="button" class="btn btn-primary-custom" (click)="nextStep()">Continue to data points</button>
+    </div>
+  </div>
+  }
+
+  <!-- ========================================================================= -->
+  <!-- STEP 3: WHICH DATA POINTS DO YOU HAVE? (Mockup Screen 3)                  -->
+  <!-- ========================================================================= -->
+  @if (currentStep() === 3) {
+  <div class="step-content-section" id="step-3-datapoints">
+    <div class="onboard-head">
+      <div>
+        <h1>Which data points do you have?</h1>
+        <p>Your markets need 37 data points. Tick what you hold in each market — we connect to your systems and collect the rest from your suppliers.</p>
+      </div>
+      <div class="head-actions">
+        <button type="button" class="btn btn-secondary-custom" (click)="prevStep()">Back</button>
+        <button type="button" class="btn btn-primary-custom" (click)="nextStep()">Continue to connect systems</button>
+      </div>
+    </div>
+
+    <div class="mockup-row" style="gap: 16px; align-items: flex-start;">
+      <!-- Left Summary Card -->
+      <div class="onboard-card dp-summary-card" style="width: 250px; flex-shrink: 0;">
+        <!-- UK progress box -->
+        <div class="dp-metric-block">
+          <div class="dp-metric-top">
+            <b>🇬🇧 UK pEPR</b>
+            <span class="small-muted">{{ ukStats().total }} needed</span>
+          </div>
+          <div class="dp-progress-track">
+            <div class="dp-progress-fill" [style.width.%]="ukStats().percentage"></div>
+          </div>
+          <div class="dp-metric-counts">
+            <span><b>{{ ukStats().held }}</b> <span class="small-muted">in your systems</span></span>
+            <span><b>{{ ukStats().collect }}</b> <span class="small-muted">we collect</span></span>
+          </div>
+        </div>
+
+        <!-- Denmark progress box -->
+        <div class="dp-metric-block">
+          <div class="dp-metric-top">
+            <b>🇩🇰 Denmark + PPWR</b>
+            <span class="small-muted">{{ dkStats().total }} needed</span>
+          </div>
+          <div class="dp-progress-track">
+            <div class="dp-progress-fill" [style.width.%]="dkStats().percentage"></div>
+          </div>
+          <div class="dp-metric-counts">
+            <span><b>{{ dkStats().held }}</b> <span class="small-muted">in your systems</span></span>
+            <span><b>{{ dkStats().collect }}</b> <span class="small-muted">we collect</span></span>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="dp-legend">
+          <span class="legend-row">
+            <span class="dpcb on">✓</span> You hold it
+          </span>
+          <span class="legend-row">
+            <span class="dpcb"></span> Monk Spaces collects it
+          </span>
+          <span class="legend-row">
+            <span class="dpna-icon"></span> Not needed in that market
+          </span>
+        </div>
+
+        <div class="dp-footnote-box">
+          Supplier data lands in your Devex or Snowflake first. We read it from there and write corrections back only after you approve.
+        </div>
+      </div>
+
+      <!-- Right 2-Column Canonical 37 Data Points Table -->
+      <div class="onboard-card dp-table-card" style="flex: 1;">
+        <div class="dp-tables-grid">
+
+          <!-- Left Table: ERP (10) + PLM (7) -->
+          <div class="dp-table-col">
+            <table class="dpt">
+              <thead>
+                <tr>
+                  <th class="dpn">Data point</th>
+                  <th class="dpc">UK</th>
+                  <th class="dpc">DK</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Group 1: ERP -->
+                <tr class="dpg">
+                  <td colspan="3">ERP · sales and SKU data <span>10</span></td>
+                </tr>
+                @for (dp of dataPoints(); track dp.id) {
+                  @if (dp.category === 'ERP') {
+                  <tr>
+                    <td class="dpn">{{ dp.name }}</td>
+                    <td class="dpc" (click)="toggleDataPointUk(dp.id)">
+                      <span class="dpcb" [class.on]="dp.ukStatus === 'held'">{{ dp.ukStatus === 'held' ? '✓' : '' }}</span>
+                    </td>
+                    <td class="dpc" (click)="toggleDataPointDk(dp.id)">
+                      <span class="dpcb" [class.on]="dp.dkStatus === 'held'">{{ dp.dkStatus === 'held' ? '✓' : '' }}</span>
+                    </td>
+                  </tr>
+                  }
+                }
+
+                <!-- Group 2: PLM -->
+                <tr class="dpg">
+                  <td colspan="3">PLM · packaging specifications <span>7</span></td>
+                </tr>
+                @for (dp of dataPoints(); track dp.id) {
+                  @if (dp.category === 'PLM') {
+                  <tr>
+                    <td class="dpn">{{ dp.name }}</td>
+                    <td class="dpc" (click)="toggleDataPointUk(dp.id)">
+                      @if (dp.ukStatus === 'na') {
+                        <span class="dpna" title="Not needed in this market"></span>
+                      } @else {
+                        <span class="dpcb" [class.on]="dp.ukStatus === 'held'">{{ dp.ukStatus === 'held' ? '✓' : '' }}</span>
+                      }
+                    </td>
+                    <td class="dpc" (click)="toggleDataPointDk(dp.id)">
+                      @if (dp.dkStatus === 'na') {
+                        <span class="dpna" title="Not needed in this market"></span>
+                      } @else {
+                        <span class="dpcb" [class.on]="dp.dkStatus === 'held'">{{ dp.dkStatus === 'held' ? '✓' : '' }}</span>
+                      }
+                    </td>
+                  </tr>
+                  }
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Right Table: Compliance (9) + Supplier (11) -->
+          <div class="dp-table-col">
+            <table class="dpt">
+              <thead>
+                <tr>
+                  <th class="dpn">Data point</th>
+                  <th class="dpc">UK</th>
+                  <th class="dpc">DK</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Group 3: Compliance -->
+                <tr class="dpg">
+                  <td colspan="3">Compliance team · manual entries <span>9</span></td>
+                </tr>
+                @for (dp of dataPoints(); track dp.id) {
+                  @if (dp.category === 'COMPLIANCE') {
+                  <tr>
+                    <td class="dpn">{{ dp.name }}</td>
+                    <td class="dpc" (click)="toggleDataPointUk(dp.id)">
+                      @if (dp.ukStatus === 'na') {
+                        <span class="dpna" title="Not needed in this market"></span>
+                      } @else {
+                        <span class="dpcb" [class.on]="dp.ukStatus === 'held'">{{ dp.ukStatus === 'held' ? '✓' : '' }}</span>
+                      }
+                    </td>
+                    <td class="dpc" (click)="toggleDataPointDk(dp.id)">
+                      @if (dp.dkStatus === 'na') {
+                        <span class="dpna" title="Not needed in this market"></span>
+                      } @else {
+                        <span class="dpcb" [class.on]="dp.dkStatus === 'held'">{{ dp.dkStatus === 'held' ? '✓' : '' }}</span>
+                      }
+                    </td>
+                  </tr>
+                  }
+                }
+
+                <!-- Group 4: Supplier -->
+                <tr class="dpg">
+                  <td colspan="3">Supplier data · Monk Spaces collects <span>11</span></td>
+                </tr>
+                @for (dp of dataPoints(); track dp.id) {
+                  @if (dp.category === 'SUPPLIER') {
+                  <tr>
+                    <td class="dpn">{{ dp.name }}</td>
+                    <td class="dpc" (click)="toggleDataPointUk(dp.id)">
+                      @if (dp.ukStatus === 'na') {
+                        <span class="dpna" title="Not needed in this market"></span>
+                      } @else {
+                        <span class="dpcb" [class.on]="dp.ukStatus === 'held'">{{ dp.ukStatus === 'held' ? '✓' : '' }}</span>
+                      }
+                    </td>
+                    <td class="dpc" (click)="toggleDataPointDk(dp.id)">
+                      @if (dp.dkStatus === 'na') {
+                        <span class="dpna" title="Not needed in this market"></span>
+                      } @else {
+                        <span class="dpcb" [class.on]="dp.dkStatus === 'held'">{{ dp.dkStatus === 'held' ? '✓' : '' }}</span>
+                      }
+                    </td>
+                  </tr>
+                  }
+                }
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+        <div class="dp-table-footnote">
+          PPWR-only points (labelling, DoC) apply from Aug 2028; recyclability grade from 2030. List from epr-ppwr-data-points_UK-DK_2026-10-27.pdf.
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-nav-row">
+      <button type="button" class="btn btn-secondary-custom" (click)="prevStep()">Back</button>
+      <button type="button" class="btn btn-primary-custom" (click)="nextStep()">Continue to connect systems</button>
+    </div>
+  </div>
+  }
+
+  <!-- ========================================================================= -->
+  <!-- STEP 4: CONNECT YOUR SYSTEMS (Mockup Screen 4)                             -->
+  <!-- ========================================================================= -->
+  @if (currentStep() === 4) {
+  <div class="step-content-section" id="step-4-systems">
+    <div class="onboard-head">
+      <div>
+        <h1>Connect your systems</h1>
+        <p>We read from the systems you already use. Corrections go back into them — only after you approve. Your team keeps the master copy.</p>
+      </div>
+      <div class="head-actions">
+        <button type="button" class="btn btn-secondary-custom" (click)="prevStep()">Back</button>
+        <button type="button" class="btn btn-primary-custom" (click)="finishSetup()" [disabled]="submitting()">
+          {{ submitting() ? 'Finishing setup...' : 'Finish set up' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- How your data moves SVG Architectural Diagram -->
+    <div class="onboard-card svg-card" style="padding: 16px 22px 14px; margin-bottom: 14px;">
+      <b style="font-size: 14px; display: block; margin-bottom: 10px;">How your data moves</b>
+      <div class="svg-diagram-wrapper">
+        <svg viewBox="0 0 1240 232" style="width: 100%; display: block;" aria-label="Data flow diagram">
+          <defs>
+            <marker id="mb8c1cb_1" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L8,3 L0,6 Z" fill="#b8c1cb" />
+            </marker>
+            <marker id="m2f6fd6_1" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L8,3 L0,6 Z" fill="#1d3f72" />
+            </marker>
+            <marker id="m16865f_1" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L8,3 L0,6 Z" fill="#16865f" />
+            </marker>
+          </defs>
+
+          <!-- Column Header Labels -->
+          <text x="0" y="12" style="font-size: 10.5px; font-weight: 700; letter-spacing: .06em; fill: #8a96a3">WHERE DATA STARTS</text>
+          <text x="330" y="12" style="font-size: 10.5px; font-weight: 700; letter-spacing: .06em; fill: #8a96a3">WHERE IT IS KEPT</text>
+          <text x="660" y="12" style="font-size: 10.5px; font-weight: 700; letter-spacing: .06em; fill: #8a96a3">MONK SPACES</text>
+          <text x="990" y="12" style="font-size: 10.5px; font-weight: 700; letter-spacing: .06em; fill: #8a96a3">WHAT YOU GET</text>
+
+          <!-- Column 1: Sources -->
+          <rect x="0" y="24" width="230" height="44" rx="8" fill="#fff" stroke="#d5dbe3" stroke-width="1.2" />
+          <text x="14" y="43" style="font-size: 13px; font-weight: 700; fill: #18212b">Your suppliers</text>
+          <text x="14" y="59" style="font-size: 11px; fill: #5f6b78">materials, recycled content, tests</text>
+          <text x="218" y="44" text-anchor="end" style="font-size: 10.5px; font-weight: 600; fill: #5f6b78">13</text>
+
+          <rect x="0" y="76" width="230" height="44" rx="8" fill="#fff" stroke="#d5dbe3" stroke-width="1.2" />
+          <text x="14" y="95" style="font-size: 13px; font-weight: 700; fill: #18212b">Your packaging team</text>
+          <text x="14" y="111" style="font-size: 11px; fill: #5f6b78">packaging specifications</text>
+          <text x="218" y="96" text-anchor="end" style="font-size: 10.5px; font-weight: 600; fill: #5f6b78">5</text>
+
+          <rect x="0" y="128" width="230" height="44" rx="8" fill="#fff" stroke="#d5dbe3" stroke-width="1.2" />
+          <text x="14" y="147" style="font-size: 13px; font-weight: 700; fill: #18212b">Your sales team</text>
+          <text x="14" y="163" style="font-size: 11px; fill: #5f6b78">sales by market, SKU list</text>
+          <text x="218" y="148" text-anchor="end" style="font-size: 10.5px; font-weight: 600; fill: #5f6b78">10</text>
+
+          <rect x="0" y="180" width="230" height="44" rx="8" fill="#fff" stroke="#d5dbe3" stroke-width="1.2" />
+          <text x="14" y="199" style="font-size: 13px; font-weight: 700; fill: #18212b">Your compliance team</text>
+          <text x="14" y="215" style="font-size: 11px; fill: #5f6b78">registrations, roles, sign-off</text>
+          <text x="218" y="200" text-anchor="end" style="font-size: 10.5px; font-weight: 600; fill: #5f6b78">9</text>
+
+          <!-- Column 2: Systems Kept -->
+          <rect x="330" y="24" width="230" height="96" rx="8" fill="#e9eef6" stroke="#1d3f72" stroke-width="1.2" />
+          <text x="344" y="69" style="font-size: 13px; font-weight: 700; fill: #122a4e">Trace One Devex</text>
+          <text x="344" y="85" style="font-size: 11px; fill: #5f6b78">specs + supplier answers</text>
+
+          <rect x="330" y="128" width="230" height="44" rx="8" fill="#e9eef6" stroke="#1d3f72" stroke-width="1.2" />
+          <text x="344" y="147" style="font-size: 13px; font-weight: 700; fill: #122a4e">Snowflake</text>
+          <text x="344" y="163" style="font-size: 11px; fill: #5f6b78">sales and SKU master</text>
+
+          <rect x="330" y="180" width="230" height="44" rx="8" fill="#e9eef6" stroke="#1d3f72" stroke-width="1.2" />
+          <text x="344" y="199" style="font-size: 13px; font-weight: 700; fill: #122a4e">Compliance Hub</text>
+          <text x="344" y="215" style="font-size: 11px; fill: #5f6b78">entered once by your team</text>
+
+          <!-- Column 3: Monk Spaces Engine -->
+          <rect x="660" y="24" width="230" height="200" rx="8" fill="#fff" stroke="#1d3f72" stroke-width="1.8" />
+          <text x="674" y="50" style="font-size: 13px; font-weight: 700; fill: #18212b">Monk Spaces</text>
+          <text x="674" y="76" style="font-size: 11.5px; fill: #18212b">1 · Reads your systems</text>
+          <text x="674" y="98" style="font-size: 11.5px; fill: #18212b">2 · Requests what is missing</text>
+          <text x="674" y="120" style="font-size: 11.5px; fill: #18212b">3 · Checks every value</text>
+          <text x="674" y="142" style="font-size: 11.5px; fill: #18212b">4 · Calculates fees</text>
+          <text x="674" y="164" style="font-size: 11.5px; fill: #18212b">5 · Prepares reports</text>
+
+          <!-- Column 4: What You Get -->
+          <rect x="990" y="24" width="250" height="60" rx="8" fill="#fff" stroke="#d5dbe3" stroke-width="1.2" />
+          <text x="1004" y="51" style="font-size: 13px; font-weight: 700; fill: #18212b">EPR fees</text>
+          <text x="1004" y="67" style="font-size: 11px; fill: #5f6b78">UK and Denmark, with confidence</text>
+
+          <rect x="990" y="94" width="250" height="60" rx="8" fill="#fff" stroke="#d5dbe3" stroke-width="1.2" />
+          <text x="1004" y="121" style="font-size: 13px; font-weight: 700; fill: #18212b">Filings</text>
+          <text x="1004" y="137" style="font-size: 11px; fill: #5f6b78">UK RPD file · Denmark DPA report</text>
+
+          <rect x="990" y="164" width="250" height="60" rx="8" fill="#fff" stroke="#d5dbe3" stroke-width="1.2" />
+          <text x="1004" y="191" style="font-size: 13px; font-weight: 700; fill: #18212b">Reports to sign</text>
+          <text x="1004" y="207" style="font-size: 11px; fill: #5f6b78">Declarations of Conformity, methodology</text>
+
+          <!-- Connector Flow Arrows -->
+          <path d="M230,46 C280,46 280,56 328,56" fill="none" stroke="#b8c1cb" stroke-width="1.6" marker-end="url(#mb8c1cb_1)" />
+          <text x="280" y="38" text-anchor="middle" style="font-size: 9.5px; fill: #8a96a3">we request it</text>
+          <path d="M230,98 C280,98 280,88 328,88" fill="none" stroke="#b8c1cb" stroke-width="1.6" marker-end="url(#mb8c1cb_1)" />
+          <path d="M230,150 C280,150 280,150 328,150" fill="none" stroke="#b8c1cb" stroke-width="1.6" marker-end="url(#mb8c1cb_1)" />
+          <path d="M230,202 C280,202 280,202 328,202" fill="none" stroke="#b8c1cb" stroke-width="1.6" marker-end="url(#mb8c1cb_1)" />
+
+          <path d="M560,44 C610,44 610,44 658,44" fill="none" stroke="#1d3f72" stroke-width="1.6" stroke-dasharray="5,3" marker-end="url(#m2f6fd6_1)" />
+          <path d="M560,150 C610,150 610,150 658,150" fill="none" stroke="#1d3f72" stroke-width="1.6" stroke-dasharray="5,3" marker-end="url(#m2f6fd6_1)" />
+          <path d="M560,202 C610,202 610,202 658,202" fill="none" stroke="#1d3f72" stroke-width="1.6" stroke-dasharray="5,3" marker-end="url(#m2f6fd6_1)" />
+          <text x="610" y="36" text-anchor="middle" style="font-size: 9.5px; fill: #1d3f72">we read</text>
+
+          <path d="M660,100 C610,100 610,100 558,100" fill="none" stroke="#16865f" stroke-width="1.6" marker-end="url(#m16865f_1)" />
+          <path d="M660,160 C610,160 610,160 558,160" fill="none" stroke="#16865f" stroke-width="1.6" marker-end="url(#m16865f_1)" />
+          <text x="610" y="116" text-anchor="middle" style="font-size: 9.5px; fill: #16865f">fixes, after</text>
+          <text x="610" y="127" text-anchor="middle" style="font-size: 9.5px; fill: #16865f">you approve</text>
+
+          <path d="M890,54 C940,54 940,54 988,54" fill="none" stroke="#b8c1cb" stroke-width="1.6" marker-end="url(#mb8c1cb_1)" />
+          <path d="M890,124 C940,124 940,124 988,124" fill="none" stroke="#b8c1cb" stroke-width="1.6" marker-end="url(#mb8c1cb_1)" />
+          <path d="M890,194 C940,194 940,194 988,194" fill="none" stroke="#b8c1cb" stroke-width="1.6" marker-end="url(#mb8c1cb_1)" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Connection Status Cards Matching Mockup Screen 4 -->
+    <div class="onboard-card cs-card" style="padding: 16px 26px 4px;">
+      <b style="font-size: 14px; display: block; margin-bottom: 4px;">Connection status</b>
+
+      <!-- Row 1: Snowflake -->
+      <div class="cs-row">
+        <span class="cs-dot" style="background: #1d3f72;"></span>
+        <div>
+          <b style="font-size: 14px;">Snowflake</b>
+          <div class="small-muted">Sales by market · SKU master</div>
+        </div>
+        <div>
+          <div class="cs-n">10</div>
+          <div class="small-muted">data points</div>
+        </div>
+        <div>
+          <span class="cs-pill warn">⟳ In progress</span>
+        </div>
+        <div>
+          <div class="cs-steps">
+            <span class="done"></span>
+            <span class="done"></span>
+            <span class="cur"></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="small-desc">
+            <b>Step 3 of 5</b> <span class="small-muted">· Monk Spaces connects</span>
+          </div>
+          <div class="small-muted">Corrections go to a table you own in Snowflake</div>
+        </div>
+        <div class="cs-link">View list &rsaquo;</div>
+      </div>
+
+      <!-- Row 2: Trace One Devex -->
+      <div class="cs-row">
+        <span class="cs-dot" style="background: #6f9be6;"></span>
+        <div>
+          <b style="font-size: 14px;">Trace One Devex</b>
+          <div class="small-muted">Packaging specifications</div>
+        </div>
+        <div>
+          <div class="cs-n">5</div>
+          <div class="small-muted">data points</div>
+        </div>
+        <div>
+          <span class="cs-pill ok">✓ Connected</span>
+        </div>
+        <div>
+          <div class="small-desc">
+            <b>412</b> <span class="small-muted">specs</span> · <b>146</b> <span class="small-muted">SKUs read</span>
+          </div>
+          <div class="small-muted">Corrections go in as Devex change requests</div>
+        </div>
+        <div class="cs-link">View list &rsaquo;</div>
+      </div>
+
+      <!-- Row 3: Compliance Team -->
+      <div class="cs-row">
+        <span class="cs-dot" style="background: #9aa5b1;"></span>
+        <div>
+          <b style="font-size: 14px;">Your compliance team</b>
+          <div class="small-muted">Entered once in the tool</div>
+        </div>
+        <div>
+          <div class="cs-n">9</div>
+          <div class="small-muted">data points</div>
+        </div>
+        <div>
+          <span class="cs-pill">Manual entry</span>
+        </div>
+        <div>
+          <div class="small-desc">
+            <span class="small-muted">Owner</span> <b>Compliance lead</b>
+          </div>
+          <div class="small-muted">Registration, roles and sign-off details</div>
+        </div>
+        <div class="cs-link">View list &rsaquo;</div>
+      </div>
+
+      <!-- Row 4: Your Suppliers -->
+      <div class="cs-row">
+        <span class="cs-dot striped-dot"></span>
+        <div>
+          <b style="font-size: 14px;">Your suppliers</b>
+          <div class="small-muted">Monk Spaces requests them</div>
+        </div>
+        <div>
+          <div class="cs-n">13</div>
+          <div class="small-muted">data points</div>
+        </div>
+        <div>
+          <span class="cs-pill info">Monk Spaces collects</span>
+        </div>
+        <div>
+          <div class="small-muted">Answers land in your Devex or Snowflake first; we read them from there</div>
+        </div>
+        <div class="cs-link">View list &rsaquo;</div>
+      </div>
+    </div>
+
+    <!-- Bottom Actions Row -->
+    <div class="step4-footer-row">
+      <span class="small-muted">Connections are verified with mock fixtures for pilot testing. Systems shown are aligned with Kraft Heinz infrastructure.</span>
+      <div class="footer-btn-group">
+        <button type="button" class="btn btn-secondary-custom" (click)="prevStep()">Back</button>
+        <button type="button" class="btn btn-primary-custom" (click)="finishSetup()" [disabled]="submitting()">
+          {{ submitting() ? 'Finishing setup...' : 'Finish set up' }}
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  }
+
+  <!-- Illustrative Watermark matching Mockups -->
+  <div class="sample-watermark">
+    Sample data · illustrative figures, not Kraft Heinz data · illustrative tariffs and FX
+  </div>
+
 </div>

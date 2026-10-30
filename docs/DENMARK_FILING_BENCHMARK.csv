@@ -1,0 +1,18 @@
+Market,Channel,Material,Packaging weight (kg)
+DK,(blank),Aluminium,12.0
+DK,(blank),Glass,"1,440.0"
+DK,(blank),Paper/board,209.0
+DK,Household,Aluminium,"3,180.0"
+DK,Household,Fibre composite,"3,800.0"
+DK,Household,Glass,"66,700.0"
+DK,Household,Paper/board,"8,826.7"
+DK,Household,Plastic,563.3
+DK,Household,Wood,560.0
+DK,Non-household,Aluminium,63.0
+DK,Non-household,Fibre composite,570.0
+DK,Non-household,Glass,"8,880.0"
+DK,Non-household,Paper/board,"1,256.0"
+DK,Non-household,Plastic,52.5
+DK,Non-household,Steel,"23,750.0"
+DK,Non-household,Wood,84.0
+Total,,,"119,946.5"
