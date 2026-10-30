@@ -44,12 +44,26 @@
       <div class="step-view">
         <div class="head">
           <div>
-            <h1>Set up The Kraft Heinz Company</h1>
+            <h1>Set up {{ profileForm.get('companyName')?.value || 'Your Company' }}</h1>
             <p>Confirm the legal producer profile, operating entities, and turnover thresholds.</p>
           </div>
           <div style="display: flex; gap: 8px">
             <span class="btn p" (click)="goToStep(2)">Continue to markets &amp; laws</span>
           </div>
+        </div>
+
+        <!-- Quick Template Presets for SuperAdmin Testing -->
+        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 14px;">
+          <span class="small muted" style="font-weight: 600;">Load Template:</span>
+          <button type="button" class="btn" style="padding: 4px 12px; font-size: 12px;" (click)="loadPreset('khc')">
+            The Kraft Heinz Company
+          </button>
+          <button type="button" class="btn" style="padding: 4px 12px; font-size: 12px;" (click)="loadPreset('nordhavn')">
+            Nordhavn Spirits ApS (DK)
+          </button>
+          <button type="button" class="btn" style="padding: 4px 12px; font-size: 12px;" (click)="loadPreset('custom')">
+            + Blank Custom Company
+          </button>
         </div>
 
         <form [formGroup]="profileForm" class="card" style="max-width: 720px; padding: 22px 24px;">
@@ -104,7 +118,7 @@
       <div class="step-view">
         <div class="head">
           <div>
-            <h1>Set up The Kraft Heinz Company</h1>
+            <h1>Set up {{ profileForm.get('companyName')?.value || 'Your Company' }}</h1>
             <p>Tell us where you sell. We switch on the laws that apply and explain why.</p>
           </div>
           <div style="display: flex; gap: 8px">
@@ -114,18 +128,21 @@
         </div>
 
         <div class="row">
-          <!-- Card 1: Company & entities -->
+          <!-- Card 1: Company & entities (Dynamic from Step 1) -->
           <div class="card" style="width: 290px; flex-shrink: 0;">
-            <h3>Company &amp; entities</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <h3 style="margin: 0;">Company &amp; entities</h3>
+              <span class="small" style="color: #1d3f72; cursor: pointer; font-weight: 600;" (click)="goToStep(1)">Edit ›</span>
+            </div>
             <div style="padding: 6px 0; border-bottom: 1px solid #f0f2f4">
-              <b>Kraft Heinz UK</b>
-              <div class="small muted">United Kingdom · Brand owner · UK filler</div>
+              <b>{{ profileForm.get('legalEntityName')?.value || profileForm.get('companyName')?.value || 'Your Company' }}</b>
+              <div class="small muted">{{ profileForm.get('companyName')?.value || 'Main Producer' }} · Brand owner</div>
             </div>
             <h3 style="margin-top: 14px">Sector</h3>
             <div style="padding: 6px 0; border-bottom: 1px solid #f0f2f4;">
               <span class="tick on">✓</span>
-              <b>Food &amp; beverage</b>
-              <span class="small muted" style="float: right">Packaging EPR + PPWR</span>
+              <b>{{ profileForm.get('sector')?.value || 'Food & beverage' }}</b>
+              <span class="small muted" style="float: right">Packaging EPR</span>
             </div>
           </div>
 
@@ -163,32 +180,26 @@
             </div>
           </div>
 
-          <!-- Card 3: Laws switched on -->
+          <!-- Card 3: Laws switched on (Dynamic based on selected markets) -->
           <div class="card" style="width: 430px; flex-shrink: 0;">
-            <h3>Laws switched on</h3>
-            <table class="tight">
-              <tr>
-                <td style="width: 150px">
-                  <b>UK pEPR</b>
-                  <div class="small muted">United Kingdom</div>
-                </td>
-                <td class="small">Brand owner, over £2m turnover and 50 t packaging: large producer</td>
-              </tr>
-              <tr>
-                <td style="width: 150px">
-                  <b>Danish packaging EPR</b>
-                  <div class="small muted">Denmark</div>
-                </td>
-                <td class="small">Producer responsibility for packaging since 2025, via a PRO</td>
-              </tr>
-              <tr>
-                <td style="width: 150px">
-                  <b>EU PPWR</b>
-                  <div class="small muted">Denmark</div>
-                </td>
-                <td class="small">You make packaged goods available in the EU; applies from 12 Aug 2026</td>
-              </tr>
-            </table>
+            <h3>Laws switched on <span class="small muted" style="font-weight: 400">· {{ activeLaws().length }} active</span></h3>
+            @if (activeLaws().length === 0) {
+              <div class="small muted" style="padding: 24px 0; text-align: center;">
+                No markets selected. Select at least one market to switch on applicable laws.
+              </div>
+            } @else {
+              <table class="tight">
+                @for (law of activeLaws(); track law.lawName + law.countryCode) {
+                <tr>
+                  <td style="width: 150px">
+                    <b>{{ law.lawName }}</b>
+                    <div class="small muted">{{ law.countryName }}</div>
+                  </td>
+                  <td class="small">{{ law.description }}</td>
+                </tr>
+                }
+              </table>
+            }
           </div>
         </div>
 

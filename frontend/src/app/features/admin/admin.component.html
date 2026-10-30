@@ -35,6 +35,12 @@
         <span class="nav-bullet"></span>
         <span>Ingestion Batches</span>
       </button>
+
+      <!-- Direct Quick Link to 4-Step Onboarding Wizard -->
+      <a routerLink="/onboarding" class="nav-item" style="color: #1d3f72; font-weight: 600; text-decoration: none; margin-top: 12px; background: rgba(29, 63, 114, 0.07); border-radius: 6px;">
+        <span class="nav-bullet" style="background: #1d3f72"></span>
+        <span>+ Onboard New Client</span>
+      </a>
     </nav>
 
     <div class="sidebar-bottom">
@@ -65,9 +71,9 @@
         <button class="btn-secondary" (click)="openImportModal()">
           Import SKU Catalog
         </button>
-        <button class="btn-primary" (click)="openOnboardModal()">
-          + Onboard Organisation
-        </button>
+        <a routerLink="/onboarding" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+          + Onboard Client Wizard &rarr;
+        </a>
       </div>
     </header>
 
@@ -157,12 +163,12 @@
         }
 
         <!-- Onboard Card -->
-        <div class="org-card new-card" (click)="openOnboardModal()">
+        <div class="org-card new-card" routerLink="/onboarding" style="cursor: pointer;">
           <div class="new-card-inner">
             <span class="new-plus">+</span>
             <h3>Onboard New Client</h3>
             <p>Configure company database, activate required compliance modules, and prepare SKU catalog feed.</p>
-            <button class="btn-outline">+ Onboard</button>
+            <a routerLink="/onboarding" class="btn-outline" style="text-decoration: none; display: inline-block; margin-top: 8px;">Launch Wizard &rarr;</a>
           </div>
         </div>
       </div>

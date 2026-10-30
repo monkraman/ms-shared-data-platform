@@ -1,22 +1,16 @@
-import sys
+import os
+from dotenv import load_dotenv
 import psycopg
 
-db_url = "postgresql://neondb_owner:npg_uzClgGiQ7b1E@ep-muddy-bird-b47a9kq9-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require"
+load_dotenv('backend/.env')
+db_url = os.getenv('DATABASE_URL')
+print('Testing Neon connection...')
 
 try:
-    print("Connecting to Neon...")
-    conn = psycopg.connect(db_url)
-    with conn.cursor() as cur:
-        cur.execute("SELECT current_database(), current_user, version();")
-        print("Connected successfully:", cur.fetchone())
-        cur.execute("""
-            SELECT table_schema, table_name 
-            FROM information_schema.tables 
-            WHERE table_schema NOT IN ('information_schema', 'pg_catalog');
-        """)
-        tables = cur.fetchall()
-        print("Existing tables in this DB:", tables)
-    conn.close()
+    with psycopg.connect(db_url, connect_timeout=10) as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
+            tables = [r[0] for r in cur.fetchall()]
+            print('Tables found in Neon public schema:', tables)
 except Exception as e:
-    print("Connection error:", e)
-
+    print('Connection error:', type(e), e)

@@ -64,3 +64,4 @@ VALUES
     ('DK', 'GLASS', 'DKK', 950.00, 0.00, 0.00, 0.00, 'DPA / VANA Tariff Notification 2026'),
     ('DK', 'STEEL', 'DKK', 1400.00, 0.00, 0.00, 0.00, 'DPA / VANA Tariff Notification 2026')
 ON CONFLICT DO NOTHING;
+

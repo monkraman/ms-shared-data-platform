@@ -23,6 +23,13 @@ export interface MarketOption {
   selected: boolean;
 }
 
+export interface LawRule {
+  countryCode: string;
+  countryName: string;
+  lawName: string;
+  description: string;
+}
+
 @Component({
   selector: 'app-onboarding',
   standalone: true,
@@ -37,8 +44,8 @@ export class OnboardingComponent implements OnInit {
   readonly configService = inject(ConfigApiService);
   readonly config = APP_CONFIG;
 
-  // Wizard state: 1 · Company & entities, 2 · Markets & laws, 3 · Data points, 4 · Connect systems
-  readonly currentStep = signal<number>(2); // Default to Screen 2 as in the client mockups
+  // Wizard state starts at Step 1: 1 · Company & entities
+  readonly currentStep = signal<number>(1);
   readonly submitting = signal<boolean>(false);
 
   readonly stepTitle = computed(() => {
@@ -60,6 +67,23 @@ export class OnboardingComponent implements OnInit {
       default: return '';
     }
   });
+
+  // Canonical regulatory rules library for dynamic legislation switching
+  readonly allLawRules: LawRule[] = [
+    { countryCode: 'UK', countryName: 'United Kingdom', lawName: 'UK pEPR', description: 'Brand owner, over £2m turnover and 50 t packaging: large producer' },
+    { countryCode: 'DK', countryName: 'Denmark', lawName: 'Danish packaging EPR', description: 'Producer responsibility for packaging since 2025, via a PRO' },
+    { countryCode: 'DK', countryName: 'Denmark', lawName: 'EU PPWR', description: 'You make packaged goods available in the EU; applies from 12 Aug 2026' },
+    { countryCode: 'FR', countryName: 'France', lawName: 'French CITEO EPR', description: 'Mandatory packaging declaration, Info-tri sorting logo & Triman marking' },
+    { countryCode: 'DE', countryName: 'Germany', lawName: 'German VerpackG', description: 'Central agency ZSVR (LUCID) registration & dual system participation' },
+    { countryCode: 'ES', countryName: 'Spain', lawName: 'Spanish RD 1055/2022', description: 'National packaging register registration & non-recycled plastic tax (€0.45/kg)' },
+    { countryCode: 'IT', countryName: 'Italy', lawName: 'Italian CONAI EPR', description: 'CONAI eco-contribution bands & environmental labelling compliance' },
+    { countryCode: 'NL', countryName: 'Netherlands', lawName: 'Afvalfonds Verpakkingen', description: 'Annual producer packaging return & waste management contribution' },
+    { countryCode: 'BE', countryName: 'Belgium', lawName: 'Fost Plus & Valipac', description: 'Household (Fost Plus) and commercial/industrial (Valipac) EPR reporting' },
+    { countryCode: 'US_CA', countryName: 'California', lawName: 'California SB 54', description: 'Plastic Pollution Prevention & Packaging Producer Responsibility Act' },
+    { countryCode: 'US_OR', countryName: 'Oregon', lawName: 'Oregon RMA', description: 'Recycling Modernization Act producer responsibility organization membership' },
+    { countryCode: 'US_CO', countryName: 'Colorado', lawName: 'Colorado Producer Responsibility', description: 'Statewide packaging circularity and recycling fee program' },
+    { countryCode: 'CA', countryName: 'Canada', lawName: 'Canada Provincial EPR', description: 'Ontario & British Columbia full producer responsibility for packaging' },
+  ];
 
   // Markets in scope matching Mockup Screen 2 (split into 2 columns)
   readonly marketsCol1 = signal<MarketOption[]>([
@@ -165,6 +189,15 @@ export class OnboardingComponent implements OnInit {
     return col1 + col2;
   });
 
+  // Dynamic Laws Switched On computed based on user selected markets
+  readonly activeLaws = computed(() => {
+    const selectedCodes = new Set([
+      ...this.marketsCol1().filter(m => m.selected).map(m => m.countryCode),
+      ...this.marketsCol2().filter(m => m.selected).map(m => m.countryCode),
+    ]);
+    return this.allLawRules.filter(r => selectedCodes.has(r.countryCode));
+  });
+
   // Form Controls for Step 1
   readonly profileForm: FormGroup = this.fb.group({
     companyName: ['The Kraft Heinz Company Europe', [Validators.required, Validators.minLength(3)]],
@@ -177,6 +210,57 @@ export class OnboardingComponent implements OnInit {
   });
 
   ngOnInit(): void {}
+
+  // Quick preset loader for client testing
+  loadPreset(preset: 'khc' | 'nordhavn' | 'custom'): void {
+    if (preset === 'khc') {
+      this.profileForm.patchValue({
+        companyName: 'The Kraft Heinz Company Europe',
+        legalEntityName: 'Kraft Heinz UK',
+        tenantSlug: 'khc-europe',
+        sector: 'Food & beverage',
+        organisationSize: 'Large producer (>£2m turnover and 50 t packaging)',
+        rpdOrganisationId: '100004',
+        primaryCurrency: 'EUR',
+      });
+      this.setMarketSelected('UK', true);
+      this.setMarketSelected('DK', true);
+      this.setMarketSelected('FR', false);
+      this.setMarketSelected('DE', false);
+    } else if (preset === 'nordhavn') {
+      this.profileForm.patchValue({
+        companyName: 'Nordhavn Spirits ApS',
+        legalEntityName: 'Nordhavn Spirits Denmark',
+        tenantSlug: 'nordhavn-spirits',
+        sector: 'Spirits & beverages',
+        organisationSize: 'Large producer (>£2m turnover and 50 t packaging)',
+        rpdOrganisationId: 'DPA-000001',
+        primaryCurrency: 'DKK',
+      });
+      this.setMarketSelected('DK', true);
+      this.setMarketSelected('UK', false);
+      this.setMarketSelected('DE', true);
+    } else {
+      this.profileForm.reset({
+        companyName: '',
+        legalEntityName: '',
+        tenantSlug: '',
+        sector: 'Food & beverage',
+        organisationSize: 'Large producer (>£2m turnover and 50 t packaging)',
+        rpdOrganisationId: '',
+        primaryCurrency: 'EUR',
+      });
+    }
+  }
+
+  setMarketSelected(countryCode: string, selected: boolean): void {
+    this.marketsCol1.update(list =>
+      list.map(m => (m.countryCode === countryCode ? { ...m, selected, regulationLabel: selected ? (m.countryCode === 'UK' ? 'UK pEPR' : 'Selected') : 'not selected' } : m))
+    );
+    this.marketsCol2.update(list =>
+      list.map(m => (m.countryCode === countryCode ? { ...m, selected, regulationLabel: selected ? (m.countryCode === 'DK' ? 'DPA + PRO' : 'Selected') : 'not selected' } : m))
+    );
+  }
 
   // Toggle market selection
   toggleMarket(countryCode: string): void {

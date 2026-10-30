@@ -19,3 +19,4 @@ try:
             print(f'Tables found in public schema ({len(tables)}):', [t[0] for t in tables])
 except Exception as e:
     print('Connection error:', type(e), e)
+
