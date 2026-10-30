@@ -48,7 +48,7 @@
             <p>Confirm the legal producer profile, operating entities, and turnover thresholds.</p>
           </div>
           <div style="display: flex; gap: 8px">
-            <span class="btn p" (click)="goToStep(2)">Continue to markets &amp; laws</span>
+            <button type="button" class="btn p" (click)="goToStep(2)">Continue to markets &amp; laws</button>
           </div>
         </div>
 
@@ -106,7 +106,7 @@
         </form>
 
         <div style="margin-top: 16px; display: flex; justify-content: flex-end; gap: 10px;">
-          <span class="btn p" (click)="goToStep(2)">Continue to markets &amp; laws</span>
+          <button type="button" class="btn p" (click)="goToStep(2)">Continue to markets &amp; laws</button>
         </div>
       </div>
       }
@@ -122,8 +122,8 @@
             <p>Tell us where you sell. We switch on the laws that apply and explain why.</p>
           </div>
           <div style="display: flex; gap: 8px">
-            <span class="btn" (click)="goToStep(1)">Back</span>
-            <span class="btn p" (click)="goToStep(3)">Continue to data points</span>
+            <button type="button" class="btn" (click)="goToStep(1)">Back</button>
+            <button type="button" class="btn p" (click)="goToStep(3)">Continue to data points</button>
           </div>
         </div>
 
@@ -204,8 +204,8 @@
         </div>
 
         <div style="margin-top: 16px; display: flex; justify-content: flex-end; gap: 10px">
-          <span class="btn" (click)="goToStep(1)">Back</span>
-          <span class="btn p" (click)="goToStep(3)">Continue to data points</span>
+          <button type="button" class="btn" (click)="goToStep(1)">Back</button>
+          <button type="button" class="btn p" (click)="goToStep(3)">Continue to data points</button>
         </div>
       </div>
       }
@@ -221,8 +221,8 @@
             <p>Your markets need 37 data points. Tick what you hold in each market — we connect to your systems and collect the rest from your suppliers.</p>
           </div>
           <div style="display: flex; gap: 8px">
-            <span class="btn" (click)="goToStep(2)">Back</span>
-            <span class="btn p" (click)="goToStep(4)">Continue to connect systems</span>
+            <button type="button" class="btn" (click)="goToStep(2)">Back</button>
+            <button type="button" class="btn p" (click)="goToStep(4)">Continue to connect systems</button>
           </div>
         </div>
 
@@ -391,8 +391,8 @@
         </div>
 
         <div style="margin-top: 16px; display: flex; justify-content: flex-end; gap: 10px">
-          <span class="btn" (click)="goToStep(2)">Back</span>
-          <span class="btn p" (click)="goToStep(4)">Continue to connect systems</span>
+          <button type="button" class="btn" (click)="goToStep(2)">Back</button>
+          <button type="button" class="btn p" (click)="goToStep(4)">Continue to connect systems</button>
         </div>
       </div>
       }
@@ -408,10 +408,10 @@
             <p>We read from the systems you already use. Corrections go back into them — only after you approve. Your team keeps the master copy.</p>
           </div>
           <div style="display: flex; gap: 8px">
-            <span class="btn" (click)="goToStep(3)">Back</span>
-            <span class="btn p" (click)="finishSetup()" [style.opacity]="submitting() ? 0.7 : 1">
+            <button type="button" class="btn" (click)="goToStep(3)">Back</button>
+            <button type="button" class="btn p" (click)="finishSetup()" [style.opacity]="submitting() ? 0.7 : 1">
               {{ submitting() ? 'Finishing setup...' : 'Finish set up' }}
-            </span>
+            </button>
           </div>
         </div>
 
@@ -596,10 +596,10 @@
         <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center">
           <span class="small muted">Connections are mocked in this demo. Systems shown are assumptions from client discussion.</span>
           <span style="display: flex; gap: 10px">
-            <span class="btn" (click)="goToStep(3)">Back</span>
-            <span class="btn p" (click)="finishSetup()" [style.opacity]="submitting() ? 0.7 : 1">
+            <button type="button" class="btn" (click)="goToStep(3)">Back</button>
+            <button type="button" class="btn p" (click)="finishSetup()" [style.opacity]="submitting() ? 0.7 : 1">
               {{ submitting() ? 'Finishing setup...' : 'Finish set up' }}
-            </span>
+            </button>
           </span>
         </div>
       </div>
