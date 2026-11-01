@@ -1,7 +1,7 @@
 """Main API router combining domain and system endpoints."""
 
 from fastapi import APIRouter
-from app.api.v1 import health, tenants, foundation, quality, epr, auth, config
+from app.api.v1 import health, tenants, foundation, quality, epr, auth, config, compliance_modules
 
 api_router = APIRouter()
 
@@ -25,3 +25,6 @@ api_router.include_router(quality.router)
 
 # Layer 3: EPR Compliance Module (Calculation, Hotspots, What-If Scenarios)
 api_router.include_router(epr.router)
+
+# Layer 4: Multi-Module Outcomes (EU PPWR Recyclability Scorecard & DPP Passport)
+api_router.include_router(compliance_modules.router)

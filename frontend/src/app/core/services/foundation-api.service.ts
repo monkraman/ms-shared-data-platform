@@ -5,6 +5,14 @@ import { APP_CONFIG } from '../config/client-theme.config';
 import { TenantApiService } from './tenant-api.service';
 import { AuthService } from './auth.service';
 
+export interface SourceLineage {
+  source_system: string;
+  source_record_id: string;
+  import_batch_id: string;
+  ingested_at?: string;
+  is_source_of_truth?: boolean;
+}
+
 export interface PackagingComponent {
   id: string;
   name: string;
@@ -16,6 +24,7 @@ export interface PackagingComponent {
   recyclability_notes?: string;
   separable_by_consumer: boolean;
   has_disruptor_pigment: boolean;
+  source_lineage?: SourceLineage;
 }
 
 export interface CanonicalProduct {
@@ -27,9 +36,64 @@ export interface CanonicalProduct {
   net_content_grams?: number;
   status: string;
   total_packaging_weight_grams: number;
+  primary_material_summary?: string;
   components: PackagingComponent[];
   has_quality_issues?: boolean;
   open_issue_count?: number;
+  source_lineage?: SourceLineage;
+}
+
+export interface PPWRComponentAssessment {
+  component_id: string;
+  component_name: string;
+  material: string;
+  weight_grams: number;
+  recycled_content_pct: number;
+  is_separable: boolean;
+  recyclability_rate_pct: number;
+  disruptor_present: boolean;
+  compliance_notes: string;
+}
+
+export interface PPWRDeclarationOfConformity {
+  doc_reference: string;
+  sku: string;
+  gtin: string;
+  product_name: string;
+  producer_legal_entity: string;
+  jurisdiction: string;
+  effective_ppwr_date: string;
+  overall_recyclability_pct: number;
+  recyclability_grade: string;
+  is_compliant_for_eu_market: boolean;
+  heavy_metals_compliant: boolean;
+  pfas_substance_free: boolean;
+  packaging_minimisation_ratio_pct: number;
+  reusable_packaging: boolean;
+  source_plm_spec: string;
+  source_sales_system: string;
+  components_assessed: PPWRComponentAssessment[];
+  generated_at: string;
+}
+
+export interface DigitalProductPassport {
+  passport_id: string;
+  sku: string;
+  gtin: string;
+  product_name: string;
+  brand: string;
+  gs1_digital_link_url: string;
+  qr_data_carrier_payload: string;
+  total_packaging_weight_grams: number;
+  total_recycled_content_pct: number;
+  primary_polymer: string;
+  recyclability_grade: string;
+  disposal_instructions: string[];
+  harmonised_sorting_label: string;
+  spec_source_system: string;
+  spec_reference_id: string;
+  verified_by: string;
+  issued_at: string;
 }
 
 export interface IngestionBatch {
@@ -87,6 +151,8 @@ export class FoundationApiService {
 
   readonly products = signal<CanonicalProduct[]>([]);
   readonly selectedProduct = signal<CanonicalProduct | null>(null);
+  readonly ppwrDoc = signal<PPWRDeclarationOfConformity | null>(null);
+  readonly dppPassport = signal<DigitalProductPassport | null>(null);
   readonly loading = signal<boolean>(false);
   readonly syncing = signal<boolean>(false);
   readonly lastSyncBatch = signal<IngestionBatch | null>(null);
@@ -112,8 +178,10 @@ export class FoundationApiService {
         tap({
           next: (res) => {
             this.products.set(res);
-            if (res.length > 0 && !this.selectedProduct()) {
-              this.selectedProduct.set(res[0]);
+            if (res.length > 0) {
+              const current = this.selectedProduct();
+              const toSelect = current ? res.find(p => p.sku === current.sku) || res[0] : res[0];
+              this.selectProduct(toSelect.sku);
             }
             this.loading.set(false);
           },
@@ -126,7 +194,35 @@ export class FoundationApiService {
     const prod = this.products().find((p) => p.sku === sku);
     if (prod) {
       this.selectedProduct.set(prod);
+      this.loadPpwrDoc(sku).subscribe();
+      this.loadDpp(sku).subscribe();
     }
+  }
+
+  loadPpwrDoc(sku: string): Observable<PPWRDeclarationOfConformity> {
+    return this.http
+      .get<PPWRDeclarationOfConformity>(`${this.baseUrl}/api/v1/compliance/modules/ppwr/${sku}`, {
+        headers: this.getHeaders(),
+      })
+      .pipe(
+        tap({
+          next: (doc) => this.ppwrDoc.set(doc),
+          error: () => this.ppwrDoc.set(null),
+        })
+      );
+  }
+
+  loadDpp(sku: string): Observable<DigitalProductPassport> {
+    return this.http
+      .get<DigitalProductPassport>(`${this.baseUrl}/api/v1/compliance/modules/dpp/${sku}`, {
+        headers: this.getHeaders(),
+      })
+      .pipe(
+        tap({
+          next: (passport) => this.dppPassport.set(passport),
+          error: () => this.dppPassport.set(null),
+        })
+      );
   }
 
   triggerTraceOneSync(specId = 'DEV-8821'): Observable<IngestionBatch> {

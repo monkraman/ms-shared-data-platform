@@ -20,7 +20,9 @@ export class ProductsComponent implements OnInit {
   readonly syncing = this.foundationService.syncing;
   readonly lastBatch = this.foundationService.lastSyncBatch;
 
-  readonly activeTab = signal<'bom' | 'lineage' | 'compliance'>('bom');
+  readonly activeTab = signal<'bom' | 'ppwr' | 'dpp' | 'lineage'>('bom');
+  readonly ppwrDoc = this.foundationService.ppwrDoc;
+  readonly dppPassport = this.foundationService.dppPassport;
   readonly filterQuery = signal<string>('');
 
   ngOnInit(): void {

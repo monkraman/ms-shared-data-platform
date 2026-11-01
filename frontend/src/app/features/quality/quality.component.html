@@ -6,15 +6,13 @@
       <div class="header-badge">LAYER 2: DATA QUALITY &amp; SOURCE-OF-TRUTH WORKFLOW</div>
       <h1 class="page-title">Compliance Gaps &amp; Source Correction Worklist</h1>
       <p class="page-subtitle">
-        Automated validation engine detecting regulatory blockers and routing correction tickets to upstream PLM/ERP
-        systems.
+        Automated validation engine detecting regulatory blockers and routing correction tickets to upstream PLM/ERP systems.
       </p>
     </div>
 
     <div class="header-actions">
       <button type="button" class="btn-export" (click)="exportWorklist()">
         📥 Export PLM Worklist (JSON)
-        Export PLM Worklist (JSON)
       </button>
     </div>
   </header>
@@ -29,12 +27,10 @@
     <button type="button" class="filter-chip chip-blocker" [class.active]="activeSeverityFilter() === 'BLOCKER'"
       (click)="filterBySeverity('BLOCKER')">
       🔴 Blockers ({{ issues().filter(i => i.severity === 'blocker').length }})
-      Blockers ({{ issues().filter(i => i.severity === 'blocker').length }})
     </button>
     <button type="button" class="filter-chip chip-warning" [class.active]="activeSeverityFilter() === 'WARNING'"
       (click)="filterBySeverity('WARNING')">
       🟡 Warnings ({{ issues().filter(i => i.severity === 'warning').length }})
-      Warnings ({{ issues().filter(i => i.severity === 'warning').length }})
     </button>
   </div>
 
@@ -83,7 +79,6 @@
           <div>
             <strong>Single Source of Truth Rule:</strong>
             <p>
-              Product specifications are read-only in Monkspaces. Discrepancies are logged as tickets
               Product specifications are read-only in Compliance Hub. Discrepancies are logged as tickets
               and routed to client PLM/ERP teams for permanent source rectification.
             </p>
@@ -113,7 +108,6 @@
         @if (dispatchSuccessMessage()) {
         <div class="alert-success-box">
           ✓ {{ dispatchSuccessMessage() }}
-          {{ dispatchSuccessMessage() }}
         </div>
         } @else {
         <!-- Form to Propose & Dispatch Ticket -->
