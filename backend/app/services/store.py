@@ -1,7 +1,9 @@
 """Thread-safe multi-tenant memory store and seed fixtures for KHC demo prototype."""
 
 import copy
+import json
 from datetime import datetime
+from pathlib import Path
 from threading import Lock
 from typing import Dict, List, Optional
 from uuid import uuid4
@@ -30,6 +32,10 @@ from app.schemas.epr import (
 )
 
 
+PERSISTENCE_DIR = Path(__file__).resolve().parent.parent / "data"
+PERSISTENCE_FILE = PERSISTENCE_DIR / "persisted_tenants.json"
+
+
 class DataStore:
     """Thread-safe multi-tenant data store pre-seeded with KHC Kraft Heinz demo portfolio."""
 
@@ -49,6 +55,50 @@ class DataStore:
         self._seed_tenants()
         self._seed_rule_sets()
         self._seed_khc_data()
+        self._load_persisted_tenants()
+
+    def _load_persisted_tenants(self) -> None:
+        """Load any custom workspaces created by users across reboots."""
+        if not PERSISTENCE_FILE.exists():
+            return
+        try:
+            with open(PERSISTENCE_FILE, "r", encoding="utf-8") as f:
+                records = json.load(f)
+                for item in records:
+                    t = TenantResponse(**item)
+                    self.tenants[t.id] = t
+                    if t.id not in self.products:
+                        self.products[t.id] = {}
+                    if t.id not in self.sales:
+                        self.sales[t.id] = []
+                    if t.id not in self.batches:
+                        self.batches[t.id] = []
+                    if t.id not in self.quality_issues:
+                        self.quality_issues[t.id] = {}
+                    if t.id not in self.correction_tickets:
+                        self.correction_tickets[t.id] = []
+                    if t.id not in self.runs:
+                        self.runs[t.id] = []
+        except Exception as e:
+            print(f"[DataStore] Failed loading persisted tenants: {e}")
+
+    def _save_persisted_tenant(self, tenant: TenantResponse) -> None:
+        """Persist custom provisioned tenant to disk."""
+        try:
+            PERSISTENCE_DIR.mkdir(parents=True, exist_ok=True)
+            existing = []
+            if PERSISTENCE_FILE.exists():
+                with open(PERSISTENCE_FILE, "r", encoding="utf-8") as f:
+                    try:
+                        existing = json.load(f)
+                    except Exception:
+                        existing = []
+            existing = [item for item in existing if item.get("id") != tenant.id]
+            existing.append(tenant.model_dump(mode="json"))
+            with open(PERSISTENCE_FILE, "w", encoding="utf-8") as f:
+                json.dump(existing, f, indent=2)
+        except Exception as e:
+            print(f"[DataStore] Failed saving persisted tenant: {e}")
 
     def _seed_users(self) -> None:
         self.users["superadmin@monkspaces.com"] = {
@@ -709,6 +759,7 @@ class DataStore:
                     "avatar_initials": initials,
                 }
 
+            self._save_persisted_tenant(tenant_res)
             return tenant_res
 
     def authenticate_user(self, email: str, password: str) -> Optional[dict]:
