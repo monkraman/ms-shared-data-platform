@@ -49,7 +49,7 @@
     }
 
     <!-- ========================================================================= -->
-    <!-- CLIENT NAVIGATION (The Kraft Heinz Company Spec - mockups.html)           -->
+    <!-- CLIENT NAVIGATION (Aligned with Team 8-Act Mockup Specs)                   -->
     <!-- ========================================================================= -->
     @if (activeView() === 'client') {
     <div class="sidebar-brand-block client-brand-block">
@@ -61,46 +61,64 @@
     </div>
 
     <nav class="sidebar-nav" id="client-sidebar-navigation">
-      <div class="nav-section-title">EXECUTIVE & COMPLIANCE</div>
+      <!-- ACT 1: START -->
+      <div class="nav-section-title">ACT 1 · START</div>
       <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Executive EPR Dashboard</span>
-      </a>
-      <a routerLink="/simulator" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
-        <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Fee Trace & Simulator</span>
+        <span class="nav-label">Executive Global Dashboard</span>
       </a>
 
-      <div class="nav-section-title">CANONICAL FOUNDATION</div>
+      <!-- ACT 2: YOUR DATA -->
+      <div class="nav-section-title">ACT 2 · YOUR DATA</div>
       <a routerLink="/products" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Product BOM & PPWR / DPP</span>
-      </a>
-      <a routerLink="/quality" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
-        <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Data Quality & Corrections</span>
-        <span class="nav-badge-pill">3 Gaps</span>
+        <span class="nav-label">Pack Record &amp; Specifications</span>
       </a>
 
-      <div class="nav-section-title">PLATFORM GOVERNANCE</div>
+      <!-- ACT 3: MAKE IT RIGHT -->
+      <div class="nav-section-title">ACT 3 · MAKE IT RIGHT</div>
+      <a routerLink="/quality" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Data Quality &amp; Gaps</span>
+        @if (openGapsCount() > 0) {
+        <span class="nav-badge-pill">{{ openGapsCount() }} Gaps</span>
+        }
+      </a>
+
+      <!-- ACT 4: PAY LESS -->
+      <div class="nav-section-title">ACT 4 · PAY LESS</div>
+      <a routerLink="/simulator" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Fee Trace &amp; Scenarios</span>
+      </a>
+
+      <!-- ACT 5 & 6: STAY COMPLIANT & PASSPORT -->
+      <div class="nav-section-title">ACT 5 &amp; 6 · COMPLIANCE &amp; DPP</div>
+      <a routerLink="/products" fragment="ppwr-dpp" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">PPWR File &amp; Passport</span>
+      </a>
+
+      <!-- WORKSPACE SETUP -->
+      <div class="nav-section-title">WORKSPACE SETUP</div>
       <a routerLink="/onboarding" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Onboarding Wizard</span>
+        <span class="nav-label">Client Setup (Wizard)</span>
       </a>
       <a routerLink="/admin" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Client Workspaces (Admin)</span>
+        <span class="nav-label">SuperAdmin Directory</span>
       </a>
     </nav>
 
-    <!-- Client Sidebar Footer Matching Mockup Screen 5-17 -->
+    <!-- Client Sidebar Footer Matching Mockup -->
     <div class="sidebar-footer client-sidebar-footer">
       <a routerLink="/onboarding" class="sidebar-market-link" (click)="closeMobileNav()">
-        Markets & data points →
+        Markets &amp; data points →
       </a>
       <div class="client-org-block">
-        <b class="client-org-name">The Kraft Heinz Company</b>
-        <span class="client-org-meta">Reporting currency EUR · data review by Monk Spaces</span>
+        <b class="client-org-name">{{ activeTenantName() }}</b>
+        <span class="client-org-meta">Tenant: {{ activeTenantId() }} · Monk Spaces</span>
       </div>
 
       <!-- User actions row -->
@@ -150,40 +168,42 @@
         <span class="nav-label">Client Onboarding Wizard</span>
       </a>
 
-      <div class="nav-section-title">ACTIVE WORKSPACE AUDIT</div>
+      <div class="nav-section-title">TENANT DATA JUMP</div>
       <a routerLink="/dashboard" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Executive EPR Dashboard</span>
+        <span class="nav-label">Active Workspace Dashboard</span>
       </a>
       <a routerLink="/products" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Packaging BOM &amp; PPWR / DPP</span>
+        <span class="nav-label">Packaging BOM Explorer</span>
       </a>
       <a routerLink="/quality" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Data Quality &amp; Corrections</span>
-        <span class="nav-badge-pill">3 Gaps</span>
+        <span class="nav-label">Data Quality &amp; Tickets</span>
+        @if (openGapsCount() > 0) {
+        <span class="nav-badge-pill">{{ openGapsCount() }} Gaps</span>
+        }
       </a>
       <a routerLink="/simulator" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Fee Trace &amp; Simulator</span>
+        <span class="nav-label">Fee Scenario Simulator</span>
       </a>
     </nav>
 
-    <!-- Operator Sidebar Footer Matching operator-mockups_1.html -->
+    <!-- Operator Sidebar Footer -->
     <div class="sidebar-footer operator-sidebar-footer">
-      <div class="operator-org-block">
-        <b class="operator-org-name">Monk Spaces</b>
-        <span class="operator-org-meta">Internal operator view · v2.4</span>
+      <div class="client-org-block">
+        <b class="client-org-name">Monk Spaces Multi-Tenant</b>
+        <span class="client-org-meta">PostgreSQL Single Source · Platform Operator</span>
       </div>
 
       <div class="sidebar-user-block">
         <div class="user-meta-row">
-          <div class="user-avatar-sm operator-avatar" aria-hidden="true">
-            {{ authService.currentUser()?.avatarInitials || 'MS' }}
+          <div class="user-avatar-sm" aria-hidden="true">
+            SA
           </div>
           <div class="user-text-info">
-            <span class="user-display-name">{{ authService.currentUser()?.fullName || 'SuperAdmin Operator' }}</span>
+            <span class="user-display-name">SuperAdmin</span>
             <span class="user-role-badge">Platform Operator</span>
           </div>
           <button type="button" class="btn-sidebar-theme-toggle" (click)="themeService.toggleTheme()"
@@ -191,7 +211,7 @@
             {{ themeService.theme() === 'light' ? 'Dark' : 'Light' }}
           </button>
         </div>
-        <button type="button" class="btn-sidebar-logout" (click)="logout()" id="btn-sidebar-operator-signout">
+        <button type="button" class="btn-sidebar-logout" (click)="logout()" id="btn-sidebar-signout-op">
           Sign Out
         </button>
       </div>
@@ -200,14 +220,13 @@
 
   </aside>
 
-  <!-- Main Scrollable Content Area -->
-  <main class="app-main-content" id="main-content">
+  <!-- Main View Container -->
+  <main class="app-main-content" id="main-content-pane">
     <router-outlet></router-outlet>
   </main>
+
 </div>
 } @else {
-<!-- Fullscreen Mode for Authentication / Sign-in -->
-<main class="page-container-full" id="main-content-full">
+  <!-- Full-bleed Layout without Global Sidebar (e.g. Login, Standalone Onboarding) -->
   <router-outlet></router-outlet>
-</main>
 }

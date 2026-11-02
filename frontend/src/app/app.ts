@@ -6,6 +6,7 @@ import { APP_CONFIG } from './core/config/client-theme.config';
 import { TenantApiService } from './core/services/tenant-api.service';
 import { AuthService } from './core/services/auth.service';
 import { ThemeService } from './core/services/theme.service';
+import { QualityApiService } from './core/services/quality-api.service';
 
 @Component({
   selector: 'app-root',
@@ -19,13 +20,30 @@ export class App {
   readonly tenantService = inject(TenantApiService);
   readonly authService = inject(AuthService);
   readonly themeService = inject(ThemeService);
+  readonly qualityService = inject(QualityApiService);
   private readonly router = inject(Router);
 
   readonly currentUrl = signal<string>(this.router.url);
   readonly mobileNavOpen = signal<boolean>(false);
 
-  // Dynamic View Switcher: Client View vs Operator View (for internal Monk Spaces operators & SuperAdmins)
+  // Dynamic View Switcher: Client View vs Operator View
   readonly activeView = signal<'client' | 'operator'>('client');
+
+  // Active Tenant signals
+  readonly activeTenantId = this.tenantService.activeTenantId;
+  readonly activeTenantName = computed(() => {
+    const list = this.tenantService.tenants();
+    const active = list.find((t) => t.id === this.activeTenantId());
+    if (active) return active.name;
+    return this.activeTenantId() === 'khc-europe'
+      ? 'The Kraft Heinz Company'
+      : this.activeTenantId();
+  });
+
+  // Dynamic Quality Issues / Gaps Count from DB
+  readonly openGapsCount = computed(() => {
+    return this.qualityService.issues().length;
+  });
 
   constructor() {
     this.router.events
@@ -39,6 +57,10 @@ export class App {
     if (this.authService.isSuperAdmin()) {
       this.activeView.set('operator');
     }
+
+    // Load initial tenant and quality data
+    this.tenantService.loadTenants().subscribe();
+    this.qualityService.loadIssues().subscribe();
   }
 
   /** Hide the global shell on sign-in and onboarding pages (they have their own full-bleed standalone layout matching mockups) */
