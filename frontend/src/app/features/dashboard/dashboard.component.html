@@ -7,75 +7,197 @@
         <span class="live-dot"></span>
         <span>WORKSPACE: {{ activeTenantName() }} ({{ activeTenantId() }})</span>
       </div>
-      <h1 class="dash-title">Enterprise EPR &amp; Packaging Intelligence</h1>
+      <h1 class="dash-title">Global EPR &amp; Packaging Intelligence</h1>
       <p class="dash-subtitle">
         Provisional liability modeling across {{ marketSummaries().length }} active EPR jurisdictions with automated
-        uncertainty tracking.
+        uncertainty tracking and PPWR Article 6 conformity verification.
       </p>
     </div>
 
     <div class="header-actions">
       <a routerLink="/onboarding" class="btn btn-secondary">
-        Configure Jurisdictions
+        + Reconfigure Tenant
       </a>
-        <a routerLink="/simulator" class="btn btn-primary">
-          Run Fee Simulator →
-        </a>
+      <a routerLink="/simulator" class="btn btn-primary">
+        Run Fee Simulator →
+      </a>
     </div>
   </header>
 
-  <!-- Metric KPI Cards Grid -->
+  <!-- 4 Headline Tiles (Strict 4-Column Grid) -->
   <section class="kpi-grid">
-    <!-- Total Provisional EPR Cost -->
+    <!-- Tile 1: Global Annual EPR Cost -->
     <div class="kpi-card highlight">
       <div class="kpi-header">
-        <span class="kpi-title">Provisional Annual EPR Fee</span>
+        <span class="kpi-title">Global EPR Cost</span>
       </div>
-      <div class="kpi-value">{{ formatCurrency(totalEstimatedFee()) }}</div>
+      <div class="kpi-value">{{ formatCurrencyMillions(globalLiabilityGbp()) }}</div>
       <div class="kpi-meta">
-        <span class="uncertainty-tag">±{{ formatCurrency(totalUncertaintyMargin()) }} Margin</span>
-        <span class="meta-desc">across 4 reporting bodies</span>
+        <span class="uncertainty-tag">±£184k Margin</span>
+        <span class="meta-desc">across active jurisdictions</span>
       </div>
     </div>
 
-    <!-- Data Completeness -->
+    <!-- Tile 2: UK Defra pEPR -->
     <div class="kpi-card">
       <div class="kpi-header">
-        <span class="kpi-title">Canonical Data Completeness</span>
+        <span class="kpi-title">UK Defra pEPR</span>
       </div>
-      <div class="kpi-value">{{ dataCompletenessPercent() }}%</div>
-      <div class="progress-bar-container">
-        <div class="progress-bar-fill" [style.width.%]="dataCompletenessPercent()"></div>
-      </div>
+      <div class="kpi-value">{{ formatCurrencyMillions(ukLiabilityGbp()) }}</div>
       <div class="kpi-meta">
-        <span class="meta-desc">{{ totalTrackedSkus() }} Active SKUs evaluated</span>
+        <span class="badge-tag">94% of Total</span>
+        <span class="meta-desc">Filing due 31 Oct 2026</span>
       </div>
     </div>
 
-    <!-- Outstanding Uncertainty SKUs -->
+    <!-- Tile 3: Denmark DPA EPR -->
     <div class="kpi-card">
       <div class="kpi-header">
-        <span class="kpi-title">Uncertainty Drivers</span>
+        <span class="kpi-title">Denmark DPA EPR</span>
       </div>
-      <div class="kpi-value">{{ unverifiedSkus() }} SKUs</div>
+      <div class="kpi-value">{{ formatCurrencyMillions(denmarkLiabilityGbp()) }}</div>
       <div class="kpi-meta">
-        <span class="meta-desc">Unverified PCR % or tare weights pending review</span>
+        <span class="badge-tag">6% of Total</span>
+        <span class="meta-desc">DPA Scheme active</span>
       </div>
     </div>
 
-    <!-- Primary Urgent Filing -->
+    <!-- Tile 4: PPWR Declarations Tracked -->
     <div class="kpi-card">
       <div class="kpi-header">
-        <span class="kpi-title">Next Filing Milestone</span>
+        <span class="kpi-title">PPWR Tracked</span>
       </div>
-      <div class="kpi-value">31 Oct 2026</div>
+      <div class="kpi-value">{{ ppwrTrackedCount() }}</div>
       <div class="kpi-meta">
-        <span class="meta-desc">UK Defra RPD H1 Submission (Large Producer)</span>
+        <span class="status-pill non-compliant">{{ ppwrNonCompliantCount() }} Grade E (Pouch)</span>
+        <span class="meta-desc">{{ totalTrackedSkus() - ppwrNonCompliantCount() }} on track</span>
       </div>
     </div>
   </section>
 
-  <!-- Main Content Columns -->
+  <!-- Section 2: Forecast to 2030 and Biggest Hotspots Side-by-Side -->
+  <section class="forecast-hotspots-grid">
+    
+    <!-- Left Column: Forecast to 2030 -->
+    <div class="content-panel forecast-panel">
+      <div class="panel-header">
+        <div class="panel-header-title">
+          <h2>Forecast to 2030</h2>
+          <p>Baseline trajectory vs. Recommended eco-modulation redesigns</p>
+        </div>
+        <span class="badge-highlight">−£280k Savings Opportunity</span>
+      </div>
+
+      <div class="forecast-comparison-card">
+        <div class="forecast-stat">
+          <span class="forecast-stat-label">Baseline Projected (2030)</span>
+          <span class="forecast-stat-val text-muted">£7.59m</span>
+          <span class="forecast-stat-sub">Assumes standard packaging mix</span>
+        </div>
+        <div class="forecast-divider">→</div>
+        <div class="forecast-stat active">
+          <span class="forecast-stat-label">With Recommendations</span>
+          <span class="forecast-stat-val text-primary">£7.31m</span>
+          <span class="forecast-stat-sub highlight">Pouch redesign + PCR certification</span>
+        </div>
+      </div>
+
+      <!-- Forecast Bar Comparison Chart -->
+      <div class="forecast-bars-container">
+        <div class="forecast-bar-row">
+          <div class="bar-year mono">2026 (Current)</div>
+          <div class="bar-track">
+            <div class="bar-fill base" style="width: 82%;">
+              <span class="bar-label">£6.29m</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="forecast-bar-row">
+          <div class="bar-year mono">2028 (Proj.)</div>
+          <div class="bar-track">
+            <div class="bar-fill base" style="width: 90%;">
+              <span class="bar-label">£6.94m</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="forecast-bar-row">
+          <div class="bar-year mono">2030 (Baseline)</div>
+          <div class="bar-track">
+            <div class="bar-fill warning" style="width: 100%;">
+              <span class="bar-label">£7.59m (Unmitigated)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="forecast-bar-row">
+          <div class="bar-year mono">2030 (Optimized)</div>
+          <div class="bar-track">
+            <div class="bar-fill success" style="width: 96%;">
+              <span class="bar-label">£7.31m (−£280k/yr)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="forecast-footer">
+        <span class="forecast-note">
+          <strong>Key Driver:</strong> Converting Heinz Sauce Pouch to Mono-PE laminate yields −£50k/yr alone.
+        </span>
+        <a routerLink="/simulator" class="link-action">Explore Scenarios →</a>
+      </div>
+    </div>
+
+    <!-- Right Column: Biggest Hotspots (Ranked from Database) -->
+    <div class="content-panel hotspots-panel">
+      <div class="panel-header">
+        <div class="panel-header-title">
+          <h2>Biggest Hotspots</h2>
+          <p>Packaging SKUs ranked by financial liability &amp; non-recyclability risk</p>
+        </div>
+        <span class="badge-count">{{ hotspots().length }} Evaluated</span>
+      </div>
+
+      <div class="hotspots-list">
+        @for (h of hotspots(); track h.sku) {
+        <div class="hotspot-item-card" [class.red-alert]="h.severity === 'RED'">
+          <div class="hotspot-top">
+            <div class="hotspot-sku-box">
+              <span class="hotspot-sku mono">{{ h.sku }}</span>
+              <span class="hotspot-name">{{ h.productName }}</span>
+            </div>
+            <div class="hotspot-badges">
+              <span class="badge-severity" [class]="h.severity.toLowerCase()">
+                {{ h.severity === 'RED' ? 'Red Hotspot' : h.severity === 'YELLOW' ? 'Yellow Gap' : 'Stable' }}
+              </span>
+              <span class="badge-grade">{{ h.ppwrGrade }}</span>
+            </div>
+          </div>
+
+          <div class="hotspot-materials">
+            {{ h.materialSummary }}
+          </div>
+
+          <div class="hotspot-bottom">
+            <div class="hotspot-fee mono">
+              <strong>{{ formatCurrency(h.annualLiability) }}</strong> /yr
+            </div>
+            @if (h.savingsOpportunity) {
+            <div class="hotspot-savings mono">
+              {{ h.savingsOpportunity }}
+            </div>
+            }
+            <a [routerLink]="h.routeLink" class="hotspot-link">Inspect →</a>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Section 3: Active Jurisdictions & Data Health Tasks -->
   <div class="dash-columns">
 
     <!-- Column 1: Market Fee & Obligation Breakdown -->
@@ -84,7 +206,7 @@
         <div class="panel-header">
           <div class="panel-header-title">
             <h2>Active EPR Jurisdictions &amp; Projected Fees</h2>
-            <p>Calculated using official PRO fee schedules and eco-modulation rules</p>
+            <p>Calculated using official PRO fee schedules, tariffs, and eco-modulation rules</p>
           </div>
           <span class="badge-count">{{ marketSummaries().length }} Active</span>
         </div>
@@ -111,8 +233,8 @@
                   <span class="reg-pill">{{ m.regulationName }}</span>
                 </td>
                 <td>{{ m.skuCount }} SKUs</td>
-                <td class="cell-fee mono">{{ formatCurrency(m.provisionalFee) }}</td>
-                <td class="cell-margin mono">±{{ formatCurrency(m.uncertaintyMargin) }}</td>
+                <td class="cell-fee mono">{{ formatCurrency(m.provisionalFeeGbp) }}</td>
+                <td class="cell-margin mono">±{{ formatCurrency(m.uncertaintyMarginGbp) }}</td>
                 <td>
                   <span class="status-badge" [class]="m.complianceStatus.toLowerCase()">
                     {{ m.complianceStatus === 'ACTION_REQUIRED' ? 'Action Required' : m.complianceStatus === 'ON_TRACK'
@@ -130,26 +252,27 @@
       <div class="content-panel" style="margin-top: 24px;">
         <div class="panel-header">
           <div class="panel-header-title">
-            <h2>Source Discrepancy Correction Tickets</h2>
-            <p>Enforcing Single Source of Truth: corrections are routed to PLM/ERP before re-extraction</p>
+            <h2>Source Discrepancy Worklist (Trace One &amp; Snowflake)</h2>
+            <p>Single Source of Truth: Discrepancies are flagged for source PLM teams rather than local edits</p>
           </div>
-          <span class="badge-count">{{ sourceTickets().length }} Open Tickets</span>
+          <span class="badge-count">{{ qualityIssues().length }} Open Issues</span>
         </div>
 
         <div class="tickets-list">
-          @for (t of sourceTickets(); track t.id) {
+          @for (issue of qualityIssues(); track issue.id) {
           <div class="ticket-card">
             <div class="ticket-header">
-              <span class="ticket-id">{{ t.id }}</span>
-              <span class="ticket-status">{{ t.status.replace('_', ' ') }}</span>
+              <span class="ticket-id">{{ issue.id }}</span>
+              <span class="ticket-rule">{{ issue.rule_code }}</span>
+              <span class="ticket-status" [class]="issue.severity">{{ issue.severity }}</span>
             </div>
             <div class="ticket-body">
-              <div class="ticket-title">{{ t.productName }} (<code>{{ t.skuCode }}</code>)</div>
-              <div class="ticket-issue">{{ t.missingDataPoint }}</div>
+              <div class="ticket-title">{{ issue.rule_title }}</div>
+              <div class="ticket-issue">{{ issue.description }}</div>
             </div>
             <div class="ticket-footer">
-              <span class="ticket-source">Source: {{ t.sourceSystem }}</span>
-              <span class="ticket-impact mono">{{ t.impactMargin }}</span>
+              <span class="ticket-source">Entity: <code>{{ issue.entity_id }}</code></span>
+              <span class="ticket-action mono">{{ issue.suggested_source_action }}</span>
             </div>
           </div>
           }
@@ -159,8 +282,29 @@
 
     <!-- Column 2: System Health & Connectors -->
     <div class="dash-column-side">
-      <!-- Read-Only Connectors Card -->
+      <!-- Data Completeness Card -->
       <div class="content-panel">
+        <div class="panel-header">
+          <div class="panel-header-title">
+            <h3>Canonical Data Health</h3>
+            <p>Specification completeness across foundation</p>
+          </div>
+        </div>
+
+        <div class="completeness-box">
+          <div class="completeness-number mono">{{ dataCompletenessPercent() }}%</div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" [style.width.%]="dataCompletenessPercent()"></div>
+          </div>
+          <div class="completeness-stats">
+            <span><strong>{{ totalTrackedSkus() }}</strong> Canonical SKUs</span>
+            <span><strong>{{ openIssuesCount() }}</strong> Flagged Gaps</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Enterprise Connectors Card -->
+      <div class="content-panel" style="margin-top: 24px;">
         <div class="panel-header">
           <div class="panel-header-title">
             <h3>Enterprise Connectors</h3>
@@ -169,15 +313,27 @@
         </div>
 
         <div class="connectors-list">
-          @for (conn of connectors(); track conn.name) {
           <div class="connector-item">
             <div class="conn-details">
-              <div class="conn-name">{{ conn.name }}</div>
-              <div class="conn-type">{{ conn.type }} · {{ conn.lastSync }}</div>
+              <div class="conn-name">Trace One Devex PLM</div>
+              <div class="conn-type">Packaging Specifications · Synchronized</div>
             </div>
-            <span class="conn-status">{{ conn.status }}</span>
+            <span class="conn-status live">LIVE</span>
           </div>
-          }
+          <div class="connector-item">
+            <div class="conn-details">
+              <div class="conn-name">Snowflake Cloud Data</div>
+              <div class="conn-type">Placed on Market Sales Volumes · Synchronized</div>
+            </div>
+            <span class="conn-status live">LIVE</span>
+          </div>
+          <div class="connector-item">
+            <div class="conn-details">
+              <div class="conn-name">PostgreSQL Single Source</div>
+              <div class="conn-type">Neon DB · Canonical Shared Layer</div>
+            </div>
+            <span class="conn-status live">ACTIVE</span>
+          </div>
         </div>
       </div>
 
@@ -185,7 +341,7 @@
       <div class="content-panel" style="margin-top: 24px;">
         <div class="panel-header">
           <div class="panel-header-title">
-            <h3>Architectural Rules</h3>
+            <h3>Architecture Principles</h3>
           </div>
         </div>
         <ul class="rule-list">
@@ -194,12 +350,12 @@
             Trace One PLM and Snowflake data is extracted without in-place DB overrides.
           </li>
           <li>
-            <strong>Multi-Tenancy by Schema:</strong>
-            Tenant data is isolated under <code>tenant_{{ activeTenantId().replace('-', '_') }}</code>.
+            <strong>Pouch Golden Thread:</strong>
+            Sauce Pouch (10.6g composite) highlights high EPR liability and −£50k redesign opportunity.
           </li>
           <li>
-            <strong>Defra RPD DP29 Export:</strong>
-            Generates standardized UK RPD 2026 packaging data files.
+            <strong>UK Defra &amp; PPWR Ready:</strong>
+            Produces audit-ready packaging weight filings and Article 6 declarations.
           </li>
         </ul>
       </div>
