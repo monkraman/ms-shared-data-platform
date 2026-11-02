@@ -10,6 +10,7 @@
 .light-theme {
   --bg-primary: #ffffff;
   --bg-secondary: #f9fafb;
+  --bg-surface: #ffffff;
   --bg-card: #ffffff;
   --bg-card-hover: #f4f4f5;
   --bg-input: #ffffff;
@@ -46,6 +47,7 @@
 .dark-theme {
   --bg-primary: #09090b;
   --bg-secondary: #121214;
+  --bg-surface: #18181b;
   --bg-card: #121214;
   --bg-card-hover: #18181b;
   --bg-input: #09090b;

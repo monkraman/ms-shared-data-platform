@@ -585,18 +585,73 @@
           </div>
         </div>
 
-        <!-- Input Mode Tabs -->
-        <div class="mode-tabs">
-          <button class="mode-btn" [class.active]="importMode() === 'sample'" (click)="setImportMode('sample')">
-            1-Click Realistic FMCG Sample
-          </button>
-          <button class="mode-btn" [class.active]="importMode() === 'paste'" (click)="setImportMode('paste')">
-            Paste CSV Text
-          </button>
-          <button class="mode-btn" [class.active]="importMode() === 'file'" (click)="setImportMode('file')">
-            Upload .CSV File
-          </button>
+        <!-- Input Mode Tabs & Template Download -->
+        <div class="mode-tabs-wrapper">
+          <div class="mode-tabs">
+            <button class="mode-btn" [class.active]="importMode() === 'sample'" (click)="setImportMode('sample')">
+              1-Click Realistic FMCG Sample
+            </button>
+            <button class="mode-btn" [class.active]="importMode() === 'paste'" (click)="setImportMode('paste')">
+              Paste CSV Text
+            </button>
+            <button class="mode-btn" [class.active]="importMode() === 'file'" (click)="setImportMode('file')">
+              Upload .CSV File
+            </button>
+          </div>
+          <div class="mode-actions">
+            <button type="button" class="btn-download-template" (click)="downloadSampleCsvTemplate()" title="Download canonical CSV template">
+              📥 Download Sample CSV
+            </button>
+            <button type="button" class="btn-guide-toggle" (click)="toggleSchemaGuide()">
+              {{ showSchemaGuide() ? '▲ Hide Column Guide' : '▼ View CSV Columns & ERP Guide' }}
+            </button>
+          </div>
         </div>
+
+        @if (showSchemaGuide()) {
+        <div class="schema-guide-card">
+          <div class="guide-header">
+            <span class="guide-title">Standard Canonical Schema & ERP Auto-Mapper Guide</span>
+            <span class="guide-badge">Multi-Client Compatible</span>
+          </div>
+          <p class="guide-desc">
+            You can upload ERP exports directly (SAP, Oracle, Excel). Our platform automatically detects common column aliases and maps them into the canonical foundation:
+          </p>
+
+          <div class="guide-grid">
+            <div class="guide-col">
+              <span class="col-head">Canonical Field</span>
+              <div class="col-item"><code>sku</code> <span class="badge-req">Required</span></div>
+              <div class="col-item"><code>name</code> <span class="badge-req">Required</span></div>
+              <div class="col-item"><code>material</code> <span class="badge-req">Required</span></div>
+              <div class="col-item"><code>packaging_weight_grams</code> <span class="badge-req">Required</span></div>
+              <div class="col-item"><code>units_sold</code> <span class="badge-opt">EPR Calc</span></div>
+              <div class="col-item"><code>recycled_content_pct</code> <span class="badge-opt">PPWR</span></div>
+              <div class="col-item"><code>jurisdiction</code> <span class="badge-opt">ISO 2</span></div>
+            </div>
+            <div class="guide-col">
+              <span class="col-head">Auto-Recognized Client Synonyms</span>
+              <div class="col-item"><code>MATNR</code>, <code>Item_Code</code>, <code>Article_No</code>, <code>Product_ID</code></div>
+              <div class="col-item"><code>Product_Name</code>, <code>Item_Description</code>, <code>Title</code>, <code>Designation</code></div>
+              <div class="col-item"><code>Polymer</code>, <code>Substrate</code>, <code>Packaging_Type</code>, <code>Material_Group</code></div>
+              <div class="col-item"><code>Tare_Weight</code>, <code>Weight_G</code>, <code>Net_Pkg_Mass</code>, <code>Tare_Grams</code></div>
+              <div class="col-item"><code>Annual_Volume</code>, <code>Sales_Units</code>, <code>Quantity</code>, <code>Menge</code></div>
+              <div class="col-item"><code>PCR_Pct</code>, <code>Recycled_Content</code>, <code>PCR_Ratio</code></div>
+              <div class="col-item"><code>Country</code>, <code>Market</code>, <code>ISO_Country</code>, <code>Geo</code></div>
+            </div>
+            <div class="guide-col">
+              <span class="col-head">System Purpose</span>
+              <div class="col-item">Primary Key & Lineage Identifier</div>
+              <div class="col-item">Catalog Label & Client Display</div>
+              <div class="col-item">EPR Eco-Modulation & Recyclability Rate</div>
+              <div class="col-item">Weight Tier Base for EPR Fee Billing</div>
+              <div class="col-item">Multiplied by Weight for Annual Obligation</div>
+              <div class="col-item">EU PPWR 2030 Minimum Recycled PCR Compliance</div>
+              <div class="col-item">PRO Tariff Matching (Citeo FR, Packly DK, etc.)</div>
+            </div>
+          </div>
+        </div>
+        }
 
         @if (importMode() === 'file') {
         <div class="file-dropzone">

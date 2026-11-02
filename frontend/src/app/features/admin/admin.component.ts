@@ -81,6 +81,7 @@ export class AdminComponent implements OnInit {
 
   // SKU Import & Mapping Modal State
   readonly showImportModal = signal<boolean>(false);
+  readonly showSchemaGuide = signal<boolean>(false);
   readonly selectedTenantForImport = signal<string>('');
   readonly importSourceName = signal<string>('Catalog_SKU_Feed_2025.csv');
   readonly importMode = signal<'sample' | 'paste' | 'file'>('sample');
@@ -299,6 +300,41 @@ export class AdminComponent implements OnInit {
     this.importSourceName.set('Sample_FMCG_Catalog_2025.csv');
   }
 
+  toggleSchemaGuide(): void {
+    this.showSchemaGuide.update((v) => !v);
+  }
+
+  downloadSampleCsvTemplate(): void {
+    const headers = [
+      'sku',
+      'name',
+      'brand',
+      'category',
+      'material',
+      'packaging_weight_grams',
+      'recycled_content_pct',
+      'units_sold',
+      'jurisdiction',
+    ];
+    const rows = [
+      'SKU-CRACKER-200G,"Artisan Sea Salt Crackers 200g","Heritage Kitchen","Biscuits & Crackers","PP (Polypropylene)",18.5,30,45000,FR',
+      'SKU-TOMATO-400G,"Organic Crushed Tomatoes 400g Can","Heritage Kitchen","Canned Goods","Steel / Tinplate",44.0,0,110000,FR',
+      'SKU-TONIC-330ML,"Premium Tonic Water 330ml Glass","Botanical Brews","Beverages","Glass",220.0,0,85000,UK',
+      'SKU-OATMILK-1L,"Organic Barista Oat Drink 1L","Nordic Oats","Dairy Alternatives","Liquid Packaging Board (Tetra Pak / Composite)",32.0,0,60000,DK',
+      'SKU-SHAMPOO-250ML,"Daily Hydration Shampoo 250ml","EcoCare","Personal Care","HDPE (Rigid)",28.0,50,92000,DE',
+    ];
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'ComplianceHub_Canonical_SKU_Template.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
   generateCsvSampleText(): void {
     const header = 'sku,name,brand,category,material,packaging_weight_grams,recycled_content_pct,units_sold,jurisdiction';
     const lines = this.sampleRows.map(
@@ -348,15 +384,27 @@ export class AdminComponent implements OnInit {
     };
 
     const headers = parseLine(lines[0]).map((h) => h.toLowerCase().replace(/[^a-z0-9_]/g, ''));
-    const skuIdx = headers.findIndex((h) => h.includes('sku') || h.includes('code') || h.includes('id'));
-    const nameIdx = headers.findIndex((h) => h.includes('name') || h.includes('title') || h.includes('desc'));
-    const brandIdx = headers.findIndex((h) => h.includes('brand'));
-    const catIdx = headers.findIndex((h) => h.includes('cat') || h.includes('segment'));
-    const matIdx = headers.findIndex((h) => h.includes('mat') || h.includes('subst') || h.includes('polymer'));
-    const weightIdx = headers.findIndex((h) => h.includes('weight') || h.includes('tare') || h.includes('gram'));
-    const pcrIdx = headers.findIndex((h) => h.includes('pcr') || h.includes('recycled'));
-    const salesIdx = headers.findIndex((h) => h.includes('sale') || h.includes('unit') || h.includes('volume'));
-    const jurIdx = headers.findIndex((h) => h.includes('jur') || h.includes('country') || h.includes('market'));
+    const skuIdx = headers.findIndex(
+      (h) => h.includes('sku') || h.includes('code') || h.includes('id') || h.includes('matnr') || h.includes('article') || h.includes('item')
+    );
+    const nameIdx = headers.findIndex(
+      (h) => h.includes('name') || h.includes('title') || h.includes('desc') || h.includes('designation') || h.includes('label')
+    );
+    const brandIdx = headers.findIndex((h) => h.includes('brand') || h.includes('make') || h.includes('mfr') || h.includes('marque'));
+    const catIdx = headers.findIndex((h) => h.includes('cat') || h.includes('segment') || h.includes('group') || h.includes('family'));
+    const matIdx = headers.findIndex(
+      (h) => h.includes('mat') || h.includes('subst') || h.includes('polymer') || h.includes('substrate') || h.includes('pkg')
+    );
+    const weightIdx = headers.findIndex(
+      (h) => h.includes('weight') || h.includes('tare') || h.includes('gram') || h.includes('mass') || h.includes('poids') || h.includes('gew')
+    );
+    const pcrIdx = headers.findIndex((h) => h.includes('pcr') || h.includes('recycled') || h.includes('recyc'));
+    const salesIdx = headers.findIndex(
+      (h) => h.includes('sale') || h.includes('unit') || h.includes('volume') || h.includes('qty') || h.includes('menge')
+    );
+    const jurIdx = headers.findIndex(
+      (h) => h.includes('jur') || h.includes('country') || h.includes('market') || h.includes('geo') || h.includes('iso') || h.includes('land')
+    );
 
     const items: SkuImportItem[] = [];
     for (let i = 1; i < lines.length; i++) {
