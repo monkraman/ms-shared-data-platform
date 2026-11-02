@@ -44,10 +44,22 @@
     </nav>
 
     <div class="sidebar-bottom">
+      <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); padding: 0 8px 6px;">
+        Workspace Quick Jump
+      </div>
       <button type="button" class="nav-item view-client" (click)="launchClientHub('khc-europe', '/dashboard')">
-        <span>Client Hub View →</span>
+        <span>📊 EPR Dashboard →</span>
       </button>
-      <button class="nav-item logout-btn" (click)="logout()">
+      <button type="button" class="nav-item view-client" (click)="launchClientHub('khc-europe', '/products')">
+        <span>🌳 Packaging BOM →</span>
+      </button>
+      <button type="button" class="nav-item view-client" (click)="launchClientHub('khc-europe', '/quality')">
+        <span>🛡️ Quality Gaps →</span>
+      </button>
+      <button type="button" class="nav-item view-client" (click)="launchClientHub('khc-europe', '/simulator')">
+        <span>📈 Fee Simulator →</span>
+      </button>
+      <button class="nav-item logout-btn" (click)="logout()" style="margin-top: 6px;">
         <span>Sign Out</span>
       </button>
     </div>
