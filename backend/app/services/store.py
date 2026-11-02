@@ -2,11 +2,13 @@
 
 import copy
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 from threading import Lock
 from typing import Dict, List, Optional
 from uuid import uuid4
+import psycopg
 
 from app.schemas.tenancy import TenantBase, TenantCreate, TenantResponse, TenantTier
 from app.schemas.canonical import (
@@ -122,6 +124,16 @@ class DataStore:
             "avatar_initials": "SM",
         }
 
+    def _get_pg_conn(self):
+        """Establish direct connection to PostgreSQL database."""
+        raw_url = os.environ.get("DATABASE_URL") or "postgresql://neondb_owner:npg_uzClgGiQ7b1E@ep-muddy-bird-b47a9kq9-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require"
+        clean_url = raw_url.replace("&channel_binding=require", "").replace("channel_binding=require", "").replace("postgresql+asyncpg://", "postgresql://")
+        if "?" in clean_url:
+            clean_url += "&connect_timeout=8"
+        else:
+            clean_url += "?connect_timeout=8"
+        return psycopg.connect(clean_url)
+
     def _seed_tenants(self) -> None:
         nordhavn_dk = TenantResponse(
             id="nordhavn-spirits",
@@ -145,6 +157,55 @@ class DataStore:
         )
         self.tenants[nordhavn_dk.id] = nordhavn_dk
         self.tenants[khc_eu.id] = khc_eu
+
+        # Sync & load all tenants directly from PostgreSQL
+        try:
+            with self._get_pg_conn() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        INSERT INTO platform.tenants (id, name, sector, tier, primary_currency, primary_jurisdiction)
+                        VALUES 
+                            ('nordhavn-spirits', 'Nordhavn Spirits ApS', 'Spirits & Beverages', 'enterprise', 'EUR', 'DK'),
+                            ('khc-europe', 'The Kraft Heinz Company (Europe & UK)', 'Food & Beverage / FMCG', 'enterprise', 'EUR', 'GB')
+                        ON CONFLICT (id) DO NOTHING;
+                    """)
+                    conn.commit()
+
+                    cur.execute("""
+                        SELECT id, name, sector, tier, primary_currency, primary_jurisdiction
+                        FROM platform.tenants
+                        WHERE is_active = TRUE
+                        ORDER BY created_at ASC;
+                    """)
+                    rows = cur.fetchall()
+                    for r in rows:
+                        t_id, t_name, t_sec, t_tier, t_curr, t_jur = r
+                        tier_enum = TenantTier.ENTERPRISE if (t_tier or "").lower() == "enterprise" else TenantTier.MID_MARKET
+                        t_obj = TenantResponse(
+                            id=t_id,
+                            name=t_name,
+                            sector=t_sec or "FMCG / General",
+                            tier=tier_enum,
+                            primary_jurisdiction=t_jur or "GB",
+                            source_systems=["Trace One (Devex PLM)", "Snowflake Analytics", "CSV Importer"],
+                            active_products_count=0 if t_id not in self.tenants else self.tenants[t_id].active_products_count,
+                            open_quality_issues_count=0 if t_id not in self.tenants else self.tenants[t_id].open_quality_issues_count,
+                        )
+                        self.tenants[t_id] = t_obj
+                        if t_id not in self.products:
+                            self.products[t_id] = {}
+                        if t_id not in self.sales:
+                            self.sales[t_id] = []
+                        if t_id not in self.batches:
+                            self.batches[t_id] = []
+                        if t_id not in self.quality_issues:
+                            self.quality_issues[t_id] = {}
+                        if t_id not in self.correction_tickets:
+                            self.correction_tickets[t_id] = []
+                        if t_id not in self.runs:
+                            self.runs[t_id] = []
+        except Exception as e:
+            print(f"[PostgreSQL] Notice: Failed to sync tenants from PostgreSQL at startup: {e}")
 
     def _seed_rule_sets(self) -> None:
         # 1. France CITEO 2025 Approved Packaging Fee Schedule
@@ -744,7 +805,7 @@ class DataStore:
             if data.id not in self.runs:
                 self.runs[data.id] = []
 
-            # If an initial organization admin user is provided during onboarding, register them
+            # 1. Register admin user in memory if provided
             if data.admin_email and data.admin_email.strip():
                 admin_email = data.admin_email.lower().strip()
                 initials = "".join([part[0].upper() for part in (data.admin_name or data.name).split()[:2]]) or "AD"
@@ -758,6 +819,48 @@ class DataStore:
                     "organisation_name": data.name,
                     "avatar_initials": initials,
                 }
+
+            # 2. Persist to PostgreSQL database platform.tenants table
+            try:
+                tier_str = data.tier.value if hasattr(data.tier, "value") else str(data.tier or "enterprise")
+                with self._get_pg_conn() as conn:
+                    with conn.cursor() as cur:
+                        cur.execute("""
+                            INSERT INTO platform.tenants (id, name, sector, tier, primary_currency, organisation_size, primary_jurisdiction, is_active)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, TRUE)
+                            ON CONFLICT (id) DO UPDATE SET
+                                name = EXCLUDED.name,
+                                sector = EXCLUDED.sector,
+                                tier = EXCLUDED.tier,
+                                primary_currency = EXCLUDED.primary_currency,
+                                organisation_size = EXCLUDED.organisation_size,
+                                primary_jurisdiction = EXCLUDED.primary_jurisdiction,
+                                updated_at = CURRENT_TIMESTAMP;
+                        """, (
+                            data.id,
+                            data.name,
+                            data.sector,
+                            tier_str,
+                            data.primary_currency or "EUR",
+                            data.organisation_size or "L",
+                            data.active_jurisdictions[0][:2] if data.active_jurisdictions else "GB",
+                        ))
+
+                        if data.admin_email and data.admin_email.strip():
+                            cur.execute("""
+                                INSERT INTO platform.users (email, hashed_password, full_name, is_active)
+                                VALUES (%s, %s, %s, TRUE)
+                                ON CONFLICT (email) DO UPDATE SET
+                                    full_name = EXCLUDED.full_name;
+                            """, (
+                                data.admin_email.lower().strip(),
+                                data.admin_password or "password123",
+                                data.admin_name or f"{data.name} Administrator",
+                            ))
+                        conn.commit()
+                        print(f"[PostgreSQL] Successfully stored new tenant '{data.id}' into PostgreSQL platform.tenants table.")
+            except Exception as e:
+                print(f"[PostgreSQL] Notice: Could not write tenant to PostgreSQL: {e}")
 
             self._save_persisted_tenant(tenant_res)
             return tenant_res
