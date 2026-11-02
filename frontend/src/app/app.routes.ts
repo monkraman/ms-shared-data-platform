@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { SignInComponent } from './features/auth/sign-in.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { DataOverviewComponent } from './features/data-overview/data-overview.component';
 import { ProductsComponent } from './features/products/products.component';
 import { QualityComponent } from './features/quality/quality.component';
 import { SimulatorComponent } from './features/simulator/simulator.component';
@@ -19,7 +20,8 @@ export const routes: Routes = [
 
   // Client Workspace Routes
   { path: 'dashboard', component: DashboardComponent, title: 'EPR Dashboard — Compliance Hub' },
-  { path: 'products', component: ProductsComponent, title: 'Product BOM Explorer — Compliance Hub' },
+  { path: 'data-overview', component: DataOverviewComponent, title: 'Data Overview — Compliance Hub' },
+  { path: 'products', component: ProductsComponent, title: 'Pack Record BOM — Compliance Hub' },
   { path: 'quality', component: QualityComponent, title: 'Data Quality Worklist — Compliance Hub' },
   { path: 'simulator', component: SimulatorComponent, title: 'EPR Fee Simulator — Compliance Hub' },
   { path: 'onboarding', component: OnboardingComponent, title: 'Client Setup — Compliance Hub' },

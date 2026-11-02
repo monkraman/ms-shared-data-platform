@@ -1,0 +1,269 @@
+<div class="data-overview-page" id="data-overview-container">
+
+  <!-- Header Banner -->
+  <header class="page-header">
+    <div class="header-left">
+      <div class="header-badge">ACT 2 · YOUR DATA FOUNDATION</div>
+      <h1 class="page-title">Data Overview &amp; Compliance Ingestion</h1>
+      <p class="page-subtitle">
+        Five steps: scope, send what you have, we assess, close the gaps, confirm and lock. 
+        40 compliance data points organised by who holds the data, not by a form.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" class="btn btn-secondary" [disabled]="syncing()" (click)="triggerSync()">
+        <span class="sync-icon" [class.spinning]="syncing()">⚡</span>
+        {{ syncing() ? 'Extracting PLM Specs...' : 'Sync Trace One Devex' }}
+      </button>
+      <a routerLink="/products" class="btn btn-primary">
+        Inspect Pack Records (BOM) →
+      </a>
+    </div>
+  </header>
+
+  <!-- Top Headline Metric Tiles (Strict 4-Column Grid) -->
+  <section class="kpi-grid">
+    <!-- Tile 1: Records In -->
+    <div class="kpi-card highlight">
+      <div class="kpi-header">
+        <span class="kpi-title">Records In</span>
+      </div>
+      <div class="kpi-value">{{ totalRecordsIn() }}</div>
+      <div class="kpi-meta">
+        <span class="badge-tag">No Templates Required</span>
+        <span class="meta-desc">Direct extraction from source systems</span>
+      </div>
+    </div>
+
+    <!-- Tile 2: Gaps Found -->
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-title">Initial Gaps Detected</span>
+      </div>
+      <div class="kpi-value">{{ gapsFound() }}</div>
+      <div class="kpi-meta">
+        <span class="meta-desc">Automated cross-system reconciliation</span>
+      </div>
+    </div>
+
+    <!-- Tile 3: Open Gaps Remaining -->
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-title">Gaps Still Open</span>
+      </div>
+      <div class="kpi-value">{{ openGapsCount() }}</div>
+      <div class="kpi-meta">
+        <span class="status-pill warning">Prioritized by Fee</span>
+        <span class="meta-desc">255 resolved since initial sync</span>
+      </div>
+    </div>
+
+    <!-- Tile 4: Day-One Completeness & Fee Uncertainty -->
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-title">Day-One Usability</span>
+      </div>
+      <div class="kpi-value">{{ usablePercent() }}%</div>
+      <div class="kpi-meta">
+        <span class="uncertainty-tag">{{ feeUncertaintyGbp() }} Margin</span>
+        <span class="meta-desc">Max fee variance before gap closure</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: Five Pipeline Steps Tracker -->
+  <section class="pipeline-section">
+    <div class="section-header">
+      <h2>The Five-Step Compliance Journey</h2>
+      <p>From un-templated raw enterprise data to cryptographically locked regulatory submissions</p>
+    </div>
+
+    <div class="pipeline-steps-container">
+      @for (step of pipelineSteps; track step.id) {
+      <div class="step-card" [class.active]="step.status === 'IN_PROGRESS'" [class.completed]="step.status === 'COMPLETED'">
+        <div class="step-header">
+          <span class="step-number">Step {{ step.number }}</span>
+          <span class="step-status" [class]="step.status.toLowerCase()">
+            {{ step.status === 'COMPLETED' ? 'Completed' : step.status === 'IN_PROGRESS' ? 'In Progress' : 'Pending' }}
+          </span>
+        </div>
+        <div class="step-name">{{ step.name }}</div>
+        <div class="step-title">{{ step.title }}</div>
+        <div class="step-desc">{{ step.description }}</div>
+        <div class="step-footer">
+          <div class="step-metric mono">{{ step.metric }}</div>
+          <div class="step-details">{{ step.details }}</div>
+        </div>
+      </div>
+      }
+    </div>
+  </section>
+
+  <!-- Section 3: Data Point Map & Explorer (40 Compliance Points) -->
+  <section class="datapoints-section">
+    <div class="section-header-split">
+      <div>
+        <h2>Data Point Map &amp; Lineage Flow</h2>
+        <p>40 regulatory data points for UK EPR, Denmark EPR, and EU PPWR, filtered by who holds the data</p>
+      </div>
+
+      <!-- Filter Pills -->
+      <div class="filter-pills">
+        <button type="button" class="pill" [class.active]="selectedFilter() === 'ALL'" (click)="selectedFilter.set('ALL')">
+          All (40 Points)
+        </button>
+        <button type="button" class="pill" [class.active]="selectedFilter() === 'SNOWFLAKE'" (click)="selectedFilter.set('SNOWFLAKE')">
+          Snowflake (Sales)
+        </button>
+        <button type="button" class="pill" [class.active]="selectedFilter() === 'DEVEX'" (click)="selectedFilter.set('DEVEX')">
+          Trace One (PLM BOM)
+        </button>
+        <button type="button" class="pill" [class.active]="selectedFilter() === 'SUPPLIERS'" (click)="selectedFilter.set('SUPPLIERS')">
+          Suppliers (PCR &amp; Audits)
+        </button>
+        <button type="button" class="pill" [class.active]="selectedFilter() === 'UK_EPR'" (click)="selectedFilter.set('UK_EPR')">
+          UK Defra pEPR
+        </button>
+        <button type="button" class="pill" [class.active]="selectedFilter() === 'PPWR'" (click)="selectedFilter.set('PPWR')">
+          EU PPWR
+        </button>
+      </div>
+    </div>
+
+    <!-- Data Points Table -->
+    <div class="table-container">
+      <table class="datapoints-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Data Point Name</th>
+            <th>Who Holds It (Source)</th>
+            <th>Regulatory Target</th>
+            <th>Status</th>
+            <th>Sample / Discrepancy Observation</th>
+            <th>Fee Impact</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (dp of getFilteredDataPoints(); track dp.id) {
+          <tr [class.gap-row]="dp.status === 'GAP_FLAGGED'">
+            <td class="mono font-bold">{{ dp.id }}</td>
+            <td class="dp-name">
+              <strong>{{ dp.name }}</strong>
+            </td>
+            <td>
+              <span class="source-pill" [class]="dp.sourceHolder.toLowerCase().includes('snowflake') ? 'snowflake' : dp.sourceHolder.toLowerCase().includes('trace') ? 'devex' : 'supplier'">
+                {{ dp.sourceHolder }}
+              </span>
+            </td>
+            <td>
+              <span class="reg-pill">{{ dp.regulatoryTarget }}</span>
+            </td>
+            <td>
+              <span class="status-badge" [class]="dp.status.toLowerCase()">
+                {{ dp.status === 'VERIFIED' ? 'Verified' : 'Gap Flagged' }}
+              </span>
+            </td>
+            <td class="mono cell-sample">
+              {{ dp.sampleValue }}
+            </td>
+            <td class="cell-impact mono">
+              @if (dp.impactFeeMargin) {
+              <span class="impact-tag">{{ dp.impactFeeMargin }}</span>
+              } @else {
+              <span class="text-muted">—</span>
+              }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-footer-banner">
+      <div class="footer-note">
+        <strong>Pouch Golden Thread Notice:</strong> Data point <code>DP08</code> highlights the 10.6g packaging tare weight vs 9.8g Devex conflict on the Heinz Sauce Pouch, affecting UK Defra tonnage by ±£8,600.
+      </div>
+      <a routerLink="/quality" class="btn-table-action">Open Discrepancy Worklist (Screen 06) →</a>
+    </div>
+  </section>
+
+  <!-- Section 4: Connected Systems & Export -->
+  <section class="connectors-overview-grid">
+    <div class="content-panel">
+      <div class="panel-header">
+        <div class="panel-header-title">
+          <h3>Connected Source Systems</h3>
+          <p>Read-only extraction pipeline (No manual data entry required)</p>
+        </div>
+      </div>
+
+      <div class="systems-list">
+        <div class="system-item">
+          <div class="sys-info">
+            <span class="sys-title">Trace One PLM (Devex)</span>
+            <span class="sys-desc">Packaging Specifications &amp; Material BOMs</span>
+          </div>
+          <div class="sys-status">
+            <span class="completeness-pill">86% Complete</span>
+            <span class="status-live">Synchronized</span>
+          </div>
+        </div>
+
+        <div class="system-item">
+          <div class="sys-info">
+            <span class="sys-title">Snowflake Cloud Data Warehouse</span>
+            <span class="sys-desc">Sales Volumes &amp; Placed on Market Channel Split</span>
+          </div>
+          <div class="sys-status">
+            <span class="completeness-pill">98% Complete</span>
+            <span class="status-live">Synchronized</span>
+          </div>
+        </div>
+
+        <div class="system-item">
+          <div class="sys-info">
+            <span class="sys-title">Supplier Document &amp; Portal Uploads</span>
+            <span class="sys-desc">PCR Certifications, PFAS Tests &amp; Recyclability Audits</span>
+          </div>
+          <div class="sys-status">
+            <span class="completeness-pill warning">64% Complete</span>
+            <span class="status-action">Audits Active</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Navigation to Next Screens in Act 2 -->
+    <div class="content-panel">
+      <div class="panel-header">
+        <div class="panel-header-title">
+          <h3>Next In Journey</h3>
+          <p>Explore granular packaging records and close remaining gaps</p>
+        </div>
+      </div>
+
+      <div class="next-actions-list">
+        <a routerLink="/products" class="next-action-card">
+          <div class="action-icon">📦</div>
+          <div class="action-details">
+            <strong>Screen 10: Pack Record Explorer</strong>
+            <p>Inspect multi-layer packaging BOMs, tare weights, and market splits</p>
+          </div>
+          <span class="action-arrow">→</span>
+        </a>
+
+        <a routerLink="/quality" class="next-action-card">
+          <div class="action-icon">🎯</div>
+          <div class="action-details">
+            <strong>Screen 06: Gap Closure Worklist</strong>
+            <p>Close 157 open gaps ranked by financial fee liability impact</p>
+          </div>
+          <span class="action-arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</div>

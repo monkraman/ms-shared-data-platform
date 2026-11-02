@@ -70,6 +70,10 @@
 
       <!-- ACT 2: YOUR DATA -->
       <div class="nav-section-title">ACT 2 · YOUR DATA</div>
+      <a routerLink="/data-overview" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Data Overview &amp; Pipeline</span>
+      </a>
       <a routerLink="/products" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
         <span class="nav-label">Pack Record &amp; Specifications</span>
@@ -172,6 +176,10 @@
       <a routerLink="/dashboard" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
         <span class="nav-label">Active Workspace Dashboard</span>
+      </a>
+      <a routerLink="/data-overview" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Data Ingestion Overview</span>
       </a>
       <a routerLink="/products" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
