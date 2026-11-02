@@ -370,6 +370,7 @@ export class OnboardingComponent implements OnInit {
 
     this.tenantService.createTenantWorkspace(profile).subscribe({
       next: () => {
+        this.tenantService.setActiveTenant(profile.id);
         this.submitting.set(false);
         this.router.navigate(['/dashboard']);
       },

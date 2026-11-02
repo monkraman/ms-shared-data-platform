@@ -648,6 +648,61 @@ class DataStore:
         )
         self.products[tenant][p4.sku] = p4
 
+        # SKU 5 (The Golden Thread Hero): Heinz Tartar Sauce Pouch 250g
+        sku5_comps = [
+            PackagingComponentBase(
+                id="COMP-POUCH-01",
+                name="Multi-layer Barrier Laminate Film (PET/ALU/PE)",
+                level=PackagingLevel.PRIMARY,
+                material=MaterialCategory.OTHER_COMPOSITE,
+                weight_grams=10.6,
+                recycled_content_pct=0.0,
+                is_recyclable=False,
+                recyclability_notes="Multi-layer laminate pouch foil: Non-recyclable Grade E under EU PPWR Article 6",
+                separable_by_consumer=False,
+                source_lineage=SourceLineage(
+                    source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                    source_record_id="DEV-SPEC-POUCH-250",
+                    import_batch_id=batch1.id,
+                ),
+            ),
+            PackagingComponentBase(
+                id="COMP-POUCH-02",
+                name="Rigid PE Spout and Tamper-Evident Screw Cap",
+                level=PackagingLevel.PRIMARY,
+                material=MaterialCategory.HDPE,
+                weight_grams=2.4,
+                recycled_content_pct=0.0,
+                is_recyclable=True,
+                separable_by_consumer=True,
+                source_lineage=SourceLineage(
+                    source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                    source_record_id="DEV-SPEC-POUCH-SPOUT",
+                    import_batch_id=batch1.id,
+                ),
+            ),
+        ]
+        p5 = ProductResponse(
+            sku="KHC-POUCH-250G",
+            brand="Heinz",
+            name="Heinz Tartar Sauce Pouch 250g",
+            category="Condiments & Sauces",
+            net_content_grams=250.0,
+            status="active",
+            components=sku5_comps,
+            tenant_id=tenant,
+            total_packaging_weight_grams=sum(c.weight_grams for c in sku5_comps),
+            primary_material_summary="Composite Barrier Film (10.6g), HDPE Cap (2.4g)",
+            has_quality_issues=True,
+            open_issue_count=1,
+            source_lineage=SourceLineage(
+                source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                source_record_id="DEV-SPEC-POUCH-250",
+                import_batch_id=batch1.id,
+            ),
+        )
+        self.products[tenant][p5.sku] = p5
+
         # Seed Sales (Placed On Market) for France and Germany (2025 reporting year)
         self.sales[tenant] = [
             PlacedOnMarketSales(
@@ -710,6 +765,27 @@ class DataStore:
                 units_sold=8_900_000,
                 sales_channel="Retail (Rewe, Edeka, Kaufland)",
                 source_system="SAP ERP S/4HANA Sales & Distribution",
+            ),
+            # UK & Denmark Sales for Hero Pouch
+            PlacedOnMarketSales(
+                id="SALE-UK-POUCH-01",
+                tenant_id=tenant,
+                sku="KHC-POUCH-250G",
+                jurisdiction="UK",
+                reporting_year=2025,
+                units_sold=5_100_000,
+                sales_channel="Retail / B2C (Tesco, Sainsbury's, Asda)",
+                source_system="Snowflake Data Cloud",
+            ),
+            PlacedOnMarketSales(
+                id="SALE-DK-POUCH-01",
+                tenant_id=tenant,
+                sku="KHC-POUCH-250G",
+                jurisdiction="DK",
+                reporting_year=2025,
+                units_sold=850_000,
+                sales_channel="Retail / B2C (Netto, Salling Group)",
+                source_system="Snowflake Data Cloud",
             ),
         ]
 
@@ -774,9 +850,30 @@ class DataStore:
             assigned_to="Data Steward (KHC Enterprise)",
         )
 
+        issue_pouch = DataQualityIssue(
+            id="DQI-KHC-POUCH-001",
+            tenant_id=tenant,
+            rule_code="RULE-WEIGHT-CONFLICT",
+            rule_title="Source Tare Weight Conflict: Supplier Spec Sheet vs Devex Record",
+            severity=IssueSeverity.BLOCKER,
+            entity_type="PackagingComponent",
+            entity_id="COMP-POUCH-01",
+            field_name="packaging_weight_grams",
+            current_value="10.6g (Supplier spec) vs 9.8g (Devex record)",
+            description=(
+                "Film Supplier A technical spec sheet indicates 10.6g laminate film tare weight, while Trace One Devex "
+                "record DEV-SPEC-POUCH-250 specifies 9.8g. Fee liability discrepancy: ±£5,100 across UK and Denmark."
+            ),
+            suggested_source_action="Confirm 10.6g certified spec and dispatch CR-1187 change request into Devex PLM",
+            source_spec_reference="CR-1187",
+            status=IssueStatus.OPEN,
+            assigned_to="Packaging Lead (KHC Europe)",
+        )
+
         self.quality_issues[tenant][issue1.id] = issue1
         self.quality_issues[tenant][issue2.id] = issue2
         self.quality_issues[tenant][issue3.id] = issue3
+        self.quality_issues[tenant][issue_pouch.id] = issue_pouch
 
     def create_tenant(self, data: TenantCreate) -> TenantResponse:
         """Create and provision a new tenant workspace."""
@@ -788,20 +885,26 @@ class DataStore:
                 tier=data.tier,
                 primary_jurisdiction=data.active_jurisdictions[0][:2] if data.active_jurisdictions else "GB",
                 source_systems=["Trace One (Devex PLM)", "Snowflake Data Cloud", "CSV Bulk Importer"],
-                active_products_count=0,
-                open_quality_issues_count=0,
+                active_products_count=5,
+                open_quality_issues_count=4,
             )
             self.tenants[data.id] = tenant_res
-            if data.id not in self.products:
-                self.products[data.id] = {}
-            if data.id not in self.sales:
-                self.sales[data.id] = []
-            if data.id not in self.batches:
-                self.batches[data.id] = []
-            if data.id not in self.quality_issues:
-                self.quality_issues[data.id] = {}
-            if data.id not in self.correction_tickets:
-                self.correction_tickets[data.id] = []
+
+            # Clone starter catalog portfolio if newly provisioned workspace has no products
+            ref_tenant = "khc-europe"
+            if data.id not in self.products or len(self.products[data.id]) == 0:
+                if ref_tenant in self.products:
+                    self.products[data.id] = copy.deepcopy(self.products[ref_tenant])
+                    self.sales[data.id] = copy.deepcopy(self.sales[ref_tenant])
+                    self.batches[data.id] = copy.deepcopy(self.batches[ref_tenant])
+                    self.quality_issues[data.id] = copy.deepcopy(self.quality_issues[ref_tenant])
+                    self.correction_tickets[data.id] = copy.deepcopy(self.correction_tickets[ref_tenant])
+                else:
+                    self.products[data.id] = {}
+                    self.sales[data.id] = []
+                    self.batches[data.id] = []
+                    self.quality_issues[data.id] = {}
+                    self.correction_tickets[data.id] = []
             if data.id not in self.runs:
                 self.runs[data.id] = []
 

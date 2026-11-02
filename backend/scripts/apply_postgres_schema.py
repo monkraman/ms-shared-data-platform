@@ -39,3 +39,4 @@ try:
                 print(f"  - {t[0]}.{t[1]}")
 except Exception as e:
     print("[ERROR] Failed applying schema:", e)
+
