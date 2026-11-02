@@ -14,7 +14,7 @@
       <div class="user-avatar">{{ authService.currentUser()?.avatarInitials || 'SA' }}</div>
       <div class="user-info">
         <span class="user-name">{{ authService.currentUser()?.fullName || 'SuperAdmin User' }}</span>
-        <span class="user-role">Platform Administrator</span>
+        <span class="user-role">SuperAdmin &middot; Platform Governance</span>
       </div>
     </div>
 
@@ -37,16 +37,16 @@
       </button>
 
       <!-- Direct Quick Link to 4-Step Onboarding Wizard -->
-      <a routerLink="/onboarding" class="nav-item" style="color: #1d3f72; font-weight: 600; text-decoration: none; margin-top: 12px; background: rgba(29, 63, 114, 0.07); border-radius: 6px;">
-        <span class="nav-bullet" style="background: #1d3f72"></span>
+      <button type="button" class="nav-item nav-item-onboard" (click)="goToOnboarding()">
+        <span class="nav-bullet"></span>
         <span>+ Onboard New Client</span>
-      </a>
+      </button>
     </nav>
 
     <div class="sidebar-bottom">
-      <a routerLink="/products" class="nav-item view-client">
+      <button type="button" class="nav-item view-client" (click)="launchClientHub('khc-europe', '/dashboard')">
         <span>Client Hub View →</span>
-      </a>
+      </button>
       <button class="nav-item logout-btn" (click)="logout()">
         <span>Sign Out</span>
       </button>
@@ -71,9 +71,9 @@
         <button class="btn-secondary" (click)="openImportModal()">
           Import SKU Catalog
         </button>
-        <a routerLink="/onboarding" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+        <button type="button" class="btn-primary" (click)="goToOnboarding()" style="display: inline-flex; align-items: center; gap: 6px;">
           + Onboard Client Wizard &rarr;
-        </a>
+        </button>
       </div>
     </header>
 
@@ -149,13 +149,13 @@
           </div>
 
           <div class="org-actions">
-            <button class="btn-action primary" (click)="openImportModal(org.id)">
-              Import SKU Catalog
+            <button class="btn-action" (click)="openImportModal(org.id)" title="Import SKU Catalog">
+              Import SKUs
             </button>
-            <button class="btn-action primary" (click)="launchClientHub(org.id, '/products')">
+            <button class="btn-action primary" (click)="launchClientHub(org.id, '/products')" title="Explore Packaging BOM">
               Packaging BOM &rarr;
             </button>
-            <button class="btn-action" (click)="launchClientHub(org.id, '/quality')">
+            <button class="btn-action" (click)="launchClientHub(org.id, '/quality')" title="View Quality Gaps">
               Quality Gaps
             </button>
           </div>
@@ -163,12 +163,12 @@
         }
 
         <!-- Onboard Card -->
-        <div class="org-card new-card" routerLink="/onboarding" style="cursor: pointer;">
+        <div class="org-card new-card" (click)="goToOnboarding()" style="cursor: pointer;">
           <div class="new-card-inner">
             <span class="new-plus">+</span>
             <h3>Onboard New Client</h3>
             <p>Configure company database, activate required compliance modules, and prepare SKU catalog feed.</p>
-            <a routerLink="/onboarding" class="btn-outline" style="text-decoration: none; display: inline-block; margin-top: 8px;">Launch Wizard &rarr;</a>
+            <button type="button" (click)="goToOnboarding()" class="btn-outline" style="margin-top: 8px;">Launch Wizard &rarr;</button>
           </div>
         </div>
       </div>

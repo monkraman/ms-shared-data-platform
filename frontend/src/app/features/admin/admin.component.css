@@ -158,6 +158,19 @@
   background: var(--text-primary);
 }
 
+.nav-item-onboard {
+  margin-top: 10px;
+  background: var(--bg-card);
+  border: 1px dashed var(--border-active);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.nav-item-onboard:hover {
+  background: var(--bg-primary);
+  border-style: solid;
+}
+
 .sidebar-bottom {
   padding: 16px 12px 0;
   border-top: 1px solid var(--border-subtle);
@@ -456,22 +469,25 @@
 }
 
 .org-actions {
-  display: flex;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1fr;
+  gap: 6px;
   margin-top: auto;
 }
 
 .btn-action {
-  flex: 1;
   background: var(--bg-primary);
   color: var(--text-primary);
   border: 1px solid var(--border-subtle);
-  padding: 7px 10px;
+  padding: 8px 4px;
   border-radius: 5px;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 500;
   cursor: pointer;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .btn-action:hover {
