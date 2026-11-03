@@ -23,6 +23,10 @@
         <span class="nav-bullet"></span>
         <span>Client Workspaces</span>
       </button>
+      <button class="nav-item" [class.active]="activeTab() === 'users'" (click)="setTab('users')">
+        <span class="nav-bullet"></span>
+        <span>User Directory &amp; IAM</span>
+      </button>
       <button class="nav-item" [class.active]="activeTab() === 'tariffs'" (click)="setTab('tariffs')">
         <span class="nav-bullet"></span>
         <span>Rule &amp; Tariff Library</span>
@@ -58,6 +62,7 @@
       <div class="topbar-left">
         <h1 class="page-title">
           @if (activeTab() === 'organisations') { Multi-Tenant Workspace Directory }
+          @if (activeTab() === 'users') { Enterprise Identity &amp; User Directory (IAM) }
           @if (activeTab() === 'tariffs') { Versioned Rule &amp; Tariff Library }
           @if (activeTab() === 'masters') { Platform Master Data Catalog }
           @if (activeTab() === 'batches') { Ingestion History &amp; Lineage Batches }
@@ -220,6 +225,151 @@
               <td class="mono">{{ b.records_normalized }}</td>
               <td class="mono" [class.text-alert]="b.quality_issues_detected > 0">{{ b.quality_issues_detected }}</td>
               <td class="table-msg">{{ b.message || 'Ingested successfully' }}</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      }
+    </div>
+    }
+
+    <!-- ══════════════════════ TAB: ENTERPRISE USER DIRECTORY & IAM ══════════════════════ -->
+    @if (activeTab() === 'users') {
+    <div class="tab-content" id="tab-users">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Enterprise User Directory &amp; Access Management (IAM)</h2>
+          <p class="section-desc">Platform-wide user identities, role-based access controls, tenant isolation, and client login credentials.</p>
+        </div>
+        <div class="header-action-group">
+          <button class="btn-refresh" (click)="loadUsers()">Refresh Directory</button>
+          <button class="btn-primary" (click)="openInviteModal()">+ Provision Enterprise User</button>
+        </div>
+      </div>
+
+      <!-- IAM Platform Metric Strip -->
+      <div class="kpi-strip user-kpi-strip">
+        <div class="kpi-card">
+          <span class="kpi-lbl">Total Provisioned Users</span>
+          <span class="kpi-num">{{ totalUsersCount() }}</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-lbl">Client Org Administrators</span>
+          <span class="kpi-num">{{ clientAdminsCount() }}</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-lbl">Compliance Analysts &amp; Viewers</span>
+          <span class="kpi-num">{{ analystsCount() }}</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-lbl">Authentication Standard</span>
+          <span class="kpi-num mono" style="font-size: 16px;">Corporate JWT / SSO</span>
+        </div>
+      </div>
+
+      <!-- User Filters & Search Toolbar -->
+      <div class="user-toolbar">
+        <div class="toolbar-search">
+          <input
+            type="text"
+            class="search-input"
+            [ngModel]="userSearchQuery()"
+            (ngModelChange)="userSearchQuery.set($event)"
+            placeholder="Search by full name, work email, or company..."
+          />
+        </div>
+
+        <div class="toolbar-filters">
+          <div class="filter-group">
+            <label class="filter-lbl">Workspace:</label>
+            <select
+              class="filter-select"
+              [ngModel]="userFilterOrg()"
+              (ngModelChange)="userFilterOrg.set($event)"
+            >
+              <option value="ALL">All Workspaces ({{ totalOrgs() }})</option>
+              <option value="platform">Platform SuperAdmin</option>
+              @for (t of tenants(); track t.id) {
+              <option [value]="t.id">{{ t.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-lbl">Role:</label>
+            <select
+              class="filter-select"
+              [ngModel]="userFilterRole()"
+              (ngModelChange)="userFilterRole.set($event)"
+            >
+              <option value="ALL">All Roles</option>
+              <option value="superadmin">SuperAdmin</option>
+              <option value="org_admin">Organisation Admin</option>
+              <option value="analyst">Packaging Analyst</option>
+              <option value="viewer">ESG Director / Viewer</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Enterprise Users Data Table -->
+      @if (usersLoading()) {
+      <div class="empty-state">Loading user directory from secure store...</div>
+      } @else if (filteredUsers().length === 0) {
+      <div class="empty-state">No users match your active search filters.</div>
+      } @else {
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>User Identity</th>
+              <th>Assigned Workspace</th>
+              <th>Enterprise Role</th>
+              <th>Auth Standard</th>
+              <th>Account Status</th>
+              <th>Security Access</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of filteredUsers(); track u.id) {
+            <tr>
+              <td>
+                <div class="user-cell-flex">
+                  <div class="user-avatar-badge">{{ u.avatarInitials }}</div>
+                  <div>
+                    <div class="font-bold">{{ u.fullName }}</div>
+                    <div class="text-subtle mono font-xs">{{ u.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                @if (u.role === 'superadmin') {
+                <div class="font-bold">Platform Governance</div>
+                <span class="tag-tenant-inline">[PLATFORM]</span>
+                } @else {
+                <div class="font-bold">{{ u.organisationName || 'Client Workspace' }}</div>
+                <span class="tag-tenant-inline">[{{ u.organisationSlug || u.organisationId }}]</span>
+                }
+              </td>
+              <td>
+                <span class="pill-role" [class.role-admin]="u.role === 'superadmin' || u.role === 'org_admin'">
+                  [{{ u.role.toUpperCase() }}]
+                </span>
+              </td>
+              <td class="mono font-xs">
+                Corporate SSO &middot; JWT
+              </td>
+              <td>
+                <span class="pill-status font-bold">[ACTIVE]</span>
+              </td>
+              <td>
+                <div class="user-action-group">
+                  <button class="btn-table-action" (click)="openCredsModal(u)">
+                    View Credentials
+                  </button>
+                </div>
+              </td>
             </tr>
             }
           </tbody>
@@ -740,6 +890,161 @@
         <button class="btn-secondary" (click)="closeImportModal()">Close</button>
         <button class="btn-primary" [disabled]="isImporting() || parsedSkus().length === 0" (click)="executeImport()">
           @if (isImporting()) { Storing & Validating... } @else { Store & Ingest into Database }
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+
+  <!-- ══════════════════════ MODAL: PROVISION ENTERPRISE USER ══════════════════════ -->
+  @if (showInviteModal()) {
+  <div class="modal-backdrop" (click)="closeInviteModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title">Provision Enterprise User</h2>
+          <p class="modal-sub">Add client stakeholder with isolated tenant role-based access</p>
+        </div>
+        <button class="modal-close" (click)="closeInviteModal()">x</button>
+      </div>
+
+      <div class="modal-body">
+        @if (inviteError()) {
+        <div class="banner-alert">{{ inviteError() }}</div>
+        }
+        @if (inviteSuccess()) {
+        <div class="banner-success">{{ inviteSuccess() }}</div>
+        }
+
+        <div class="form-group">
+          <label class="form-lbl">Full Name</label>
+          <input
+            type="text"
+            class="form-input"
+            [(ngModel)]="newUserName"
+            placeholder="e.g. Rachel Adams"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-lbl">Corporate Work Email</label>
+          <input
+            type="email"
+            class="form-input"
+            [(ngModel)]="newUserEmail"
+            placeholder="e.g. rachel.adams@kraftheinz.com"
+          />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-lbl">Target Client Workspace</label>
+            <select class="form-select" [(ngModel)]="newUserTenantId">
+              @for (t of tenants(); track t.id) {
+              <option [value]="t.id">{{ t.name }} ({{ t.id }})</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-lbl">Assigned Enterprise Role</label>
+            <select class="form-select" [(ngModel)]="newUserRole">
+              <option value="org_admin">Organisation Admin (Full Workspace Access)</option>
+              <option value="analyst">Packaging Analyst (Data &amp; Calculator)</option>
+              <option value="viewer">ESG Auditor / Viewer (Read Only)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-lbl">Initial Temporary Password</label>
+          <input
+            type="text"
+            class="form-input mono"
+            [(ngModel)]="newUserPassword"
+            placeholder="password123"
+          />
+          <span class="form-hint">Client can change their password or authenticate via corporate SSO on first sign in.</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeInviteModal()">Cancel</button>
+        <button
+          class="btn-primary"
+          [disabled]="isProvisioning()"
+          (click)="submitProvisionUser()"
+        >
+          @if (isProvisioning()) { Provisioning Identity... } @else { Provision Account }
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- ══════════════════════ MODAL: VIEW CLIENT CREDENTIALS ══════════════════════ -->
+  @if (showCredsModal() && selectedUserForCreds(); as user) {
+  <div class="modal-backdrop" (click)="closeCredsModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title">Client Access Credentials</h2>
+          <p class="modal-sub">Enterprise IAM details for onboarding handoff</p>
+        </div>
+        <button class="modal-close" (click)="closeCredsModal()">x</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="creds-profile-header">
+          <div class="user-avatar-badge lg">{{ user.avatarInitials }}</div>
+          <div>
+            <div class="creds-user-name">{{ user.fullName }}</div>
+            <div class="creds-user-org">{{ user.organisationName || 'Platform SuperAdmin' }}</div>
+          </div>
+        </div>
+
+        <div class="creds-field-box">
+          <div class="creds-row">
+            <span class="creds-label">Enterprise Role:</span>
+            <span class="creds-value mono">[{{ user.role.toUpperCase() }}]</span>
+          </div>
+          <div class="creds-row">
+            <span class="creds-label">Assigned Workspace:</span>
+            <span class="creds-value mono">{{ user.organisationSlug || user.organisationId || 'platform' }}</span>
+          </div>
+          <div class="creds-row">
+            <span class="creds-label">Work Email / Login ID:</span>
+            <span class="creds-value mono highlight">{{ user.email }}</span>
+          </div>
+          <div class="creds-row">
+            <span class="creds-label">Temporary Password:</span>
+            <span class="creds-value mono highlight">password123</span>
+          </div>
+          <div class="creds-row">
+            <span class="creds-label">Portal Sign-In URL:</span>
+            <span class="creds-value mono">/sign-in</span>
+          </div>
+        </div>
+
+        @if (copiedNotice()) {
+        <div class="banner-success text-center">
+          {{ copiedNotice() }}
+        </div>
+        }
+
+        <div class="creds-instructions">
+          <strong>Handoff Instructions:</strong>
+          <p>
+            Share these credentials with the client stakeholder. Upon signing in at <code>/sign-in</code>, they will enter their isolated client portal directly with their assigned role permissions.
+          </p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeCredsModal()">Close</button>
+        <button class="btn-primary" (click)="copyCredentials(user)">
+          Copy Client Invitation Details
         </button>
       </div>
     </div>

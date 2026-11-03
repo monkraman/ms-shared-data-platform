@@ -2,7 +2,7 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthService, AuthUser } from '../../core/services/auth.service';
 import { TenantApiService, BackendTenantRecord } from '../../core/services/tenant-api.service';
 import {
   FoundationApiService,
@@ -20,7 +20,7 @@ import {
   UserRoleConfig,
 } from '../../core/services/config-api.service';
 
-type AdminTab = 'organisations' | 'tariffs' | 'masters' | 'batches';
+type AdminTab = 'organisations' | 'users' | 'tariffs' | 'masters' | 'batches';
 
 @Component({
   selector: 'app-admin',
@@ -53,6 +53,60 @@ export class AdminComponent implements OnInit {
   );
   readonly orgsWithIssues = computed(
     () => this.tenants().filter((t) => (t.open_quality_issues_count || 0) > 0).length
+  );
+
+  // Enterprise User Management & IAM State
+  readonly users = signal<AuthUser[]>([]);
+  readonly usersLoading = signal<boolean>(false);
+  readonly userSearchQuery = signal<string>('');
+  readonly userFilterOrg = signal<string>('ALL');
+  readonly userFilterRole = signal<string>('ALL');
+  readonly selectedUserForCreds = signal<AuthUser | null>(null);
+  readonly showCredsModal = signal<boolean>(false);
+  readonly showInviteModal = signal<boolean>(false);
+  readonly copiedNotice = signal<string | null>(null);
+  readonly inviteError = signal<string | null>(null);
+  readonly inviteSuccess = signal<string | null>(null);
+
+  // User Provision Form Model
+  newUserName = '';
+  newUserEmail = '';
+  newUserRole = 'org_admin';
+  newUserTenantId = '';
+  newUserPassword = 'password123';
+  readonly isProvisioning = signal<boolean>(false);
+
+  // Filtered Users Computed
+  readonly filteredUsers = computed(() => {
+    const list = this.users();
+    const query = this.userSearchQuery().toLowerCase().trim();
+    const org = this.userFilterOrg();
+    const role = this.userFilterRole();
+
+    return list.filter((u) => {
+      const matchesSearch =
+        !query ||
+        u.fullName.toLowerCase().includes(query) ||
+        u.email.toLowerCase().includes(query) ||
+        (u.organisationName && u.organisationName.toLowerCase().includes(query));
+
+      const matchesOrg =
+        org === 'ALL' ||
+        (org === 'platform' && !u.organisationId) ||
+        u.organisationId === org;
+
+      const matchesRole = role === 'ALL' || u.role === role;
+
+      return matchesSearch && matchesOrg && matchesRole;
+    });
+  });
+
+  readonly totalUsersCount = computed(() => this.users().length);
+  readonly clientAdminsCount = computed(
+    () => this.users().filter((u) => u.role === 'org_admin').length
+  );
+  readonly analystsCount = computed(
+    () => this.users().filter((u) => u.role === 'analyst' || u.role === 'viewer').length
   );
 
   // Onboarding Modal State
@@ -146,6 +200,7 @@ export class AdminComponent implements OnInit {
   ngOnInit(): void {
     this.refreshTenants();
     this.loadMasterData();
+    this.loadUsers();
   }
 
   loadMasterData(): void {
@@ -183,8 +238,105 @@ export class AdminComponent implements OnInit {
       this.loadBatches();
     } else if (tab === 'tariffs' || tab === 'masters') {
       this.loadMasterData();
+    } else if (tab === 'users') {
+      this.loadUsers();
     }
   }
+  // ─── User Management & IAM Actions ───
+  loadUsers(): void {
+    this.usersLoading.set(true);
+    this.authService.getUsers().subscribe({
+      next: (data) => {
+        this.users.set(data);
+        this.usersLoading.set(false);
+      },
+      error: (err) => {
+        console.warn('Failed loading user directory', err);
+        this.usersLoading.set(false);
+      },
+    });
+  }
+
+  openInviteModal(): void {
+    this.newUserName = '';
+    this.newUserEmail = '';
+    this.newUserRole = 'org_admin';
+    this.newUserTenantId = this.tenants()[0]?.id || 'khc-europe';
+    this.newUserPassword = 'password123';
+    this.inviteError.set(null);
+    this.inviteSuccess.set(null);
+    this.showInviteModal.set(true);
+  }
+
+  closeInviteModal(): void {
+    this.showInviteModal.set(false);
+  }
+
+  submitProvisionUser(): void {
+    if (!this.newUserName.trim() || !this.newUserEmail.trim()) {
+      this.inviteError.set('Please provide both full name and valid work email.');
+      return;
+    }
+    const tenant = this.tenants().find((t) => t.id === this.newUserTenantId);
+    const orgName = tenant?.name || 'Client Workspace';
+
+    this.isProvisioning.set(true);
+    this.inviteError.set(null);
+
+    this.authService
+      .provisionUser({
+        fullName: this.newUserName.trim(),
+        email: this.newUserEmail.trim().toLowerCase(),
+        role: this.newUserRole,
+        tenantId: this.newUserTenantId,
+        organisationName: orgName,
+        password: this.newUserPassword || 'password123',
+      })
+      .subscribe({
+        next: (created) => {
+          this.isProvisioning.set(false);
+          this.inviteSuccess.set(`Successfully provisioned account for ${created.fullName}.`);
+          this.loadUsers();
+          setTimeout(() => {
+            this.closeInviteModal();
+            this.openCredsModal(created);
+          }, 800);
+        },
+        error: (err) => {
+          this.isProvisioning.set(false);
+          this.inviteError.set(
+            err?.error?.detail || err.message || 'Failed to provision enterprise user.'
+          );
+        },
+      });
+  }
+
+  openCredsModal(user: AuthUser): void {
+    this.selectedUserForCreds.set(user);
+    this.copiedNotice.set(null);
+    this.showCredsModal.set(true);
+  }
+
+  closeCredsModal(): void {
+    this.showCredsModal.set(false);
+    this.selectedUserForCreds.set(null);
+  }
+
+  copyCredentials(user: AuthUser | null): void {
+    if (!user) return;
+    const credsText = `Enterprise Compliance Portal Credentials:
+User: ${user.fullName} (${user.role.toUpperCase()})
+Workspace: ${user.organisationName || 'Platform Admin'}
+Email: ${user.email}
+Initial Password: password123
+Login URL: ${window.location.origin}/sign-in`;
+
+    navigator.clipboard.writeText(credsText).then(() => {
+      this.copiedNotice.set('Credentials copied to clipboard!');
+      setTimeout(() => this.copiedNotice.set(null), 3000);
+    });
+  }
+
 
   // ─── Company Onboarding ───
   openOnboardModal(): void {

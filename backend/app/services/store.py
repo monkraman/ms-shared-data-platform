@@ -123,6 +123,36 @@ class DataStore:
             "organisation_name": "The Kraft Heinz Company Europe",
             "avatar_initials": "SM",
         }
+        self.users["packaging.lead@kraftheinz.com"] = {
+            "id": "usr-khc-002",
+            "email": "packaging.lead@kraftheinz.com",
+            "password": "password123",
+            "full_name": "David Warner",
+            "role": "analyst",
+            "tenant_id": "khc-europe",
+            "organisation_name": "The Kraft Heinz Company Europe",
+            "avatar_initials": "DW",
+        }
+        self.users["esg.director@kraftheinz.com"] = {
+            "id": "usr-khc-003",
+            "email": "esg.director@kraftheinz.com",
+            "password": "password123",
+            "full_name": "Claire Dupont",
+            "role": "viewer",
+            "tenant_id": "khc-europe",
+            "organisation_name": "The Kraft Heinz Company Europe",
+            "avatar_initials": "CD",
+        }
+        self.users["admin@nordhavn-spirits.com"] = {
+            "id": "usr-nord-001",
+            "email": "admin@nordhavn-spirits.com",
+            "password": "password123",
+            "full_name": "Jonas Møller",
+            "role": "org_admin",
+            "tenant_id": "nordhavn-spirits",
+            "organisation_name": "Nordhavn Spirits ApS",
+            "avatar_initials": "JM",
+        }
 
     def _get_pg_conn(self):
         """Establish direct connection to PostgreSQL database."""

@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable, map } from 'rxjs';
 import { APP_CONFIG } from '../config/client-theme.config';
 
 export type UserRole = 'superadmin' | 'org_admin' | 'analyst' | 'viewer' | 'supplier_contact';
@@ -117,5 +117,50 @@ export class AuthService {
       // Ignore
     }
     this._currentUser.set(null);
+  }
+
+  getUsers(): Observable<AuthUser[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/api/v1/auth/users`).pipe(
+      map(users => users.map(u => ({
+        id: u.id,
+        email: u.email,
+        fullName: u.full_name,
+        role: u.role,
+        organisationId: u.organisation_id,
+        organisationSlug: u.organisation_slug,
+        organisationName: u.organisation_name,
+        avatarInitials: u.avatar_initials || 'U',
+      })))
+    );
+  }
+
+  provisionUser(payload: {
+    email: string;
+    fullName: string;
+    role: string;
+    tenantId: string;
+    organisationName: string;
+    password?: string;
+  }): Observable<AuthUser> {
+    const body = {
+      email: payload.email,
+      full_name: payload.fullName,
+      role: payload.role,
+      tenant_id: payload.tenantId,
+      organisation_name: payload.organisationName,
+      password: payload.password || 'password123',
+    };
+    return this.http.post<any>(`${this.baseUrl}/api/v1/auth/users`, body).pipe(
+      map(u => ({
+        id: u.id,
+        email: u.email,
+        fullName: u.full_name,
+        role: u.role,
+        organisationId: u.organisation_id,
+        organisationSlug: u.organisation_slug,
+        organisationName: u.organisation_name,
+        avatarInitials: u.avatar_initials || 'U',
+      }))
+    );
   }
 }
