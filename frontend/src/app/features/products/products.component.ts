@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { FoundationApiService, CanonicalProduct, PackagingComponent } from '../../core/services/foundation-api.service';
 import { TenantApiService } from '../../core/services/tenant-api.service';
@@ -30,7 +31,7 @@ export interface SkuFinancialSummary {
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './products.component.html',
   styleUrl: './products.component.css',
 })
@@ -44,11 +45,22 @@ export class ProductsComponent implements OnInit {
   readonly syncing = this.foundationService.syncing;
   readonly lastBatch = this.foundationService.lastSyncBatch;
 
-  // 5 Tabs: BOM Tree, Fees & Trace, PPWR DoC, DPP, Source Lineage
+  // View mode: 'list' (Catalog Data Table) or 'detail' (Full BOM & Calculation Trace)
+  readonly viewMode = signal<'list' | 'detail'>('list');
+
+  // 5 Detail Tabs: BOM Tree, Fees & Trace, PPWR DoC, DPP, Source Lineage
   readonly activeTab = signal<'bom' | 'fees' | 'ppwr' | 'dpp' | 'lineage'>('bom');
   readonly ppwrDoc = this.foundationService.ppwrDoc;
   readonly dppPassport = this.foundationService.dppPassport;
+
+  // Search & Faceted Filters
   readonly filterQuery = signal<string>('');
+  readonly categoryFilter = signal<string>('ALL');
+  readonly qualityFilter = signal<string>('ALL'); // 'ALL' | 'GAPS' | 'CLEAN'
+
+  // Enterprise Pagination State
+  readonly currentPage = signal<number>(1);
+  readonly pageSize = signal<number>(10);
 
   ngOnInit(): void {
     this.foundationService.loadProducts().subscribe();
@@ -64,17 +76,118 @@ export class ProductsComponent implements OnInit {
 
   filterProducts(query: string): void {
     this.filterQuery.set(query.toLowerCase());
+    this.currentPage.set(1);
+  }
+
+  setCategoryFilter(cat: string): void {
+    this.categoryFilter.set(cat);
+    this.currentPage.set(1);
+  }
+
+  setQualityFilter(q: string): void {
+    this.qualityFilter.set(q);
+    this.currentPage.set(1);
+  }
+
+  getCategories(): string[] {
+    const set = new Set<string>();
+    this.products().forEach((p) => {
+      if (p.category) set.add(p.category);
+    });
+    return Array.from(set).sort();
   }
 
   getFilteredProducts(): CanonicalProduct[] {
     const q = this.filterQuery();
-    if (!q) return this.products();
-    return this.products().filter(
-      (p) =>
+    const cat = this.categoryFilter();
+    const qual = this.qualityFilter();
+
+    return this.products().filter((p) => {
+      const matchesSearch =
+        !q ||
         p.name.toLowerCase().includes(q) ||
         p.sku.toLowerCase().includes(q) ||
-        p.brand.toLowerCase().includes(q)
-    );
+        p.brand.toLowerCase().includes(q) ||
+        (p.primary_material_summary && p.primary_material_summary.toLowerCase().includes(q));
+
+      const matchesCat = cat === 'ALL' || p.category === cat;
+
+      const matchesQual =
+        qual === 'ALL' ||
+        (qual === 'GAPS' && p.has_quality_issues) ||
+        (qual === 'CLEAN' && !p.has_quality_issues);
+
+      return matchesSearch && matchesCat && matchesQual;
+    });
+  }
+
+  // Pagination getters & controls
+  getPaginatedProducts(): CanonicalProduct[] {
+    const filtered = this.getFilteredProducts();
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return filtered.slice(start, start + this.pageSize());
+  }
+
+  getTotalPages(): number {
+    const total = this.getFilteredProducts().length;
+    return Math.max(1, Math.ceil(total / this.pageSize()));
+  }
+
+  goToPage(page: number): void {
+    const max = this.getTotalPages();
+    if (page >= 1 && page <= max) {
+      this.currentPage.set(page);
+    }
+  }
+
+  nextPage(): void {
+    this.goToPage(this.currentPage() + 1);
+  }
+
+  prevPage(): void {
+    this.goToPage(this.currentPage() - 1);
+  }
+
+  setPageSize(size: number): void {
+    this.pageSize.set(size);
+    this.currentPage.set(1);
+  }
+
+  openProductDetail(sku: string): void {
+    this.foundationService.selectProduct(sku);
+    this.viewMode.set('detail');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  backToCatalog(): void {
+    this.viewMode.set('list');
+  }
+
+  nextProductDetail(): void {
+    const all = this.getFilteredProducts();
+    const cur = this.selectedProduct();
+    if (!cur || all.length === 0) return;
+    const idx = all.findIndex((p) => p.sku === cur.sku);
+    if (idx < all.length - 1) {
+      this.openProductDetail(all[idx + 1].sku);
+    }
+  }
+
+  prevProductDetail(): void {
+    const all = this.getFilteredProducts();
+    const cur = this.selectedProduct();
+    if (!cur || all.length === 0) return;
+    const idx = all.findIndex((p) => p.sku === cur.sku);
+    if (idx > 0) {
+      this.openProductDetail(all[idx - 1].sku);
+    }
+  }
+
+  getCurrentProductIndex(): number {
+    const all = this.getFilteredProducts();
+    const cur = this.selectedProduct();
+    if (!cur) return 0;
+    return all.findIndex((p) => p.sku === cur.sku) + 1;
   }
 
   getComponentsByLevel(components: PackagingComponent[], level: 'primary' | 'secondary' | 'tertiary'): PackagingComponent[] {

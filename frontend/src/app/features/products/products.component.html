@@ -4,77 +4,285 @@
   <header class="page-header">
     <div class="header-left">
       <div class="header-badge">PACKAGING BOM &amp; SPECIFICATIONS</div>
-      <h1 class="page-title">Product Portfolio &amp; Packaging BOM Master</h1>
+      <h1 class="page-title">Product Portfolio &amp; Packaging BOM Directory</h1>
       <p class="page-subtitle">
-        Hierarchical Bill of Materials (BOM) linking commercial SKUs to primary, secondary, and tertiary components.
+        Enterprise multi-level Bill of Materials (BOM), packaging tare weights, recyclability ratings, and Defra EPR calculation traces.
       </p>
     </div>
 
     <div class="header-actions">
-      <button type="button" class="btn-sync" [disabled]="syncing()" (click)="syncTraceOne()">
-        <span class="sync-icon" [class.spinning]="syncing()"></span>
-        @if (syncing()) {
-        <span>Syncing Trace One PLM (Devex)...</span>
-        } @else {
-        <span>Pull PLM Delta Spec (Trace One)</span>
-        }
-      </button>
+      <div class="view-toggle-group">
+        <button
+          type="button"
+          class="toggle-btn"
+          [class.active]="viewMode() === 'list'"
+          (click)="viewMode.set('list')"
+        >
+          Catalog Directory View
+        </button>
+        <button
+          type="button"
+          class="toggle-btn"
+          [class.active]="viewMode() === 'detail'"
+          (click)="viewMode.set('detail')"
+        >
+          Specification Deep Dive
+        </button>
+      </div>
     </div>
   </header>
 
-  @if (lastBatch()) {
-  <div class="sync-banner">
-    <span class="sync-status-icon">[OK]</span>
-    <div>
-      <strong>PLM Synchronization Completed:</strong>
-      <span>Batch #{{ lastBatch()?.source_batch_reference || lastBatch()?.id }} ingested specs from Trace One Devex.</span>
+  <!-- ═══════════════════════════════════════════════════════════════
+       VIEW MODE 1: ENTERPRISE CATALOG DATA TABLE (LIST VIEW)
+       ═══════════════════════════════════════════════════════════════ -->
+  @if (viewMode() === 'list') {
+  <section class="catalog-table-view">
+
+    <!-- KPI Metric Summary Bar -->
+    <div class="catalog-kpi-strip">
+      <div class="kpi-card">
+        <span class="kpi-lbl">Total Monitored SKUs</span>
+        <span class="kpi-num">{{ products().length }}</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-lbl">BOM Components Profiled</span>
+        <span class="kpi-num">38 Components</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-lbl">Active Regulatory Gaps</span>
+        <span class="kpi-num text-alert">4 Quality Flags</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-lbl">Regulatory Standard</span>
+        <span class="kpi-num mono" style="font-size: 15px;">Defra RPD &middot; PPWR Art. 6</span>
+      </div>
     </div>
-  </div>
+
+    <!-- Filter & Search Toolbar -->
+    <div class="catalog-toolbar">
+      <div class="toolbar-search">
+        <input
+          type="text"
+          class="search-input"
+          [ngModel]="filterQuery()"
+          (ngModelChange)="filterProducts($event)"
+          placeholder="Search by SKU, product description, brand, or material..."
+        />
+      </div>
+
+      <div class="toolbar-filters">
+        <div class="filter-group">
+          <label class="filter-lbl">Category:</label>
+          <select
+            class="filter-select"
+            [ngModel]="categoryFilter()"
+            (ngModelChange)="setCategoryFilter($event)"
+          >
+            <option value="ALL">All Categories</option>
+            @for (cat of getCategories(); track cat) {
+            <option [value]="cat">{{ cat }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-lbl">Status:</label>
+          <select
+            class="filter-select"
+            [ngModel]="qualityFilter()"
+            (ngModelChange)="setQualityFilter($event)"
+          >
+            <option value="ALL">All Statuses</option>
+            <option value="GAPS">Quality Gaps Flagged</option>
+            <option value="CLEAN">Verified Compliant</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-lbl">Per Page:</label>
+          <select
+            class="filter-select"
+            [ngModel]="pageSize()"
+            (ngModelChange)="setPageSize(+$event)"
+          >
+            <option [value]="5">5</option>
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- SKU Master Data Table -->
+    @if (getPaginatedProducts().length === 0) {
+    <div class="empty-state">
+      No products match your active search and filter criteria.
+    </div>
+    } @else {
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>SKU Code</th>
+            <th>Product Description</th>
+            <th>Brand &amp; Category</th>
+            <th>BOM Components</th>
+            <th>Packaging Tare (g)</th>
+            <th>Primary Material Specification</th>
+            <th>Defra EPR Est.</th>
+            <th>Data Quality</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (prod of getPaginatedProducts(); track prod.sku) {
+          <tr class="table-row-clickable" (click)="openProductDetail(prod.sku)">
+            <td>
+              <code class="mono font-bold">{{ prod.sku }}</code>
+            </td>
+            <td>
+              <div class="font-bold">{{ prod.name }}</div>
+              <div class="text-subtle font-xs">Net Fill: {{ prod.net_content_grams || 400 }}g</div>
+            </td>
+            <td>
+              <div>{{ prod.brand }}</div>
+              <span class="tag-category-inline">{{ prod.category }}</span>
+            </td>
+            <td>
+              <span class="pill-bom mono">{{ prod.components.length }} Layers</span>
+            </td>
+            <td>
+              <strong class="mono">{{ prod.total_packaging_weight_grams }}g</strong>
+            </td>
+            <td>
+              <span class="text-secondary font-xs">{{ prod.primary_material_summary || 'Standard polymer / glass' }}</span>
+            </td>
+            <td>
+              @if (getSkuFinancials(prod); as fin) {
+              <span class="mono font-bold">£{{ fin.ukFeeGbp | number }}</span>
+              }
+            </td>
+            <td>
+              @if (prod.has_quality_issues) {
+              <span class="pill-alert font-bold">[!] {{ prod.open_issue_count }} Flag</span>
+              } @else {
+              <span class="pill-ok font-bold">[OK] Clean</span>
+              }
+            </td>
+            <td>
+              <button
+                type="button"
+                class="btn-inspect"
+                (click)="$event.stopPropagation(); openProductDetail(prod.sku)"
+              >
+                Inspect BOM &amp; Trace &rarr;
+              </button>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Enterprise Pagination Bar -->
+    <div class="pagination-footer">
+      <div class="pagination-info">
+        Showing {{ ((currentPage() - 1) * pageSize()) + 1 }} to {{ ((currentPage() - 1) * pageSize()) + getPaginatedProducts().length }} of {{ getFilteredProducts().length }} SKUs
+      </div>
+
+      <div class="pagination-controls">
+        <button
+          type="button"
+          class="btn-page"
+          [disabled]="currentPage() === 1"
+          (click)="goToPage(1)"
+        >
+          &laquo;
+        </button>
+        <button
+          type="button"
+          class="btn-page"
+          [disabled]="currentPage() === 1"
+          (click)="prevPage()"
+        >
+          Previous
+        </button>
+
+        <span class="page-current mono">
+          Page {{ currentPage() }} of {{ getTotalPages() }}
+        </span>
+
+        <button
+          type="button"
+          class="btn-page"
+          [disabled]="currentPage() === getTotalPages()"
+          (click)="nextPage()"
+        >
+          Next
+        </button>
+        <button
+          type="button"
+          class="btn-page"
+          [disabled]="currentPage() === getTotalPages()"
+          (click)="goToPage(getTotalPages())"
+        >
+          &raquo;
+        </button>
+      </div>
+    </div>
+    }
+
+  </section>
   }
 
-  <!-- Split View: Catalog on Left, Hierarchical BOM & Modules on Right -->
-  <div class="explorer-layout">
+  <!-- ═══════════════════════════════════════════════════════════════
+       VIEW MODE 2: SKU SPECIFICATION DEEP DIVE (FULL DETAIL)
+       ═══════════════════════════════════════════════════════════════ -->
+  @if (viewMode() === 'detail') {
+  <section class="detail-view-container">
 
-    <!-- Left Column: Product Catalog -->
-    <aside class="catalog-panel">
-      <div class="search-bar">
-        <input type="text" placeholder="Filter by SKU or brand (e.g. Ketchup, Beanz)..."
-          (input)="filterProducts($any($event.target).value)" />
+    <!-- Top Breadcrumb & Quick Switch Bar -->
+    <div class="detail-top-nav">
+      <button type="button" class="btn-back" (click)="backToCatalog()">
+        &larr; Back to SKU Catalog Directory
+      </button>
+
+      <div class="detail-nav-middle mono font-xs">
+        Product {{ getCurrentProductIndex() }} of {{ getFilteredProducts().length }}
       </div>
 
-      <div class="product-list">
-        @for (prod of getFilteredProducts(); track prod.sku) {
-        <div class="product-item-card" [class.active]="selectedProduct()?.sku === prod.sku"
-          (click)="selectProduct(prod.sku)">
-          <div class="item-header">
-            <span class="brand-tag">{{ prod.brand }}</span>
-            <span class="sku-tag">{{ prod.sku }}</span>
-          </div>
-          <div class="item-name">{{ prod.name }}</div>
-          <div class="item-meta">
-            <span>{{ prod.components.length }} BOM Components</span>
-            <span class="weight-tag mono">{{ prod.total_packaging_weight_grams }}g packaging</span>
-          </div>
-          @if (prod.has_quality_issues) {
-          <div class="issue-badge">
-            [!] {{ prod.open_issue_count }} Data Quality Flag
-          </div>
-          }
-        </div>
-        }
+      <div class="detail-nav-arrows">
+        <button
+          type="button"
+          class="btn-arrow"
+          [disabled]="getCurrentProductIndex() <= 1"
+          (click)="prevProductDetail()"
+          title="Previous SKU"
+        >
+          &larr; Prev SKU
+        </button>
+        <button
+          type="button"
+          class="btn-arrow"
+          [disabled]="getCurrentProductIndex() >= getFilteredProducts().length"
+          (click)="nextProductDetail()"
+          title="Next SKU"
+        >
+          Next SKU &rarr;
+        </button>
       </div>
-    </aside>
+    </div>
 
-    <!-- Right Column: Detail Panel with 4 Tabs -->
-    <main class="bom-detail-panel">
-      @if (selectedProduct(); as p) {
+    <!-- Product Detail Header Card -->
+    @if (selectedProduct(); as p) {
+    <div class="bom-detail-panel full-width">
       <div class="bom-header-card">
         <div class="bom-title-row">
           <div>
             <span class="category-pill">{{ p.category }}</span>
             <h2 class="bom-product-title">{{ p.name }}</h2>
             <div class="bom-sku-line">
-              SKU: <code class="mono">{{ p.sku }}</code> • Net Weight: {{ p.net_content_grams || 500 }}g • Total Packaging Tare:
+              SKU: <code class="mono">{{ p.sku }}</code> &bull; Brand: <strong>{{ p.brand }}</strong> &bull; Net Weight: {{ p.net_content_grams || 500 }}g &bull; Total Packaging Tare:
               <strong class="mono">{{ p.total_packaging_weight_grams }}g</strong>
             </div>
           </div>
@@ -225,9 +433,9 @@
           <div>
             <span class="stat-label">SKU Total EPR Liability &amp; Calculation Audit</span>
             <h3 class="financials-headline">
-              £{{ fin.ukFeeGbp | number }} <span class="headline-sub">(UK Defra pEPR)</span>
+              &pound;{{ fin.ukFeeGbp | number }} <span class="headline-sub">(UK Defra pEPR)</span>
               &nbsp;+&nbsp;
-              DKK {{ (fin.dkFeeGbp * 8.6) | number:'1.0-0' }} <span class="headline-sub">(~£{{ fin.dkFeeGbp | number }} Denmark DPA)</span>
+              DKK {{ (fin.dkFeeGbp * 8.6) | number:'1.0-0' }} <span class="headline-sub">(&sim;&pound;{{ fin.dkFeeGbp | number }} Denmark DPA)</span>
             </h3>
           </div>
           <div class="eco-status-pill" [class.red]="fin.ecoRating === 'RED'" [class.yellow]="fin.ecoRating === 'YELLOW'" [class.green]="fin.ecoRating === 'GREEN'">
@@ -243,253 +451,202 @@
           </div>
           @if (fin.recommendationSavingsGbp) {
           <a routerLink="/simulator" class="simulate-action-btn">
-             Simulate Redesign (Save −£{{ fin.recommendationSavingsGbp | number }}/yr) ->
+             Simulate Redesign (Save &minus;&pound;{{ fin.recommendationSavingsGbp | number }}/yr) &rarr;
           </a>
           }
         </div>
 
-        <!-- Metric cards row -->
-        <div class="module-grid" style="margin-top: 16px; margin-bottom: 24px;">
-          <div class="module-stat-box">
-            <span class="stat-label">UK Market Placed Packaging</span>
-            <div class="stat-val mono">{{ fin.totalPackagingTonnes }} tonnes/yr</div>
-            <span class="stat-sub">Based on 5.1M units placed on UK market</span>
+        <!-- Line Item Breakdown Table (Screen 13 & 14 1:1 Defra Formula Trace) -->
+        <div class="section-title-sm">Component-Level Fee Calculation Trace (Defra Formula: Units &times; Tare &divide; 10&#8310; &times; Base Tariff &times; Eco Modulation)</div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Component / Specification</th>
+                <th>Material Class</th>
+                <th>Tare (g)</th>
+                <th>Annual Volume</th>
+                <th>Packaging Tonnes</th>
+                <th>Base Tariff / Tonne</th>
+                <th>Eco Modulation</th>
+                <th>Total Line Fee</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of fin.lineItems; track item.componentId) {
+              <tr>
+                <td>
+                  <div class="font-bold">{{ item.componentName }}</div>
+                  <div class="text-subtle font-xs">{{ item.sourceTraceNote }}</div>
+                </td>
+                <td><span class="pill-bom">{{ item.material }}</span></td>
+                <td class="mono">{{ item.weightGrams }}g</td>
+                <td class="mono">{{ item.annualUnits | number }}</td>
+                <td class="mono font-bold">{{ item.totalTonnes }} t</td>
+                <td class="mono">&pound;{{ item.baseRateGbpPerTonne | number:'1.2-2' }}</td>
+                <td>
+                  @if (item.ecoModulationPct > 0) {
+                  <span class="pill-alert mono font-bold">+{{ item.ecoModulationPct }}% (Red Malus)</span>
+                  } @else if (item.ecoModulationPct < 0) {
+                  <span class="pill-ok mono font-bold">{{ item.ecoModulationPct }}% (Green Bonus)</span>
+                  } @else {
+                  <span class="pill-status mono">0% (Baseline)</span>
+                  }
+                </td>
+                <td class="mono font-bold">&pound;{{ item.lineItemFeeGbp | number }}</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="formula-callout">
+          <strong>Defra Mathematical Audit Trace:</strong>
+          <code>Fee (&pound;) = [ Placed On Market Units &times; Component Tare (g) &divide; 1,000,000 ] &times; Base Rate (&pound;/t) &times; (1 + Eco Modulation %)</code>
+          <p class="callout-hint">
+            Calculated under statutory schedule 2025/2026 for UK Extended Producer Responsibility. Line item details are fully exportable in official Defra RPD CSV structure.
+          </p>
+        </div>
+        }
+      </div>
+      }
+
+      <!-- TAB 3: EU PPWR COMPLIANCE & DOC -->
+      @if (activeTab() === 'ppwr') {
+      <div class="module-panel-card">
+        @if (ppwrDoc(); as doc) {
+        <div class="doc-header">
+          <div>
+            <h3>EU Declaration of Conformity (PPWR 2025/40)</h3>
+            <span class="doc-sub">Statutory assessment under Article 6 &amp; 11 Design for Recycling standards.</span>
           </div>
-          <div class="module-stat-box">
-            <span class="stat-label">Baseline Material Rate</span>
-            <div class="stat-val mono">£355.00 / tonne</div>
-            <span class="stat-sub">Defra Plastic Packaging Category</span>
-          </div>
-          <div class="module-stat-box">
-            <span class="stat-label">Modulation Status</span>
-            <div class="stat-val mono" [class.text-red]="fin.ecoRating === 'RED'" [class.text-yellow]="fin.ecoRating === 'YELLOW'">
-              {{ fin.ecoRating === 'RED' ? '1.50× (+50% Malus)' : fin.ecoRating === 'YELLOW' ? '1.00× (Bonus Withheld)' : '0.90× (−10% Bonus)' }}
-            </div>
-            <span class="stat-sub">{{ fin.ecoRating === 'RED' ? 'Penalized: Recyclability Grade E' : 'Standard or Discounted' }}</span>
+          <div class="grade-badge-circle" [attr.data-grade]="doc.recyclability_grade">
+            Grade {{ doc.recyclability_grade }}
           </div>
         </div>
 
-        <!-- Screen 14 Trace: Itemized Calculation Trace Table -->
-        <div class="calculation-trace-section">
-          <div class="trace-title-row">
-            <div>
-              <h4 class="trace-title">Line-Item Component Calculation Trace</h4>
-              <span class="trace-formula-tag mono">
-                Formula: Units × Tare Weight (g) ÷ 1,000,000 × Defra Rate (£/t) × (1 + Malus%)
-              </span>
+        <div class="checklist-grid">
+          <div class="check-item" [class.pass]="doc.is_compliant_for_eu_market">
+            <span class="check-mark">{{ doc.is_compliant_for_eu_market ? '[OK]' : '[!]' }}</span>
+            <div class="check-content">
+              <h4>EU Market Compliance</h4>
+              <p>Overall recyclability rating {{ doc.overall_recyclability_pct }}% (Grade {{ doc.recyclability_grade }}).</p>
             </div>
           </div>
 
-          <div class="table-responsive">
-            <table class="trace-table">
+          <div class="check-item" [class.pass]="doc.heavy_metals_compliant">
+            <span class="check-mark">{{ doc.heavy_metals_compliant ? '[OK]' : '[!]' }}</span>
+            <div class="check-content">
+              <h4>Substances of Concern &amp; Heavy Metals</h4>
+              <p>Lead, Cadmium, Mercury and Hexavalent Chromium &lt; 100 ppm per 94/62/EC.</p>
+            </div>
+          </div>
+
+          <div class="check-item" [class.pass]="doc.pfas_substance_free">
+            <span class="check-mark">{{ doc.pfas_substance_free ? '[OK]' : '[!]' }}</span>
+            <div class="check-content">
+              <h4>PFAS Substance Free</h4>
+              <p>Verified zero persistent fluorinated chemicals across packaging layers.</p>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      }
+
+      <!-- TAB 4: DIGITAL PRODUCT PASSPORT (DPP) -->
+      @if (activeTab() === 'dpp') {
+      <div class="module-panel-card dpp-layout">
+        @if (dppPassport(); as dpp) {
+        <div class="dpp-qr-column">
+          <div class="qr-container">
+            <div class="qr-mock-box font-bold">[QR PASSPORT]</div>
+            <span class="qr-label">Scan for GS1 Digital Link</span>
+          </div>
+          <div class="dpp-id-box">
+            <span class="id-lbl">Passport ID:</span>
+            <span class="id-val mono">{{ dpp.passport_id }}</span>
+          </div>
+        </div>
+
+        <div class="dpp-info-column">
+          <h3>Consumer Recycling Instructions</h3>
+          <div class="instruction-box">
+            @for (inst of dpp.disposal_instructions; track inst) {
+            <p style="margin: 0 0 4px 0;">{{ inst }}</p>
+            }
+          </div>
+
+          <h3 style="margin-top: 24px;">Material Composition Breakdown</h3>
+          <div class="table-container">
+            <table class="data-table">
               <thead>
                 <tr>
-                  <th>Component &amp; Source Spec</th>
-                  <th>Material</th>
-                  <th class="num-col">Tare (g)</th>
-                  <th class="num-col">Placed Units</th>
-                  <th class="num-col">Tonnage</th>
-                  <th class="num-col">Base Rate</th>
-                  <th class="num-col">Modulation</th>
-                  <th class="num-col">Fee Total</th>
+                  <th>Component</th>
+                  <th>Polymer / Substrate</th>
+                  <th>Weight (g)</th>
+                  <th>Curbside Instructions</th>
                 </tr>
               </thead>
               <tbody>
-                @for (item of fin.lineItems; track item.componentId) {
+                @for (c of p.components; track c.id) {
                 <tr>
-                  <td>
-                    <div class="trace-comp-name">{{ item.componentName }}</div>
-                    <div class="trace-source-note mono">{{ item.sourceTraceNote }}</div>
-                  </td>
-                  <td><span class="material-badge">{{ item.material }}</span></td>
-                  <td class="num-col mono">{{ item.weightGrams }}g</td>
-                  <td class="num-col mono">{{ item.annualUnits | number }}</td>
-                  <td class="num-col mono">{{ item.totalTonnes | number:'1.2-2' }}t</td>
-                  <td class="num-col mono">£{{ item.baseRateGbpPerTonne | number:'1.2-2' }}</td>
-                  <td class="num-col mono" [class.text-red]="item.ecoModulationPct > 0" [class.text-green]="item.ecoModulationPct < 0">
-                    {{ item.ecoModulationPct > 0 ? '+' + item.ecoModulationPct + '% Malus' : (item.ecoModulationPct < 0 ? item.ecoModulationPct + '% Bonus' : '0% (Standard)') }}
-                  </td>
-                  <td class="num-col mono font-bold">£{{ item.lineItemFeeGbp | number }}</td>
+                  <td>{{ c.name }}</td>
+                  <td><code>{{ c.material }}</code></td>
+                  <td class="mono">{{ c.weight_grams }}g</td>
+                  <td>{{ c.is_recyclable ? 'Standard Household Recycling' : 'Residual Waste' }}</td>
                 </tr>
                 }
               </tbody>
             </table>
           </div>
-
-          <div class="audit-footer-notice">
-            <span>[AUDIT] <strong>Audit Assurance:</strong> Every tare weight, sales volume, and tariff rate is traceable back to Trace One Devex PLM and SAP ERP table STPO without manual manipulation.</span>
-          </div>
         </div>
         }
       </div>
       }
 
-      <!-- TAB 3: EU PPWR RECYCLABILITY & DOC -->
-      @if (activeTab() === 'ppwr') {
-      <div class="module-panel-card">
-        @if (ppwrDoc(); as doc) {
-        <div class="module-hero-banner">
-          <div>
-            <span class="stat-label">EU PPWR Article 6 Technical Documentation</span>
-            <h3 style="margin: 4px 0 0; color: var(--text-primary);">{{ doc.doc_reference }}</h3>
-          </div>
-          <span class="grade-badge-large">{{ doc.recyclability_grade }}</span>
-        </div>
-
-        <div class="module-grid">
-          <div class="module-stat-box">
-            <span class="stat-label">Overall Recyclability</span>
-            <div class="stat-val">{{ doc.overall_recyclability_pct }}%</div>
-            <span class="stat-sub">High-yield mechanical recovery</span>
-          </div>
-          <div class="module-stat-box">
-            <span class="stat-label">Packaging Minimisation</span>
-            <div class="stat-val">{{ doc.packaging_minimisation_ratio_pct }}%</div>
-            <span class="stat-sub">Headspace ratio (<40% limit)</span>
-          </div>
-          <div class="module-stat-box">
-            <span class="stat-label">Market Status</span>
-            <div class="stat-val" style="color: var(--text-primary);">{{ doc.is_compliant_for_eu_market ? 'APPROVED' : 'RESTRICTED' }}</div>
-            <span class="stat-sub">Valid across all 27 EU Member States</span>
-          </div>
-        </div>
-
-        <div class="checklist-card">
-          <div class="checklist-title">Essential Requirements Checklist (Articles 5-11)</div>
-          <div class="check-item">
-            <span class="check-icon-pass">[PASS]</span>
-            <span>Heavy Metals Compliance: Total Pb, Cd, Hg, Cr(VI) &lt; 100 ppm verified</span>
-          </div>
-          <div class="check-item">
-            <span class="check-icon-pass">[PASS]</span>
-            <span>Chemical Safety: Zero intentionally added PFAS substances in food-contact layers</span>
-          </div>
-          <div class="check-item">
-            <span class="check-icon-pass">[PASS]</span>
-            <span>Harmonised Sorting Marking: Directive 94/62/EC Article 14 labeling compliant</span>
-          </div>
-        </div>
-
-        <table class="compliance-table">
-          <thead>
-            <tr>
-              <th>Component</th>
-              <th>Material</th>
-              <th>Tare</th>
-              <th>PCR %</th>
-              <th>Recyclability %</th>
-              <th>Assessment Note</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (item of doc.components_assessed; track item.component_id) {
-            <tr>
-              <td><strong>{{ item.component_name }}</strong></td>
-              <td>{{ item.material }}</td>
-              <td class="mono">{{ item.weight_grams }}g</td>
-              <td class="mono">{{ item.recycled_content_pct }}%</td>
-              <td class="mono"><strong>{{ item.recyclability_rate_pct }}%</strong></td>
-              <td style="font-size: 12px;">{{ item.compliance_notes }}</td>
-            </tr>
-            }
-          </tbody>
-        </table>
-        } @else {
-        <div class="no-selection-card">Loading EU PPWR evaluation...</div>
-        }
-      </div>
-      }
-
-      <!-- TAB 3: DIGITAL PRODUCT PASSPORT (DPP) -->
-      @if (activeTab() === 'dpp') {
-      <div class="module-panel-card">
-        @if (dppPassport(); as dpp) {
-        <div class="module-hero-banner">
-          <div>
-            <span class="stat-label">Digital Product Passport Registry</span>
-            <h3 style="margin: 4px 0 0; color: var(--text-primary);">{{ dpp.passport_id }}</h3>
-          </div>
-          <span class="grade-badge-large">{{ dpp.recyclability_grade }}</span>
-        </div>
-
-        <div>
-          <span class="stat-label" style="display: block; margin-bottom: 6px;">GS1 Digital Link URI (QR Carrier Target)</span>
-          <div class="code-box">{{ dpp.gs1_digital_link_url }}</div>
-        </div>
-
-        <div class="module-grid">
-          <div class="module-stat-box">
-            <span class="stat-label">Total Tare Weight</span>
-            <div class="stat-val">{{ dpp.total_packaging_weight_grams }}g</div>
-          </div>
-          <div class="module-stat-box">
-            <span class="stat-label">Post-Consumer Recycled Content</span>
-            <div class="stat-val">{{ dpp.total_recycled_content_pct }}% PCR</div>
-          </div>
-          <div class="module-stat-box">
-            <span class="stat-label">Primary Polymer</span>
-            <div class="stat-val">{{ dpp.primary_polymer }}</div>
-          </div>
-        </div>
-
-        <div class="checklist-card">
-          <div class="checklist-title">Consumer End-of-Life Sorting Guide (On-Pack QR Landing)</div>
-          @for (instruction of dpp.disposal_instructions; track instruction) {
-          <div class="check-item">
-            <span class="check-icon-pass">[RECYCLE]</span>
-            <span>{{ instruction }}</span>
-          </div>
-          }
-        </div>
-        } @else {
-        <div class="no-selection-card">Loading Digital Product Passport...</div>
-        }
-      </div>
-      }
-
-      <!-- TAB 4: SOURCE LINEAGE (DEVEX & SNOWFLAKE) -->
+      <!-- TAB 5: SOURCE LINEAGE (DEVEX & SNOWFLAKE) -->
       @if (activeTab() === 'lineage') {
       <div class="module-panel-card">
-        <h3 style="margin: 0; color: var(--text-primary);">Upstream Enterprise Lineage &amp; Verification Chain</h3>
-        <p style="margin: 0; color: var(--text-secondary); font-size: 13px;">
-          This product specification is linked directly to client master databases without manual data alteration:
-        </p>
+        <h3>Trace One PLM Lineage &amp; ERP Audit Trail</h3>
+        <p class="section-desc">Raw source system ingestion logs and synchronization metadata for this SKU.</p>
 
-        <div class="lineage-trace-box">
-          <div class="lineage-row">
-            <span class="lineage-icon">[PLM]</span>
-            <div class="lineage-details">
-              <span class="lineage-system-name">PLM Specification: Trace One Devex</span>
-              <span class="lineage-ref-code">Spec ID: {{ p.source_lineage?.source_record_id || 'DEV-8821' }} • Status: Certified Baseline</span>
+        <div class="lineage-grid">
+          <div class="lineage-card">
+            <span class="lineage-type">SPECIFICATION SOURCE</span>
+            <h4>Trace One Devex PLM</h4>
+            <div class="lineage-detail">
+              <span>Spec Record:</span> <code class="mono">{{ p.source_lineage?.source_record_id || 'DEV-AUTO' }}</code>
+            </div>
+            <div class="lineage-detail">
+              <span>Ingested Batch:</span> <code class="mono">{{ p.source_lineage?.import_batch_id || 'BATCH-001' }}</code>
+            </div>
+            <div class="lineage-detail">
+              <span>Verification Status:</span> <span class="pill-ok font-bold">[VERIFIED]</span>
             </div>
           </div>
 
-          <div class="lineage-row">
-            <span class="lineage-icon">[ERP]</span>
-            <div class="lineage-details">
-              <span class="lineage-system-name">ERP Material Master: SAP S/4HANA</span>
-              <span class="lineage-ref-code">Table: MARA-MATNR ({{ p.sku }}) • BOM STPO: 3-level component tree</span>
+          <div class="lineage-card">
+            <span class="lineage-type">SALES VOLUME SOURCE</span>
+            <h4>SAP ERP S/4HANA</h4>
+            <div class="lineage-detail">
+              <span>Sales Module:</span> <code class="mono">SAP-SD-POM-2025</code>
             </div>
-          </div>
-
-          <div class="lineage-row">
-            <span class="lineage-icon">[LAKE]</span>
-            <div class="lineage-details">
-              <span class="lineage-system-name">Sales Data Lake: Snowflake Analytics</span>
-              <span class="lineage-ref-code">Table: sales_by_market • Granularity: Country-level units placed on market</span>
+            <div class="lineage-detail">
+              <span>Primary Market:</span> <code class="mono">FR (France) / UK / DE</code>
+            </div>
+            <div class="lineage-detail">
+              <span>Reporting Accuracy:</span> <span class="pill-ok font-bold">[100% RECONCILED]</span>
             </div>
           </div>
         </div>
       </div>
       }
 
-      } @else {
-      <div class="no-selection-card">
-        <p>Select a product from the catalog on the left to view its packaging BOM hierarchy.</p>
-      </div>
-      }
-    </main>
+    </div>
+    }
 
-  </div>
+  </section>
+  }
 
 </div>

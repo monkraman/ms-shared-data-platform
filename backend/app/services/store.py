@@ -733,6 +733,414 @@ class DataStore:
         )
         self.products[tenant][p5.sku] = p5
 
+        # SKU 6: Heinz Baked Beanz 415g Tin Can
+        sku6_comps = [
+            PackagingComponentBase(
+                id="COMP-BEANZ-01",
+                name="Electrolytic Tinplate Steel Food Can Body",
+                level=PackagingLevel.PRIMARY,
+                material=MaterialCategory.STEEL_TINPLATE,
+                weight_grams=48.0,
+                recycled_content_pct=55.0,
+                is_recyclable=True,
+                separable_by_consumer=False,
+                source_lineage=SourceLineage(
+                    source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                    source_record_id="DEV-SPEC-CAN-415",
+                    import_batch_id=batch1.id,
+                ),
+            ),
+            PackagingComponentBase(
+                id="COMP-BEANZ-02",
+                name="Easy-Open Steel Ring-Pull End Lid",
+                level=PackagingLevel.PRIMARY,
+                material=MaterialCategory.STEEL_TINPLATE,
+                weight_grams=9.5,
+                recycled_content_pct=55.0,
+                is_recyclable=True,
+                separable_by_consumer=True,
+                source_lineage=SourceLineage(
+                    source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                    source_record_id="DEV-SPEC-CAN-LID",
+                    import_batch_id=batch1.id,
+                ),
+            ),
+            PackagingComponentBase(
+                id="COMP-BEANZ-03",
+                name="Paper Wrap-Around Label (FSC Certified)",
+                level=PackagingLevel.PRIMARY,
+                material=MaterialCategory.PAPER_CARDBOARD,
+                weight_grams=3.2,
+                recycled_content_pct=0.0,
+                is_recyclable=True,
+                separable_by_consumer=False,
+                source_lineage=SourceLineage(
+                    source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                    source_record_id="DEV-SPEC-CAN-LBL",
+                    import_batch_id=batch1.id,
+                ),
+            ),
+        ]
+        p6 = ProductResponse(
+            sku="KHC-BEANZ-415G-CAN",
+            brand="Heinz",
+            name="Heinz Baked Beanz in Tomato Sauce 415g Tin Can",
+            category="Canned Foods & Legumes",
+            net_content_grams=415.0,
+            status="active",
+            components=sku6_comps,
+            tenant_id=tenant,
+            total_packaging_weight_grams=sum(c.weight_grams for c in sku6_comps),
+            primary_material_summary="Steel Tinplate (57.5g), Paper (3.2g)",
+            has_quality_issues=False,
+            open_issue_count=0,
+            source_lineage=SourceLineage(
+                source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                source_record_id="DEV-SPEC-BEANZ-CAN",
+                import_batch_id=batch1.id,
+            ),
+        )
+        self.products[tenant][p6.sku] = p6
+
+        # SKU 7: Heinz Seriously Good Mayonnaise 400ml Glass Jar
+        sku7_comps = [
+            PackagingComponentBase(
+                id="COMP-MAYO-01",
+                name="Flint Glass Wide-Mouth Jar 400ml",
+                level=PackagingLevel.PRIMARY,
+                material=MaterialCategory.GLASS,
+                weight_grams=210.0,
+                recycled_content_pct=35.0,
+                is_recyclable=True,
+                separable_by_consumer=False,
+                source_lineage=SourceLineage(
+                    source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                    source_record_id="DEV-SPEC-JAR-400",
+                    import_batch_id=batch1.id,
+                ),
+            ),
+            PackagingComponentBase(
+                id="COMP-MAYO-02",
+                name="Litho Printed Steel Lug Twist Closure 70mm",
+                level=PackagingLevel.PRIMARY,
+                material=MaterialCategory.STEEL_TINPLATE,
+                weight_grams=12.8,
+                recycled_content_pct=25.0,
+                is_recyclable=True,
+                separable_by_consumer=True,
+                source_lineage=SourceLineage(
+                    source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                    source_record_id="DEV-SPEC-LUG-70",
+                    import_batch_id=batch1.id,
+                ),
+            ),
+            PackagingComponentBase(
+                id="COMP-MAYO-03",
+                name="Self-Adhesive Coated Paper Body Label",
+                level=PackagingLevel.PRIMARY,
+                material=MaterialCategory.PAPER_CARDBOARD,
+                weight_grams=2.4,
+                recycled_content_pct=0.0,
+                is_recyclable=True,
+                separable_by_consumer=False,
+                source_lineage=SourceLineage(
+                    source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                    source_record_id="DEV-SPEC-JAR-LBL",
+                    import_batch_id=batch1.id,
+                ),
+            ),
+        ]
+        p7 = ProductResponse(
+            sku="KHC-MAYO-400ML-GL",
+            brand="Heinz",
+            name="Heinz [Seriously] Good Mayonnaise 400ml Glass Jar",
+            category="Condiments & Sauces",
+            net_content_grams=395.0,
+            status="active",
+            components=sku7_comps,
+            tenant_id=tenant,
+            total_packaging_weight_grams=sum(c.weight_grams for c in sku7_comps),
+            primary_material_summary="Glass (210g), Steel (12.8g), Paper (2.4g)",
+            has_quality_issues=False,
+            open_issue_count=0,
+            source_lineage=SourceLineage(
+                source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                source_record_id="DEV-SPEC-MAYO-JAR",
+                import_batch_id=batch1.id,
+            ),
+        )
+        self.products[tenant][p7.sku] = p7
+
+        # SKU 8: Heinz Classic Barbecue Sauce 400g Top-Down Squeezy
+        sku8_comps = [
+            PackagingComponentBase(
+                id="COMP-BBQ-01",
+                name="PET Transparent Squeezy Bottle Body",
+                level=PackagingLevel.PRIMARY,
+                material=MaterialCategory.PET_CLEAR,
+                weight_grams=31.0,
+                recycled_content_pct=25.0,
+                is_recyclable=True,
+                separable_by_consumer=False,
+                source_lineage=SourceLineage(
+                    source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                    source_record_id="DEV-SPEC-BBQ-BTL",
+                    import_batch_id=batch1.id,
+                ),
+            ),
+            PackagingComponentBase(
+                id="COMP-BBQ-02",
+                name="PP Dual-Action Flip Dispensing Cap with Silicone Valve",
+                level=PackagingLevel.PRIMARY,
+                material=MaterialCategory.PP,
+                weight_grams=14.0,
+                recycled_content_pct=0.0,
+                is_recyclable=True,
+                separable_by_consumer=True,
+                source_lineage=SourceLineage(
+                    source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                    source_record_id="DEV-SPEC-CAP-BBQ",
+                    import_batch_id=batch1.id,
+                ),
+            ),
+        ]
+        p8 = ProductResponse(
+            sku="KHC-BBQ-400G-SQ",
+            brand="Heinz",
+            name="Heinz Classic Barbecue Sauce 400g Squeezy Bottle",
+            category="Condiments & Sauces",
+            net_content_grams=400.0,
+            status="active",
+            components=sku8_comps,
+            tenant_id=tenant,
+            total_packaging_weight_grams=sum(c.weight_grams for c in sku8_comps),
+            primary_material_summary="PET Clear (31g), PP (14g)",
+            has_quality_issues=False,
+            open_issue_count=0,
+            source_lineage=SourceLineage(
+                source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                source_record_id="DEV-SPEC-BBQ-400",
+                import_batch_id=batch1.id,
+            ),
+        )
+        self.products[tenant][p8.sku] = p8
+
+        # SKU 9: Heinz Cream of Tomato Soup 400g Tin Can
+        sku9_comps = [
+            PackagingComponentBase(
+                id="COMP-SOUP-01",
+                name="Tinplate Steel Soup Can Body",
+                level=PackagingLevel.PRIMARY,
+                material=MaterialCategory.STEEL_TINPLATE,
+                weight_grams=47.5,
+                recycled_content_pct=55.0,
+                is_recyclable=True,
+                separable_by_consumer=False,
+                source_lineage=SourceLineage(
+                    source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                    source_record_id="DEV-SPEC-SOUP-CAN",
+                    import_batch_id=batch1.id,
+                ),
+            ),
+            PackagingComponentBase(
+                id="COMP-SOUP-02",
+                name="Easy Open Ring Pull Can Lid",
+                level=PackagingLevel.PRIMARY,
+                material=MaterialCategory.STEEL_TINPLATE,
+                weight_grams=9.5,
+                recycled_content_pct=55.0,
+                is_recyclable=True,
+                separable_by_consumer=True,
+                source_lineage=SourceLineage(
+                    source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                    source_record_id="DEV-SPEC-SOUP-LID",
+                    import_batch_id=batch1.id,
+                ),
+            ),
+        ]
+        p9 = ProductResponse(
+            sku="KHC-SOUP-400G-CAN",
+            brand="Heinz",
+            name="Heinz Classics Cream of Tomato Soup 400g Tin Can",
+            category="Canned Foods & Soups",
+            net_content_grams=400.0,
+            status="active",
+            components=sku9_comps,
+            tenant_id=tenant,
+            total_packaging_weight_grams=sum(c.weight_grams for c in sku9_comps),
+            primary_material_summary="Steel Tinplate (57.0g)",
+            has_quality_issues=False,
+            open_issue_count=0,
+            source_lineage=SourceLineage(
+                source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                source_record_id="DEV-SPEC-SOUP-400",
+                import_batch_id=batch1.id,
+            ),
+        )
+        self.products[tenant][p9.sku] = p9
+
+        # SKU 10: Heinz Yellow Mustard Mild 240g Squeezy Bottle
+        sku10_comps = [
+            PackagingComponentBase(
+                id="COMP-MUST-01",
+                name="Yellow Pigmented HDPE Squeezy Bottle",
+                level=PackagingLevel.PRIMARY,
+                material=MaterialCategory.HDPE,
+                weight_grams=24.0,
+                recycled_content_pct=0.0,
+                is_recyclable=True,
+                separable_by_consumer=False,
+                source_lineage=SourceLineage(
+                    source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                    source_record_id="DEV-SPEC-MUST-BTL",
+                    import_batch_id=batch1.id,
+                ),
+            ),
+            PackagingComponentBase(
+                id="COMP-MUST-02",
+                name="Red PP Dispensing Flip Top Cap",
+                level=PackagingLevel.PRIMARY,
+                material=MaterialCategory.PP,
+                weight_grams=11.5,
+                recycled_content_pct=0.0,
+                is_recyclable=True,
+                separable_by_consumer=True,
+                source_lineage=SourceLineage(
+                    source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                    source_record_id="DEV-SPEC-MUST-CAP",
+                    import_batch_id=batch1.id,
+                ),
+            ),
+        ]
+        p10 = ProductResponse(
+            sku="KHC-MUST-240G-SQ",
+            brand="Heinz",
+            name="Heinz Yellow Mustard Mild 240g Squeezy Bottle",
+            category="Condiments & Sauces",
+            net_content_grams=240.0,
+            status="active",
+            components=sku10_comps,
+            tenant_id=tenant,
+            total_packaging_weight_grams=sum(c.weight_grams for c in sku10_comps),
+            primary_material_summary="HDPE (24g), PP (11.5g)",
+            has_quality_issues=False,
+            open_issue_count=0,
+            source_lineage=SourceLineage(
+                source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                source_record_id="DEV-SPEC-MUST-240",
+                import_batch_id=batch1.id,
+            ),
+        )
+        self.products[tenant][p10.sku] = p10
+
+        # SKU 11: HP Brown Sauce 285g Classic Glass Bottle
+        sku11_comps = [
+            PackagingComponentBase(
+                id="COMP-HP-01",
+                name="Rectangular Flint Glass Sauce Bottle 285g",
+                level=PackagingLevel.PRIMARY,
+                material=MaterialCategory.GLASS,
+                weight_grams=215.0,
+                recycled_content_pct=30.0,
+                is_recyclable=True,
+                separable_by_consumer=False,
+                source_lineage=SourceLineage(
+                    source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                    source_record_id="DEV-SPEC-HP-GL",
+                    import_batch_id=batch1.id,
+                ),
+            ),
+            PackagingComponentBase(
+                id="COMP-HP-02",
+                name="Blue PP Continuous Thread Screw Closure",
+                level=PackagingLevel.PRIMARY,
+                material=MaterialCategory.PP,
+                weight_grams=6.5,
+                recycled_content_pct=0.0,
+                is_recyclable=True,
+                separable_by_consumer=True,
+                source_lineage=SourceLineage(
+                    source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                    source_record_id="DEV-SPEC-HP-CAP",
+                    import_batch_id=batch1.id,
+                ),
+            ),
+        ]
+        p11 = ProductResponse(
+            sku="KHC-HP-285G-GL",
+            brand="HP",
+            name="HP Brown Sauce 285g Classic Glass Bottle",
+            category="Condiments & Sauces",
+            net_content_grams=285.0,
+            status="active",
+            components=sku11_comps,
+            tenant_id=tenant,
+            total_packaging_weight_grams=sum(c.weight_grams for c in sku11_comps),
+            primary_material_summary="Glass (215g), PP (6.5g)",
+            has_quality_issues=False,
+            open_issue_count=0,
+            source_lineage=SourceLineage(
+                source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                source_record_id="DEV-SPEC-HP-285",
+                import_batch_id=batch1.id,
+            ),
+        )
+        self.products[tenant][p11.sku] = p11
+
+        # SKU 12: Heinz Salad Cream 415g Top-Down Squeezy Bottle
+        sku12_comps = [
+            PackagingComponentBase(
+                id="COMP-SC-01",
+                name="Clear PET Top-Down Squeezy Bottle Body",
+                level=PackagingLevel.PRIMARY,
+                material=MaterialCategory.PET_CLEAR,
+                weight_grams=33.0,
+                recycled_content_pct=25.0,
+                is_recyclable=True,
+                separable_by_consumer=False,
+                source_lineage=SourceLineage(
+                    source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                    source_record_id="DEV-SPEC-SC-BTL",
+                    import_batch_id=batch1.id,
+                ),
+            ),
+            PackagingComponentBase(
+                id="COMP-SC-02",
+                name="Yellow PP Dispensing Closure with Clean Valve",
+                level=PackagingLevel.PRIMARY,
+                material=MaterialCategory.PP,
+                weight_grams=14.0,
+                recycled_content_pct=0.0,
+                is_recyclable=True,
+                separable_by_consumer=True,
+                source_lineage=SourceLineage(
+                    source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                    source_record_id="DEV-SPEC-SC-CAP",
+                    import_batch_id=batch1.id,
+                ),
+            ),
+        ]
+        p12 = ProductResponse(
+            sku="KHC-SALAD-415G-SQ",
+            brand="Heinz",
+            name="Heinz Salad Cream 415g Top-Down Squeezy Bottle",
+            category="Condiments & Sauces",
+            net_content_grams=415.0,
+            status="active",
+            components=sku12_comps,
+            tenant_id=tenant,
+            total_packaging_weight_grams=sum(c.weight_grams for c in sku12_comps),
+            primary_material_summary="PET Clear (33g), PP (14g)",
+            has_quality_issues=False,
+            open_issue_count=0,
+            source_lineage=SourceLineage(
+                source_system=SourceSystemType.TRACE_ONE_DEVEX,
+                source_record_id="DEV-SPEC-SC-415",
+                import_batch_id=batch1.id,
+            ),
+        )
+        self.products[tenant][p12.sku] = p12
+
         # Seed Sales (Placed On Market) for France and Germany (2025 reporting year)
         self.sales[tenant] = [
             PlacedOnMarketSales(
@@ -917,7 +1325,7 @@ class DataStore:
                 logo_url=data.logo_url,
                 theme_color=data.theme_color or "#111827",
                 source_systems=["Trace One (Devex PLM)", "Snowflake Data Cloud", "CSV Bulk Importer"],
-                active_products_count=5,
+                active_products_count=12,
                 open_quality_issues_count=4,
             )
             self.tenants[data.id] = tenant_res
