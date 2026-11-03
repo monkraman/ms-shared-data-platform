@@ -145,6 +145,18 @@
             </div>
           </div>
 
+          <!-- Provisioned Client Credentials Strip -->
+          <div class="org-credentials-strip">
+            <div class="cred-mini-row">
+              <span class="cred-mini-lbl">Client Login:</span>
+              <code class="cred-mini-val mono">{{ org.id === 'khc-europe' ? 'compliance.officer@kraftheinz.com' : 'compliance.officer@' + org.id + '.com' }}</code>
+            </div>
+            <div class="cred-mini-row">
+              <span class="cred-mini-lbl">Initial Password:</span>
+              <code class="cred-mini-val mono">password123</code>
+            </div>
+          </div>
+
           <div class="org-actions">
             <button class="btn-action" (click)="openImportModal(org.id)" title="Import SKU Catalog">
               Import SKUs
