@@ -89,6 +89,9 @@
           <button type="button" class="tab-btn" [class.active]="activeTab() === 'bom'" (click)="activeTab.set('bom')">
             🌳 Packaging BOM Tree ({{ p.components.length }})
           </button>
+          <button type="button" class="tab-btn" [class.active]="activeTab() === 'fees'" (click)="activeTab.set('fees')">
+            💰 EPR Fees &amp; Calculation Trace
+          </button>
           <button type="button" class="tab-btn" [class.active]="activeTab() === 'ppwr'" (click)="activeTab.set('ppwr')">
             🇪🇺 EU PPWR Recyclability &amp; DoC
           </button>
@@ -214,7 +217,114 @@
       </div>
       }
 
-      <!-- TAB 2: EU PPWR RECYCLABILITY & DOC -->
+      <!-- TAB 2: EPR FEES & CALCULATION TRACE (SCREEN 13 & 14) -->
+      @if (activeTab() === 'fees') {
+      <div class="module-panel-card">
+        @if (getSkuFinancials(p); as fin) {
+        <div class="financials-header-row">
+          <div>
+            <span class="stat-label">SKU Total EPR Liability &amp; Calculation Audit</span>
+            <h3 class="financials-headline">
+              £{{ fin.ukFeeGbp | number }} <span class="headline-sub">(UK Defra pEPR)</span>
+              &nbsp;+&nbsp;
+              DKK {{ (fin.dkFeeGbp * 8.6) | number:'1.0-0' }} <span class="headline-sub">(~£{{ fin.dkFeeGbp | number }} Denmark DPA)</span>
+            </h3>
+          </div>
+          <div class="eco-status-pill" [class.red]="fin.ecoRating === 'RED'" [class.yellow]="fin.ecoRating === 'YELLOW'" [class.green]="fin.ecoRating === 'GREEN'">
+            <span class="eco-bullet">●</span>
+            <span>ECO-RATING: {{ fin.ecoRating }}</span>
+          </div>
+        </div>
+
+        <!-- Eco-modulation alert & action -->
+        <div class="eco-alert-banner" [class.banner-red]="fin.ecoRating === 'RED'" [class.banner-yellow]="fin.ecoRating === 'YELLOW'" [class.banner-green]="fin.ecoRating === 'GREEN'">
+          <div class="eco-alert-text">
+            <strong>Modulation Finding:</strong> {{ fin.ecoModulationDescription }}
+          </div>
+          @if (fin.recommendationSavingsGbp) {
+          <a routerLink="/simulator" class="simulate-action-btn">
+            ⚡ Simulate Redesign (Save −£{{ fin.recommendationSavingsGbp | number }}/yr) →
+          </a>
+          }
+        </div>
+
+        <!-- Metric cards row -->
+        <div class="module-grid" style="margin-top: 16px; margin-bottom: 24px;">
+          <div class="module-stat-box">
+            <span class="stat-label">UK Market Placed Packaging</span>
+            <div class="stat-val mono">{{ fin.totalPackagingTonnes }} tonnes/yr</div>
+            <span class="stat-sub">Based on 5.1M units placed on UK market</span>
+          </div>
+          <div class="module-stat-box">
+            <span class="stat-label">Baseline Material Rate</span>
+            <div class="stat-val mono">£355.00 / tonne</div>
+            <span class="stat-sub">Defra Plastic Packaging Category</span>
+          </div>
+          <div class="module-stat-box">
+            <span class="stat-label">Modulation Status</span>
+            <div class="stat-val mono" [class.text-red]="fin.ecoRating === 'RED'" [class.text-yellow]="fin.ecoRating === 'YELLOW'">
+              {{ fin.ecoRating === 'RED' ? '1.50× (+50% Malus)' : fin.ecoRating === 'YELLOW' ? '1.00× (Bonus Withheld)' : '0.90× (−10% Bonus)' }}
+            </div>
+            <span class="stat-sub">{{ fin.ecoRating === 'RED' ? 'Penalized: Recyclability Grade E' : 'Standard or Discounted' }}</span>
+          </div>
+        </div>
+
+        <!-- Screen 14 Trace: Itemized Calculation Trace Table -->
+        <div class="calculation-trace-section">
+          <div class="trace-title-row">
+            <div>
+              <h4 class="trace-title">Line-Item Component Calculation Trace</h4>
+              <span class="trace-formula-tag mono">
+                Formula: Units × Tare Weight (g) ÷ 1,000,000 × Defra Rate (£/t) × (1 + Malus%)
+              </span>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="trace-table">
+              <thead>
+                <tr>
+                  <th>Component &amp; Source Spec</th>
+                  <th>Material</th>
+                  <th class="num-col">Tare (g)</th>
+                  <th class="num-col">Placed Units</th>
+                  <th class="num-col">Tonnage</th>
+                  <th class="num-col">Base Rate</th>
+                  <th class="num-col">Modulation</th>
+                  <th class="num-col">Fee Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of fin.lineItems; track item.componentId) {
+                <tr>
+                  <td>
+                    <div class="trace-comp-name">{{ item.componentName }}</div>
+                    <div class="trace-source-note mono">{{ item.sourceTraceNote }}</div>
+                  </td>
+                  <td><span class="material-badge">{{ item.material }}</span></td>
+                  <td class="num-col mono">{{ item.weightGrams }}g</td>
+                  <td class="num-col mono">{{ item.annualUnits | number }}</td>
+                  <td class="num-col mono">{{ item.totalTonnes | number:'1.2-2' }}t</td>
+                  <td class="num-col mono">£{{ item.baseRateGbpPerTonne | number:'1.2-2' }}</td>
+                  <td class="num-col mono" [class.text-red]="item.ecoModulationPct > 0" [class.text-green]="item.ecoModulationPct < 0">
+                    {{ item.ecoModulationPct > 0 ? '+' + item.ecoModulationPct + '% Malus' : (item.ecoModulationPct < 0 ? item.ecoModulationPct + '% Bonus' : '0% (Standard)') }}
+                  </td>
+                  <td class="num-col mono font-bold">£{{ item.lineItemFeeGbp | number }}</td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="audit-footer-notice">
+            <span>🔒 <strong>Audit Assurance:</strong> Every tare weight, sales volume, and tariff rate is traceable back to Trace One Devex PLM and SAP ERP table STPO without manual manipulation.</span>
+          </div>
+        </div>
+        }
+      </div>
+      }
+
+      <!-- TAB 3: EU PPWR RECYCLABILITY & DOC -->
       @if (activeTab() === 'ppwr') {
       <div class="module-panel-card">
         @if (ppwrDoc(); as doc) {
