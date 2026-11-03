@@ -12,7 +12,7 @@
 
     <div class="header-actions">
       <button type="button" class="btn-sync" [disabled]="syncing()" (click)="syncTraceOne()">
-        <span class="sync-icon" [class.spinning]="syncing()">⚡</span>
+        <span class="sync-icon" [class.spinning]="syncing()"></span>
         @if (syncing()) {
         <span>Syncing Trace One PLM (Devex)...</span>
         } @else {
@@ -57,7 +57,7 @@
           </div>
           @if (prod.has_quality_issues) {
           <div class="issue-badge">
-            ⚠️ {{ prod.open_issue_count }} Data Quality Flag
+            [!] {{ prod.open_issue_count }} Data Quality Flag
           </div>
           }
         </div>
@@ -87,19 +87,19 @@
         <!-- Tab Bar -->
         <div class="bom-tabs">
           <button type="button" class="tab-btn" [class.active]="activeTab() === 'bom'" (click)="activeTab.set('bom')">
-            🌳 Packaging BOM Tree ({{ p.components.length }})
+            Packaging BOM Tree ({{ p.components.length }})
           </button>
           <button type="button" class="tab-btn" [class.active]="activeTab() === 'fees'" (click)="activeTab.set('fees')">
-            💰 EPR Fees &amp; Calculation Trace
+            EPR Fees &amp; Calculation Trace
           </button>
           <button type="button" class="tab-btn" [class.active]="activeTab() === 'ppwr'" (click)="activeTab.set('ppwr')">
-            🇪🇺 EU PPWR Recyclability &amp; DoC
+            EU PPWR Recyclability &amp; DoC
           </button>
           <button type="button" class="tab-btn" [class.active]="activeTab() === 'dpp'" (click)="activeTab.set('dpp')">
-            📱 Digital Product Passport (DPP)
+            Digital Product Passport (DPP)
           </button>
           <button type="button" class="tab-btn" [class.active]="activeTab() === 'lineage'" (click)="activeTab.set('lineage')">
-            🔍 Source Lineage (Devex &amp; Snowflake)
+            Source Lineage (Devex &amp; Snowflake)
           </button>
         </div>
       </div>
@@ -231,7 +231,7 @@
             </h3>
           </div>
           <div class="eco-status-pill" [class.red]="fin.ecoRating === 'RED'" [class.yellow]="fin.ecoRating === 'YELLOW'" [class.green]="fin.ecoRating === 'GREEN'">
-            <span class="eco-bullet">●</span>
+            <span class="eco-bullet"></span>
             <span>ECO-RATING: {{ fin.ecoRating }}</span>
           </div>
         </div>
@@ -243,7 +243,7 @@
           </div>
           @if (fin.recommendationSavingsGbp) {
           <a routerLink="/simulator" class="simulate-action-btn">
-            ⚡ Simulate Redesign (Save −£{{ fin.recommendationSavingsGbp | number }}/yr) →
+             Simulate Redesign (Save −£{{ fin.recommendationSavingsGbp | number }}/yr) ->
           </a>
           }
         </div>
@@ -317,7 +317,7 @@
           </div>
 
           <div class="audit-footer-notice">
-            <span>🔒 <strong>Audit Assurance:</strong> Every tare weight, sales volume, and tariff rate is traceable back to Trace One Devex PLM and SAP ERP table STPO without manual manipulation.</span>
+            <span>[AUDIT] <strong>Audit Assurance:</strong> Every tare weight, sales volume, and tariff rate is traceable back to Trace One Devex PLM and SAP ERP table STPO without manual manipulation.</span>
           </div>
         </div>
         }
@@ -357,15 +357,15 @@
         <div class="checklist-card">
           <div class="checklist-title">Essential Requirements Checklist (Articles 5-11)</div>
           <div class="check-item">
-            <span class="check-icon-pass">✓</span>
+            <span class="check-icon-pass">[PASS]</span>
             <span>Heavy Metals Compliance: Total Pb, Cd, Hg, Cr(VI) &lt; 100 ppm verified</span>
           </div>
           <div class="check-item">
-            <span class="check-icon-pass">✓</span>
+            <span class="check-icon-pass">[PASS]</span>
             <span>Chemical Safety: Zero intentionally added PFAS substances in food-contact layers</span>
           </div>
           <div class="check-item">
-            <span class="check-icon-pass">✓</span>
+            <span class="check-icon-pass">[PASS]</span>
             <span>Harmonised Sorting Marking: Directive 94/62/EC Article 14 labeling compliant</span>
           </div>
         </div>
@@ -436,7 +436,7 @@
           <div class="checklist-title">Consumer End-of-Life Sorting Guide (On-Pack QR Landing)</div>
           @for (instruction of dpp.disposal_instructions; track instruction) {
           <div class="check-item">
-            <span class="check-icon-pass">♻</span>
+            <span class="check-icon-pass">[RECYCLE]</span>
             <span>{{ instruction }}</span>
           </div>
           }
@@ -457,7 +457,7 @@
 
         <div class="lineage-trace-box">
           <div class="lineage-row">
-            <span class="lineage-icon">🔬</span>
+            <span class="lineage-icon">[PLM]</span>
             <div class="lineage-details">
               <span class="lineage-system-name">PLM Specification: Trace One Devex</span>
               <span class="lineage-ref-code">Spec ID: {{ p.source_lineage?.source_record_id || 'DEV-8821' }} • Status: Certified Baseline</span>
@@ -465,7 +465,7 @@
           </div>
 
           <div class="lineage-row">
-            <span class="lineage-icon">📦</span>
+            <span class="lineage-icon">[ERP]</span>
             <div class="lineage-details">
               <span class="lineage-system-name">ERP Material Master: SAP S/4HANA</span>
               <span class="lineage-ref-code">Table: MARA-MATNR ({{ p.sku }}) • BOM STPO: 3-level component tree</span>
@@ -473,7 +473,7 @@
           </div>
 
           <div class="lineage-row">
-            <span class="lineage-icon">❄️</span>
+            <span class="lineage-icon">[LAKE]</span>
             <div class="lineage-details">
               <span class="lineage-system-name">Sales Data Lake: Snowflake Analytics</span>
               <span class="lineage-ref-code">Table: sales_by_market • Granularity: Country-level units placed on market</span>

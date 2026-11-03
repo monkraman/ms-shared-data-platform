@@ -12,7 +12,7 @@
 
     <div class="header-actions">
       <button type="button" class="btn-export" (click)="exportWorklist()">
-        📥 Export PLM Worklist (JSON)
+         Export PLM Worklist (JSON)
       </button>
     </div>
   </header>
@@ -26,11 +26,11 @@
     </button>
     <button type="button" class="filter-chip chip-blocker" [class.active]="activeSeverityFilter() === 'BLOCKER'"
       (click)="filterBySeverity('BLOCKER')">
-      🔴 Blockers ({{ issues().filter(i => i.severity === 'blocker').length }})
+      [CRITICAL] Blockers ({{ issues().filter(i => i.severity === 'blocker').length }})
     </button>
     <button type="button" class="filter-chip chip-warning" [class.active]="activeSeverityFilter() === 'WARNING'"
       (click)="filterBySeverity('WARNING')">
-      🟡 Warnings ({{ issues().filter(i => i.severity === 'warning').length }})
+      [MODERATE] Warnings ({{ issues().filter(i => i.severity === 'warning').length }})
     </button>
   </div>
 
@@ -75,7 +75,7 @@
 
         <!-- Architectural Governance Notice -->
         <div class="governance-box">
-          <span class="gov-icon">🔒</span>
+          <span class="gov-icon">[SECURE]</span>
           <div>
             <strong>Single Source of Truth Rule:</strong>
             <p>
@@ -107,7 +107,7 @@
 
         @if (dispatchSuccessMessage()) {
         <div class="alert-success-box">
-          ✓ {{ dispatchSuccessMessage() }}
+          [OK] {{ dispatchSuccessMessage() }}
         </div>
         } @else {
         <!-- Form to Propose & Dispatch Ticket -->

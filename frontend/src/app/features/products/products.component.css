@@ -683,35 +683,27 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 14px;
-  border-radius: 9999px;
+  padding: 4px 10px;
+  border-radius: 4px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.05em;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
+  font-family: var(--font-mono);
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border: 1px solid var(--btn-primary-bg);
 }
 
-.eco-status-pill.red {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-  border-color: rgba(239, 68, 68, 0.3);
-}
-
-.eco-status-pill.yellow {
-  background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
-  border-color: rgba(245, 158, 11, 0.3);
-}
-
+.eco-status-pill.red,
+.eco-status-pill.yellow,
 .eco-status-pill.green {
-  background: rgba(34, 197, 94, 0.1);
-  color: #22c55e;
-  border-color: rgba(34, 197, 94, 0.3);
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border: 1px solid var(--btn-primary-bg);
 }
 
 .eco-bullet {
-  font-size: 10px;
+  display: none;
 }
 
 .eco-alert-banner {
@@ -720,27 +712,20 @@
   align-items: center;
   gap: 16px;
   padding: 14px 18px;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 13px;
   line-height: 1.5;
   flex-wrap: wrap;
-}
-
-.eco-alert-banner.banner-red {
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-active);
   color: var(--text-primary);
 }
 
-.eco-alert-banner.banner-yellow {
-  background: rgba(245, 158, 11, 0.08);
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  color: var(--text-primary);
-}
-
+.eco-alert-banner.banner-red,
+.eco-alert-banner.banner-yellow,
 .eco-alert-banner.banner-green {
-  background: rgba(34, 197, 94, 0.08);
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-active);
   color: var(--text-primary);
 }
 
@@ -842,18 +827,18 @@
 }
 
 .text-red {
-  color: #ef4444;
-  font-weight: 600;
+  color: var(--text-primary);
+  font-weight: 700;
 }
 
 .text-yellow {
-  color: #f59e0b;
-  font-weight: 600;
+  color: var(--text-primary);
+  font-weight: 700;
 }
 
 .text-green {
-  color: #22c55e;
-  font-weight: 600;
+  color: var(--text-primary);
+  font-weight: 700;
 }
 
 .font-bold {

@@ -13,7 +13,7 @@
 
     <div class="header-actions">
       <button type="button" class="btn btn-secondary" [disabled]="syncing()" (click)="triggerSync()">
-        <span class="sync-icon" [class.spinning]="syncing()">⚡</span>
+        <span class="sync-icon" [class.spinning]="syncing()"></span>
         {{ syncing() ? 'Extracting PLM Specs...' : 'Sync Trace One Devex' }}
       </button>
       <a routerLink="/products" class="btn btn-primary">
@@ -246,7 +246,7 @@
 
       <div class="next-actions-list">
         <a routerLink="/products" class="next-action-card">
-          <div class="action-icon">📦</div>
+          <div class="action-icon"></div>
           <div class="action-details">
             <strong>Screen 10: Pack Record Explorer</strong>
             <p>Inspect multi-layer packaging BOMs, tare weights, and market splits</p>
@@ -255,7 +255,7 @@
         </a>
 
         <a routerLink="/quality" class="next-action-card">
-          <div class="action-icon">🎯</div>
+          <div class="action-icon"></div>
           <div class="action-details">
             <strong>Screen 06: Gap Closure Worklist</strong>
             <p>Close 157 open gaps ranked by financial fee liability impact</p>

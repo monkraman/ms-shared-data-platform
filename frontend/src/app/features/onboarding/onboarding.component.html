@@ -23,16 +23,16 @@
       <!-- Steps Stepper Navigation -->
       <div class="steps">
         <div [class.done]="currentStep() > 1" [class.cur]="currentStep() === 1" (click)="goToStep(1)">
-          {{ currentStep() > 1 ? '✓ ' : '' }}1 · Identity &amp; Branding
+          {{ currentStep() > 1 ? '[OK] ' : '' }}1 · Identity &amp; Branding
         </div>
         <div [class.done]="currentStep() > 2" [class.cur]="currentStep() === 2" (click)="goToStep(2)">
-          {{ currentStep() > 2 ? '✓ ' : '' }}2 · Markets &amp; Laws
+          {{ currentStep() > 2 ? '[OK] ' : '' }}2 · Markets &amp; Laws
         </div>
         <div [class.done]="currentStep() > 3" [class.cur]="currentStep() === 3" (click)="goToStep(3)">
-          {{ currentStep() > 3 ? '✓ ' : '' }}3 · Data Journey Flowchart
+          {{ currentStep() > 3 ? '[OK] ' : '' }}3 · Data Journey Flowchart
         </div>
         <div [class.done]="currentStep() > 4" [class.cur]="currentStep() === 4" (click)="goToStep(4)">
-          {{ currentStep() > 4 ? '✓ ' : '' }}4 · Connect &amp; Provision
+          {{ currentStep() > 4 ? '[OK] ' : '' }}4 · Connect &amp; Provision
         </div>
       </div>
 
@@ -165,7 +165,7 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
               @for (m of marketsCol1(); track m.countryCode) {
               <div class="market-toggle-card" [class.selected]="m.selected" (click)="toggleMarket(m.countryCode)">
-                <div class="market-check">{{ m.selected ? '✓' : '' }}</div>
+                <div class="market-check">{{ m.selected ? '[OK]' : '' }}</div>
                 <div class="market-info">
                   <div class="market-country">{{ m.countryName }}</div>
                   <div class="market-law">{{ m.regulationLabel }}</div>
@@ -174,7 +174,7 @@
               }
               @for (m of marketsCol2(); track m.countryCode) {
               <div class="market-toggle-card" [class.selected]="m.selected" (click)="toggleMarket(m.countryCode)">
-                <div class="market-check">{{ m.selected ? '✓' : '' }}</div>
+                <div class="market-check">{{ m.selected ? '[OK]' : '' }}</div>
                 <div class="market-info">
                   <div class="market-country">{{ m.countryName }}</div>
                   <div class="market-law">{{ m.regulationLabel }}</div>
@@ -247,7 +247,7 @@
             </div>
 
             <!-- Arrow -->
-            <div class="flow-arrow">➔</div>
+            <div class="flow-arrow">-></div>
 
             <!-- Flow Step 2: Automated Ingestion & Discrepancy Reconciliation -->
             <div class="flow-lane highlight">
@@ -263,7 +263,7 @@
             </div>
 
             <!-- Arrow -->
-            <div class="flow-arrow">➔</div>
+            <div class="flow-arrow">-></div>
 
             <!-- Flow Step 3: Audit-Ready Filings & Optimization -->
             <div class="flow-lane">
@@ -309,7 +309,7 @@
           <div style="display: flex; gap: 8px">
             <button type="button" class="btn" (click)="goToStep(3)">← Back</button>
             <button type="button" class="btn p" [disabled]="submitting()" (click)="finishSetup()">
-              {{ submitting() ? 'Provisioning Neon PostgreSQL...' : '✓ Launch Client Workspace' }}
+              {{ submitting() ? 'Provisioning Neon PostgreSQL...' : '[OK] Launch Client Workspace' }}
             </button>
           </div>
         </div>

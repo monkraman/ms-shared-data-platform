@@ -22,7 +22,7 @@
       </button>
       }
       <button type="button" class="btn-theme-mini" (click)="themeService.toggleTheme()" [title]="'Switch theme'">
-        {{ themeService.theme() === 'light' ? '☾' : '☼' }}
+        {{ themeService.theme() === 'light' ? 'Dark' : 'Light' }}
       </button>
       <div class="user-avatar-mini" [title]="authService.currentUser()?.fullName || 'User'">
         {{ authService.currentUser()?.avatarInitials || 'CH' }}
@@ -61,30 +61,30 @@
     </div>
 
     <nav class="sidebar-nav" id="client-sidebar-navigation">
-      <div class="nav-section-title">COMPLIANCE &amp; REPORTING</div>
+      <div class="nav-section-title">YOUR DATA</div>
       <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
         <span class="nav-label">Global Dashboard</span>
       </a>
+      <a routerLink="/data-overview" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Data Overview &amp; Systems</span>
+      </a>
 
-      <div class="nav-section-title">PACKAGING DATA</div>
+      <div class="nav-section-title">MAKE IT RIGHT</div>
       <a routerLink="/products" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
         <span class="nav-label">Pack Records &amp; BOMs</span>
-      </a>
-      <a routerLink="/data-overview" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
-        <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Data Coverage &amp; Sources</span>
       </a>
       <a routerLink="/quality" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
         <span class="nav-label">Data Quality &amp; Gaps</span>
         @if (openGapsCount() > 0) {
-        <span class="nav-badge-pill">{{ openGapsCount() }} Gaps</span>
+        <span class="nav-badge-pill">[{{ openGapsCount() }} Gaps]</span>
         }
       </a>
 
-      <div class="nav-section-title">OPTIMIZATION</div>
+      <div class="nav-section-title">PAY LESS</div>
       <a routerLink="/simulator" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
         <span class="nav-label">Fee Simulator &amp; Scenarios</span>
@@ -138,32 +138,36 @@
       <div class="nav-section-title">PLATFORM MANAGEMENT</div>
       <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Client Workspaces (Admin)</span>
+        <span class="nav-label">Client Workspaces</span>
       </a>
       <a routerLink="/onboarding" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">+ Onboard New Client</span>
+        <span class="nav-label">Client Setup &amp; Scoping</span>
       </a>
 
-      <div class="nav-section-title">TENANT PREVIEW</div>
+      <div class="nav-section-title">CLIENT DEMO PREVIEW</div>
       <a routerLink="/dashboard" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Active Workspace Dashboard</span>
+        <span class="nav-label">Global Dashboard</span>
+      </a>
+      <a routerLink="/data-overview" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <span class="nav-label">Data Overview &amp; Systems</span>
       </a>
       <a routerLink="/products" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Packaging BOM Explorer</span>
+        <span class="nav-label">Pack Records &amp; BOMs</span>
       </a>
       <a routerLink="/quality" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Data Quality &amp; Tickets</span>
+        <span class="nav-label">Data Quality &amp; Gaps</span>
         @if (openGapsCount() > 0) {
-        <span class="nav-badge-pill">{{ openGapsCount() }} Gaps</span>
+        <span class="nav-badge-pill">[{{ openGapsCount() }} Gaps]</span>
         }
       </a>
       <a routerLink="/simulator" routerLinkActive="active" class="sidebar-nav-item" (click)="closeMobileNav()">
         <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-label">Fee Scenario Simulator</span>
+        <span class="nav-label">Fee Simulator &amp; Scenarios</span>
       </a>
     </nav>
 

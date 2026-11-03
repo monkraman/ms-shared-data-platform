@@ -48,16 +48,16 @@
         Workspace Quick Jump
       </div>
       <button type="button" class="nav-item view-client" (click)="launchClientHub('khc-europe', '/dashboard')">
-        <span>📊 EPR Dashboard →</span>
+        <span> EPR Dashboard →</span>
       </button>
       <button type="button" class="nav-item view-client" (click)="launchClientHub('khc-europe', '/products')">
-        <span>🌳 Packaging BOM →</span>
+        <span> Packaging BOM →</span>
       </button>
       <button type="button" class="nav-item view-client" (click)="launchClientHub('khc-europe', '/quality')">
-        <span>🛡️ Quality Gaps →</span>
+        <span> Quality Gaps →</span>
       </button>
       <button type="button" class="nav-item view-client" (click)="launchClientHub('khc-europe', '/simulator')">
-        <span>📈 Fee Simulator →</span>
+        <span> Fee Simulator →</span>
       </button>
       <button class="nav-item logout-btn" (click)="logout()" style="margin-top: 6px;">
         <span>Sign Out</span>
@@ -404,7 +404,7 @@
           <h2 class="modal-title">Onboard New Organisation</h2>
           <p class="modal-sub">Step 1: Provision client tenant workspace in Compliance Hub</p>
         </div>
-        <button class="modal-close" (click)="closeOnboardModal()">✕</button>
+        <button class="modal-close" (click)="closeOnboardModal()">x</button>
       </div>
 
       <div class="modal-body">
@@ -536,7 +536,7 @@
           <h2 class="modal-title">Import SKU Catalog & Column Mapping</h2>
           <p class="modal-sub">Step 2: Map client source columns into Canonical Shared Foundation</p>
         </div>
-        <button class="modal-close" (click)="closeImportModal()">✕</button>
+        <button class="modal-close" (click)="closeImportModal()">x</button>
       </div>
 
       <div class="modal-body">
@@ -600,10 +600,10 @@
           </div>
           <div class="mode-actions">
             <button type="button" class="btn-download-template" (click)="downloadSampleCsvTemplate()" title="Download canonical CSV template">
-              📥 Download Sample CSV
+               Download Sample CSV
             </button>
             <button type="button" class="btn-guide-toggle" (click)="toggleSchemaGuide()">
-              {{ showSchemaGuide() ? '▲ Hide Column Guide' : '▼ View CSV Columns & ERP Guide' }}
+              {{ showSchemaGuide() ? '+ Hide Column Guide' : '- View CSV Columns & ERP Guide' }}
             </button>
           </div>
         </div>
