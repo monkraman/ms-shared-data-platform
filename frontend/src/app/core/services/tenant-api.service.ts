@@ -73,6 +73,8 @@ export class TenantApiService {
     primaryCurrency?: string;
     activeJurisdictions?: string[];
     tier?: string;
+    logoUrl?: string;
+    themeColor?: string;
     adminEmail?: string;
     adminName?: string;
     adminPassword?: string;
@@ -86,6 +88,8 @@ export class TenantApiService {
       primary_currency: data.primaryCurrency || 'EUR',
       active_jurisdictions: data.activeJurisdictions || ['FR'],
       tier: data.tier || 'enterprise',
+      logo_url: data.logoUrl || null,
+      theme_color: data.themeColor || '#111827',
       admin_email: data.adminEmail || null,
       admin_name: data.adminName || null,
       admin_password: data.adminPassword || 'password123',

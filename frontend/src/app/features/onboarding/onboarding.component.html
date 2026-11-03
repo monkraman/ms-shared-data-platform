@@ -1,90 +1,91 @@
 <section class="onboarding-page-container">
 
-  <!-- Top Mockup Header Bar (.cap) matching exact Swiss Mockup -->
+  <!-- Top Header Bar -->
   <header class="cap">
-    <span class="n">{{ currentStep() }} / 4</span>
+    <span class="n">Step {{ currentStep() }} of 4</span>
     <span class="t">{{ stepTitle() }}</span>
     <span class="s">{{ stepSubtitle() }}</span>
-    <span class="m"><b style="color: #fff">Set up</b> &rsaquo; Dashboard &rsaquo; Data review &rsaquo; Compliance &rsaquo; Insights</span>
+    <span class="m"><b style="color: #fff">Workspace Setup</b> &rsaquo; Global Dashboard &rsaquo; BOM Master &rsaquo; Quality &rsaquo; Simulator</span>
   </header>
 
   <div class="onboard-app">
     <div class="onboard-main">
 
-      <!-- Brand Logo Header -->
+      <!-- Brand Header Row -->
       <div class="brand-header-row">
         <div class="brand-cluster">
-          <img alt="Kraft Heinz" class="brand-logo-img"
-            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAAAlCAYAAAApx4dQAAAQcElEQVR42uxdB7gVxRWeBwIK+uyCEAUsAUFUjBUhShGUCAEVBWz4Qoway6ch0YRQ7BFMwG4sBETEEnxIsaAoGBQUBRuIQRRFFAKKolIMQv4/91wZlpkzu3vv9b2LzPedb+/bOVN29pw5dfaVmK0lWOq1vPhwXE4DtALsD9hFqr4FfALotXjarVO3rtTWEirbbF0CldH2w+VOQDsPSnVAA8DOW1ersGVho/3r49Ic0ASwDjC0wbvzvy06hgNRDVfqp2HnvjcmcXLn7xtAG4b+XigSZmuDy+OA7YuAGHfCpbEw/09kA6AU3g6wI6BEUPl3Davp10K8L4F4Byn974PLbwH7elDGov3wAjxXNVwuAFwIaBSpLgfML0YJd04A594YxMmdfjTgZwraDL7YImG2vXF5rDIzG4ixNi7nA04FNLWYajlgFmCZzL8uoBlgW6U7vrdBnnGoRk8AlHrakvBHFuD5auEyGXCko3opGLzomC2fKuV1AWZbATgd0m1dkazLTSIZ0jJsV1yO9VRPxTqU50CIZKzLANcAalpV8wCXAyaBGL+LtNkDlw8VppviGWt32Xh8zLYYcG50vDyV3h5mY3n2R2vDgbg64NIngFYGIvuoiKTbqTl2Q2a7VKkvT8lsVXGh6nZmpOoJOnVA+N94mi4LdP205/5VgN2Udv0w5pcFehU9lLonfpQMB+KkWnN/AO0WMNvYIlqTTpZ65ioksGGA103GS0nV560faG4DHcz2KaCnwmxGnA0+6baBUtHB3JRqvZQ+FxVClZSxaX8e4anmXB/50TEcmI1EOQKwh4JGW+IPRbYmRyl1X1B1xgbyfgXYbHvicoWj6uYYUqa9Ujcb7f/jabOd0u52tCuUidDEsektAdwIuKOA41ZqCUd7oYNS/xXVHBDn2iJbk32VupEVwWxSKNmqOe6Pi9H2BKXuSc/9Nkqb9TE0m1wKpfZaYbp/iUbxz2IMA+SF4SDd6CC5IYB2HohzQRGuSU2l7o0KnNdJnvvzA5KRquExCsqkFEz6LIj/00I9KPpegHkzvLEKv1eZLahsk4LZ6Gp+yLPbZss9YLaHCujYoHq1j0AdszHm9J2ofSSGdwGvYR5JX5gWCvisAt/V/o57K2OoV+2U97zSOEI1IHYG/BsqfT5U6IfFcy03W2BJI+FuB+yn1L9tFA8dmOV1pW1vMMirFm5Lk/FWrcD9P8s9qhfnxpzrWuBTJbkHUI4+/uuZ0zSTCRgb6+oqdwN3aOTeQeh3Je6X4Xd/ubeL0kcZcLtE7s1FHx1TSN5SMEcVEOd6pZ2m9k/2MGyHgDo5PoUNWkXsfW6MX2Lcz2O2qynM/wXaLI6BX13MgpUufNQz3NNKbPV6sknT1zAM+Gs8fdaRjT1u4ZouQH+rc2I4EEpPXM5WUOgp6wbiWa3gHBySLhiHkuvvZmNK1QgLp0qCKdeQPgjvoN+zbYa2Cpmsfoz+dnfcy86nNGYfOwhEnTGhQhxXbLBZQNU9Ual7KgWTvhhH+ghhdzaZEMnRgJ9a9LYB9fRwXuBSGVHHZ2LuamuT8VZSm1rs2wyBvxcu3cXRc4ww9ftZe1xil20BF8l6VI908Sthwh6OfkcHVHJf4cZ8WWqGA7Fy8ncF0C4AQc/LUV08Ugz5fOcnHgB4gSlbmOOMItRG5nsY+hc+hgPBHIjLXkkYTiREa6XNhACjUfv5oxCvz8tZIhs3HSPnSTviUkv4tWdTrh4Zh310ESZqbTb3am4neC1wGWL8YYZs6Rzpn+2Zhtggxbuic2e4UXbnEBNwh3nQsTPbZQQIOde4DCXIRFO4ZGAu4iN4nppFyHDTfZuc5BwmdXzMg3RxJSO0CNixkzyMVgvwN5PJeCmzmO0dgE/j6UXCBjA17U3AbYoGNMsai/YsTQVmwbQx7rjpu8CjlJkWg9lYoubGxSmZjaUP1vaN1AxnMmlE2qTnmkxya66FNtCuBSZc7vgXFiHD+bIrqGad4anrmEKdbB9wGr3pYDYmFr8iKlRVq+pKEF4TsaFdhRtFbXkn+wWef6b1u34MNS+b7VMSc31fs56nag70/LhsHCYVw0Ea0P7RgtfcvRhv+yYPRHXgD0S8ZUXIcC+TFjx1f3IwAbWRlikYTpOKz0cdNBjnCJEiTSK4E4F7o/z2MROdFIuB95QJh1y+ny/wmUv5XACfjMYsmocBvwSMCeDbkvs4wN4p3hGzb8owvw0+hJANRxXv/sAucQmYbc4PbMvcLTvSe2IcZ50O3C0ZI2QuZFfNnsNGUhfz/kT+Ps/yAg5RVIm/COFHHUVGPHcLLSP8JMUGui9yL5iPyJcI4mamyZ2yUdJxweyLD0wmBBItbY0/dENCn+pgUnoRD1GmMdkh2WgCRPMt6fm7XHBKjT+IPhrP9V/L7tEk6wwHcWuF69MN/U+RefCdnhJzA+qWgi75zD1D3tcQw4Vc1aPinpdLWWbIDvV9ci3Guy7gySPxPQiGukIYRJOmn0ifkyyJPlCTMr68UAnyL5A+jlP6WJA2txQvkzmEcfMINe8k8ypXgwiTTuFZ22bDZaxxJzePwVz/Lb+7G3ceJwmzr/S1fYDRJzpOJDRX8LkJHo82dgjqIAX/06yqLOrkySYT/hogjOQqtA/to20DMN600ALmelpgVoEYjS7gMpsRUpQhssv6cj3rmC27nJDn/haBoN6z/uYRpsYe3FuEeEuMOybLgHtHK1ulndETKSZGJGv9AAMNtJlN5qGGRyw1kKr4lYARvmNHErboEZH8N8RZxFwZ7lrs5uPBGPk8DEgpcTT6XBawLalWtRLj+VCTCWJWEfVsoaibixWG89mv1SuaU8Q1z+fakFWJErY/QLFBSFgj5RqVeqcr3T5n9X8YLr/x4NH7+aL87uCw7Sj5TgbOnJia1Dqz+fGhzgr+GjE57EL6qBvHIYV5UUsapqwtkxrKLTohnZ7psG1L5flpltFzO5UMHGI4qhD8gI7vMCZdv8OoQoFB8nEIkYvbJQazUU251uiJxmlLzQpkNBLnJSYT9N1ZPF5TUnSl7eav4MWf4xi7XYDh7EOf1yt2/Rj0dZzYsD0jjDCYksDOwBDpc5Iy7guO0xAawz0N/JWRe50U/PUm5oFWUTcfjtAdmW1JBG938THYMVCGKTqHGI4SYhTgHwpOS1HdBueB5h4Hs72tMBofmC7mc/MwVo3KovvhRTSU9Ysa9atTdtkxrnpmlfaBPifLXCktjlfw+ppNv23zubyzmz0Jz0x02FPpb3xkrXYUL2Is/BjrMV2kWpxiZz+x3Ii2LrPnMrN5wgEdTA8EwwJggOEmfML2GjBD4zzQXmg3H5onZstK58rAbPSqvuXxoK1K0V8tUbWTEKQx/i+TsbxjMcv5MaZBiTRGnA910fZK5XRBl0Bf4x3SextFXY7ae4zrHqbZbzHXtZ/JeJ9th14/D/qhYtJEj6YdHjfwzUX+KiAthosEyqV8rEg3PsRFW6Bzg6lZtTx1adazrWKHfhzx3Nkq0CEh+00SkLVwy3xh9t0wzqmAckDoPOTJAUZfkECdfDWq3slGUhLHflOYjSr41dYtSsQeVkhjk4L7JwDoAmZSgp0htDgWw0HKMebxuwAaVYPfF5Awte+mfCuqLxmSOXMy7lZvGEVUdYkwNVOFpSkGPvElNKtJIb9RkmhfeOEcbVpcU9ki7dPi01MiOBXkw0qyfNpidg86T47MMf2ZvNMmd54xoWh55Mk7/7WrXFJvJSMt3UL6O9XQRJN0OywHIpPD6fa1QpjznJIxRbi9KlMDLetQ/3ylb0SqpNVAyraY577xwecCtkg+dGBKST9DOJpCdVJJimXKvjjEjLc01pWCNaTUv9Rs2nI4k60GZPgGT+z1N1bYh91AUGzQe+AalldVMu8ftEZ/VHl8XlKH3UxW1obKE9FO58WTczW1rNJwnHp7fPFF6maPZ+C4WaBwFZYEk4rST8/oWV0fO5gYG0z+TCaMCynJbRwwJMKs+0t9qDN4AyOX57wGbN5u49hfvOSnC0z8qm7kGpJJ8AVeSZgzcGxpBLaZdpByWh8bKaCW1uIJh9qdz9XIBf9Nzb6oVs7nSuUYLwhgTRm4LqRgrJJdomEDzonVCdDntdnPHPbSZjRZlZmr5zuO6Tq6ecMEVI0ef6fj5xGEsVRLQdAKk0Eg76eJwJeLi/TZWd0xlj9MZYrF2/XCmI4LRH3MH6mAvP92lLD+Nt3JIZE9naMl8v34UtW5qfIR3vqkhDlTgFcqmDvxVyjnoH6qHpI6Vov5sZgS3zNIbPcsY7U0sY6tAuqht1jpsNRteeB2+z3TQdjrPdTMRxVSxBMbyEC3/m4aqJaHu77rEHCMVehL47XzFHNrIpJqGfG/KtiIzUWfb9hBTHcbNkkXA4GrnmbLEHR04WXyBd8pqev3qgfpDkixJkwxFPNddNCKe0CzzIjgQTrg7mMc31dC/f53Mzaf1E8iaEE4ZcTqJMs0yPjUXVvlcLeZA7lsR7NZEAKWmBu77XZP6qkZICPYqiNPEjYN49EPEqp4wIxnWitOCH4spi4XKtC9MlM1s0IBSWa6XGbgtvQhGOPJISmjvv08rXxBXaFCVqHTOgE6js91c+g3zZUy+Rw6SGAgWLf0du3StTJfRIuq5bp/w2ecWnkXqeAQHF92uEiUQHzVUgH59hqaJUcOuPnFqYEcPpC8jTP0+TvCthGla0MFsPfeNTg77Mr8EK4QWifPx8s+ZEupunu2NiYGsc4USeAliZ3hAn/w5Lrxfu5mRTxlJ+LerdCiHq2bAh05nSTtKsOMfq5VY7U8BnrBew9l/TvGuj/DPTbVTYdjsHc1aF5poGr5d2anBlOvJZlZuN5MONRn0aCuHJOo8J4lFwkrtXFwG2Y71KRTOs96xLVEC4VInUVemhngShuAhxMFZL/PUckhy35qcr9lfYDXnScT9nFCZmcYtlC9xv/cRWtUPNgIDxrZzWN0YbqZ/YjPM0CuC46PirQZhdRH+tIovEoky7RwFeYLHBdnIkmIaoPYqiWXNz+eSJinjdiJkWcD8ySQedUMNONE8PZ5fq/EBvRAZaUWyTE7TuISduUHuLs/zRYIpKD75AqCw+mNkI/fRLkBu4RqOdm2k9UU86R9sighMtAJ0oLtLWdIDsE2lBzOgZtskd7tG/czImqm5IRox2/ogOECdjNMAazm3icqH4eX332BMF3rp1W+1e5cb7AdYd4kDQHxZEgrjogwCWB8ZbHIOLp6IuucmaUnCVjb2vt8DNFPRtuMmeWfP8J52PFSbAw7fwc8y3HfGeK2neWZVfS0TGKwXngrBGCfh7E0lZ22zhH/D+S57zd8/8BQsWV37haHApkkFHoN/rxWz4H1UJK1xqBvkkbNzlc6aSBaEoX5/8A4D7gz43UReOs1BomiZkxLhq85lEZrCPfYYOI9GfGDBPxx0dSztYE6DJJ4SY10Jc7WmKKvMgXxUpFHVgmqm5lnSvjiczWaCI7KlXFJ6P/L04+0dZLPHkHm43pX3yJc4UhGCd6OfARWLWIC7y9qIlfCwMvitMn2u4mkoUbXm3pY6loHy/J3NZ52paIedBU2nCTe00bF23oBGkuEvOZgG2a/fwDM1noJWeYhilnX1U0DfxPgAEAdsBuTOK/xMwAAAAASUVORK5CYII=" />
-          <span class="brand-rule"></span>
           <span class="small brand-label">Compliance Hub</span>
+          <span class="brand-rule"></span>
+          <span class="small muted">Multi-Tenant Client Provisioning</span>
         </div>
       </div>
 
       <!-- Steps Stepper Navigation -->
       <div class="steps">
         <div [class.done]="currentStep() > 1" [class.cur]="currentStep() === 1" (click)="goToStep(1)">
-          {{ currentStep() > 1 ? '✓ ' : '' }}1 · Company &amp; entities
+          {{ currentStep() > 1 ? '✓ ' : '' }}1 · Identity &amp; Branding
         </div>
         <div [class.done]="currentStep() > 2" [class.cur]="currentStep() === 2" (click)="goToStep(2)">
-          {{ currentStep() > 2 ? '✓ ' : '' }}2 · Markets &amp; laws
+          {{ currentStep() > 2 ? '✓ ' : '' }}2 · Markets &amp; Laws
         </div>
         <div [class.done]="currentStep() > 3" [class.cur]="currentStep() === 3" (click)="goToStep(3)">
-          {{ currentStep() > 3 ? '✓ ' : '' }}3 · Data points
+          {{ currentStep() > 3 ? '✓ ' : '' }}3 · Data Journey Flowchart
         </div>
         <div [class.done]="currentStep() > 4" [class.cur]="currentStep() === 4" (click)="goToStep(4)">
-          {{ currentStep() > 4 ? '✓ ' : '' }}4 · Connect systems
+          {{ currentStep() > 4 ? '✓ ' : '' }}4 · Connect &amp; Provision
         </div>
       </div>
 
       <!-- ===================================================================== -->
-      <!-- SCREEN 1: COMPANY & ENTITIES FORM                                     -->
+      <!-- STEP 1: IDENTITY, BRANDING & THEME                                    -->
       <!-- ===================================================================== -->
       @if (currentStep() === 1) {
       <div class="step-view">
         <div class="head">
           <div>
-            <h1>Set up {{ profileForm.get('companyName')?.value || 'Your Company' }}</h1>
-            <p>Confirm the legal producer profile, operating entities, and turnover thresholds.</p>
+            <h1>Provision {{ profileForm.get('companyName')?.value || 'Client Workspace' }}</h1>
+            <p>Establish corporate identity, reporting currency, custom logo, and client brand theme.</p>
           </div>
           <div style="display: flex; gap: 8px">
-            <button type="button" class="btn p" (click)="goToStep(2)">Continue to markets &amp; laws</button>
+            <button type="button" class="btn p" (click)="goToStep(2)">Continue to Markets &amp; Laws →</button>
           </div>
         </div>
 
-        <!-- Quick Template Presets for SuperAdmin Testing -->
-        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 14px;">
-          <span class="small muted" style="font-weight: 600;">Load Template:</span>
-          <button type="button" class="btn" style="padding: 4px 12px; font-size: 12px;" (click)="loadPreset('khc')">
+        <!-- Presets Bar for Fast Setup -->
+        <div class="presets-row">
+          <span class="small muted font-bold">1-Click Presets:</span>
+          <button type="button" class="btn btn-preset" (click)="loadPreset('khc')">
             The Kraft Heinz Company
           </button>
-          <button type="button" class="btn" style="padding: 4px 12px; font-size: 12px;" (click)="loadPreset('nordhavn')">
-            Nordhavn Spirits ApS (DK)
+          <button type="button" class="btn btn-preset" (click)="loadPreset('nordhavn')">
+            Nordhavn Spirits ApS
           </button>
-          <button type="button" class="btn" style="padding: 4px 12px; font-size: 12px;" (click)="loadPreset('custom')">
-            + Blank Custom Company
+          <button type="button" class="btn btn-preset" (click)="loadPreset('custom')">
+            + Custom Blank Company
           </button>
         </div>
 
-        <form [formGroup]="profileForm" class="card" style="max-width: 720px; padding: 22px 24px;">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 14px;">
+        <form [formGroup]="profileForm" class="card form-card">
+          <!-- Company & Legal Entity -->
+          <div class="form-row-2">
             <div>
-              <label class="small muted" style="display: block; margin-bottom: 4px; font-weight: 600;">Legal Company Name</label>
-              <input type="text" formControlName="companyName" class="form-input" />
+              <label class="small muted font-bold">Client Legal Company Name</label>
+              <input type="text" formControlName="companyName" class="form-input" placeholder="e.g. The Kraft Heinz Company Europe" />
             </div>
             <div>
-              <label class="small muted" style="display: block; margin-bottom: 4px; font-weight: 600;">Legal Entity in Scope</label>
-              <input type="text" formControlName="legalEntityName" class="form-input" />
+              <label class="small muted font-bold">Operating Entity in Scope</label>
+              <input type="text" formControlName="legalEntityName" class="form-input" placeholder="e.g. Kraft Heinz UK Limited" />
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 14px;">
+          <!-- Slug, Currency & Defra ID -->
+          <div class="form-row-3">
             <div>
-              <label class="small muted" style="display: block; margin-bottom: 4px; font-weight: 600;">Tenant Slug</label>
-              <input type="text" formControlName="tenantSlug" class="form-input" />
+              <label class="small muted font-bold">Tenant Slug (DB Identifier)</label>
+              <input type="text" formControlName="tenantSlug" class="form-input mono" placeholder="e.g. khc-europe" />
             </div>
             <div>
-              <label class="small muted" style="display: block; margin-bottom: 4px; font-weight: 600;">Reporting Currency</label>
+              <label class="small muted font-bold">Reporting Currency</label>
               <select formControlName="primaryCurrency" class="form-input">
                 <option value="EUR">EUR (€)</option>
                 <option value="GBP">GBP (£)</option>
@@ -92,521 +93,270 @@
               </select>
             </div>
             <div>
-              <label class="small muted" style="display: block; margin-bottom: 4px; font-weight: 600;">UK Defra RPD ID</label>
-              <input type="text" formControlName="rpdOrganisationId" class="form-input" />
+              <label class="small muted font-bold">UK Defra RPD ID</label>
+              <input type="text" formControlName="rpdOrganisationId" class="form-input mono" placeholder="e.g. 100004" />
             </div>
           </div>
 
-          <div style="padding: 10px 0 0; border-top: 1px solid #f0f2f4;">
-            <label class="small muted" style="display: block; margin-bottom: 4px; font-weight: 600;">Threshold Status</label>
-            <div style="font-size: 13px; font-weight: 500;">
-              <b>Large Producer</b> (Over £2m turnover and 50 tonnes packaging handled in preceding calendar year)
+          <!-- Custom Branding & Theme Section -->
+          <div class="branding-section">
+            <div class="section-title">Client Branding &amp; Visual Theme</div>
+            <p class="section-desc">Tailor the user interface colors and brand logo for the client's executive team:</p>
+
+            <div class="branding-controls">
+              <!-- Theme Color Selector -->
+              <div>
+                <label class="small muted font-bold">Interface Brand Color Accent</label>
+                <div class="theme-options-grid">
+                  @for (th of brandThemes; track th.id) {
+                  <label class="theme-card" [class.selected]="profileForm.get('themeColor')?.value === th.colorHex">
+                    <input type="radio" formControlName="themeColor" [value]="th.colorHex" style="display:none" />
+                    <span class="color-swatch" [style.background-color]="th.colorHex"></span>
+                    <span class="theme-name">{{ th.name }}</span>
+                  </label>
+                  }
+                </div>
+              </div>
+
+              <!-- Custom Logo URL / Preset -->
+              <div style="margin-top: 14px;">
+                <label class="small muted font-bold">Client Logo Specification</label>
+                <div style="display: flex; gap: 10px; align-items: center; margin-top: 6px;">
+                  <select formControlName="logoPreset" class="form-input" style="max-width: 220px;">
+                    <option value="khc">Kraft Heinz Wordmark</option>
+                    <option value="nordhavn">Nordhavn Spirits Monogram</option>
+                    <option value="custom">Custom Image URL</option>
+                  </select>
+                  @if (profileForm.get('logoPreset')?.value === 'custom') {
+                  <input type="text" formControlName="customLogoUrl" class="form-input" placeholder="Paste HTTPS image URL (PNG / SVG)" />
+                  }
+                </div>
+              </div>
             </div>
           </div>
+
         </form>
-
-        <div style="margin-top: 16px; display: flex; justify-content: flex-end; gap: 10px;">
-          <button type="button" class="btn p" (click)="goToStep(2)">Continue to markets &amp; laws</button>
-        </div>
       </div>
       }
 
       <!-- ===================================================================== -->
-      <!-- SCREEN 2: MARKETS & LAWS (Exact Mockup Screen 2)                       -->
+      <!-- STEP 2: REGULATORY SCOPE · MARKETS & LAWS                             -->
       <!-- ===================================================================== -->
       @if (currentStep() === 2) {
       <div class="step-view">
         <div class="head">
           <div>
-            <h1>Set up {{ profileForm.get('companyName')?.value || 'Your Company' }}</h1>
-            <p>Tell us where you sell. We switch on the laws that apply and explain why.</p>
+            <h1>Select Target Placed-on-Market Jurisdictions</h1>
+            <p>Where the client sells finished goods determines which EPR fee schedules and PPWR rules apply.</p>
           </div>
           <div style="display: flex; gap: 8px">
-            <button type="button" class="btn" (click)="goToStep(1)">Back</button>
-            <button type="button" class="btn p" (click)="goToStep(3)">Continue to data points</button>
+            <button type="button" class="btn" (click)="goToStep(1)">← Back</button>
+            <button type="button" class="btn p" (click)="goToStep(3)">Continue to Data Journey →</button>
           </div>
         </div>
 
-        <div class="row">
-          <!-- Card 1: Company & entities (Dynamic from Step 1) -->
-          <div class="card" style="width: 290px; flex-shrink: 0;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <h3 style="margin: 0;">Company &amp; entities</h3>
-              <span class="small" style="color: #1d3f72; cursor: pointer; font-weight: 600;" (click)="goToStep(1)">Edit ›</span>
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px;">
+          <!-- Left: Jurisdiction Selector Cards -->
+          <div class="card" style="padding: 20px;">
+            <div style="font-size: 13px; font-weight: 700; margin-bottom: 12px; color: var(--text-primary);">
+              Active Markets ({{ selectedMarketsCount() }} in Scope)
             </div>
-            <div style="padding: 6px 0; border-bottom: 1px solid #f0f2f4">
-              <b>{{ profileForm.get('legalEntityName')?.value || profileForm.get('companyName')?.value || 'Your Company' }}</b>
-              <div class="small muted">{{ profileForm.get('companyName')?.value || 'Main Producer' }} · Brand owner</div>
-            </div>
-            <h3 style="margin-top: 14px">Sector</h3>
-            <div style="padding: 6px 0; border-bottom: 1px solid #f0f2f4;">
-              <span class="tick on">✓</span>
-              <b>{{ profileForm.get('sector')?.value || 'Food & beverage' }}</b>
-              <span class="small muted" style="float: right">Packaging EPR</span>
-            </div>
-          </div>
 
-          <!-- Card 2: Markets in scope -->
-          <div class="card" style="flex: 1;">
-            <h3>Markets in scope <span class="small muted" style="font-weight: 400">· {{ selectedMarketsCount() }} selected</span></h3>
-            <div class="row" style="gap: 20px">
-              <div style="flex: 1">
-                @for (m of marketsCol1(); track m.countryCode) {
-                <div style="padding: 6px 0; border-bottom: 1px solid #f0f2f4; cursor: pointer;"
-                  [style.color]="m.selected ? '#18212b' : '#9aa5b1'"
-                  (click)="toggleMarket(m.countryCode)">
-                  <span class="tick" [class.on]="m.selected">{{ m.selected ? '✓' : '' }}</span>
-                  <b *ngIf="m.selected">{{ m.countryName }}</b>
-                  <span *ngIf="!m.selected">{{ m.countryName }}</span>
-                  <span class="small muted" style="float: right">{{ m.regulationLabel }}</span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              @for (m of marketsCol1(); track m.countryCode) {
+              <div class="market-toggle-card" [class.selected]="m.selected" (click)="toggleMarket(m.countryCode)">
+                <div class="market-check">{{ m.selected ? '✓' : '' }}</div>
+                <div class="market-info">
+                  <div class="market-country">{{ m.countryName }}</div>
+                  <div class="market-law">{{ m.regulationLabel }}</div>
                 </div>
-                }
               </div>
-              <div style="flex: 1">
-                @for (m of marketsCol2(); track m.countryCode) {
-                <div style="padding: 6px 0; border-bottom: 1px solid #f0f2f4; cursor: pointer;"
-                  [style.color]="m.selected ? '#18212b' : '#9aa5b1'"
-                  (click)="toggleMarket(m.countryCode)">
-                  <span class="tick" [class.on]="m.selected">{{ m.selected ? '✓' : '' }}</span>
-                  <b *ngIf="m.selected">{{ m.countryName }}</b>
-                  <span *ngIf="!m.selected">{{ m.countryName }}</span>
-                  <span class="small muted" style="float: right">{{ m.regulationLabel }}</span>
+              }
+              @for (m of marketsCol2(); track m.countryCode) {
+              <div class="market-toggle-card" [class.selected]="m.selected" (click)="toggleMarket(m.countryCode)">
+                <div class="market-check">{{ m.selected ? '✓' : '' }}</div>
+                <div class="market-info">
+                  <div class="market-country">{{ m.countryName }}</div>
+                  <div class="market-law">{{ m.regulationLabel }}</div>
                 </div>
-                }
               </div>
-            </div>
-            <div class="small muted" style="margin-top: 8px">
-              This phase covers United Kingdom and Denmark. Other markets can be switched on later; national rules load as plug-ins (24 more available).
+              }
             </div>
           </div>
 
-          <!-- Card 3: Laws switched on (Dynamic based on selected markets) -->
-          <div class="card" style="width: 430px; flex-shrink: 0;">
-            <h3>Laws switched on <span class="small muted" style="font-weight: 400">· {{ activeLaws().length }} active</span></h3>
-            @if (activeLaws().length === 0) {
-              <div class="small muted" style="padding: 24px 0; text-align: center;">
-                No markets selected. Select at least one market to switch on applicable laws.
+          <!-- Right: Active Laws Explanation -->
+          <div class="card" style="padding: 20px;">
+            <div style="font-size: 13px; font-weight: 700; margin-bottom: 12px; color: var(--text-primary);">
+              Applicable Packaging Regulations
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              @for (law of activeLaws(); track law.countryCode + law.lawName) {
+              <div style="background: var(--bg-secondary); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <strong style="font-size: 13px;">{{ law.lawName }}</strong>
+                  <span class="mono" style="font-size: 10.5px; background: var(--bg-card); padding: 2px 6px; border-radius: 3px; border: 1px solid var(--border-subtle);">
+                    {{ law.countryName }}
+                  </span>
+                </div>
+                <div style="font-size: 11.5px; color: var(--text-muted); line-height: 1.4;">
+                  {{ law.description }}
+                </div>
               </div>
-            } @else {
-              <table class="tight">
-                @for (law of activeLaws(); track law.lawName + law.countryCode) {
-                <tr>
-                  <td style="width: 150px">
-                    <b>{{ law.lawName }}</b>
-                    <div class="small muted">{{ law.countryName }}</div>
-                  </td>
-                  <td class="small">{{ law.description }}</td>
-                </tr>
-                }
-              </table>
-            }
+              }
+            </div>
           </div>
-        </div>
-
-        <div style="margin-top: 16px; display: flex; justify-content: flex-end; gap: 10px">
-          <button type="button" class="btn" (click)="goToStep(1)">Back</button>
-          <button type="button" class="btn p" (click)="goToStep(3)">Continue to data points</button>
         </div>
       </div>
       }
 
       <!-- ===================================================================== -->
-      <!-- SCREEN 3: WHICH DATA POINTS DO YOU HAVE? (Exact Mockup Screen 3)       -->
+      <!-- STEP 3: COMPLIANCE DATA JOURNEY FLOWCHART                             -->
       <!-- ===================================================================== -->
       @if (currentStep() === 3) {
       <div class="step-view">
         <div class="head">
           <div>
-            <h1>Which data points do you have?</h1>
-            <p>Your markets need 37 data points. Tick what you hold in each market — we connect to your systems and collect the rest from your suppliers.</p>
+            <h1>The Packaging Data Journey (End-to-End Flowchart)</h1>
+            <p>How raw data from ERP, PLM, and Suppliers flows into audit-ready EPR filings without manual forms.</p>
           </div>
           <div style="display: flex; gap: 8px">
-            <button type="button" class="btn" (click)="goToStep(2)">Back</button>
-            <button type="button" class="btn p" (click)="goToStep(4)">Continue to connect systems</button>
+            <button type="button" class="btn" (click)="goToStep(2)">← Back</button>
+            <button type="button" class="btn p" (click)="goToStep(4)">Continue to Connect Systems →</button>
           </div>
         </div>
 
-        <div class="row" style="gap: 16px; align-items: flex-start;">
-          <!-- Left Summary Card -->
-          <div class="card" style="width: 250px; flex-shrink: 0; padding: 4px 18px 16px">
-            <div style="padding: 14px 0; border-bottom: 1px solid #f0f2f4">
-              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px">
-                <b style="font-size: 13px">🇬🇧 UK pEPR</b>
-                <span class="small muted">{{ ukStats().total }} needed</span>
+        <!-- The Visual Data Flowchart Card -->
+        <div class="card flowchart-card">
+          <div class="flowchart-grid">
+
+            <!-- Flow Step 1: Upstream Raw Data Holders -->
+            <div class="flow-lane">
+              <div class="lane-badge">1. SOURCE DATA HOLDERS</div>
+              <div class="flow-box">
+                <strong>Snowflake Cloud DW</strong>
+                <p>Placed-on-market sales volumes, distribution nation, retail vs B2B channels.</p>
               </div>
-              <div style="display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: #eef1f4; margin-bottom: 8px">
-                <div [style.width.%]="ukStats().percentage" style="background: #1d3f72; transition: width 0.2s;"></div>
+              <div class="flow-box">
+                <strong>Trace One Devex PLM</strong>
+                <p>Hierarchical BOMs, component tare weights, polymer categories, separability.</p>
               </div>
-              <div class="small" style="display: flex; justify-content: space-between">
-                <span><b>{{ ukStats().held }}</b> <span class="muted">in your systems</span></span>
-                <span><b>{{ ukStats().collect }}</b> <span class="muted">we collect</span></span>
+              <div class="flow-box">
+                <strong>Supplier Audits</strong>
+                <p>Certified PCR %, heavy metals declarations, PFAS chemical compliance.</p>
               </div>
             </div>
 
-            <div style="padding: 14px 0; border-bottom: 1px solid #f0f2f4">
-              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px">
-                <b style="font-size: 13px">🇩🇰 Denmark + PPWR</b>
-                <span class="small muted">{{ dkStats().total }} needed</span>
+            <!-- Arrow -->
+            <div class="flow-arrow">➔</div>
+
+            <!-- Flow Step 2: Automated Ingestion & Discrepancy Reconciliation -->
+            <div class="flow-lane highlight">
+              <div class="lane-badge">2. CANONICAL PLATFORM ENGINE</div>
+              <div class="flow-box center-focus">
+                <strong>Automated Schema Normalization</strong>
+                <p>Maps 40 regulatory data points into single source of truth without manual questionnaires.</p>
               </div>
-              <div style="display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: #eef1f4; margin-bottom: 8px">
-                <div [style.width.%]="dkStats().percentage" style="background: #1d3f72; transition: width 0.2s;"></div>
-              </div>
-              <div class="small" style="display: flex; justify-content: space-between">
-                <span><b>{{ dkStats().held }}</b> <span class="muted">in your systems</span></span>
-                <span><b>{{ dkStats().collect }}</b> <span class="muted">we collect</span></span>
+              <div class="flow-box center-focus">
+                <strong>Quality Discrepancy Gate</strong>
+                <p>Identifies tare weight conflicts (e.g. 10.6g vs 9.8g) and routes fixes upstream to PLM.</p>
               </div>
             </div>
 
-            <div class="small" style="display: flex; flex-direction: column; gap: 8px; padding-top: 14px; color: #5f6b78">
-              <span><span class="dpcb on" style="margin-right: 8px">✓</span>You hold it</span>
-              <span><span class="dpcb" style="margin-right: 8px"></span>Monk Spaces collects it</span>
-              <span><span style="display: inline-block; width: 16px; margin-right: 8px; text-align: center"><span class="dpna"></span></span>Not needed in that market</span>
+            <!-- Arrow -->
+            <div class="flow-arrow">➔</div>
+
+            <!-- Flow Step 3: Audit-Ready Filings & Optimization -->
+            <div class="flow-lane">
+              <div class="lane-badge">3. REGULATORY OUTPUTS</div>
+              <div class="flow-box success">
+                <strong>UK Defra pEPR Submission</strong>
+                <p>Standardized packaging weight and polymer filings for H1 2026.</p>
+              </div>
+              <div class="flow-box success">
+                <strong>Denmark DPA Declaration</strong>
+                <p>Fee modulation schedules &amp; household recycling contribution.</p>
+              </div>
+              <div class="flow-box success">
+                <strong>EU PPWR Technical File &amp; DPP</strong>
+                <p>Article 6 recyclability grades (A–E) and GS1 Digital Product Passport.</p>
+              </div>
             </div>
 
-            <div class="small muted" style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #f0f2f4; font-size: 11px; line-height: 1.5">
-              Supplier data lands in your Devex or Snowflake first. We read it from there and write corrections back only after you approve.
-            </div>
           </div>
 
-          <!-- Right 2-Column Canonical 37 Data Points Table Card -->
-          <div class="card" style="flex: 1; padding: 16px 20px 12px">
-            <div class="row" style="gap: 36px; align-items: flex-start">
-              <!-- Column 1: ERP + PLM -->
-              <div style="flex: 1">
-                <table class="dpt">
-                  <thead>
-                    <tr>
-                      <th class="dpn">Data point</th>
-                      <th class="dpc">UK</th>
-                      <th class="dpc">DK</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr class="dpg"><td colspan="3">ERP · sales and SKU data<span>10</span></td></tr>
-                    @for (dp of dataPoints(); track dp.id) {
-                      @if (dp.category === 'ERP') {
-                      <tr>
-                        <td class="dpn">{{ dp.name }}</td>
-                        <td class="dpc" (click)="toggleDataPointUk(dp.id)">
-                          <span class="dpcb" [class.on]="dp.ukStatus === 'held'">{{ dp.ukStatus === 'held' ? '✓' : '' }}</span>
-                        </td>
-                        <td class="dpc" (click)="toggleDataPointDk(dp.id)">
-                          <span class="dpcb" [class.on]="dp.dkStatus === 'held'">{{ dp.dkStatus === 'held' ? '✓' : '' }}</span>
-                        </td>
-                      </tr>
-                      }
-                    }
-
-                    <tr class="dpg"><td colspan="3">PLM · packaging specifications<span>7</span></td></tr>
-                    @for (dp of dataPoints(); track dp.id) {
-                      @if (dp.category === 'PLM') {
-                      <tr>
-                        <td class="dpn">{{ dp.name }}</td>
-                        <td class="dpc" (click)="toggleDataPointUk(dp.id)">
-                          @if (dp.ukStatus === 'na') {
-                            <span class="dpna" title="Not needed in this market"></span>
-                          } @else {
-                            <span class="dpcb" [class.on]="dp.ukStatus === 'held'">{{ dp.ukStatus === 'held' ? '✓' : '' }}</span>
-                          }
-                        </td>
-                        <td class="dpc" (click)="toggleDataPointDk(dp.id)">
-                          @if (dp.dkStatus === 'na') {
-                            <span class="dpna" title="Not needed in this market"></span>
-                          } @else {
-                            <span class="dpcb" [class.on]="dp.dkStatus === 'held'">{{ dp.dkStatus === 'held' ? '✓' : '' }}</span>
-                          }
-                        </td>
-                      </tr>
-                      }
-                    }
-                  </tbody>
-                </table>
-              </div>
-
-              <!-- Column 2: Compliance + Supplier -->
-              <div style="flex: 1">
-                <table class="dpt">
-                  <thead>
-                    <tr>
-                      <th class="dpn">Data point</th>
-                      <th class="dpc">UK</th>
-                      <th class="dpc">DK</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr class="dpg"><td colspan="3">Compliance team · manual entries<span>9</span></td></tr>
-                    @for (dp of dataPoints(); track dp.id) {
-                      @if (dp.category === 'COMPLIANCE') {
-                      <tr>
-                        <td class="dpn">{{ dp.name }}</td>
-                        <td class="dpc" (click)="toggleDataPointUk(dp.id)">
-                          @if (dp.ukStatus === 'na') {
-                            <span class="dpna" title="Not needed in this market"></span>
-                          } @else {
-                            <span class="dpcb" [class.on]="dp.ukStatus === 'held'">{{ dp.ukStatus === 'held' ? '✓' : '' }}</span>
-                          }
-                        </td>
-                        <td class="dpc" (click)="toggleDataPointDk(dp.id)">
-                          @if (dp.dkStatus === 'na') {
-                            <span class="dpna" title="Not needed in this market"></span>
-                          } @else {
-                            <span class="dpcb" [class.on]="dp.dkStatus === 'held'">{{ dp.dkStatus === 'held' ? '✓' : '' }}</span>
-                          }
-                        </td>
-                      </tr>
-                      }
-                    }
-
-                    <tr class="dpg"><td colspan="3">Supplier data · Monk Spaces collects<span>11</span></td></tr>
-                    @for (dp of dataPoints(); track dp.id) {
-                      @if (dp.category === 'SUPPLIER') {
-                      <tr>
-                        <td class="dpn">{{ dp.name }}</td>
-                        <td class="dpc" (click)="toggleDataPointUk(dp.id)">
-                          @if (dp.ukStatus === 'na') {
-                            <span class="dpna" title="Not needed in this market"></span>
-                          } @else {
-                            <span class="dpcb" [class.on]="dp.ukStatus === 'held'">{{ dp.ukStatus === 'held' ? '✓' : '' }}</span>
-                          }
-                        </td>
-                        <td class="dpc" (click)="toggleDataPointDk(dp.id)">
-                          @if (dp.dkStatus === 'na') {
-                            <span class="dpna" title="Not needed in this market"></span>
-                          } @else {
-                            <span class="dpcb" [class.on]="dp.dkStatus === 'held'">{{ dp.dkStatus === 'held' ? '✓' : '' }}</span>
-                          }
-                        </td>
-                      </tr>
-                      }
-                    }
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div class="small muted" style="margin-top: 12px; font-size: 11px">
-              PPWR-only points (labelling, DoC) apply from Aug 2028; recyclability grade from 2030. List from epr-ppwr-data-points_UK-DK_2026-10-27.pdf.
+          <!-- Informative Notice Banner -->
+          <div class="flowchart-footer">
+            <span class="icon">ℹ️</span>
+            <div>
+              <strong>Zero Form-Filling Requirement:</strong>
+              Neither the client nor the SuperAdmin needs to manually answer data surveys. The platform extracts data directly from existing systems and highlights only missing PCR certificates or tare weight conflicts.
             </div>
           </div>
-        </div>
-
-        <div style="margin-top: 16px; display: flex; justify-content: flex-end; gap: 10px">
-          <button type="button" class="btn" (click)="goToStep(2)">Back</button>
-          <button type="button" class="btn p" (click)="goToStep(4)">Continue to connect systems</button>
         </div>
       </div>
       }
 
       <!-- ===================================================================== -->
-      <!-- SCREEN 4: CONNECT YOUR SYSTEMS (Exact Mockup Screen 4)                 -->
+      <!-- STEP 4: CONNECT SYSTEMS & PROVISIONING                                -->
       <!-- ===================================================================== -->
       @if (currentStep() === 4) {
       <div class="step-view">
         <div class="head">
           <div>
-            <h1>Connect your systems</h1>
-            <p>We read from the systems you already use. Corrections go back into them — only after you approve. Your team keeps the master copy.</p>
+            <h1>Provision &amp; Launch Workspace</h1>
+            <p>Connect client systems and initialize the isolated PostgreSQL database partition.</p>
           </div>
           <div style="display: flex; gap: 8px">
-            <button type="button" class="btn" (click)="goToStep(3)">Back</button>
-            <button type="button" class="btn p" (click)="finishSetup()" [style.opacity]="submitting() ? 0.7 : 1">
-              {{ submitting() ? 'Finishing setup...' : 'Finish set up' }}
+            <button type="button" class="btn" (click)="goToStep(3)">← Back</button>
+            <button type="button" class="btn p" [disabled]="submitting()" (click)="finishSetup()">
+              {{ submitting() ? 'Provisioning Neon PostgreSQL...' : '✓ Launch Client Workspace' }}
             </button>
           </div>
         </div>
 
-        <!-- How your data moves SVG Architectural Diagram -->
-        <div class="card" style="padding: 16px 22px 14px; margin-bottom: 14px">
-          <b style="font-size: 14px; display: block; margin-bottom: 10px">How your data moves</b>
-          <svg viewBox="0 0 1240 232" style="width: 100%; display: block">
-            <defs>
-              <marker id="mb8c1cb_1" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#b8c1cb"/></marker>
-              <marker id="m2f6fd6_1" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#1d3f72"/></marker>
-              <marker id="m16865f_1" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#16865f"/></marker>
-            </defs>
+        <div class="card" style="padding: 24px;">
+          <div style="font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary);">
+            Ready to Initialize for {{ profileForm.get('companyName')?.value }}
+          </div>
 
-            <!-- Columns labels -->
-            <text x="0" y="12" style="font-size: 10.5px; font-weight: 700; letter-spacing: .06em; fill: #8a96a3">WHERE DATA STARTS</text>
-            <text x="330" y="12" style="font-size: 10.5px; font-weight: 700; letter-spacing: .06em; fill: #8a96a3">WHERE IT IS KEPT</text>
-            <text x="660" y="12" style="font-size: 10.5px; font-weight: 700; letter-spacing: .06em; fill: #8a96a3">MONK SPACES</text>
-            <text x="990" y="12" style="font-size: 10.5px; font-weight: 700; letter-spacing: .06em; fill: #8a96a3">WHAT YOU GET</text>
-
-            <!-- Column 1: Sources -->
-            <rect x="0" y="24" width="230" height="44" rx="8" fill="#fff" stroke="#d5dbe3" stroke-width="1.2"/>
-            <text x="14" y="43" style="font-size: 13px; font-weight: 700; fill: #18212b">Your suppliers</text>
-            <text x="14" y="59" style="font-size: 11px; fill: #5f6b78">materials, recycled content, tests</text>
-            <text x="218" y="44" text-anchor="end" style="font-size: 10.5px; font-weight: 600; fill: #5f6b78">13</text>
-
-            <rect x="0" y="76" width="230" height="44" rx="8" fill="#fff" stroke="#d5dbe3" stroke-width="1.2"/>
-            <text x="14" y="95" style="font-size: 13px; font-weight: 700; fill: #18212b">Your packaging team</text>
-            <text x="14" y="111" style="font-size: 11px; fill: #5f6b78">packaging specifications</text>
-            <text x="218" y="96" text-anchor="end" style="font-size: 10.5px; font-weight: 600; fill: #5f6b78">5</text>
-
-            <rect x="0" y="128" width="230" height="44" rx="8" fill="#fff" stroke="#d5dbe3" stroke-width="1.2"/>
-            <text x="14" y="147" style="font-size: 13px; font-weight: 700; fill: #18212b">Your sales team</text>
-            <text x="14" y="163" style="font-size: 11px; fill: #5f6b78">sales by market, SKU list</text>
-            <text x="218" y="148" text-anchor="end" style="font-size: 10.5px; font-weight: 600; fill: #5f6b78">10</text>
-
-            <rect x="0" y="180" width="230" height="44" rx="8" fill="#fff" stroke="#d5dbe3" stroke-width="1.2"/>
-            <text x="14" y="199" style="font-size: 13px; font-weight: 700; fill: #18212b">Your compliance team</text>
-            <text x="14" y="215" style="font-size: 11px; fill: #5f6b78">registrations, roles, sign-off</text>
-            <text x="218" y="200" text-anchor="end" style="font-size: 10.5px; font-weight: 600; fill: #5f6b78">9</text>
-
-            <!-- Column 2: Systems Kept -->
-            <rect x="330" y="24" width="230" height="96" rx="8" fill="#e9eef6" stroke="#1d3f72" stroke-width="1.2"/>
-            <text x="344" y="69" style="font-size: 13px; font-weight: 700; fill: #122a4e">Trace One Devex</text>
-            <text x="344" y="85" style="font-size: 11px; fill: #5f6b78">specs + supplier answers</text>
-
-            <rect x="330" y="128" width="230" height="44" rx="8" fill="#e9eef6" stroke="#1d3f72" stroke-width="1.2"/>
-            <text x="344" y="147" style="font-size: 13px; font-weight: 700; fill: #122a4e">Snowflake</text>
-            <text x="344" y="163" style="font-size: 11px; fill: #5f6b78">sales and SKU master</text>
-
-            <rect x="330" y="180" width="230" height="44" rx="8" fill="#e9eef6" stroke="#1d3f72" stroke-width="1.2"/>
-            <text x="344" y="199" style="font-size: 13px; font-weight: 700; fill: #122a4e">Compliance Hub</text>
-            <text x="344" y="215" style="font-size: 11px; fill: #5f6b78">entered once by your team</text>
-
-            <!-- Column 3: Monk Spaces -->
-            <rect x="660" y="24" width="230" height="200" rx="8" fill="#fff" stroke="#1d3f72" stroke-width="1.8"/>
-            <text x="674" y="50" style="font-size: 13px; font-weight: 700; fill: #18212b">Monk Spaces</text>
-            <text x="674" y="76" style="font-size: 11.5px; fill: #18212b">1 · Reads your systems</text>
-            <text x="674" y="98" style="font-size: 11.5px; fill: #18212b">2 · Requests what is missing</text>
-            <text x="674" y="120" style="font-size: 11.5px; fill: #18212b">3 · Checks every value</text>
-            <text x="674" y="142" style="font-size: 11.5px; fill: #18212b">4 · Calculates fees</text>
-            <text x="674" y="164" style="font-size: 11.5px; fill: #18212b">5 · Prepares reports</text>
-
-            <!-- Column 4: What you get -->
-            <rect x="990" y="24" width="250" height="60" rx="8" fill="#fff" stroke="#d5dbe3" stroke-width="1.2"/>
-            <text x="1004" y="51" style="font-size: 13px; font-weight: 700; fill: #18212b">EPR fees</text>
-            <text x="1004" y="67" style="font-size: 11px; fill: #5f6b78">UK and Denmark, with confidence</text>
-
-            <rect x="990" y="94" width="250" height="60" rx="8" fill="#fff" stroke="#d5dbe3" stroke-width="1.2"/>
-            <text x="1004" y="121" style="font-size: 13px; font-weight: 700; fill: #18212b">Filings</text>
-            <text x="1004" y="137" style="font-size: 11px; fill: #5f6b78">UK RPD file · Denmark DPA report</text>
-
-            <rect x="990" y="164" width="250" height="60" rx="8" fill="#fff" stroke="#d5dbe3" stroke-width="1.2"/>
-            <text x="1004" y="191" style="font-size: 13px; font-weight: 700; fill: #18212b">Reports to sign</text>
-            <text x="1004" y="207" style="font-size: 11px; fill: #5f6b78">Declarations of Conformity, methodology</text>
-
-            <!-- Connectors -->
-            <path d="M230,46 C280,46 280,56 328,56" fill="none" stroke="#b8c1cb" stroke-width="1.6" marker-end="url(#mb8c1cb_1)"/>
-            <text x="280" y="38" text-anchor="middle" style="font-size: 9.5px; fill: #8a96a3">we request it</text>
-            <path d="M230,98 C280,98 280,88 328,88" fill="none" stroke="#b8c1cb" stroke-width="1.6" marker-end="url(#mb8c1cb_1)"/>
-            <path d="M230,150 C280,150 280,150 328,150" fill="none" stroke="#b8c1cb" stroke-width="1.6" marker-end="url(#mb8c1cb_1)"/>
-            <path d="M230,202 C280,202 280,202 328,202" fill="none" stroke="#b8c1cb" stroke-width="1.6" marker-end="url(#mb8c1cb_1)"/>
-
-            <path d="M560,44 C610,44 610,44 658,44" fill="none" stroke="#1d3f72" stroke-width="1.6" stroke-dasharray="5,3" marker-end="url(#m2f6fd6_1)"/>
-            <path d="M560,150 C610,150 610,150 658,150" fill="none" stroke="#1d3f72" stroke-width="1.6" stroke-dasharray="5,3" marker-end="url(#m2f6fd6_1)"/>
-            <path d="M560,202 C610,202 610,202 658,202" fill="none" stroke="#1d3f72" stroke-width="1.6" stroke-dasharray="5,3" marker-end="url(#m2f6fd6_1)"/>
-            <text x="610" y="36" text-anchor="middle" style="font-size: 9.5px; fill: #1d3f72">we read</text>
-
-            <path d="M660,100 C610,100 610,100 558,100" fill="none" stroke="#16865f" stroke-width="1.6" marker-end="url(#m16865f_1)"/>
-            <path d="M660,160 C610,160 610,160 558,160" fill="none" stroke="#16865f" stroke-width="1.6" marker-end="url(#m16865f_1)"/>
-            <text x="610" y="116" text-anchor="middle" style="font-size: 9.5px; fill: #16865f">fixes, after</text>
-            <text x="610" y="127" text-anchor="middle" style="font-size: 9.5px; fill: #16865f">you approve</text>
-
-            <path d="M890,54 C940,54 940,54 988,54" fill="none" stroke="#b8c1cb" stroke-width="1.6" marker-end="url(#mb8c1cb_1)"/>
-            <path d="M890,124 C940,124 940,124 988,124" fill="none" stroke="#b8c1cb" stroke-width="1.6" marker-end="url(#mb8c1cb_1)"/>
-            <path d="M890,194 C940,194 940,194 988,194" fill="none" stroke="#b8c1cb" stroke-width="1.6" marker-end="url(#mb8c1cb_1)"/>
-          </svg>
-        </div>
-
-        <!-- Connection status card -->
-        <div class="card" style="padding: 16px 26px 4px;">
-          <b style="font-size: 14px; display: block; margin-bottom: 4px">Connection status</b>
-
-          <div class="cs-row">
-            <span class="cs-dot" style="background: #1d3f72"></span>
-            <div>
-              <b style="font-size: 14px">Snowflake</b>
-              <div class="small muted">Sales by market · SKU master</div>
-            </div>
-            <div>
-              <div class="cs-n">10</div>
-              <div class="small muted">data points</div>
-            </div>
-            <div><span class="cs-pill warn">⟳ In progress</span></div>
-            <div>
-              <div class="cs-steps">
-                <span class="done"></span>
-                <span class="done"></span>
-                <span class="cur"></span>
-                <span></span>
-                <span></span>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
+            <div class="connect-card">
+              <div class="connect-header">
+                <span class="connect-title">Trace One Devex PLM</span>
+                <span class="connect-status ready">READY</span>
               </div>
-              <div class="small"><b>Step 3 of 5</b> <span class="muted">· Monk Spaces connects</span></div>
-              <div class="small muted">Corrections go to a table you own in Snowflake</div>
+              <p class="connect-desc">Packaging specifications, weights, and component hierarchies.</p>
             </div>
-            <div class="cs-link">View list ›</div>
+
+            <div class="connect-card">
+              <div class="connect-header">
+                <span class="connect-title">Snowflake Cloud Data</span>
+                <span class="connect-status ready">READY</span>
+              </div>
+              <p class="connect-desc">Placed on market sales volumes and distribution data.</p>
+            </div>
+
+            <div class="connect-card">
+              <div class="connect-header">
+                <span class="connect-title">Neon PostgreSQL DB</span>
+                <span class="connect-status ready">READY</span>
+              </div>
+              <p class="connect-desc">Isolated partition under <code>tenant_{{ profileForm.get('tenantSlug')?.value }}</code>.</p>
+            </div>
           </div>
 
-          <div class="cs-row">
-            <span class="cs-dot" style="background: #6f9be6"></span>
-            <div>
-              <b style="font-size: 14px">Trace One Devex</b>
-              <div class="small muted">Packaging specifications</div>
+          <div style="border-top: 1px solid var(--border-subtle); padding-top: 18px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 12.5px; color: var(--text-secondary);">
+              Clicking <strong>Launch Client Workspace</strong> will save this tenant directly to the database and transition into the Client Executive Dashboard.
             </div>
-            <div>
-              <div class="cs-n">5</div>
-              <div class="small muted">data points</div>
-            </div>
-            <div><span class="cs-pill ok">✓ Connected</span></div>
-            <div>
-              <div class="small"><b>412</b> <span class="muted">specs</span> · <b>146</b> <span class="muted">SKUs read</span></div>
-              <div class="small muted">Corrections go in as Devex change requests</div>
-            </div>
-            <div class="cs-link">View list ›</div>
-          </div>
-
-          <div class="cs-row">
-            <span class="cs-dot" style="background: #9aa5b1"></span>
-            <div>
-              <b style="font-size: 14px">Your compliance team</b>
-              <div class="small muted">Entered once in the tool</div>
-            </div>
-            <div>
-              <div class="cs-n">9</div>
-              <div class="small muted">data points</div>
-            </div>
-            <div><span class="cs-pill">Manual entry</span></div>
-            <div>
-              <div class="small"><span class="muted">Owner</span> <b>Compliance lead</b></div>
-              <div class="small muted">Registration, roles and sign-off details</div>
-            </div>
-            <div class="cs-link">View list ›</div>
-          </div>
-
-          <div class="cs-row">
-            <span class="cs-dot" style="background: repeating-linear-gradient(135deg, #e6eaef 0 4px, #f4f6f8 4px 8px); border: 1px solid #c9d1da"></span>
-            <div>
-              <b style="font-size: 14px">Your suppliers</b>
-              <div class="small muted">Monk Spaces requests them</div>
-            </div>
-            <div>
-              <div class="cs-n">13</div>
-              <div class="small muted">data points</div>
-            </div>
-            <div><span class="cs-pill info">Monk Spaces collects</span></div>
-            <div>
-              <div class="small muted">Answers land in your Devex or Snowflake first; we read them from there</div>
-            </div>
-            <div class="cs-link">View list ›</div>
-          </div>
-        </div>
-
-        <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center">
-          <span class="small muted">Connections are mocked in this demo. Systems shown are assumptions from client discussion.</span>
-          <span style="display: flex; gap: 10px">
-            <button type="button" class="btn" (click)="goToStep(3)">Back</button>
-            <button type="button" class="btn p" (click)="finishSetup()" [style.opacity]="submitting() ? 0.7 : 1">
-              {{ submitting() ? 'Finishing setup...' : 'Finish set up' }}
+            <button type="button" class="btn p" [disabled]="submitting()" (click)="finishSetup()">
+              {{ submitting() ? 'Saving to Database...' : 'Launch Client Workspace →' }}
             </button>
-          </span>
+          </div>
         </div>
       </div>
       }
 
     </div>
   </div>
-
-  <div class="sample">Sample data · illustrative figures, not Kraft Heinz data · illustrative tariffs and FX</div>
 </section>

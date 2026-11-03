@@ -7,15 +7,6 @@ import { TenantApiService } from '../../core/services/tenant-api.service';
 import { ConfigApiService } from '../../core/services/config-api.service';
 import { ClientWorkspaceProfile, TenantMarketSelection } from '../../core/models/tenant.model';
 
-export interface DataPointRow {
-  id: string;
-  name: string;
-  category: 'ERP' | 'PLM' | 'COMPLIANCE' | 'SUPPLIER';
-  categoryLabel: string;
-  ukStatus: 'held' | 'collect' | 'na';
-  dkStatus: 'held' | 'collect' | 'na';
-}
-
 export interface MarketOption {
   countryCode: string;
   countryName: string;
@@ -27,6 +18,13 @@ export interface LawRule {
   countryCode: string;
   countryName: string;
   lawName: string;
+  description: string;
+}
+
+export interface BrandThemeOption {
+  id: string;
+  name: string;
+  colorHex: string;
   description: string;
 }
 
@@ -44,152 +42,81 @@ export class OnboardingComponent implements OnInit {
   readonly configService = inject(ConfigApiService);
   readonly config = APP_CONFIG;
 
-  // Wizard state starts at Step 1: 1 · Company & entities
+  // Wizard steps: 1 = Company & Branding, 2 = Markets & Laws, 3 = Data Journey Flowchart, 4 = Connect Systems
   readonly currentStep = signal<number>(1);
   readonly submitting = signal<boolean>(false);
 
   readonly stepTitle = computed(() => {
     switch (this.currentStep()) {
-      case 1: return 'Onboarding · company & entities';
-      case 2: return 'Onboarding · markets & laws';
-      case 3: return 'Onboarding · data points';
-      case 4: return 'Onboarding · connect systems';
-      default: return 'Onboarding';
+      case 1: return 'Client Workspace Setup · Identity & Branding';
+      case 2: return 'Regulatory Scope · Markets & Jurisdictions';
+      case 3: return 'Compliance Data Journey & Flowchart';
+      case 4: return 'System Connections & Provisioning';
+      default: return 'Client Workspace Setup';
     }
   });
 
   readonly stepSubtitle = computed(() => {
     switch (this.currentStep()) {
-      case 1: return 'Company legal identity and operating thresholds';
-      case 2: return 'Where you sell decides which laws apply';
-      case 3: return 'Confirm what you hold for UK and Denmark — we collect the rest from your suppliers';
-      case 4: return 'Connect once — corrections always write back into your own systems';
+      case 1: return 'Set client legal entity, custom logo, and branded theme';
+      case 2: return 'Select target sales markets to activate EPR & PPWR rule libraries';
+      case 3: return 'Overview of required data points flowing from Snowflake, PLM, and suppliers';
+      case 4: return 'Connect once — continuous automated normalization with zero manual templates';
       default: return '';
     }
   });
 
-  // Canonical regulatory rules library for dynamic legislation switching
-  readonly allLawRules: LawRule[] = [
-    { countryCode: 'UK', countryName: 'United Kingdom', lawName: 'UK pEPR', description: 'Brand owner, over £2m turnover and 50 t packaging: large producer' },
-    { countryCode: 'DK', countryName: 'Denmark', lawName: 'Danish packaging EPR', description: 'Producer responsibility for packaging since 2025, via a PRO' },
-    { countryCode: 'DK', countryName: 'Denmark', lawName: 'EU PPWR', description: 'You make packaged goods available in the EU; applies from 12 Aug 2026' },
-    { countryCode: 'FR', countryName: 'France', lawName: 'French CITEO EPR', description: 'Mandatory packaging declaration, Info-tri sorting logo & Triman marking' },
-    { countryCode: 'DE', countryName: 'Germany', lawName: 'German VerpackG', description: 'Central agency ZSVR (LUCID) registration & dual system participation' },
-    { countryCode: 'ES', countryName: 'Spain', lawName: 'Spanish RD 1055/2022', description: 'National packaging register registration & non-recycled plastic tax (€0.45/kg)' },
-    { countryCode: 'IT', countryName: 'Italy', lawName: 'Italian CONAI EPR', description: 'CONAI eco-contribution bands & environmental labelling compliance' },
-    { countryCode: 'NL', countryName: 'Netherlands', lawName: 'Afvalfonds Verpakkingen', description: 'Annual producer packaging return & waste management contribution' },
-    { countryCode: 'BE', countryName: 'Belgium', lawName: 'Fost Plus & Valipac', description: 'Household (Fost Plus) and commercial/industrial (Valipac) EPR reporting' },
-    { countryCode: 'US_CA', countryName: 'California', lawName: 'California SB 54', description: 'Plastic Pollution Prevention & Packaging Producer Responsibility Act' },
-    { countryCode: 'US_OR', countryName: 'Oregon', lawName: 'Oregon RMA', description: 'Recycling Modernization Act producer responsibility organization membership' },
-    { countryCode: 'US_CO', countryName: 'Colorado', lawName: 'Colorado Producer Responsibility', description: 'Statewide packaging circularity and recycling fee program' },
-    { countryCode: 'CA', countryName: 'Canada', lawName: 'Canada Provincial EPR', description: 'Ontario & British Columbia full producer responsibility for packaging' },
+  // Pre-configured brand accent themes for SuperAdmin
+  readonly brandThemes: BrandThemeOption[] = [
+    { id: 'monochrome', name: 'Swiss Obsidian', colorHex: '#111827', description: 'Monochrome high-contrast enterprise theme' },
+    { id: 'khc-red', name: 'Heritage Red', colorHex: '#C41230', description: 'Kraft Heinz signature corporate crimson' },
+    { id: 'nordic-navy', name: 'Nordic Navy', colorHex: '#1E3A8A', description: 'Deep Scandinavian cobalt' },
+    { id: 'forest-emerald', name: 'Forest Emerald', colorHex: '#065F46', description: 'Sustainable packaging dark green' },
   ];
 
-  // Markets in scope matching Mockup Screen 2 (split into 2 columns)
+  // Canonical regulatory rules library
+  readonly allLawRules: LawRule[] = [
+    { countryCode: 'UK', countryName: 'United Kingdom', lawName: 'UK pEPR (Defra RPD 2026)', description: 'Brand owner, turnover >£2m and >50 tonnes packaging: mandatory filing' },
+    { countryCode: 'DK', countryName: 'Denmark', lawName: 'Dansk Producent Ansvar (DPA)', description: 'Mandatory producer responsibility scheme active since 2025' },
+    { countryCode: 'DK', countryName: 'Denmark', lawName: 'EU PPWR (Article 6)', description: 'Packaging and Packaging Waste Regulation recyclability grades & DoC' },
+    { countryCode: 'FR', countryName: 'France', lawName: 'French CITEO EPR', description: 'Mandatory packaging declaration, Info-tri sorting logo & Triman marking' },
+    { countryCode: 'DE', countryName: 'Germany', lawName: 'German VerpackG (LUCID)', description: 'ZSVR LUCID registration and dual system participation' },
+    { countryCode: 'ES', countryName: 'Spain', lawName: 'Spanish RD 1055/2022', description: 'National packaging register & non-recycled plastic tax (€0.45/kg)' },
+  ];
+
+  // Markets in scope (split into 2 columns)
   readonly marketsCol1 = signal<MarketOption[]>([
     { countryCode: 'UK', countryName: 'United Kingdom', regulationLabel: 'UK pEPR', selected: true },
-    { countryCode: 'FR', countryName: 'France', regulationLabel: 'not selected', selected: false },
-    { countryCode: 'DE', countryName: 'Germany', regulationLabel: 'not selected', selected: false },
-    { countryCode: 'ES', countryName: 'Spain', regulationLabel: 'not selected', selected: false },
-    { countryCode: 'IT', countryName: 'Italy', regulationLabel: 'not selected', selected: false },
-    { countryCode: 'NL', countryName: 'Netherlands', regulationLabel: 'not selected', selected: false },
+    { countryCode: 'FR', countryName: 'France', regulationLabel: 'CITEO', selected: false },
+    { countryCode: 'DE', countryName: 'Germany', regulationLabel: 'LUCID', selected: false },
   ]);
 
   readonly marketsCol2 = signal<MarketOption[]>([
-    { countryCode: 'BE', countryName: 'Belgium', regulationLabel: 'not selected', selected: false },
     { countryCode: 'DK', countryName: 'Denmark', regulationLabel: 'DPA + PRO', selected: true },
-    { countryCode: 'US_CA', countryName: 'California', regulationLabel: 'not selected', selected: false },
-    { countryCode: 'US_OR', countryName: 'Oregon', regulationLabel: 'not selected', selected: false },
-    { countryCode: 'US_CO', countryName: 'Colorado', regulationLabel: 'not selected', selected: false },
-    { countryCode: 'CA', countryName: 'Canada: ON, BC', regulationLabel: 'not selected', selected: false },
+    { countryCode: 'ES', countryName: 'Spain', regulationLabel: 'RD 1055', selected: false },
+    { countryCode: 'IT', countryName: 'Italy', regulationLabel: 'CONAI', selected: false },
   ]);
 
-  // Canonical 37 Data Points for UK & DK matching Mockup Screen 3
-  readonly dataPoints = signal<DataPointRow[]>([
-    // Group 1: ERP · sales and SKU data (10 items)
-    { id: 'DP01', name: 'Article / SKU number', category: 'ERP', categoryLabel: 'ERP · sales and SKU data', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP02', name: 'GTIN / barcode', category: 'ERP', categoryLabel: 'ERP · sales and SKU data', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP03', name: 'Packaging component list', category: 'ERP', categoryLabel: 'ERP · sales and SKU data', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP04', name: 'Units per pack', category: 'ERP', categoryLabel: 'ERP · sales and SKU data', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP05', name: 'Units placed on the market', category: 'ERP', categoryLabel: 'ERP · sales and SKU data', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP06', name: 'Sales channel', category: 'ERP', categoryLabel: 'ERP · sales and SKU data', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP07', name: 'Delivery nation', category: 'ERP', categoryLabel: 'ERP · sales and SKU data', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP08', name: 'Exports out of the country', category: 'ERP', categoryLabel: 'ERP · sales and SKU data', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP09', name: 'Import country of origin', category: 'ERP', categoryLabel: 'ERP · sales and SKU data', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP10', name: 'Supplier per component', category: 'ERP', categoryLabel: 'ERP · sales and SKU data', ukStatus: 'held', dkStatus: 'held' },
-
-    // Group 2: PLM · packaging specifications (7 items)
-    { id: 'DP11', name: 'Packaging level', category: 'PLM', categoryLabel: 'PLM · packaging specifications', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP12', name: 'Component material', category: 'PLM', categoryLabel: 'PLM · packaging specifications', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP13', name: 'Component weight (empty)', category: 'PLM', categoryLabel: 'PLM · packaging specifications', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP14', name: 'Reusable or single-use', category: 'PLM', categoryLabel: 'PLM · packaging specifications', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP15', name: 'Food-contact packaging', category: 'PLM', categoryLabel: 'PLM · packaging specifications', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP16', name: 'Minimisation evidence', category: 'PLM', categoryLabel: 'PLM · packaging specifications', ukStatus: 'na', dkStatus: 'collect' },
-    { id: 'DP17', name: 'Weight source and sampling', category: 'PLM', categoryLabel: 'PLM · packaging specifications', ukStatus: 'collect', dkStatus: 'collect' },
-
-    // Group 3: Compliance team · manual entries (9 items)
-    { id: 'DP18', name: 'Deposit scheme status', category: 'COMPLIANCE', categoryLabel: 'Compliance team · manual entries', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP19', name: 'Producer role', category: 'COMPLIANCE', categoryLabel: 'Compliance team · manual entries', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP20', name: 'EPR registration number', category: 'COMPLIANCE', categoryLabel: 'Compliance team · manual entries', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP21', name: 'Compliance scheme membership', category: 'COMPLIANCE', categoryLabel: 'Compliance team · manual entries', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP22', name: 'Authorised representative', category: 'COMPLIANCE', categoryLabel: 'Compliance team · manual entries', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP23', name: 'Organisation size and threshold', category: 'COMPLIANCE', categoryLabel: 'Compliance team · manual entries', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP24', name: 'Reporting period', category: 'COMPLIANCE', categoryLabel: 'Compliance team · manual entries', ukStatus: 'held', dkStatus: 'held' },
-    { id: 'DP25', name: 'DoC reference and version', category: 'COMPLIANCE', categoryLabel: 'Compliance team · manual entries', ukStatus: 'na', dkStatus: 'held' },
-    { id: 'DP26', name: 'Sign-off owner', category: 'COMPLIANCE', categoryLabel: 'Compliance team · manual entries', ukStatus: 'held', dkStatus: 'held' },
-
-    // Group 4: Supplier data · Monk Spaces collects (11 items)
-    { id: 'DP27', name: 'Polymer type', category: 'SUPPLIER', categoryLabel: 'Supplier data · Monk Spaces collects', ukStatus: 'collect', dkStatus: 'collect' },
-    { id: 'DP28', name: 'Multi-material split', category: 'SUPPLIER', categoryLabel: 'Supplier data · Monk Spaces collects', ukStatus: 'collect', dkStatus: 'collect' },
-    { id: 'DP29', name: 'Colour and opacity', category: 'SUPPLIER', categoryLabel: 'Supplier data · Monk Spaces collects', ukStatus: 'collect', dkStatus: 'collect' },
-    { id: 'DP30', name: 'Additives, inks and adhesives', category: 'SUPPLIER', categoryLabel: 'Supplier data · Monk Spaces collects', ukStatus: 'collect', dkStatus: 'collect' },
-    { id: 'DP31', name: 'Recyclability result', category: 'SUPPLIER', categoryLabel: 'Supplier data · Monk Spaces collects', ukStatus: 'collect', dkStatus: 'collect' },
-    { id: 'DP32', name: 'Recycled content %', category: 'SUPPLIER', categoryLabel: 'Supplier data · Monk Spaces collects', ukStatus: 'collect', dkStatus: 'collect' },
-    { id: 'DP33', name: 'Recycled content certificate', category: 'SUPPLIER', categoryLabel: 'Supplier data · Monk Spaces collects', ukStatus: 'collect', dkStatus: 'collect' },
-    { id: 'DP34', name: 'PFAS declaration', category: 'SUPPLIER', categoryLabel: 'Supplier data · Monk Spaces collects', ukStatus: 'na', dkStatus: 'collect' },
-    { id: 'DP35', name: 'Heavy metals', category: 'SUPPLIER', categoryLabel: 'Supplier data · Monk Spaces collects', ukStatus: 'na', dkStatus: 'collect' },
-    { id: 'DP36', name: 'Substances of concern', category: 'SUPPLIER', categoryLabel: 'Supplier data · Monk Spaces collects', ukStatus: 'na', dkStatus: 'collect' },
-    { id: 'DP37', name: 'Technical file references', category: 'SUPPLIER', categoryLabel: 'Supplier data · Monk Spaces collects', ukStatus: 'collect', dkStatus: 'collect' },
-  ]);
-
-  // Dynamic calculations for UK data point coverage
-  readonly ukStats = computed(() => {
-    const list = this.dataPoints();
-    const needed = list.filter(dp => dp.ukStatus !== 'na');
-    const held = needed.filter(dp => dp.ukStatus === 'held');
-    const collect = needed.filter(dp => dp.ukStatus === 'collect');
-    const pct = needed.length > 0 ? (held.length / needed.length) * 100 : 0;
-    return {
-      total: needed.length,
-      held: held.length,
-      collect: collect.length,
-      percentage: pct.toFixed(1),
-    };
+  // Form Controls for Step 1
+  readonly profileForm: FormGroup = this.fb.group({
+    companyName: ['The Kraft Heinz Company Europe', [Validators.required, Validators.minLength(3)]],
+    legalEntityName: ['Kraft Heinz UK Limited', [Validators.required]],
+    tenantSlug: ['khc-europe', [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)]],
+    sector: ['Food & beverage / FMCG', [Validators.required]],
+    organisationSize: ['L', [Validators.required]],
+    rpdOrganisationId: ['100004'],
+    primaryCurrency: ['EUR', [Validators.required]],
+    logoPreset: ['khc'],
+    customLogoUrl: [''],
+    themeColor: ['#111827'],
   });
 
-  // Dynamic calculations for Denmark + PPWR data point coverage
-  readonly dkStats = computed(() => {
-    const list = this.dataPoints();
-    const needed = list.filter(dp => dp.dkStatus !== 'na');
-    const held = needed.filter(dp => dp.dkStatus === 'held');
-    const collect = needed.filter(dp => dp.dkStatus === 'collect');
-    const pct = needed.length > 0 ? (held.length / needed.length) * 100 : 0;
-    return {
-      total: needed.length,
-      held: held.length,
-      collect: collect.length,
-      percentage: pct.toFixed(1),
-    };
-  });
-
-  // Selected markets count
   readonly selectedMarketsCount = computed(() => {
     const col1 = this.marketsCol1().filter(m => m.selected).length;
     const col2 = this.marketsCol2().filter(m => m.selected).length;
     return col1 + col2;
   });
 
-  // Dynamic Laws Switched On computed based on user selected markets
   readonly activeLaws = computed(() => {
     const selectedCodes = new Set([
       ...this.marketsCol1().filter(m => m.selected).map(m => m.countryCode),
@@ -198,30 +125,21 @@ export class OnboardingComponent implements OnInit {
     return this.allLawRules.filter(r => selectedCodes.has(r.countryCode));
   });
 
-  // Form Controls for Step 1
-  readonly profileForm: FormGroup = this.fb.group({
-    companyName: ['The Kraft Heinz Company Europe', [Validators.required, Validators.minLength(3)]],
-    legalEntityName: ['Kraft Heinz UK', [Validators.required]],
-    tenantSlug: ['khc-europe', [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)]],
-    sector: ['Food & beverage', [Validators.required]],
-    organisationSize: ['Large producer (>£2m turnover and 50 t packaging)', [Validators.required]],
-    rpdOrganisationId: ['100004'],
-    primaryCurrency: ['EUR', [Validators.required]],
-  });
-
   ngOnInit(): void {}
 
-  // Quick preset loader for client testing
+  // Quick preset loader for SuperAdmin
   loadPreset(preset: 'khc' | 'nordhavn' | 'custom'): void {
     if (preset === 'khc') {
       this.profileForm.patchValue({
         companyName: 'The Kraft Heinz Company Europe',
-        legalEntityName: 'Kraft Heinz UK',
+        legalEntityName: 'Kraft Heinz UK Limited',
         tenantSlug: 'khc-europe',
-        sector: 'Food & beverage',
-        organisationSize: 'Large producer (>£2m turnover and 50 t packaging)',
+        sector: 'Food & beverage / FMCG',
+        organisationSize: 'L',
         rpdOrganisationId: '100004',
         primaryCurrency: 'EUR',
+        logoPreset: 'khc',
+        themeColor: '#C41230',
       });
       this.setMarketSelected('UK', true);
       this.setMarketSelected('DK', true);
@@ -233,9 +151,11 @@ export class OnboardingComponent implements OnInit {
         legalEntityName: 'Nordhavn Spirits Denmark',
         tenantSlug: 'nordhavn-spirits',
         sector: 'Spirits & beverages',
-        organisationSize: 'Large producer (>£2m turnover and 50 t packaging)',
+        organisationSize: 'L',
         rpdOrganisationId: 'DPA-000001',
         primaryCurrency: 'DKK',
+        logoPreset: 'nordhavn',
+        themeColor: '#1E3A8A',
       });
       this.setMarketSelected('DK', true);
       this.setMarketSelected('UK', false);
@@ -245,84 +165,41 @@ export class OnboardingComponent implements OnInit {
         companyName: '',
         legalEntityName: '',
         tenantSlug: '',
-        sector: 'Food & beverage',
-        organisationSize: 'Large producer (>£2m turnover and 50 t packaging)',
+        sector: 'Food & beverage / FMCG',
+        organisationSize: 'L',
         rpdOrganisationId: '',
         primaryCurrency: 'EUR',
+        logoPreset: 'custom',
+        customLogoUrl: '',
+        themeColor: '#111827',
       });
     }
   }
 
   setMarketSelected(countryCode: string, selected: boolean): void {
     this.marketsCol1.update(list =>
-      list.map(m => (m.countryCode === countryCode ? { ...m, selected, regulationLabel: selected ? (m.countryCode === 'UK' ? 'UK pEPR' : 'Selected') : 'not selected' } : m))
+      list.map(m => (m.countryCode === countryCode ? { ...m, selected } : m))
     );
     this.marketsCol2.update(list =>
-      list.map(m => (m.countryCode === countryCode ? { ...m, selected, regulationLabel: selected ? (m.countryCode === 'DK' ? 'DPA + PRO' : 'Selected') : 'not selected' } : m))
+      list.map(m => (m.countryCode === countryCode ? { ...m, selected } : m))
     );
   }
 
-  // Toggle market selection
   toggleMarket(countryCode: string): void {
     this.marketsCol1.update(list =>
-      list.map(m => {
-        if (m.countryCode === countryCode) {
-          const nextState = !m.selected;
-          return {
-            ...m,
-            selected: nextState,
-            regulationLabel: nextState ? (m.countryCode === 'UK' ? 'UK pEPR' : 'Selected') : 'not selected',
-          };
-        }
-        return m;
-      })
+      list.map(m => (m.countryCode === countryCode ? { ...m, selected: !m.selected } : m))
     );
     this.marketsCol2.update(list =>
-      list.map(m => {
-        if (m.countryCode === countryCode) {
-          const nextState = !m.selected;
-          return {
-            ...m,
-            selected: nextState,
-            regulationLabel: nextState ? (m.countryCode === 'DK' ? 'DPA + PRO' : 'Selected') : 'not selected',
-          };
-        }
-        return m;
-      })
+      list.map(m => (m.countryCode === countryCode ? { ...m, selected: !m.selected } : m))
     );
   }
 
-  // Toggle data point held status between 'held' and 'collect'
-  toggleDataPointUk(id: string): void {
-    this.dataPoints.update(list =>
-      list.map(dp => {
-        if (dp.id === id && dp.ukStatus !== 'na') {
-          return { ...dp, ukStatus: dp.ukStatus === 'held' ? 'collect' : 'held' };
-        }
-        return dp;
-      })
-    );
-  }
-
-  toggleDataPointDk(id: string): void {
-    this.dataPoints.update(list =>
-      list.map(dp => {
-        if (dp.id === id && dp.dkStatus !== 'na') {
-          return { ...dp, dkStatus: dp.dkStatus === 'held' ? 'collect' : 'held' };
-        }
-        return dp;
-      })
-    );
-  }
-
-  // Step navigation
   goToStep(step: number): void {
     if (step >= 1 && step <= 4) {
       this.currentStep.set(step);
     }
   }
 
-  // Finish setup and save workspace
   finishSetup(): void {
     this.submitting.set(true);
     const formVals = this.profileForm.value;
@@ -354,28 +231,31 @@ export class OnboardingComponent implements OnInit {
 
     const selectedJurisdictions = allMarkets.map(m => m.countryCode);
 
-    const profile: ClientWorkspaceProfile & { activeJurisdictions: string[] } = {
+    const payload = {
       id: formVals.tenantSlug || 'khc-europe',
       name: formVals.companyName || 'The Kraft Heinz Company Europe',
-      sector: 'food_beverage',
-      productCategories: ['Soups & Sauces', 'Condiments', 'Beans & Meals'],
-      organisationSize: 'L',
+      sector: formVals.sector || 'Food & beverage / FMCG',
+      organisationSize: 'L' as const,
       rpdOrganisationId: formVals.rpdOrganisationId || '100004',
       primaryCurrency: formVals.primaryCurrency || 'EUR',
-      markets: allMarkets,
       activeJurisdictions: selectedJurisdictions,
-      integrations: this.config.options.availableIntegrations,
-      consultantEmail: 'compliance.officer@kraftheinz.com',
+      tier: 'enterprise',
+      logoUrl: formVals.customLogoUrl || formVals.logoPreset,
+      themeColor: formVals.themeColor || '#111827',
+      adminEmail: 'compliance.officer@kraftheinz.com',
+      adminName: 'Kraft Heinz Compliance Officer',
+      adminPassword: 'password123',
     };
 
-    this.tenantService.createTenantWorkspace(profile).subscribe({
+    // Save directly to PostgreSQL database via tenantService
+    this.tenantService.createTenantWorkspace(payload).subscribe({
       next: () => {
-        this.tenantService.setActiveTenant(profile.id);
+        this.tenantService.setActiveTenant(payload.id);
         this.submitting.set(false);
         this.router.navigate(['/dashboard']);
       },
       error: () => {
-        this.tenantService.setActiveTenant(profile.id);
+        this.tenantService.setActiveTenant(payload.id);
         this.submitting.set(false);
         this.router.navigate(['/dashboard']);
       },

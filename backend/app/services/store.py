@@ -884,6 +884,8 @@ class DataStore:
                 sector=data.sector,
                 tier=data.tier,
                 primary_jurisdiction=data.active_jurisdictions[0][:2] if data.active_jurisdictions else "GB",
+                logo_url=data.logo_url,
+                theme_color=data.theme_color or "#111827",
                 source_systems=["Trace One (Devex PLM)", "Snowflake Data Cloud", "CSV Bulk Importer"],
                 active_products_count=5,
                 open_quality_issues_count=4,
