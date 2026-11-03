@@ -3,156 +3,285 @@
   <!-- Header Banner -->
   <header class="page-header">
     <div class="header-left">
-      <div class="header-badge">FINANCIAL OPTIMIZATION &amp; SCENARIO MODELING</div>
-      <h1 class="page-title">EPR Fee Modeling &amp; Eco-Modulation Simulator</h1>
+      <div class="header-badge">PAY LESS &middot; COST OPTIMIZATION &amp; SCENARIOS</div>
+      <h1 class="page-title">Cost Insights &amp; Eco-Modulation Optimization</h1>
       <p class="page-subtitle">
-        Simulate packaging design modifications (PCR %, monomaterials, weight reduction) and assess instant financial impact on European PRO tariffs.
+        Where the &pound;6.29m liability sits, and ten actionable packaging engineering recommendations &mdash; each with its first step, effect per market, PPWR effect, effort and priority.
       </p>
     </div>
 
     <div class="header-actions">
       <button type="button" class="btn-defra" (click)="exportDefraRpdCsv()">
-         Generate UK Defra RPD CSV File
+        Export UK Defra RPD CSV
       </button>
     </div>
   </header>
 
-  <!-- Interactive Simulator Controls & KPI Comparison -->
-  <div class="sim-dashboard-grid">
+  <!-- Subview Switcher: Screen 15 vs Screen 18 -->
+  <div class="subview-nav-bar">
+    <button type="button" class="subview-tab-btn" [class.active]="activeSubView() === 'insights'" (click)="setSubView('insights')">
+      [Screen 15] Cost Insights &amp; 10 Recommendations
+    </button>
+    <button type="button" class="subview-tab-btn" [class.active]="activeSubView() === 'scenarios'" (click)="setSubView('scenarios')">
+      [Screen 18] Scenario Forecast &amp; Modeler
+    </button>
+  </div>
 
-    <!-- Controls Card (Left) -->
-    <div class="sim-controls-card">
-      <h3>Design Modification Controls</h3>
-      <p class="card-hint">Adjust parameters to simulate eco-modulated tariff incentives:</p>
+  <!-- Hero KPI Strip (Screen 15 Header Figures) -->
+  <div class="hero-kpi-grid">
+    <div class="kpi-box">
+      <span class="kpi-label">Global Liability Baseline</span>
+      <div class="kpi-value mono">&pound;6.29m</div>
+      <span class="kpi-sub">UK pEPR (&pound;5.92m) + Denmark (&pound;0.37m)</span>
+    </div>
+    <div class="kpi-box">
+      <span class="kpi-label">Active Plan Savings</span>
+      <div class="kpi-value mono font-bold">-&pound;{{ plannedSavingsGbp() | number }} / yr</div>
+      <span class="kpi-sub">9 recommendations committed in roadmap</span>
+    </div>
+    <div class="kpi-box">
+      <span class="kpi-label">Further Available Savings</span>
+      <div class="kpi-value mono">-&pound;{{ availableMoreSavingsGbp() | number }} / yr</div>
+      <span class="kpi-sub">Uncommitted refill pouch pipeline</span>
+    </div>
+    <div class="kpi-box">
+      <span class="kpi-label">Total Opportunity Pool</span>
+      <div class="kpi-value mono">-&pound;{{ (plannedSavingsGbp() + availableMoreSavingsGbp()) | number }} / yr</div>
+      <span class="kpi-sub">5.5% total liability reduction</span>
+    </div>
+  </div>
 
-      <!-- Jurisdiction Selector -->
-      <div class="control-group">
-        <label for="jurisdictionSelect">Regulatory Scheme</label>
-        <select id="jurisdictionSelect" [ngModel]="selectedJurisdiction()"
-          (ngModelChange)="selectedJurisdiction.set($event); runBaselineCalculation(); runSimulation()">
-          @for (rs of availableRuleSets; track rs.id) {
-          <option [value]="rs.id">{{ rs.name }} ({{ rs.currency }})</option>
-          }
-        </select>
+  <!-- ========================================================================= -->
+  <!-- SCREEN 15: COST INSIGHTS & 10 RECOMMENDATIONS                             -->
+  <!-- ========================================================================= -->
+  @if (activeSubView() === 'insights') {
+  <div class="insights-section">
+
+    <!-- Where the £6.29m sits (Breakdown Grid) -->
+    <div class="breakdown-card">
+      <div class="breakdown-header">
+        <h3 class="breakdown-title">Where the &pound;6.29m Sits (Market &amp; Material Distribution)</h3>
+        <span class="mono" style="font-size: 12px; color: var(--text-secondary);">Source: Audited 2026 Baseline Ingestion</span>
       </div>
 
-      <!-- PCR % Target Slider -->
-      <div class="control-group">
-        <div class="slider-header">
-          <label>Target Certified PCR (rPET / rPP / rHDPE)</label>
-          <span class="slider-value">{{ targetPcrPercentage() }}%</span>
+      <div class="breakdown-grid">
+        <div class="breakdown-col">
+          <span class="col-title mono">[BY JURISDICTION]</span>
+          <div class="dist-row">
+            <span>UK Defra pEPR (Household &amp; Non-Household):</span>
+            <strong class="mono">&pound;5,920,000 (94.1%)</strong>
+          </div>
+          <div class="dist-row">
+            <span>Denmark DPA (Dansk Producentansvar):</span>
+            <strong class="mono">&pound;370,000 (5.9%)</strong>
+          </div>
         </div>
-        <input type="range" min="0" max="60" step="5" [ngModel]="targetPcrPercentage()"
-          (ngModelChange)="onPcrSliderChange($event)" />
-        <div class="slider-ticks">
-          <span>0%</span>
-          <span>30% (CITEO Threshold)</span>
-          <span>60%</span>
-        </div>
-      </div>
 
-      <!-- Monomaterial Checkbox -->
-      <div class="control-group checkbox-group">
-        <label class="custom-checkbox">
-          <input type="checkbox" [ngModel]="eliminateCompositeMalus()" (ngModelChange)="toggleComposites($event)" />
-          <span>Eliminate Composite Lid Malus (Switch to Mono-PP heat seal)</span>
-        </label>
-        <span class="checkbox-hint">Removes France CITEO €890/tonne composite packaging disruptor malus.</span>
+        <div class="breakdown-col">
+          <span class="col-title mono">[BY MATERIAL CATEGORY]</span>
+          <div class="dist-row">
+            <span>Plastics (Rigid, Flexible, Composites):</span>
+            <strong class="mono">&pound;3,840,000 (61.0%)</strong>
+          </div>
+          <div class="dist-row">
+            <span>Glass Packaging (Bottles &amp; Jars):</span>
+            <strong class="mono">&pound;1,420,000 (22.6%)</strong>
+          </div>
+          <div class="dist-row">
+            <span>Paper &amp; Corrugated Board (Secondary):</span>
+            <strong class="mono">&pound;710,000 (11.3%)</strong>
+          </div>
+          <div class="dist-row">
+            <span>Metals (Steel Cans &amp; Tinplate):</span>
+            <strong class="mono">&pound;320,000 (5.1%)</strong>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Live Financial Impact Result (Right) -->
-    <div class="sim-results-card">
-      <h3>Financial Impact Simulation</h3>
+    <!-- Filter Bar for Recommendations -->
+    <div class="filter-row">
+      <span class="filter-label">Filter Recommendations:</span>
+      <button type="button" class="filter-chip" [class.active]="activeFilter() === 'ALL'" (click)="setFilter('ALL')">
+        All Recommendations ({{ recommendations().length }})
+      </button>
+      <button type="button" class="filter-chip" [class.active]="activeFilter() === 'IN_PLAN'" (click)="setFilter('IN_PLAN')">
+        In Active Plan (9)
+      </button>
+      <button type="button" class="filter-chip" [class.active]="activeFilter() === 'AVAILABLE'" (click)="setFilter('AVAILABLE')">
+        Available Pipeline (1)
+      </button>
+      <button type="button" class="filter-chip" [class.active]="activeFilter() === 'HIGH_PRIORITY'" (click)="setFilter('HIGH_PRIORITY')">
+        High Priority (3)
+      </button>
+    </div>
 
-      @if (simulationResult(); as res) {
-      <div class="impact-metrics-row">
-        <div class="metric-box">
-          <span class="metric-label">Baseline Annual Fee</span>
-          <div class="metric-val">{{ formatCurrency(res.baseline_fee_eur) }}</div>
-          <span class="metric-sub">Current packaging specs</span>
+    <!-- Ten Actionable Recommendations List -->
+    <div class="recommendations-list">
+      @for (rec of getFilteredRecommendations(); track rec.id) {
+      <div class="rec-card" [class.highlight-pouch]="rec.id === 'REC-01'">
+        <div class="rec-card-header">
+          <div class="rec-header-left">
+            <span class="rank-tag mono">#{{ rec.rank }}</span>
+            <span class="sku-tag mono">[{{ rec.targetSku }}]</span>
+            <h4 class="rec-title">{{ rec.title }}</h4>
+          </div>
+
+          <div class="rec-header-right">
+            <span class="savings-badge mono">-&pound;{{ rec.annualSavingsGbp | number }} / yr</span>
+            <span class="status-pill mono">[{{ rec.status }}]</span>
+          </div>
         </div>
 
-        <div class="metric-arrow">&rarr;</div>
+        <div class="rec-body">
+          <div class="rec-col-main">
+            <p class="rec-desc">{{ rec.changeDescription }}</p>
 
-        <div class="metric-box highlight">
-          <span class="metric-label">Projected Optimized Fee</span>
-          <div class="metric-val text-emerald">{{ formatCurrency(res.projected_fee_eur) }}</div>
-          <span class="metric-sub">With eco-modulation</span>
+            <!-- First Step (The Core Screen 15 Feature) -->
+            <div class="first-step-box">
+              <span class="first-step-label mono">[FIRST STEP]</span>
+              <span class="first-step-text">{{ rec.firstStep }}</span>
+              <span class="first-step-date mono">Date: {{ rec.firstStepDate }}</span>
+            </div>
+          </div>
+
+          <div class="rec-col-meta">
+            <div class="meta-row">
+              <span class="meta-label">Market Split:</span>
+              <span class="meta-val mono">UK -&pound;{{ rec.ukSavingsGbp | number }} &middot; DK -&pound;{{ rec.denmarkSavingsGbp | number }}</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">PPWR Effect:</span>
+              <span class="meta-val">{{ rec.ppwrEffect }}</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">Effort / Priority:</span>
+              <span class="meta-val mono">[{{ rec.effort }} EFFORT] &middot; [{{ rec.priority }} PRIORITY]</span>
+            </div>
+          </div>
         </div>
-
-        <div class="metric-box savings">
-          <span class="metric-label">Net Annual Savings</span>
-          <div class="metric-val text-green">-{{ formatCurrency(res.net_savings_eur) }}</div>
-          <span class="savings-tag">↓ {{ res.reduction_percentage }}% reduction</span>
-        </div>
-      </div>
-
-      <div class="drivers-box">
-        <strong>Key Cost Drivers &amp; Incentive Triggers:</strong>
-        <ul>
-          @for (driver of res.key_drivers; track driver) {
-          <li>{{ driver }}</li>
-          }
-        </ul>
       </div>
       }
     </div>
 
   </div>
+  }
 
-  <!-- Detailed Calculation Line Items Table -->
-  <div class="breakdown-card">
-    <div class="breakdown-header">
+  <!-- ========================================================================= -->
+  <!-- SCREEN 18: SCENARIOS & 2026-2030 FORECAST                                -->
+  <!-- ========================================================================= -->
+  @if (activeSubView() === 'scenarios') {
+  <div class="scenarios-section">
+    <div class="section-title-row">
       <div>
-        <h3>Line-Item Explainability &amp; Tariff Breakdown</h3>
-        <p>Calculation details per component showing base rates and eco-modulation deltas</p>
+        <h2 class="section-title">Packaging Scenario Modeler (Screen 18 Lineage)</h2>
+        <p class="section-desc">
+          Select recommendations to include in the client redesign roadmap and forecast the annual fee trajectory to 2030.
+        </p>
       </div>
-      <button type="button" class="btn-refresh-calc" [disabled]="calculating()" (click)="runBaselineCalculation()">
-         Recalculate
-      </button>
     </div>
 
-    @if (calculationResult(); as calc) {
-    <div class="table-container">
-      <table class="line-items-table">
-        <thead>
-          <tr>
-            <th>SKU Code</th>
-            <th>Component</th>
-            <th>Material</th>
-            <th>Unit Tare</th>
-            <th>Total Tonnage</th>
-            <th>Base Rate / Tonne</th>
-            <th>Eco-Modulation</th>
-            <th>Net Liability</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of calc.line_items; track item.component_id) {
-          <tr>
-            <td><code>{{ item.sku }}</code></td>
-            <td><strong>{{ item.component_id }}</strong></td>
-            <td><span class="material-pill">{{ item.material }}</span></td>
-            <td>{{ item.weight_grams }}g</td>
-            <td>{{ item.total_tonnage.toFixed(2) }} t</td>
-            <td>{{ formatCurrency(item.base_rate_eur_per_tonne) }}/t</td>
-            <td>
-              @if (item.eco_modulation_delta_eur < 0) { 
-                <span class="bonus-tag">{{ formatCurrency(item.eco_modulation_delta_eur) }} (Bonus)</span>
-              } @else if (item.eco_modulation_delta_eur > 0) {
-                <span class="malus-tag">+{{ formatCurrency(item.eco_modulation_delta_eur) }} (Malus)</span>
-              } @else {
-                <span class="neutral-tag">€0.00</span>
-              }
-            </td>
-            <td class="cell-final-fee">{{ formatCurrency(item.final_fee_eur) }}</td>
-          </tr>
-          }
-        </tbody>
-      </table>
+    <!-- Live Simulation Outcome Box -->
+    <div class="scenario-summary-card">
+      <div class="scenario-summary-grid">
+        <div class="summary-metric">
+          <span class="kpi-label">Baseline Global Fee</span>
+          <div class="kpi-value mono">&pound;6,290,000</div>
+          <span class="kpi-sub">Unmitigated baseline</span>
+        </div>
+
+        <div class="summary-arrow">&rarr;</div>
+
+        <div class="summary-metric">
+          <span class="kpi-label">Active Scenario Savings</span>
+          <div class="kpi-value mono font-bold">-&pound;{{ activeScenarioSavingsGbp() | number }} / yr</div>
+          <span class="kpi-sub">{{ savingsPercentage() }}% liability reduction</span>
+        </div>
+
+        <div class="summary-arrow">&rarr;</div>
+
+        <div class="summary-metric">
+          <span class="kpi-label">Projected Optimized Fee</span>
+          <div class="kpi-value mono">&pound;{{ optimizedGlobalLiabilityGbp() | number }}</div>
+          <span class="kpi-sub">With active recommendations applied</span>
+        </div>
+      </div>
     </div>
-    }
+
+    <!-- Interactive Checklist -->
+    <div class="scenario-checklist-card">
+      <h3 class="breakdown-title" style="margin-bottom: 14px;">Toggle Roadmap Recommendations</h3>
+      <div class="checklist-items">
+        @for (rec of recommendations(); track rec.id) {
+        <label class="scenario-checkbox-row" [class.checked]="rec.selectedInScenario">
+          <input type="checkbox" [checked]="rec.selectedInScenario" (change)="toggleScenarioItem(rec.id)" />
+          <span class="rec-check-rank mono">#{{ rec.rank }}</span>
+          <div class="rec-check-info">
+            <strong>{{ rec.title }}</strong>
+            <span class="rec-check-sub mono">[{{ rec.targetSku }}] &middot; First step: {{ rec.firstStepDate }}</span>
+          </div>
+          <span class="rec-check-savings mono font-bold">-&pound;{{ rec.annualSavingsGbp | number }} / yr</span>
+        </label>
+        }
+      </div>
+    </div>
+
+    <!-- 2026-2030 Horizon Trajectory Table -->
+    <div class="trajectory-card">
+      <h3 class="breakdown-title" style="margin-bottom: 14px;">Five-Year Regulatory Horizon Trajectory (2026 &ndash; 2030)</h3>
+      <div class="table-responsive">
+        <table class="trajectory-table">
+          <thead>
+            <tr>
+              <th>Year</th>
+              <th>Regulatory Framework Milestone</th>
+              <th class="num-col">Unmitigated Baseline</th>
+              <th class="num-col">Optimized Roadmap</th>
+              <th class="num-col">Cumulative Savings</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono font-bold">2026</td>
+              <td>UK pEPR Inception + Denmark DPA Baseline</td>
+              <td class="num-col mono">&pound;6,290,000</td>
+              <td class="num-col mono font-bold">&pound;{{ (6290000 - activeScenarioSavingsGbp()) | number }}</td>
+              <td class="num-col mono font-bold">-&pound;{{ activeScenarioSavingsGbp() | number }}</td>
+            </tr>
+            <tr>
+              <td class="mono font-bold">2027</td>
+              <td>UK Base Fee Revision + Defra Eco-Modulation Malus Escalation</td>
+              <td class="num-col mono">&pound;6,740,000</td>
+              <td class="num-col mono font-bold">&pound;{{ (6740000 - (activeScenarioSavingsGbp() * 1.15)) | number:'1.0-0' }}</td>
+              <td class="num-col mono font-bold">-&pound;{{ (activeScenarioSavingsGbp() * 2.15) | number:'1.0-0' }}</td>
+            </tr>
+            <tr>
+              <td class="mono font-bold">2028</td>
+              <td>EU PPWR Article 6 Packaging Design for Recycling Technical Audits</td>
+              <td class="num-col mono">&pound;7,150,000</td>
+              <td class="num-col mono font-bold">&pound;{{ (7150000 - (activeScenarioSavingsGbp() * 1.25)) | number:'1.0-0' }}</td>
+              <td class="num-col mono font-bold">-&pound;{{ (activeScenarioSavingsGbp() * 3.4) | number:'1.0-0' }}</td>
+            </tr>
+            <tr>
+              <td class="mono font-bold">2029</td>
+              <td>EU-wide Digital Product Passport (DPP) Mandate Enforcement</td>
+              <td class="num-col mono">&pound;7,420,000</td>
+              <td class="num-col mono font-bold">&pound;{{ (7420000 - (activeScenarioSavingsGbp() * 1.35)) | number:'1.0-0' }}</td>
+              <td class="num-col mono font-bold">-&pound;{{ (activeScenarioSavingsGbp() * 4.75) | number:'1.0-0' }}</td>
+            </tr>
+            <tr>
+              <td class="mono font-bold">2030</td>
+              <td>EU PPWR 2030 Targets (Mandatory 30% PCR + Recyclability Grades A-C Only)</td>
+              <td class="num-col mono">&pound;7,890,000</td>
+              <td class="num-col mono font-bold">&pound;{{ (7890000 - (activeScenarioSavingsGbp() * 1.5)) | number:'1.0-0' }}</td>
+              <td class="num-col mono font-bold">-&pound;{{ (activeScenarioSavingsGbp() * 6.25) | number:'1.0-0' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
+  }
 
 </div>
