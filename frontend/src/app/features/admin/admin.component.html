@@ -44,22 +44,7 @@
     </nav>
 
     <div class="sidebar-bottom">
-      <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); padding: 0 8px 6px;">
-        Workspace Quick Jump
-      </div>
-      <button type="button" class="nav-item view-client" (click)="launchClientHub('khc-europe', '/dashboard')">
-        <span> EPR Dashboard →</span>
-      </button>
-      <button type="button" class="nav-item view-client" (click)="launchClientHub('khc-europe', '/products')">
-        <span> Packaging BOM →</span>
-      </button>
-      <button type="button" class="nav-item view-client" (click)="launchClientHub('khc-europe', '/quality')">
-        <span> Quality Gaps →</span>
-      </button>
-      <button type="button" class="nav-item view-client" (click)="launchClientHub('khc-europe', '/simulator')">
-        <span> Fee Simulator →</span>
-      </button>
-      <button class="nav-item logout-btn" (click)="logout()" style="margin-top: 6px;">
+      <button class="nav-item logout-btn" (click)="logout()">
         <span>Sign Out</span>
       </button>
     </div>
@@ -164,11 +149,8 @@
             <button class="btn-action" (click)="openImportModal(org.id)" title="Import SKU Catalog">
               Import SKUs
             </button>
-            <button class="btn-action primary" (click)="launchClientHub(org.id, '/products')" title="Explore Packaging BOM">
-              Packaging BOM &rarr;
-            </button>
-            <button class="btn-action" (click)="launchClientHub(org.id, '/quality')" title="View Quality Gaps">
-              Quality Gaps
+            <button class="btn-action primary" (click)="setTab('batches')" title="View Ingestion Batches">
+              View Ingestion Batches &rarr;
             </button>
           </div>
         </div>
@@ -557,14 +539,11 @@
           </div>
           }
           <div class="banner-actions">
-            <button class="btn-action primary" (click)="launchClientHub(selectedTenantForImport(), '/products')">
-              Open Packaging BOM Master &rarr;
+            <button class="btn-action primary" (click)="setTab('batches'); closeImportModal()">
+              View Ingestion Batches &rarr;
             </button>
-            <button class="btn-action primary" (click)="closeImportModal()">
+            <button class="btn-action" (click)="closeImportModal()">
               Done
-            </button>
-            <button class="btn-action" (click)="launchClientHub(selectedTenantForImport(), '/quality')">
-              Open Data Quality Worklist &rarr;
             </button>
           </div>
         </div>

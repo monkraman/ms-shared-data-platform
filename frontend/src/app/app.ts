@@ -26,9 +26,6 @@ export class App {
   readonly currentUrl = signal<string>(this.router.url);
   readonly mobileNavOpen = signal<boolean>(false);
 
-  // Dynamic View Switcher: Client View vs Operator View
-  readonly activeView = signal<'client' | 'operator'>('client');
-
   // Active Tenant signals
   readonly activeTenantId = this.tenantService.activeTenantId;
   readonly activeTenantName = computed(() => {
@@ -53,17 +50,12 @@ export class App {
         this.mobileNavOpen.set(false); // Auto-close drawer on navigation
       });
 
-    // Automatically set default view mode based on role
-    if (this.authService.isSuperAdmin()) {
-      this.activeView.set('operator');
-    }
-
     // Load initial tenant and quality data
     this.tenantService.loadTenants().subscribe();
     this.qualityService.loadIssues().subscribe();
   }
 
-  /** Hide the global shell on sign-in and onboarding pages (they have their own full-bleed standalone layout matching mockups) */
+  /** Hide the global shell on sign-in, admin and onboarding pages (standalone layouts) */
   readonly showGlobalNav = computed(() => {
     const url = this.currentUrl();
     return !url.includes('/sign-in') && !url.includes('/admin') && !url.includes('/onboarding');
@@ -75,14 +67,6 @@ export class App {
 
   closeMobileNav(): void {
     this.mobileNavOpen.set(false);
-  }
-
-  toggleViewMode(): void {
-    this.activeView.update(v => v === 'client' ? 'operator' : 'client');
-  }
-
-  setViewMode(mode: 'client' | 'operator'): void {
-    this.activeView.set(mode);
   }
 
   logout(): void {

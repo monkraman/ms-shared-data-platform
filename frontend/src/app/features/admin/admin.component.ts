@@ -494,12 +494,6 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  // ─── Switch / Launch Client View ───
-  launchClientHub(tenantId: string, destination: string = '/dashboard'): void {
-    this.tenantService.setActiveTenant(tenantId);
-    this.router.navigate([destination]);
-  }
-
   goToOnboarding(): void {
     this.router.navigate(['/onboarding']);
   }
