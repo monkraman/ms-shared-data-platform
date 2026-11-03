@@ -71,7 +71,7 @@ export class SignInComponent {
       if (user?.organisationSlug) {
         this.tenantService.setActiveTenant(user.organisationSlug);
       }
-      this.router.navigate(['/products']);
+      this.router.navigate(['/dashboard']);
     } else {
       this.errorMessage.set('Invalid work credentials. Please check your email and password.');
     }

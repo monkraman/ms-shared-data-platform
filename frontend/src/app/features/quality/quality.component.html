@@ -3,148 +3,276 @@
   <!-- Header Banner -->
   <header class="page-header">
     <div class="header-left">
-      <div class="header-badge">DATA GOVERNANCE &amp; QUALITY ASSURANCE</div>
-      <h1 class="page-title">Compliance Gaps &amp; Source Correction Worklist</h1>
+      <div class="header-badge">MAKE IT RIGHT &middot; DATA QUALITY &amp; REMEDIATION</div>
+      <h1 class="page-title">Compliance Gaps &amp; Source Remediation</h1>
       <p class="page-subtitle">
-        Automated validation engine detecting regulatory blockers and routing correction tickets to upstream PLM/ERP systems.
+        Every compliance gap ranked by its effect on the fee, with automated 3-lane assignment across KHC teams, suppliers, and specialist compliance engineers.
       </p>
     </div>
 
     <div class="header-actions">
       <button type="button" class="btn-export" (click)="exportWorklist()">
-         Export PLM Worklist (JSON)
+        Export Gap Worklist (JSON)
       </button>
     </div>
   </header>
 
-  <!-- Filter Bar -->
-  <div class="filter-bar">
-    <span class="filter-label">Filter Severity:</span>
-    <button type="button" class="filter-chip" [class.active]="activeSeverityFilter() === 'ALL'"
-      (click)="filterBySeverity('ALL')">
-      All Findings ({{ issues().length }})
+  <!-- Screen 06 vs Screen 07 Mode Switcher Bar -->
+  <div class="subview-nav-bar">
+    <button type="button" class="subview-tab-btn" [class.active]="activeSubView() === 'report'" (click)="setSubView('report')">
+      [Screen 06] Gap Report (Ranked by Fee Impact)
     </button>
-    <button type="button" class="filter-chip chip-blocker" [class.active]="activeSeverityFilter() === 'BLOCKER'"
-      (click)="filterBySeverity('BLOCKER')">
-      [CRITICAL] Blockers ({{ issues().filter(i => i.severity === 'blocker').length }})
-    </button>
-    <button type="button" class="filter-chip chip-warning" [class.active]="activeSeverityFilter() === 'WARNING'"
-      (click)="filterBySeverity('WARNING')">
-      [MODERATE] Warnings ({{ issues().filter(i => i.severity === 'warning').length }})
+    <button type="button" class="subview-tab-btn" [class.active]="activeSubView() === 'lanes'" (click)="setSubView('lanes')">
+      [Screen 07] Close the Gaps (3-Lane Workflow)
     </button>
   </div>
 
-  <!-- Layout: Issue Queue on Left, Correction Drawer on Right -->
-  <div class="quality-layout">
+  <!-- Hero KPI Strip (Screen 06 Hero Metrics) -->
+  <div class="hero-kpi-grid">
+    <div class="kpi-box">
+      <span class="kpi-label">Usable Data Day One</span>
+      <div class="kpi-value mono">82.4%</div>
+      <span class="kpi-sub">Target: 98% before Defra submission</span>
+    </div>
+    <div class="kpi-box">
+      <span class="kpi-label">Current Fee Uncertainty</span>
+      <div class="kpi-value mono">&plusmn;&pound;{{ totalUncertaintyGbp() | number }}</div>
+      <span class="kpi-sub">Reduced from &plusmn;&pound;412,000 baseline</span>
+    </div>
+    <div class="kpi-box">
+      <span class="kpi-label">Unresolved Gaps</span>
+      <div class="kpi-value mono">{{ openGapsCount() }} Open</div>
+      <span class="kpi-sub">{{ resolvedGapsCount() }} verified &amp; closed</span>
+    </div>
+    <div class="kpi-box">
+      <span class="kpi-label">Connected PLM Lineage</span>
+      <div class="kpi-value mono">118 / 121</div>
+      <span class="kpi-sub">Fields mapped to Trace One &amp; Snowflake</span>
+    </div>
+  </div>
 
-    <!-- Issue Queue Cards -->
-    <div class="issues-column">
-      @for (issue of getFilteredIssues(); track issue.id) {
-      <div class="issue-card" [class.active]="selectedIssue()?.id === issue.id"
-        [class.blocker]="issue.severity === 'blocker'" (click)="selectIssue(issue)">
-        <div class="issue-card-top">
-          <span class="severity-badge" [class]="issue.severity">
-            {{ issue.severity | uppercase }}
+  @if (dispatchSuccessMessage()) {
+  <div class="alert-success-box">
+    [OK] {{ dispatchSuccessMessage() }}
+  </div>
+  }
+
+  <!-- ========================================================================= -->
+  <!-- SCREEN 06: GAP REPORT (RANKED BY EFFECT ON THE FEE)                       -->
+  <!-- ========================================================================= -->
+  @if (activeSubView() === 'report') {
+  <div class="report-section">
+    <div class="section-title-row">
+      <div>
+        <h2 class="section-title">Ranked Regulatory Gaps (Screen 06 Lineage)</h2>
+        <p class="section-desc">Showing what is missing and what it costs to leave it unaddressed.</p>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th style="width: 70px;">Rank</th>
+            <th>Issue &amp; Product SKU</th>
+            <th>Missing Compliance Data</th>
+            <th class="num-col">Fee Impact</th>
+            <th>Assigned Lane</th>
+            <th>Collection Route</th>
+            <th>Status</th>
+            <th style="text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (gap of complianceGaps(); track gap.id) {
+          <tr [class.row-resolved]="gap.status === 'RESOLVED'" (click)="selectGap(gap)">
+            <td>
+              <span class="rank-tag mono">#{{ gap.rank }}</span>
+            </td>
+            <td>
+              <div class="gap-product-name">{{ gap.productName }}</div>
+              <div class="gap-title">{{ gap.title }}</div>
+              <div class="gap-sku mono">SKU: {{ gap.sku }}</div>
+            </td>
+            <td>
+              <div class="missing-text">{{ gap.missingDataPoint }}</div>
+              @if (gap.supplierName) {
+              <div class="supplier-text mono">Supplier: {{ gap.supplierName }}</div>
+              }
+            </td>
+            <td class="num-col mono font-bold">
+              &plusmn;&pound;{{ gap.feeImpactGbp | number }}
+            </td>
+            <td>
+              <span class="lane-tag mono" [class.lane-khc]="gap.lane === 'khc'" [class.lane-supplier]="gap.lane === 'supplier'" [class.lane-specialist]="gap.lane === 'specialist'">
+                [{{ gap.lane | uppercase }}]
+              </span>
+            </td>
+            <td>
+              <span class="route-tag mono">[{{ gap.route | uppercase }}]</span>
+            </td>
+            <td>
+              <span class="status-tag mono" [class.status-open]="gap.status === 'OPEN'" [class.status-prog]="gap.status === 'IN_PROGRESS'" [class.status-resolved]="gap.status === 'RESOLVED'">
+                [{{ gap.status }}]
+              </span>
+            </td>
+            <td style="text-align: right;">
+              @if (gap.status !== 'RESOLVED') {
+              <button type="button" class="btn-resolve" (click)="closeGapAction(gap.id); $event.stopPropagation()">
+                Close Gap &rarr;
+              </button>
+              } @else {
+              <span class="resolved-check mono">[VERIFIED]</span>
+              }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Active Gap Detail Inspector Box -->
+    @if (selectedGap(); as active) {
+    <div class="gap-detail-card">
+      <div class="gap-detail-header">
+        <div>
+          <span class="kpi-label">SELECTED GAP INSPECTOR</span>
+          <h3 class="gap-detail-title">{{ active.title }} &middot; {{ active.productName }}</h3>
+          <span class="mono" style="font-size: 12px; color: var(--text-secondary);">
+            SKU: {{ active.sku }} &middot; Impact: &plusmn;&pound;{{ active.feeImpactGbp | number }} &middot; Lane: [{{ active.lane | uppercase }}] &middot; Route: [{{ active.route | uppercase }}]
           </span>
-          <span class="rule-code">{{ issue.rule_code }}</span>
-          <span class="status-pill">{{ issue.status.replace('_', ' ') | uppercase }}</span>
         </div>
-
-        <h3 class="issue-title">{{ issue.rule_title }}</h3>
-        <p class="issue-desc">{{ issue.description }}</p>
-
-        <div class="issue-card-meta">
-          <span>Entity: <code>{{ issue.entity_id }}</code></span>
-          <span>Field: <code>{{ issue.field_name }}</code></span>
-          <span class="source-ref">Source Ref: {{ issue.source_spec_reference }}</span>
-        </div>
-      </div>
-      }
-    </div>
-
-    <!-- Source Correction Action Drawer -->
-    <div class="correction-drawer">
-      @if (selectedIssue(); as active) {
-      <div class="drawer-panel">
-        <div class="drawer-header">
-          <span class="severity-badge" [class]="active.severity">{{ active.severity | uppercase }}</span>
-          <span class="drawer-id">{{ active.id }}</span>
-        </div>
-
-        <h2 class="drawer-title">{{ active.rule_title }}</h2>
-
-        <!-- Architectural Governance Notice -->
-        <div class="governance-box">
-          <span class="gov-icon">[SECURE]</span>
-          <div>
-            <strong>Single Source of Truth Rule:</strong>
-            <p>
-              Product specifications are read-only in Compliance Hub. Discrepancies are logged as tickets
-              and routed to client PLM/ERP teams for permanent source rectification.
-            </p>
-          </div>
-        </div>
-
-        <!-- Finding Details -->
-        <div class="finding-details">
-          <div class="detail-row">
-            <span class="detail-label">Current Value in Spec:</span>
-            <span class="detail-val-error">{{ active.current_value }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Upstream Source:</span>
-            <span class="detail-val">Trace One Devex ({{ active.source_spec_reference }})</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Assigned Lead:</span>
-            <span class="detail-val">{{ active.assigned_to || 'Packaging Data Steward' }}</span>
-          </div>
-          <div class="detail-row full">
-            <span class="detail-label">Recommended Remediation:</span>
-            <p class="remediation-text">{{ active.suggested_source_action }}</p>
-          </div>
-        </div>
-
-        @if (dispatchSuccessMessage()) {
-        <div class="alert-success-box">
-          [OK] {{ dispatchSuccessMessage() }}
-        </div>
-        } @else {
-        <!-- Form to Propose & Dispatch Ticket -->
-        <div class="dispatch-form">
-          <h3>Dispatch Correction Ticket to Source System</h3>
-
-          <div class="form-group">
-            <label for="proposedVal">Proposed Value for PLM Team:</label>
-            <input id="proposedVal" type="text" [(ngModel)]="proposedValue"
-              placeholder="e.g. Attach certified PCR certificate #CERT-PET-2025" />
-          </div>
-
-          <div class="form-group">
-            <label for="justification">Audit Justification / Reference:</label>
-            <textarea id="justification" rows="2" [(ngModel)]="proposedJustification"
-              placeholder="e.g. Supplier test report verified under ISO 14021..."></textarea>
-          </div>
-
-          <button type="button" class="btn-dispatch" [disabled]="proposing() || !proposedValue()"
-            (click)="submitCorrectionTicket()">
-            @if (proposing()) {
-            <span>Dispatching to PLM...</span>
-            } @else {
-            <span>Dispatch Ticket to Trace One PLM &rarr;</span>
-            }
-          </button>
-        </div>
+        @if (active.status !== 'RESOLVED') {
+        <button type="button" class="btn-resolve-main" (click)="closeGapAction(active.id)">
+          Mark as Verified &amp; Close Gap
+        </button>
         }
+      </div>
 
+      <div class="gap-detail-body">
+        <div class="audit-rule-box">
+          <strong>Remediation Strategy:</strong> {{ active.actionNote }}
+        </div>
       </div>
-      } @else {
-      <div class="empty-drawer">
-        <p>Select a compliance issue from the queue to inspect details and dispatch tickets.</p>
+    </div>
+    }
+  </div>
+  }
+
+  <!-- ========================================================================= -->
+  <!-- SCREEN 07: CLOSE THE GAPS (THREE LANES & SUPPLIER ROUTES)                 -->
+  <!-- ========================================================================= -->
+  @if (activeSubView() === 'lanes') {
+  <div class="lanes-section">
+    <div class="section-title-row">
+      <div>
+        <h2 class="section-title">Close the Gaps: 3-Lane Workflow (Screen 07 Lineage)</h2>
+        <p class="section-desc">
+          Answers the operational question: Many vendors, one structured process with automated follow-up built in.
+        </p>
       </div>
-      }
     </div>
 
+    <div class="three-lanes-grid">
+
+      <!-- LANE 1: KHC TEAM -->
+      <div class="lane-column">
+        <div class="lane-header">
+          <div class="lane-badge mono">[LANE 1]</div>
+          <h3 class="lane-name">KHC Internal Team</h3>
+          <span class="lane-summary">PLM master specs, tare weights, plant reconciliations</span>
+          <span class="lane-count mono">{{ getGapsByLane('khc').length }} Assigned Tasks</span>
+        </div>
+
+        <div class="lane-cards-list">
+          @for (item of getGapsByLane('khc'); track item.id) {
+          <div class="lane-item-card" [class.resolved]="item.status === 'RESOLVED'">
+            <div class="item-card-top">
+              <span class="item-id mono">{{ item.id }}</span>
+              <span class="route-tag mono">[{{ item.route | uppercase }}]</span>
+            </div>
+            <div class="item-title">{{ item.title }}</div>
+            <div class="item-sku mono">SKU: {{ item.sku }}</div>
+            <div class="item-impact mono">Uncertainty: &plusmn;&pound;{{ item.feeImpactGbp | number }}</div>
+            <div class="item-action-note">{{ item.actionNote }}</div>
+            @if (item.status !== 'RESOLVED') {
+            <button type="button" class="btn-lane-action" (click)="closeGapAction(item.id)">
+              Approve Engineering Tare &rarr;
+            </button>
+            } @else {
+            <div class="lane-resolved-notice mono">[RESOLVED &amp; SYNCED]</div>
+            }
+          </div>
+          }
+        </div>
+      </div>
+
+      <!-- LANE 2: SUPPLIERS -->
+      <div class="lane-column">
+        <div class="lane-header">
+          <div class="lane-badge mono">[LANE 2]</div>
+          <h3 class="lane-name">Supplier Action</h3>
+          <span class="lane-summary">Portal, Excel, Buyer liaison, Trace One Devex delta</span>
+          <span class="lane-count mono">{{ getGapsByLane('supplier').length }} Assigned Tasks</span>
+        </div>
+
+        <div class="lane-cards-list">
+          @for (item of getGapsByLane('supplier'); track item.id) {
+          <div class="lane-item-card" [class.resolved]="item.status === 'RESOLVED'">
+            <div class="item-card-top">
+              <span class="item-id mono">{{ item.id }}</span>
+              <span class="route-tag mono">[{{ item.route | uppercase }}]</span>
+            </div>
+            <div class="item-title">{{ item.title }}</div>
+            <div class="item-sku mono">Supplier: {{ item.supplierName }}</div>
+            <div class="item-impact mono">Uncertainty: &plusmn;&pound;{{ item.feeImpactGbp | number }}</div>
+            <div class="item-action-note">{{ item.actionNote }}</div>
+            @if (item.status !== 'RESOLVED') {
+            <button type="button" class="btn-lane-action" (click)="closeGapAction(item.id)">
+              Simulate Supplier Portal Upload &rarr;
+            </button>
+            } @else {
+            <div class="lane-resolved-notice mono">[CERTIFICATE ATTACHED]</div>
+            }
+          </div>
+          }
+        </div>
+      </div>
+
+      <!-- LANE 3: SPECIALIST TEAM -->
+      <div class="lane-column">
+        <div class="lane-header">
+          <div class="lane-badge mono">[LANE 3]</div>
+          <h3 class="lane-name">Specialist Team</h3>
+          <span class="lane-summary">Independent lab tests, ISO audits, PPWR technical file</span>
+          <span class="lane-count mono">{{ getGapsByLane('specialist').length }} Assigned Tasks</span>
+        </div>
+
+        <div class="lane-cards-list">
+          @for (item of getGapsByLane('specialist'); track item.id) {
+          <div class="lane-item-card" [class.resolved]="item.status === 'RESOLVED'">
+            <div class="item-card-top">
+              <span class="item-id mono">{{ item.id }}</span>
+              <span class="route-tag mono">[{{ item.route | uppercase }}]</span>
+            </div>
+            <div class="item-title">{{ item.title }}</div>
+            <div class="item-sku mono">SKU: {{ item.sku }}</div>
+            <div class="item-impact mono">Regulatory Barrier: Articles 5-11</div>
+            <div class="item-action-note">{{ item.actionNote }}</div>
+            @if (item.status !== 'RESOLVED') {
+            <button type="button" class="btn-lane-action" (click)="closeGapAction(item.id)">
+              Verify Lab SVHC Dossier &rarr;
+            </button>
+            } @else {
+            <div class="lane-resolved-notice mono">[TECHNICAL FILE AUDITED]</div>
+            }
+          </div>
+          }
+        </div>
+      </div>
+
+    </div>
   </div>
+  }
 
 </div>
