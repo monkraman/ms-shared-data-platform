@@ -586,10 +586,35 @@ Login URL: ${window.location.origin}/sign-in`;
     if (input.files && input.files[0]) {
       const file = input.files[0];
       const reader = new FileReader();
-      reader.onload = () => {
-        const res = reader.result as string;
-        this.orgUploadedLogoBase64.set(res);
-        this.orgLogoUrlEdit = res;
+      reader.onload = (e) => {
+        const rawRes = e.target?.result as string;
+        // Compress and resize image using HTML5 Canvas to keep payload ultra-lightweight (<25KB)
+        const img = new Image();
+        img.onload = () => {
+          const maxW = 240;
+          const maxH = 100;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxW || h > maxH) {
+            const ratio = Math.min(maxW / w, maxH / h);
+            w = Math.round(w * ratio);
+            h = Math.round(h * ratio);
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, w, h);
+            const optimized = canvas.toDataURL('image/png', 0.9);
+            this.orgUploadedLogoBase64.set(optimized);
+            this.orgLogoUrlEdit = optimized;
+          } else {
+            this.orgUploadedLogoBase64.set(rawRes);
+            this.orgLogoUrlEdit = rawRes;
+          }
+        };
+        img.src = rawRes;
       };
       reader.readAsDataURL(file);
     }

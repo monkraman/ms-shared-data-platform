@@ -68,7 +68,7 @@
         <span class="nav-indicator" aria-hidden="true"></span>
         <span class="nav-label">Data Quality &amp; Gaps</span>
         @if (openGapsCount() > 0) {
-        <span class="nav-badge-pill">[{{ openGapsCount() }} Gaps]</span>
+        <span class="nav-badge-count">{{ openGapsCount() }}</span>
         }
       </a>
 

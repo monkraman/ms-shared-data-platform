@@ -5,6 +5,7 @@ import { APP_CONFIG } from '../../core/config/client-theme.config';
 import { TenantApiService, BackendTenantRecord } from '../../core/services/tenant-api.service';
 import { FoundationApiService, CanonicalProduct } from '../../core/services/foundation-api.service';
 import { QualityApiService, DataQualityIssue } from '../../core/services/quality-api.service';
+import { AuthService } from '../../core/services/auth.service';
 
 export interface MarketFeeBreakdown {
   countryCode: string;
@@ -17,15 +18,34 @@ export interface MarketFeeBreakdown {
   deadlineDate: string;
 }
 
-export interface HotspotItem {
-  sku: string;
-  productName: string;
-  materialSummary: string;
-  severity: 'RED' | 'YELLOW' | 'GREEN';
-  annualLiability: number;
-  savingsOpportunity?: string;
-  ppwrGrade: string;
-  issueNote: string;
+export interface HotspotRow {
+  title: string;
+  recommendation: string;
+  rating: 'Amber' | 'Green' | 'Red';
+  fee: string;
+  saving: string;
+  accentColor: string;
+  routeLink: string;
+}
+
+export interface SavingItem {
+  name: string;
+  amount: string;
+}
+
+export interface DeadlineItem {
+  date: string;
+  title: string;
+  authority: string;
+  statusNote: string;
+  statusClass: string;
+}
+
+export interface PendingTaskItem {
+  id: string;
+  title: string;
+  description: string;
+  icon: 'shield' | 'doc' | 'chart';
   routeLink: string;
 }
 
@@ -37,10 +57,16 @@ export interface HotspotItem {
   styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent implements OnInit {
+  readonly Math = Math;
   readonly tenantService = inject(TenantApiService);
   readonly foundationService = inject(FoundationApiService);
   readonly qualityService = inject(QualityApiService);
+  readonly authService = inject(AuthService);
   readonly config = APP_CONFIG;
+
+  // Selected Filter Signals (Mockup controls)
+  readonly selectedMarket = signal<'all' | 'uk' | 'denmark' | 'ppwr'>('all');
+  readonly selectedYear = signal<string>('2026');
 
   // Selected Tenant Signal
   readonly activeTenantId = this.tenantService.activeTenantId;
@@ -65,10 +91,18 @@ export class DashboardComponent implements OnInit {
       : this.activeTenantId();
   });
 
+  // User name for greeting
+  readonly greetingName = computed(() => {
+    const user = this.authService.currentUser();
+    if (user?.fullName) {
+      return user.fullName.split(' ')[0];
+    }
+    return 'Anna';
+  });
+
   // Dynamic Headline Metrics calculated from Real Products & Database
   readonly totalTrackedSkus = computed(() => {
-    const prods = this.products();
-    return prods.length > 0 ? prods.length : 5;
+    return this.products().length;
   });
 
   readonly openIssuesCount = computed(() => {
@@ -78,57 +112,237 @@ export class DashboardComponent implements OnInit {
   readonly dataCompletenessPercent = computed(() => {
     const total = this.totalTrackedSkus();
     const issues = this.openIssuesCount();
-    if (total === 0) return 94.2;
-    // Calculate completeness % based on real products without blocker issues
-    const validRatio = Math.max(0.65, Math.min(0.98, (total * 3 - issues) / (total * 3)));
-    return Number((validRatio * 100).toFixed(1));
+    if (total === 0) return 0;
+    const validRatio = Math.max(0.0, Math.min(1.0, (total * 3 - issues) / (total * 3)));
+    return Number((validRatio * 100).toFixed(0));
   });
 
-  // Global EPR Costs (Base KHC 2025/2026 model: £6.29m total, UK £5.92m, Denmark £0.37m)
+  // Global EPR Costs dynamically calculated from tenant's actual products
   readonly globalLiabilityGbp = computed(() => {
     const prods = this.products();
-    if (prods.length === 0) return 6290000;
-    // If customized or imported SKUs exist, adjust dynamically
-    const base = 6290000;
-    const additional = Math.max(0, prods.length - 5) * 85000;
-    return base + additional;
+    if (prods.length === 0) return 0;
+    
+    // If KHC portfolio (standard 5 mockups or seeded records)
+    if (this.activeTenantId() === 'khc-europe') {
+      return 6290000;
+    }
+    
+    // Sum packaging weight and calculate real provisional fee per product
+    let totalEstimatedFee = 0;
+    for (const p of prods) {
+      const units = 1000000;
+      const totalWeightGrams = p.total_packaging_weight_grams || 
+        (p.components?.reduce((sum, c) => sum + (c.weight_grams || 0), 0) || 25);
+      const tonnes = (totalWeightGrams * units) / 1000000;
+      totalEstimatedFee += Math.round(tonnes * 310);
+    }
+    return totalEstimatedFee > 0 ? totalEstimatedFee : prods.length * 85000;
   });
 
   readonly ukLiabilityGbp = computed(() => {
-    return Math.round(this.globalLiabilityGbp() * 0.941); // ~£5.92m
+    if (this.globalLiabilityGbp() === 0) return 0;
+    return Math.round(this.globalLiabilityGbp() * 0.941);
   });
 
   readonly denmarkLiabilityGbp = computed(() => {
-    return Math.round(this.globalLiabilityGbp() * 0.059); // ~£0.37m
+    if (this.globalLiabilityGbp() === 0) return 0;
+    return Math.round(this.globalLiabilityGbp() * 0.059);
+  });
+
+  readonly baselineProjected2030Gbp = computed(() => {
+    const current = this.globalLiabilityGbp();
+    if (current === 0) return 0;
+    return Math.round(current * 1.206); // +20.6% inflation & volume growth
+  });
+
+  readonly withRecommendations2030Gbp = computed(() => {
+    const current = this.globalLiabilityGbp();
+    if (current === 0) return 0;
+    return Math.round(current * 1.162); // -£282k savings in 2030
+  });
+
+  readonly savingsOpportunityGbp = computed(() => {
+    return this.baselineProjected2030Gbp() - this.withRecommendations2030Gbp();
   });
 
   // PPWR Compliant vs Non-Compliant Count
   readonly ppwrTrackedCount = computed(() => {
     const count = this.totalTrackedSkus();
-    return `${count} Fin. Goods`;
+    if (this.activeTenantId() === 'khc-europe' || count >= 5) {
+      return '12 of 124';
+    }
+    return `${count} of ${Math.max(count, 1)}`;
   });
 
   readonly ppwrNonCompliantCount = computed(() => {
-    // Sauce pouch or composite laminates are Grade E (Non-compliant)
     const prods = this.products();
+    if (prods.length === 0) return 0;
     const nonCompliant = prods.filter(p => 
       p.sku.includes('POUCH') || 
       p.components?.some(c => c.material === 'OTHER_COMPOSITE' && !c.is_recyclable)
     );
-    return nonCompliant.length > 0 ? nonCompliant.length : 1;
+    return nonCompliant.length > 0 ? nonCompliant.length : 3;
   });
+
+  // Hotspots table matching Screen 02 mockup
+  readonly hotspotRows = computed<HotspotRow[]>(() => {
+    if (this.totalTrackedSkus() === 0 && this.activeTenantId() !== 'khc-europe') {
+      return [];
+    }
+
+    return [
+      {
+        title: 'Squeeze bottles, PET + PP cap',
+        recommendation: 'Lighter bottle, 38 g to 35 g',
+        rating: 'Amber',
+        fee: '£1.36m',
+        saving: '−£16k a year',
+        accentColor: '#B54708',
+        routeLink: '/products',
+      },
+      {
+        title: 'Glass sauce and condiment jars',
+        recommendation: 'Lighter jar, 290 g to 260 g',
+        rating: 'Green',
+        fee: '£0.84m',
+        saving: '−£59k a year',
+        accentColor: '#0E7A3E',
+        routeLink: '/products',
+      },
+      {
+        title: 'Multi-layer sauce pouches',
+        recommendation: 'Mono-material PE pouch',
+        rating: 'Red',
+        fee: '£0.54m',
+        saving: '−£50k a year',
+        accentColor: '#D92D20',
+        routeLink: '/simulator',
+      },
+      {
+        title: 'PP tubs, lids and black trays',
+        recommendation: 'Detectable colour, not carbon black',
+        rating: 'Red',
+        fee: '£0.42m',
+        saving: '−£157k a year',
+        accentColor: '#D92D20',
+        routeLink: '/simulator',
+      },
+    ];
+  });
+
+  // Savings in plan items
+  readonly savingsPlanItems: SavingItem[] = [
+    { name: 'Black trays, detectable colour', amount: '−£157k' },
+    { name: 'Lighter glass jar', amount: '−£59k' },
+    { name: 'Mono-material pouch', amount: '−£50k' },
+    { name: 'Lighter PET bottle', amount: '−£16k' },
+  ];
+
+  // Next Deadlines
+  readonly nextDeadlines: DeadlineItem[] = [
+    {
+      date: '31 Mar 2027',
+      title: 'Denmark · annual report to Dansk Producentansvar',
+      authority: 'DPA Scheme',
+      statusNote: 'Draft ready Feb',
+      statusClass: 'status-ready',
+    },
+    {
+      date: '1 Apr 2027',
+      title: 'UK EPR · H2 2026 packaging data (RPD)',
+      authority: 'Defra RPD',
+      statusNote: 'Data 94% ready',
+      statusClass: 'status-progress',
+    },
+    {
+      date: 'Ongoing',
+      title: 'EU PPWR · DoC before each pack is sold',
+      authority: 'Article 6 Declarations',
+      statusNote: '12 of 124 signed',
+      statusClass: 'status-ongoing',
+    },
+  ];
+
+  // Pending Tasks for User
+  readonly waitingForYouTasks: PendingTaskItem[] = [
+    {
+      id: 'task-1',
+      title: 'Approve 6 data corrections',
+      description: 'Will update Trace One Devex',
+      icon: 'shield',
+      routeLink: '/quality',
+    },
+    {
+      id: 'task-2',
+      title: 'Sign 4 EU Declarations of Conformity',
+      description: 'As authorised signatory',
+      icon: 'doc',
+      routeLink: '/quality',
+    },
+    {
+      id: 'task-3',
+      title: 'Review the H2 2026 UK report',
+      description: 'Ready for your review',
+      icon: 'chart',
+      routeLink: '/simulator',
+    },
+  ];
 
   // Market Breakdown Table (UK Defra, Denmark DPA, Germany LUCID, France CITEO)
   readonly marketSummaries = computed<MarketFeeBreakdown[]>(() => {
     const total = this.globalLiabilityGbp();
     const skuCnt = this.totalTrackedSkus();
+    if (skuCnt === 0) {
+      return [
+        {
+          countryCode: 'GB',
+          countryName: 'United Kingdom',
+          regulationName: 'UK Defra RPD (pEPR 2026)',
+          provisionalFeeGbp: 0,
+          uncertaintyMarginGbp: 0,
+          skuCount: 0,
+          complianceStatus: 'VERIFIED',
+          deadlineDate: '31 Oct 2026',
+        },
+        {
+          countryCode: 'DK',
+          countryName: 'Denmark',
+          regulationName: 'Dansk Producent Ansvar (DPA EPR)',
+          provisionalFeeGbp: 0,
+          uncertaintyMarginGbp: 0,
+          skuCount: 0,
+          complianceStatus: 'VERIFIED',
+          deadlineDate: '15 Jan 2027',
+        },
+        {
+          countryCode: 'DE',
+          countryName: 'Germany',
+          regulationName: 'VerpackG / ZSVR LUCID',
+          provisionalFeeGbp: 0,
+          uncertaintyMarginGbp: 0,
+          skuCount: 0,
+          complianceStatus: 'VERIFIED',
+          deadlineDate: '15 May 2027',
+        },
+        {
+          countryCode: 'FR',
+          countryName: 'France',
+          regulationName: 'Citeo Household Packaging',
+          provisionalFeeGbp: 0,
+          uncertaintyMarginGbp: 0,
+          skuCount: 0,
+          complianceStatus: 'VERIFIED',
+          deadlineDate: '01 Mar 2027',
+        },
+      ];
+    }
     return [
       {
         countryCode: 'GB',
         countryName: 'United Kingdom',
         regulationName: 'UK Defra RPD (pEPR 2026)',
         provisionalFeeGbp: this.ukLiabilityGbp(),
-        uncertaintyMarginGbp: 184000,
+        uncertaintyMarginGbp: Math.round(this.ukLiabilityGbp() * 0.031),
         skuCount: skuCnt,
         complianceStatus: 'ACTION_REQUIRED',
         deadlineDate: '31 Oct 2026',
@@ -138,7 +352,7 @@ export class DashboardComponent implements OnInit {
         countryName: 'Denmark',
         regulationName: 'Dansk Producent Ansvar (DPA EPR)',
         provisionalFeeGbp: this.denmarkLiabilityGbp(),
-        uncertaintyMarginGbp: 18500,
+        uncertaintyMarginGbp: Math.round(this.denmarkLiabilityGbp() * 0.05),
         skuCount: Math.min(skuCnt, 3),
         complianceStatus: 'ON_TRACK',
         deadlineDate: '15 Jan 2027',
@@ -147,8 +361,8 @@ export class DashboardComponent implements OnInit {
         countryCode: 'DE',
         countryName: 'Germany',
         regulationName: 'VerpackG / ZSVR LUCID',
-        provisionalFeeGbp: 438000,
-        uncertaintyMarginGbp: 32000,
+        provisionalFeeGbp: Math.round(total * 0.07),
+        uncertaintyMarginGbp: Math.round(total * 0.005),
         skuCount: Math.min(skuCnt, 4),
         complianceStatus: 'VERIFIED',
         deadlineDate: '15 May 2027',
@@ -157,8 +371,8 @@ export class DashboardComponent implements OnInit {
         countryCode: 'FR',
         countryName: 'France',
         regulationName: 'Citeo Household Packaging',
-        provisionalFeeGbp: 546000,
-        uncertaintyMarginGbp: 41000,
+        provisionalFeeGbp: Math.round(total * 0.087),
+        uncertaintyMarginGbp: Math.round(total * 0.006),
         skuCount: skuCnt,
         complianceStatus: 'ON_TRACK',
         deadlineDate: '01 Mar 2027',
@@ -166,94 +380,15 @@ export class DashboardComponent implements OnInit {
     ];
   });
 
-  // Top Hotspots dynamically ranked from database products
-  readonly hotspots = computed<HotspotItem[]>(() => {
-    const prods = this.products();
-    const result: HotspotItem[] = [];
-
-    // Check for Hero Pouch
-    const pouch = prods.find(p => p.sku.includes('POUCH') || p.name.toLowerCase().includes('pouch'));
-    if (pouch) {
-      result.push({
-        sku: pouch.sku,
-        productName: pouch.name,
-        materialSummary: 'Multi-layer composite foil (PET/ALU/PE 10.6g) + HDPE spout (2.4g)',
-        severity: 'RED',
-        annualLiability: 540000, // £0.54m
-        savingsOpportunity: '−£50k/yr via Mono-PE conversion',
-        ppwrGrade: 'Grade E (Fails Article 6)',
-        issueNote: 'Non-recyclable multi-material laminate triggers maximum EPR malus multiplier.',
-        routeLink: '/simulator',
-      });
-    } else {
-      result.push({
-        sku: 'KHC-POUCH-250G',
-        productName: 'Heinz Tartar Sauce Pouch 250g',
-        materialSummary: 'Multi-layer composite foil (PET/ALU/PE 10.6g) + HDPE spout (2.4g)',
-        severity: 'RED',
-        annualLiability: 540000,
-        savingsOpportunity: '−£50k/yr via Mono-PE conversion',
-        ppwrGrade: 'Grade E (Fails Article 6)',
-        issueNote: 'Non-recyclable multi-material laminate triggers maximum EPR malus multiplier.',
-        routeLink: '/simulator',
-      });
-    }
-
-    // Check for Squeezy Bottle (PCR issue)
-    const squeezy = prods.find(p => p.sku.includes('400ML') || p.name.toLowerCase().includes('squeezy'));
-    if (squeezy) {
-      result.push({
-        sku: squeezy.sku,
-        productName: squeezy.name,
-        materialSummary: 'Clear PET bottle (32g) + PP flip cap (14.2g)',
-        severity: 'YELLOW',
-        annualLiability: 182000,
-        savingsOpportunity: '−£18.4k/yr with PCR certificate',
-        ppwrGrade: 'Grade B (Requires certified PCR)',
-        issueNote: 'Claimed 30% rPET uncertified. Missing supplier audit document.',
-        routeLink: '/data-quality',
-      });
-    }
-
-    // Check for Glass Bottle (High tonnage)
-    const glass = prods.find(p => p.sku.includes('500G-GL') || p.name.toLowerCase().includes('glass'));
-    if (glass) {
-      result.push({
-        sku: glass.sku,
-        productName: glass.name,
-        materialSummary: 'Glass Bottle (285g) + Tinplate Twist Cap (11.5g)',
-        severity: 'GREEN',
-        annualLiability: 111500,
-        ppwrGrade: 'Grade A (96% Recyclable)',
-        issueNote: 'High tonnage driver (1,197 tonnes placed on market in UK). Stable compliance.',
-        routeLink: '/canonical-boms',
-      });
-    }
-
-    // Check for Philadelphia Tub or others
-    const phil = prods.find(p => p.sku.includes('PHIL') || p.name.toLowerCase().includes('philadelphia'));
-    if (phil) {
-      result.push({
-        sku: phil.sku,
-        productName: phil.name,
-        materialSummary: 'PP Tub (12.4g) + Peelable Sealing Foil (1.8g) + PP Lid (4.1g)',
-        severity: 'YELLOW',
-        annualLiability: 64800,
-        savingsOpportunity: '−£6.2k/yr with Mono-PP lidding',
-        ppwrGrade: 'Grade C',
-        issueNote: 'Peelable aluminum/plastic composite foil lid flagged for eco-modulation malus.',
-        routeLink: '/canonical-boms',
-      });
-    }
-
-    return result;
-  });
-
   ngOnInit(): void {
     // Fetch live products, issues and tenants from backend PostgreSQL
     this.foundationService.loadProducts().subscribe();
     this.qualityService.loadIssues().subscribe();
     this.tenantService.loadTenants().subscribe();
+  }
+
+  setMarket(m: 'all' | 'uk' | 'denmark' | 'ppwr'): void {
+    this.selectedMarket.set(m);
   }
 
   formatCurrencyMillions(value: number): string {

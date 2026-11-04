@@ -27,7 +27,26 @@ export class TenantApiService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = APP_CONFIG.apiBaseUrl;
 
-  readonly activeTenantId = signal<string>('khc-europe');
+  private getInitialTenantId(): string {
+    try {
+      const userRaw = localStorage.getItem('compliance_hub_auth_user');
+      if (userRaw) {
+        const u = JSON.parse(userRaw);
+        if (u.organisationSlug) {
+          return u.organisationSlug;
+        }
+      }
+      const saved = localStorage.getItem('compliance_hub_active_tenant');
+      if (saved) {
+        return saved;
+      }
+    } catch {
+      // Ignore
+    }
+    return 'khc-europe';
+  }
+
+  readonly activeTenantId = signal<string>(this.getInitialTenantId());
   readonly tenants = signal<BackendTenantRecord[]>([]);
   readonly loading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
@@ -136,5 +155,10 @@ export class TenantApiService {
 
   setActiveTenant(id: string): void {
     this.activeTenantId.set(id);
+    try {
+      localStorage.setItem('compliance_hub_active_tenant', id);
+    } catch {
+      // Ignore
+    }
   }
 }

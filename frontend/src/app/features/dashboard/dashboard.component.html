@@ -1,366 +1,538 @@
 <div class="dashboard-page" id="home-dashboard">
 
-  <!-- Top Overview Banner -->
-  <header class="dash-header">
+  <!-- ─── Top Breadcrumb & Executive Greeting Header ─── -->
+  <header class="dash-exec-header">
     <div class="header-left">
-      <div class="tenant-badge">
-        <span class="live-dot"></span>
-        <span>WORKSPACE: {{ activeTenantName() }} ({{ activeTenantId() }})</span>
-      </div>
-      <h1 class="dash-title">Global EPR &amp; Packaging Intelligence</h1>
-      <p class="dash-subtitle">
-        Provisional liability modeling across {{ marketSummaries().length }} active EPR jurisdictions with automated
-        uncertainty tracking and PPWR Article 6 conformity verification.
+      <div class="breadcrumb-trail">Home</div>
+      <h1 class="greeting-title">Good afternoon, {{ greetingName() }}</h1>
+      <p class="greeting-subtitle">
+        Your EPR position across UK EPR, Denmark EPR and EU PPWR &middot; data locked 28 Oct &middot; specialist reviewed
       </p>
     </div>
 
-    <div class="header-actions">
-      <a routerLink="/products" class="btn btn-secondary">
-        Explore Pack Records
-      </a>
-      <a routerLink="/simulator" class="btn btn-primary">
-        Run Fee Simulator →
-      </a>
+    <!-- Right Controls: Market Segment Pills, Year Selector, Export Board Pack Button -->
+    <div class="header-right-controls">
+      <div class="segmented-market-bar" role="tablist" aria-label="Jurisdiction Market Filter">
+        <button type="button" class="market-pill" [class.active]="selectedMarket() === 'all'" (click)="setMarket('all')">
+          All markets
+        </button>
+        <button type="button" class="market-pill" [class.active]="selectedMarket() === 'uk'" (click)="setMarket('uk')">
+          UK
+        </button>
+        <button type="button" class="market-pill" [class.active]="selectedMarket() === 'denmark'" (click)="setMarket('denmark')">
+          Denmark
+        </button>
+        <button type="button" class="market-pill" [class.active]="selectedMarket() === 'ppwr'" (click)="setMarket('ppwr')">
+          EU PPWR
+        </button>
+      </div>
+
+      <div class="year-select-wrap">
+        <select class="year-dropdown" [value]="selectedYear()" (change)="selectedYear.set($any($event.target).value)">
+          <option value="2026">2026</option>
+          <option value="2027">2027</option>
+          <option value="2028">2028</option>
+          <option value="2030">2030</option>
+        </select>
+        <span class="dropdown-arrow">&blacktriangledown;</span>
+      </div>
+
+      <button type="button" class="btn-board-pack">
+        <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>Export board pack</span>
+      </button>
     </div>
   </header>
 
-  <!-- 4 Headline Tiles (Strict 4-Column Grid) -->
+  <!-- ─── Row 1: 4 Top KPI Metric Cards (Hero Dark Navy + 3 Crisp White Cards) ─── -->
   <section class="kpi-grid">
-    <!-- Tile 1: Global Annual EPR Cost -->
-    <div class="kpi-card highlight">
-      <div class="kpi-header">
-        <span class="kpi-title">Global EPR Cost</span>
+    <!-- Card 1: HERO DEEP DARK NAVY CARD -->
+    <div class="kpi-card hero-navy-card">
+      <div class="kpi-top-row">
+        <span class="kpi-kicker">GLOBAL EPR COST &middot; 2026</span>
       </div>
-      <div class="kpi-value">{{ formatCurrencyMillions(globalLiabilityGbp()) }}</div>
-      <div class="kpi-meta">
-        <span class="uncertainty-tag">±£184k Margin</span>
-        <span class="meta-desc">across active jurisdictions</span>
+      <div class="kpi-main-val">
+        <span class="amount">{{ globalLiabilityGbp() > 0 ? formatCurrencyMillions(globalLiabilityGbp()) : '£0.00' }}</span>
+        <span class="uncertainty-chip">{{ globalLiabilityGbp() > 0 ? '± £0.19m' : '£0 Margin' }}</span>
       </div>
-    </div>
-
-    <!-- Tile 2: UK Defra pEPR -->
-    <div class="kpi-card">
-      <div class="kpi-header">
-        <span class="kpi-title">UK Defra pEPR</span>
+      <div class="kpi-subtext">
+        +14% vs 2025 &middot; UK and Denmark fees
       </div>
-      <div class="kpi-value">{{ formatCurrencyMillions(ukLiabilityGbp()) }}</div>
-      <div class="kpi-meta">
-        <span class="badge-tag">94% of Total</span>
-        <span class="meta-desc">Filing due 31 Oct 2026</span>
+      <div class="hero-bar-track">
+        <div class="hero-bar-fill" style="width: 82%;"></div>
       </div>
     </div>
 
-    <!-- Tile 3: Denmark DPA EPR -->
-    <div class="kpi-card">
-      <div class="kpi-header">
-        <span class="kpi-title">Denmark DPA EPR</span>
+    <!-- Card 2: UK EPR -->
+    <div class="kpi-card white-kpi-card">
+      <div class="kpi-top-row">
+        <span class="kpi-kicker">UK EPR</span>
+        <span class="badge-pill pill-green">High confidence</span>
       </div>
-      <div class="kpi-value">{{ formatCurrencyMillions(denmarkLiabilityGbp()) }}</div>
-      <div class="kpi-meta">
-        <span class="badge-tag">6% of Total</span>
-        <span class="meta-desc">DPA Scheme active</span>
+      <div class="kpi-main-val">
+        <span class="amount">{{ ukLiabilityGbp() > 0 ? formatCurrencyMillions(ukLiabilityGbp()) : '£0.00' }}</span>
+      </div>
+      <div class="kpi-subtext">
+        18,420 t &middot; +11% vs 2025
+      </div>
+      <div class="dual-bar-track">
+        <div class="bar-seg-green" style="width: 94%;"></div>
+        <div class="bar-seg-amber" style="width: 6%;"></div>
       </div>
     </div>
 
-    <!-- Tile 4: PPWR Declarations Tracked -->
-    <div class="kpi-card">
-      <div class="kpi-header">
-        <span class="kpi-title">PPWR Tracked</span>
+    <!-- Card 3: DENMARK EPR -->
+    <div class="kpi-card white-kpi-card">
+      <div class="kpi-top-row">
+        <span class="kpi-kicker">DENMARK EPR</span>
+        <span class="badge-pill pill-neutral">First full year</span>
       </div>
-      <div class="kpi-value">{{ ppwrTrackedCount() }}</div>
-      <div class="kpi-meta">
-        <span class="status-pill non-compliant">{{ ppwrNonCompliantCount() }} Grade E (Pouch)</span>
-        <span class="meta-desc">{{ totalTrackedSkus() - ppwrNonCompliantCount() }} on track</span>
+      <div class="kpi-main-val">
+        <span class="amount">{{ denmarkLiabilityGbp() > 0 ? formatCurrencyMillions(denmarkLiabilityGbp()) : '£0.00' }}</span>
+      </div>
+      <div class="kpi-subtext">
+        DKK 3.2m &middot; 1,150 t
+      </div>
+      <div class="dual-bar-track">
+        <div class="bar-seg-green" style="width: 80%;"></div>
+        <div class="bar-seg-red" style="width: 20%;"></div>
+      </div>
+    </div>
+
+    <!-- Card 4: EU PPWR -->
+    <div class="kpi-card white-kpi-card">
+      <div class="kpi-top-row">
+        <span class="kpi-kicker">EU PPWR</span>
+        <span class="badge-pill pill-red">
+          <span class="dot-red"></span> 3 at risk
+        </span>
+      </div>
+      <div class="kpi-main-val">
+        <span class="amount">{{ ppwrTrackedCount() }}</span>
+      </div>
+      <div class="kpi-subtext">
+        DoCs signed &middot; no fee, proof needed
+      </div>
+      <div class="dual-bar-track">
+        <div class="bar-seg-blue" style="width: 10%;"></div>
       </div>
     </div>
   </section>
 
-  <!-- Section 2: Forecast to 2030 and Biggest Hotspots Side-by-Side -->
-  <section class="forecast-hotspots-grid">
-    
-    <!-- Left Column: Forecast to 2030 -->
-    <div class="content-panel forecast-panel">
-      <div class="panel-header">
-        <div class="panel-header-title">
-          <h2>Forecast to 2030</h2>
-          <p>Baseline trajectory vs. Recommended eco-modulation redesigns</p>
+  <!-- ─── Row 2: Forecast to 2030 and Biggest Cost Hotspots (Side by Side) ─── -->
+  <section class="forecast-hotspots-row">
+
+    <!-- Left Card: Forecast to 2030 -->
+    <div class="panel-card forecast-card">
+      <div class="panel-card-header">
+        <div class="panel-titles">
+          <h2 class="panel-title">Forecast to 2030</h2>
+          <p class="panel-subtitle">UK EPR and Denmark EPR, with known rate changes</p>
         </div>
-        <span class="badge-highlight">−£280k Savings Opportunity</span>
+        <a routerLink="/simulator" class="panel-link">Open scenarios &rarr;</a>
       </div>
 
-      <div class="forecast-comparison-card">
-        <div class="forecast-stat">
-          <span class="forecast-stat-label">Baseline Projected (2030)</span>
-          <span class="forecast-stat-val text-muted">£7.59m</span>
-          <span class="forecast-stat-sub">Assumes standard packaging mix</span>
-        </div>
-        <div class="forecast-divider">→</div>
-        <div class="forecast-stat active">
-          <span class="forecast-stat-label">With Recommendations</span>
-          <span class="forecast-stat-val text-primary">£7.31m</span>
-          <span class="forecast-stat-sub highlight">Pouch redesign + PCR certification</span>
-        </div>
+      <!-- Chart Legend -->
+      <div class="chart-legend-row">
+        <span class="legend-item"><span class="legend-box navy"></span> UK EPR</span>
+        <span class="legend-item"><span class="legend-box cyan"></span> Denmark EPR</span>
+        <span class="legend-item"><span class="legend-line green"></span> With recommendations</span>
       </div>
 
-      <!-- Forecast Bar Comparison Chart -->
-      <div class="forecast-bars-container">
-        <div class="forecast-bar-row">
-          <div class="bar-year mono">2026 (Current)</div>
-          <div class="bar-track">
-            <div class="bar-fill base" style="width: 82%;">
-              <span class="bar-label">£6.29m</span>
+      <!-- Visual 6-Year Column Bar Chart -->
+      <div class="chart-wrapper">
+        <div class="chart-columns-grid">
+          
+          <!-- 2025 actual -->
+          <div class="col-chart-item">
+            <div class="col-val mono">&pound;5.52m</div>
+            <div class="col-bar-wrap">
+              <div class="col-bar-fill bar-navy" style="height: 65%;"></div>
             </div>
+            <div class="col-year mono">2025</div>
+            <div class="col-status">actual</div>
           </div>
+
+          <!-- 2026 invoiced -->
+          <div class="col-chart-item">
+            <div class="col-val mono">&pound;6.29m</div>
+            <div class="col-bar-wrap">
+              <div class="col-bar-fill bar-navy" style="height: 74%;">
+                <div class="col-bar-cap-cyan" style="height: 7%;"></div>
+              </div>
+            </div>
+            <div class="col-year mono">2026</div>
+            <div class="col-status">invoiced</div>
+          </div>
+
+          <!-- 2027 forecast -->
+          <div class="col-chart-item">
+            <div class="col-val mono">&pound;6.57m</div>
+            <div class="col-bar-wrap">
+              <div class="col-bar-fill bar-navy-muted" style="height: 78%;">
+                <div class="col-bar-cap-cyan" style="height: 8%;"></div>
+              </div>
+            </div>
+            <div class="col-year mono">2027</div>
+            <div class="col-status">forecast</div>
+          </div>
+
+          <!-- 2028 forecast -->
+          <div class="col-chart-item">
+            <div class="col-val mono">&pound;6.89m</div>
+            <div class="col-bar-wrap">
+              <div class="col-bar-fill bar-navy-muted" style="height: 82%;">
+                <div class="col-bar-cap-cyan" style="height: 8%;"></div>
+              </div>
+            </div>
+            <div class="col-year mono">2028</div>
+            <div class="col-status">forecast</div>
+          </div>
+
+          <!-- 2029 forecast -->
+          <div class="col-chart-item">
+            <div class="col-val mono">&pound;7.24m</div>
+            <div class="col-bar-wrap">
+              <div class="col-bar-fill bar-navy-muted" style="height: 87%;">
+                <div class="col-bar-cap-cyan" style="height: 9%;"></div>
+              </div>
+            </div>
+            <div class="col-year mono">2029</div>
+            <div class="col-status">forecast</div>
+          </div>
+
+          <!-- 2030 forecast -->
+          <div class="col-chart-item">
+            <div class="col-val mono">&pound;7.59m</div>
+            <div class="col-bar-wrap">
+              <div class="col-bar-fill bar-navy-muted" style="height: 92%;">
+                <div class="col-bar-cap-cyan" style="height: 9%;"></div>
+              </div>
+              <div class="node-optimized" title="With recommendations: £7.31m">
+                <span class="node-optimized-val mono">&pound;7.31m</span>
+              </div>
+            </div>
+            <div class="col-year mono">2030</div>
+            <div class="col-status">forecast</div>
+          </div>
+
         </div>
 
-        <div class="forecast-bar-row">
-          <div class="bar-year mono">2028 (Proj.)</div>
-          <div class="bar-track">
-            <div class="bar-fill base" style="width: 90%;">
-              <span class="bar-label">£6.94m</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="forecast-bar-row">
-          <div class="bar-year mono">2030 (Baseline)</div>
-          <div class="bar-track">
-            <div class="bar-fill warning" style="width: 100%;">
-              <span class="bar-label">£7.59m (Unmitigated)</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="forecast-bar-row">
-          <div class="bar-year mono">2030 (Optimized)</div>
-          <div class="bar-track">
-            <div class="bar-fill success" style="width: 96%;">
-              <span class="bar-label">£7.31m (−£280k/yr)</span>
-            </div>
-          </div>
-        </div>
+        <!-- Trendline SVG overlay -->
+        <svg class="chart-trendline-svg" viewBox="0 0 600 160" preserveAspectRatio="none">
+          <path d="M 60 78 L 160 62 L 260 56 L 360 48 L 460 41 L 550 50" fill="none" stroke="#10B981" stroke-width="2.5" stroke-dasharray="5 5"></path>
+          <circle cx="60" cy="78" r="4.5" fill="#10B981"></circle>
+          <circle cx="160" cy="62" r="4.5" fill="#10B981"></circle>
+          <circle cx="260" cy="56" r="4.5" fill="#10B981"></circle>
+          <circle cx="360" cy="48" r="4.5" fill="#10B981"></circle>
+          <circle cx="460" cy="41" r="4.5" fill="#10B981"></circle>
+          <circle cx="550" cy="50" r="5.5" fill="#10B981" stroke="#ffffff" stroke-width="2"></circle>
+        </svg>
       </div>
 
-      <div class="forecast-footer">
-        <span class="forecast-note">
-          <strong>Key Driver:</strong> Converting Heinz Sauce Pouch to Mono-PE laminate yields −£50k/yr alone.
-        </span>
-        <a routerLink="/simulator" class="link-action">Explore Scenarios →</a>
+      <!-- Forecast Callout Summary Boxes -->
+      <div class="forecast-summary-boxes">
+        <div class="forecast-callout-box">
+          <div class="callout-label">2030, if nothing changes</div>
+          <div class="callout-value-row">
+            <span class="callout-val mono">&pound;7.59m</span>
+            <span class="callout-tag red">+21%</span>
+          </div>
+        </div>
+
+        <div class="forecast-callout-box highlight-green">
+          <div class="callout-label">2030, with recommendations</div>
+          <div class="callout-value-row">
+            <span class="callout-val mono green">&pound;7.31m</span>
+            <span class="callout-tag green">&minus;&pound;282k a year</span>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Right Column: Biggest Hotspots (Ranked from Database) -->
-    <div class="content-panel hotspots-panel">
-      <div class="panel-header">
-        <div class="panel-header-title">
-          <h2>Biggest Hotspots</h2>
-          <p>Packaging SKUs ranked by financial liability &amp; non-recyclability risk</p>
+    <!-- Right Card: Biggest Cost Hotspots -->
+    <div class="panel-card hotspots-card">
+      <div class="panel-card-header">
+        <div class="panel-titles">
+          <h2 class="panel-title">Biggest cost hotspots</h2>
+          <p class="panel-subtitle">By 2026 fee, UK and Denmark &middot; with the recommended change</p>
         </div>
-        <span class="badge-count">{{ hotspots().length }} Evaluated</span>
+        <a routerLink="/products" class="panel-link">All hotspots &rarr;</a>
       </div>
 
-      <div class="hotspots-list">
-        @for (h of hotspots(); track h.sku) {
-        <div class="hotspot-item-card" [class.red-alert]="h.severity === 'RED'">
-          <div class="hotspot-top">
-            <div class="hotspot-sku-box">
-              <span class="hotspot-sku mono">{{ h.sku }}</span>
-              <span class="hotspot-name">{{ h.productName }}</span>
-            </div>
-            <div class="hotspot-badges">
-              <span class="badge-severity" [class]="h.severity.toLowerCase()">
-                {{ h.severity === 'RED' ? 'Red Hotspot' : h.severity === 'YELLOW' ? 'Yellow Gap' : 'Stable' }}
-              </span>
-              <span class="badge-grade">{{ h.ppwrGrade }}</span>
-            </div>
-          </div>
-
-          <div class="hotspot-materials">
-            {{ h.materialSummary }}
-          </div>
-
-          <div class="hotspot-bottom">
-            <div class="hotspot-fee mono">
-              <strong>{{ formatCurrency(h.annualLiability) }}</strong> /yr
-            </div>
-            @if (h.savingsOpportunity) {
-            <div class="hotspot-savings mono">
-              {{ h.savingsOpportunity }}
-            </div>
+      <!-- Hotspots Table -->
+      <div class="hotspots-table-wrap">
+        <table class="hotspots-table">
+          <thead>
+            <tr>
+              <th class="th-name">Packaging format and recommended change</th>
+              <th class="th-rating">Rating</th>
+              <th class="th-fee">Fee</th>
+              <th class="th-saving">Saving</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of hotspotRows(); track row.title) {
+            <tr class="hotspot-tr">
+              <td class="td-format">
+                <div class="hotspot-main-name">{{ row.title }}</div>
+                <div class="hotspot-rec-line">
+                  <span class="rec-arrow">&rarr;</span> {{ row.recommendation }}
+                </div>
+                <div class="hotspot-row-bar" [style.background-color]="row.accentColor"></div>
+              </td>
+              <td class="td-rating">
+                <span class="rating-dot-badge" [class]="'rating-' + row.rating.toLowerCase()">
+                  <span class="dot"></span> {{ row.rating }}
+                </span>
+              </td>
+              <td class="td-fee mono">{{ row.fee }}</td>
+              <td class="td-saving mono">{{ row.saving }}</td>
+            </tr>
             }
-            <a [routerLink]="h.routeLink" class="hotspot-link">Inspect →</a>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ─── Row 3: Four Equal Cards (Savings in Plan, Data Health, Next Deadlines, Waiting for You) ─── -->
+  <section class="bottom-four-grid">
+
+    <!-- Card 1: SAVINGS IN PLAN -->
+    <div class="panel-card mini-card savings-plan-card">
+      <div class="mini-card-header">
+        <span class="mini-title-kicker"><span class="teal-diamond">&#9670;</span> SAVINGS IN PLAN</span>
+        <a routerLink="/simulator" class="mini-link">See all &rarr;</a>
+      </div>
+      <div class="savings-headline">
+        <div class="savings-amount">&pound;282k a year</div>
+        <div class="savings-sub">&pound;234k net of pack cost</div>
+      </div>
+      <div class="savings-list">
+        @for (item of savingsPlanItems; track item.name) {
+        <div class="savings-item-row">
+          <span class="saving-item-name">{{ item.name }}</span>
+          <span class="saving-item-amt mono">{{ item.amount }}</span>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Card 2: DATA HEALTH (Donut Gauge) -->
+    <div class="panel-card mini-card data-health-card">
+      <div class="mini-card-header">
+        <span class="mini-card-title">Data health</span>
+        <a routerLink="/data-overview" class="mini-link">Open &rarr;</a>
+      </div>
+
+      <div class="donut-chart-container">
+        <!-- SVG Donut Gauge -->
+        <div class="donut-svg-wrap">
+          <svg class="donut-svg" viewBox="0 0 100 100">
+            <!-- Background Ring -->
+            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#E2E8F0" stroke-width="12"></circle>
+            <!-- Green Segment (82%) -->
+            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#0E7A3E" stroke-width="12"
+              stroke-dasharray="206 251" stroke-dashoffset="0" transform="rotate(-90 50 50)"></circle>
+            <!-- Amber Segment (13%) -->
+            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#F59E0B" stroke-width="12"
+              stroke-dasharray="33 251" stroke-dashoffset="-206" transform="rotate(-90 50 50)"></circle>
+            <!-- Red Segment (5%) -->
+            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#E02725" stroke-width="12"
+              stroke-dasharray="12 251" stroke-dashoffset="-239" transform="rotate(-90 50 50)"></circle>
+          </svg>
+          <div class="donut-center-text">
+            <span class="donut-number mono">82%</span>
+            <span class="donut-label">verified</span>
+          </div>
+        </div>
+
+        <!-- Legend Breakdown -->
+        <div class="donut-legend">
+          <div class="donut-legend-item">
+            <span class="dot-indicator green"></span>
+            <span class="legend-name">Verified</span>
+            <span class="legend-val mono">82%</span>
+          </div>
+          <div class="donut-legend-item">
+            <span class="dot-indicator amber"></span>
+            <span class="legend-name">Estimated</span>
+            <span class="legend-val mono">13%</span>
+          </div>
+          <div class="donut-legend-item">
+            <span class="dot-indicator red"></span>
+            <span class="legend-name">Flagged</span>
+            <span class="legend-val mono">5%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="data-health-footer">
+        <span class="footer-label">Fee at risk from gaps</span>
+        <span class="footer-risk mono">&plusmn; &pound;0.19m</span>
+      </div>
+    </div>
+
+    <!-- Card 3: NEXT DEADLINES -->
+    <div class="panel-card mini-card deadlines-card">
+      <div class="mini-card-header">
+        <span class="mini-card-title">Next deadlines</span>
+        <a routerLink="/compliance" class="mini-link">All &rarr;</a>
+      </div>
+
+      <div class="deadlines-list">
+        @for (d of nextDeadlines; track d.title) {
+        <div class="deadline-row">
+          <div class="deadline-date mono">{{ d.date }}</div>
+          <div class="deadline-info">
+            <div class="deadline-title">{{ d.title }}</div>
+            <div class="deadline-note">{{ d.statusNote }}</div>
           </div>
         </div>
         }
       </div>
     </div>
 
+    <!-- Card 4: WAITING FOR YOU (Pending Actions) -->
+    <div class="panel-card mini-card waiting-card">
+      <div class="mini-card-header">
+        <div class="waiting-title-wrap">
+          <span class="mini-card-title">Waiting for you</span>
+          <span class="badge-waiting-count">3</span>
+        </div>
+      </div>
+
+      <div class="waiting-tasks-list">
+        @for (task of waitingForYouTasks; track task.id) {
+        <a [routerLink]="task.routeLink" class="waiting-task-item">
+          <div class="task-icon-wrap" [class]="'icon-' + task.icon">
+            @if (task.icon === 'shield') {
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <polyline points="9 12 11 14 15 10"></polyline>
+              </svg>
+            } @else if (task.icon === 'doc') {
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+            } @else {
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+            }
+          </div>
+          <div class="task-body">
+            <div class="task-title">{{ task.title }}</div>
+            <div class="task-desc">{{ task.description }}</div>
+          </div>
+          <span class="task-arrow">&rarr;</span>
+        </a>
+        }
+      </div>
+    </div>
+
   </section>
 
-  <!-- Section 3: Active Jurisdictions & Data Health Tasks -->
-  <div class="dash-columns">
-
-    <!-- Column 1: Market Fee & Obligation Breakdown -->
-    <div class="dash-column-main">
-      <div class="content-panel">
-        <div class="panel-header">
-          <div class="panel-header-title">
-            <h2>Active EPR Jurisdictions &amp; Projected Fees</h2>
-            <p>Calculated using official PRO fee schedules, tariffs, and eco-modulation rules</p>
-          </div>
-          <span class="badge-count">{{ marketSummaries().length }} Active</span>
+  <!-- ─── Lower Section: Active Jurisdictions & System Connectors ─── -->
+  <section class="lower-section-wrap">
+    
+    <!-- Active Jurisdictions Table -->
+    <div class="panel-card lower-table-card">
+      <div class="panel-card-header">
+        <div class="panel-titles">
+          <h2 class="panel-title">Active EPR Jurisdictions &amp; Projected Obligations</h2>
+          <p class="panel-subtitle">Official statutory PRO reporting schemes with fee tariffs and eco-modulation</p>
         </div>
+        <span class="count-badge">{{ marketSummaries().length }} Active Markets</span>
+      </div>
 
-        <div class="table-container">
-          <table class="market-table">
-            <thead>
-              <tr>
-                <th>Jurisdiction</th>
-                <th>Regulation</th>
-                <th>Covered SKUs</th>
-                <th>Provisional Fee</th>
-                <th>Uncertainty</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (m of marketSummaries(); track m.countryCode) {
-              <tr>
-                <td class="cell-country">
+      <div class="jurisdictions-table-wrap">
+        <table class="jurisdictions-table">
+          <thead>
+            <tr>
+              <th>Country / Market</th>
+              <th>Statutory PRO Regulation</th>
+              <th>Covered SKUs</th>
+              <th>Provisional Fee</th>
+              <th>Uncertainty</th>
+              <th>Filing Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (m of marketSummaries(); track m.countryCode) {
+            <tr>
+              <td class="td-country">
+                <div class="country-cell">
+                  <span class="country-flag-icon">{{ m.countryCode === 'GB' ? '🇬🇧' : m.countryCode === 'DK' ? '🇩🇰' : m.countryCode === 'DE' ? '🇩🇪' : '🇫🇷' }}</span>
                   <strong>{{ m.countryName }}</strong>
-                </td>
-                <td>
-                  <span class="reg-pill">{{ m.regulationName }}</span>
-                </td>
-                <td>{{ m.skuCount }} SKUs</td>
-                <td class="cell-fee mono">{{ formatCurrency(m.provisionalFeeGbp) }}</td>
-                <td class="cell-margin mono">±{{ formatCurrency(m.uncertaintyMarginGbp) }}</td>
-                <td>
-                  <span class="status-badge" [class]="m.complianceStatus.toLowerCase()">
-                    {{ m.complianceStatus === 'ACTION_REQUIRED' ? 'Action Required' : m.complianceStatus === 'ON_TRACK'
-                    ? 'On Track' : 'Verified' }}
-                  </span>
-                </td>
-              </tr>
-              }
-            </tbody>
-          </table>
+                </div>
+              </td>
+              <td><span class="reg-chip">{{ m.regulationName }}</span></td>
+              <td class="mono">{{ m.skuCount }} SKUs</td>
+              <td class="mono font-bold">{{ formatCurrency(m.provisionalFeeGbp) }}</td>
+              <td class="mono text-muted">&plusmn;{{ formatCurrency(m.uncertaintyMarginGbp) }}</td>
+              <td>
+                <span class="status-pill-badge" [class]="m.complianceStatus.toLowerCase()">
+                  {{ m.complianceStatus === 'ACTION_REQUIRED' ? 'Action Required' : m.complianceStatus === 'ON_TRACK' ? 'On Track' : 'Verified' }}
+                </span>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Enterprise Connectors (Trace One PLM & Snowflake) -->
+    <div class="panel-card connectors-card">
+      <div class="panel-card-header">
+        <div class="panel-titles">
+          <h3 class="panel-title">Enterprise System Connectors</h3>
+          <p class="panel-subtitle">Read-only real-time continuous synchronization</p>
         </div>
       </div>
 
-      <!-- Source System Discrepancy & Ticket Flow -->
-      <div class="content-panel" style="margin-top: 24px;">
-        <div class="panel-header">
-          <div class="panel-header-title">
-            <h2>Source Discrepancy Worklist (Trace One &amp; Snowflake)</h2>
-            <p>Single Source of Truth: Discrepancies are flagged for source PLM teams rather than local edits</p>
+      <div class="connectors-stack">
+        <div class="connector-row">
+          <div class="conn-icon-box traceone">PLM</div>
+          <div class="conn-text-box">
+            <div class="conn-title">Trace One Devex PLM</div>
+            <div class="conn-desc">Packaging Specifications &amp; Components</div>
           </div>
-          <span class="badge-count">{{ qualityIssues().length }} Open Issues</span>
+          <span class="conn-live-badge"><span class="dot-pulse"></span> LIVE</span>
         </div>
 
-        <div class="tickets-list">
-          @for (issue of qualityIssues(); track issue.id) {
-          <div class="ticket-card">
-            <div class="ticket-header">
-              <span class="ticket-id">{{ issue.id }}</span>
-              <span class="ticket-rule">{{ issue.rule_code }}</span>
-              <span class="ticket-status" [class]="issue.severity">{{ issue.severity }}</span>
-            </div>
-            <div class="ticket-body">
-              <div class="ticket-title">{{ issue.rule_title }}</div>
-              <div class="ticket-issue">{{ issue.description }}</div>
-            </div>
-            <div class="ticket-footer">
-              <span class="ticket-source">Entity: <code>{{ issue.entity_id }}</code></span>
-              <span class="ticket-action mono">{{ issue.suggested_source_action }}</span>
-            </div>
+        <div class="connector-row">
+          <div class="conn-icon-box snowflake">DW</div>
+          <div class="conn-text-box">
+            <div class="conn-title">Snowflake Cloud Data Warehouse</div>
+            <div class="conn-desc">Placed on Market Sales Volumes &amp; ERP Units</div>
           </div>
-          }
+          <span class="conn-live-badge"><span class="dot-pulse"></span> LIVE</span>
+        </div>
+
+        <div class="connector-row">
+          <div class="conn-icon-box neon">SQL</div>
+          <div class="conn-text-box">
+            <div class="conn-title">PostgreSQL Multi-Tenant Platform</div>
+            <div class="conn-desc">Cryptographic Isolation &amp; Audit Trail</div>
+          </div>
+          <span class="conn-live-badge active"><span class="dot-pulse"></span> ACTIVE</span>
         </div>
       </div>
     </div>
 
-    <!-- Column 2: System Health & Connectors -->
-    <div class="dash-column-side">
-      <!-- Data Completeness Card -->
-      <div class="content-panel">
-        <div class="panel-header">
-          <div class="panel-header-title">
-            <h3>Canonical Data Health</h3>
-            <p>Specification completeness across foundation</p>
-          </div>
-        </div>
-
-        <div class="completeness-box">
-          <div class="completeness-number mono">{{ dataCompletenessPercent() }}%</div>
-          <div class="progress-bar-container">
-            <div class="progress-bar-fill" [style.width.%]="dataCompletenessPercent()"></div>
-          </div>
-          <div class="completeness-stats">
-            <span><strong>{{ totalTrackedSkus() }}</strong> Canonical SKUs</span>
-            <span><strong>{{ openIssuesCount() }}</strong> Flagged Gaps</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Enterprise Connectors Card -->
-      <div class="content-panel" style="margin-top: 24px;">
-        <div class="panel-header">
-          <div class="panel-header-title">
-            <h3>Enterprise Connectors</h3>
-            <p>Read-only continuous synchronization</p>
-          </div>
-        </div>
-
-        <div class="connectors-list">
-          <div class="connector-item">
-            <div class="conn-details">
-              <div class="conn-name">Trace One Devex PLM</div>
-              <div class="conn-type">Packaging Specifications · Synchronized</div>
-            </div>
-            <span class="conn-status live">LIVE</span>
-          </div>
-          <div class="connector-item">
-            <div class="conn-details">
-              <div class="conn-name">Snowflake Cloud Data</div>
-              <div class="conn-type">Placed on Market Sales Volumes · Synchronized</div>
-            </div>
-            <span class="conn-status live">LIVE</span>
-          </div>
-          <div class="connector-item">
-            <div class="conn-details">
-              <div class="conn-name">PostgreSQL Single Source</div>
-              <div class="conn-type">Neon DB · Canonical Shared Layer</div>
-            </div>
-            <span class="conn-status live">ACTIVE</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Architecture Principles Card -->
-      <div class="content-panel" style="margin-top: 24px;">
-        <div class="panel-header">
-          <div class="panel-header-title">
-            <h3>Architecture Principles</h3>
-          </div>
-        </div>
-        <ul class="rule-list">
-          <li>
-            <strong>Read-Only Source Extraction:</strong>
-            Trace One PLM and Snowflake data is extracted without in-place DB overrides.
-          </li>
-          <li>
-            <strong>Pouch Golden Thread:</strong>
-            Sauce Pouch (10.6g composite) highlights high EPR liability and −£50k redesign opportunity.
-          </li>
-          <li>
-            <strong>UK Defra &amp; PPWR Ready:</strong>
-            Produces audit-ready packaging weight filings and Article 6 declarations.
-          </li>
-        </ul>
-      </div>
-    </div>
-
-  </div>
+  </section>
 
 </div>

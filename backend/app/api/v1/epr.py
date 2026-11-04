@@ -75,6 +75,7 @@ def get_fee_hotspots(
 
 
 @router.post("/simulate-scenario", response_model=ScenarioSimulationResponse)
+@router.post("/scenarios/simulate", response_model=ScenarioSimulationResponse)
 def simulate_what_if_scenario(
     request: ScenarioSimulationRequest,
     tenant_id: str = Depends(get_current_tenant_id),

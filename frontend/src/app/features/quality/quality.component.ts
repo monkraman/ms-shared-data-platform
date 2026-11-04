@@ -108,7 +108,7 @@ export class QualityComponent implements OnInit {
 
       // Status mapping
       let status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' = 'OPEN';
-      if (iss.status === 'resolved') status = 'RESOLVED';
+      if (iss.status === 'resolved' || iss.status === 'resolved_in_source') status = 'RESOLVED';
       else if (iss.status === 'pending_source_update') status = 'IN_PROGRESS';
 
       return {
@@ -199,18 +199,29 @@ export class QualityComponent implements OnInit {
 
   closeGapAction(gapId: string): void {
     this.proposing.set(true);
-    // Real API call to update backend database
+    // Real API call to resolve gap in database
     this.qualityService
-      .proposeCorrection(gapId, 'Verified & Calibrated Spec', 'Validated against calibrated packaging technical drawing')
+      .resolveInSource(gapId)
       .subscribe({
-        next: () => {
+        next: (resolved) => {
           this.proposing.set(false);
-          this.dispatchSuccessMessage.set(`[DISPATCHED] Upstream change request ticket logged for ${gapId} in database.`);
+          this.dispatchSuccessMessage.set(`[RESOLVED] Gap ${gapId} successfully closed and verified in master database!`);
           this.qualityService.loadIssues().subscribe();
+          this.foundationService.loadProducts().subscribe();
+          this.tenantService.loadTenants().subscribe();
         },
         error: () => {
-          this.proposing.set(false);
-          this.dispatchSuccessMessage.set(`[UPDATED] Gap ${gapId} verified in local session.`);
+          // Fallback to propose correction
+          this.qualityService
+            .proposeCorrection(gapId, 'Verified & Calibrated Spec', 'Validated against calibrated packaging technical drawing')
+            .subscribe({
+              next: () => {
+                this.proposing.set(false);
+                this.dispatchSuccessMessage.set(`[DISPATCHED] Upstream change request ticket logged for ${gapId} in database.`);
+                this.qualityService.loadIssues().subscribe();
+              },
+              error: () => this.proposing.set(false),
+            });
         },
       });
   }

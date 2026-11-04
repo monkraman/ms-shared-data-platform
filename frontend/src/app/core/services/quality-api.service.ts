@@ -18,7 +18,7 @@ export interface DataQualityIssue {
   description: string;
   suggested_source_action: string;
   source_spec_reference: string;
-  status: 'open' | 'pending_source_update' | 'resolved' | 'suppressed';
+  status: 'open' | 'pending_source_update' | 'resolved' | 'resolved_in_source' | 'suppressed';
   assigned_to?: string;
 }
 
@@ -95,6 +95,20 @@ export class QualityApiService {
           justification: justification,
           proposer_email: 'compliance@monkspaces.com',
         },
+        { headers: this.getHeaders() }
+      )
+      .pipe(
+        tap({
+          next: () => this.loadIssues().subscribe(),
+        })
+      );
+  }
+
+  resolveInSource(issueId: string): Observable<DataQualityIssue> {
+    return this.http
+      .post<DataQualityIssue>(
+        `${this.baseUrl}/api/v1/quality/issues/${encodeURIComponent(issueId)}/resolve-in-source`,
+        {},
         { headers: this.getHeaders() }
       )
       .pipe(

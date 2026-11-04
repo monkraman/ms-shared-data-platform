@@ -1,273 +1,234 @@
-<div class="data-overview-page" id="data-overview-container">
+<div class="data-overview-page" id="data-point-map-page">
 
-  <!-- Header Banner -->
+  <!-- ─── Header: Data Collection / Data Point Map ─── -->
   <header class="page-header">
     <div class="header-left">
-      <div class="header-badge">PACKAGING DATA FOUNDATION &amp; COVERAGE</div>
-      <h1 class="page-title">Data Overview &amp; Compliance Ingestion</h1>
+      <div class="breadcrumb-trail">Data collection / Data point map</div>
+      <h1 class="page-title">Overview of your data points</h1>
       <p class="page-subtitle">
-        Five steps: scope, send what you have, we assess, close the gaps, confirm and lock. 
-        40 compliance data points organised by who holds the data, not by a form.
+        40 data points for UK EPR, Denmark EPR and EU PPWR &middot; who holds each one, how it reaches us, and where it goes &middot; examples below the map
       </p>
     </div>
 
+    <!-- Mode Buttons: Flowchart, Table, 5-Step Journey, Sync -->
     <div class="header-actions">
-      <a href="/data-explorer/index.html" target="_blank" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
-        <span>Interactive Flowchart &amp; Explorer &nearr;</span>
-      </a>
-      <button type="button" class="btn btn-secondary" [disabled]="syncing()" (click)="triggerSync()">
+      <div class="view-toggle-group">
+        <button type="button" class="btn-toggle" [class.active]="activeView() === 'flowchart'" (click)="activeView.set('flowchart')">
+          Flowchart
+        </button>
+        <button type="button" class="btn-toggle" [class.active]="activeView() === 'table'" (click)="activeView.set('table')">
+          Table
+        </button>
+        <button type="button" class="btn-toggle" [class.active]="activeView() === 'journey'" (click)="activeView.set('journey')">
+          5-Step Journey
+        </button>
+      </div>
+
+      <button type="button" class="btn-sync" [disabled]="syncing()" (click)="triggerSync()">
         <span class="sync-icon" [class.spinning]="syncing()"></span>
-        {{ syncing() ? 'Extracting Upstream Specs...' : 'Sync Upstream Sources' }}
+        {{ syncing() ? 'Extracting Upstream...' : 'Sync Upstream Sources' }}
       </button>
-      <a routerLink="/products" class="btn btn-primary">
-        Inspect Pack Records (BOM) →
-      </a>
     </div>
   </header>
 
-  <!-- Top Headline Metric Tiles (Strict 4-Column Grid) -->
+  <!-- ─── Metric Strip (Records In, Initial Gaps, Gaps Still Open, Usability) ─── -->
   <section class="kpi-grid">
-    <!-- Tile 1: Records In -->
     <div class="kpi-card highlight">
       <div class="kpi-header">
         <span class="kpi-title">Records In</span>
       </div>
-      <div class="kpi-value">{{ totalRecordsIn() }}</div>
+      <div class="kpi-value mono">{{ totalRecordsIn() }}</div>
       <div class="kpi-meta">
         <span class="badge-tag">No Templates Required</span>
         <span class="meta-desc">Direct extraction from source systems</span>
       </div>
     </div>
 
-    <!-- Tile 2: Gaps Found -->
     <div class="kpi-card">
       <div class="kpi-header">
         <span class="kpi-title">Initial Gaps Detected</span>
       </div>
-      <div class="kpi-value">{{ gapsFound() }}</div>
+      <div class="kpi-value mono">{{ gapsFound() }}</div>
       <div class="kpi-meta">
         <span class="meta-desc">Automated cross-system reconciliation</span>
       </div>
     </div>
 
-    <!-- Tile 3: Open Gaps Remaining -->
     <div class="kpi-card">
       <div class="kpi-header">
         <span class="kpi-title">Gaps Still Open</span>
       </div>
-      <div class="kpi-value">{{ openGapsCount() }}</div>
+      <div class="kpi-value mono">{{ openGapsCount() }}</div>
       <div class="kpi-meta">
         <span class="status-pill warning">Prioritized by Fee</span>
-        <span class="meta-desc">255 resolved since initial sync</span>
+        <span class="meta-desc">{{ gapsFound() - openGapsCount() }} resolved since initial sync</span>
       </div>
     </div>
 
-    <!-- Tile 4: Day-One Completeness & Fee Uncertainty -->
     <div class="kpi-card">
       <div class="kpi-header">
         <span class="kpi-title">Day-One Usability</span>
       </div>
-      <div class="kpi-value">{{ usablePercent() }}%</div>
+      <div class="kpi-value mono">{{ usablePercent() }}%</div>
       <div class="kpi-meta">
-        <span class="uncertainty-tag">{{ feeUncertaintyGbp() }} Margin</span>
+        <span class="uncertainty-tag">&plusmn;&pound;190,000 Margin</span>
         <span class="meta-desc">Max fee variance before gap closure</span>
       </div>
     </div>
   </section>
 
-  <!-- Section 2: Five Pipeline Steps Tracker -->
-  <section class="pipeline-section">
-    <div class="section-header">
-      <h2>The Five-Step Compliance Journey</h2>
-      <p>From un-templated raw enterprise data to cryptographically locked regulatory submissions</p>
+  <!-- ─── VIEW 1: FLOWCHART (Screen 04 from Mockups) ─── -->
+  @if (activeView() === 'flowchart') {
+  <div class="flowchart-container-section">
+    <!-- Embedded Interactive Data Points Flowchart Explorer -->
+    <div class="flowchart-frame-wrapper">
+      <iframe src="/data-explorer/index.html" class="flowchart-embedded-frame" title="EPR and PPWR Data Point Map Flowchart"></iframe>
     </div>
 
-    <div class="pipeline-steps-container">
-      @for (step of pipelineSteps; track step.id) {
-      <div class="step-card" [class.active]="step.status === 'IN_PROGRESS'" [class.completed]="step.status === 'COMPLETED'">
-        <div class="step-header">
-          <span class="step-number">Step {{ step.number }}</span>
-          <span class="step-status" [class]="step.status.toLowerCase()">
-            {{ step.status === 'COMPLETED' ? 'Completed' : step.status === 'IN_PROGRESS' ? 'In Progress' : 'Pending' }}
-          </span>
+    <!-- How each source reaches us (Bottom 4 Cards matching Mockup) -->
+    <div class="sources-reaches-section">
+      <h3 class="section-title">How each source reaches us</h3>
+
+      <div class="sources-grid">
+        <!-- Source 1: Sales · Snowflake -->
+        <div class="source-card">
+          <div class="source-header">
+            <span class="source-name">Sales &middot; Snowflake</span>
+            <span class="source-count mono">10 data points</span>
+          </div>
+          <div class="source-mode-pill">
+            <span class="dot-live"></span> Real-time API
+          </div>
+          <div class="source-desc">
+            Automatic &middot; synced every night from data warehouse ERP sales tables
+          </div>
+        </div>
+
+        <!-- Source 2: Packaging · Devex -->
+        <div class="source-card">
+          <div class="source-header">
+            <span class="source-name">Packaging &middot; Devex</span>
+            <span class="source-count mono">10 data points</span>
+          </div>
+          <div class="source-mode-pill">
+            <span class="dot-live"></span> Real-time API
+          </div>
+          <div class="source-desc">
+            Automatic &middot; synced every night from PLM packaging component specifications
+          </div>
+        </div>
+
+        <!-- Source 3: Vendors -->
+        <div class="source-card">
+          <div class="source-header">
+            <span class="source-name">Vendors &middot; Supplier Portal</span>
+            <span class="source-count mono">11 data points</span>
+          </div>
+          <div class="source-mode-pill portal">
+            <span class="dot-amber"></span> Manual &middot; vendor portal
+          </div>
+          <div class="source-desc">
+            Asked each cycle &middot; self-service supplier portal or certificate document upload
+          </div>
+        </div>
+
+        <!-- Source 4: Internal Compliance Team -->
+        <div class="source-card">
+          <div class="source-header">
+            <span class="source-name">Client Compliance Team</span>
+            <span class="source-count mono">9 data points</span>
+          </div>
+          <div class="source-mode-pill internal">
+            <span class="dot-neutral"></span> Manual &middot; entered once
+          </div>
+          <div class="source-desc">
+            Set at onboarding setup &middot; verified once a year or upon regulation changes
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- ─── VIEW 2: 5-STEP COMPLIANCE JOURNEY ─── -->
+  @if (activeView() === 'journey') {
+  <section class="journey-section">
+    <div class="journey-header">
+      <h2 class="journey-title">The Five-Step Compliance Journey</h2>
+      <p class="journey-subtitle">From un-templated raw enterprise data to cryptographically locked regulatory submissions</p>
+    </div>
+
+    <div class="pipeline-flow">
+      @for (step of pipelineSteps(); track step.number) {
+      <div class="step-card" [class.completed]="step.status === 'COMPLETED'" [class.in-progress]="step.status === 'IN_PROGRESS'" [class.pending]="step.status === 'PENDING'">
+        <div class="step-top">
+          <span class="step-num mono">STEP {{ step.number }}</span>
+          <span class="step-status-tag mono">{{ step.status }}</span>
         </div>
         <div class="step-name">{{ step.name }}</div>
         <div class="step-title">{{ step.title }}</div>
+        <div class="step-metric mono">{{ step.metric }}</div>
         <div class="step-desc">{{ step.description }}</div>
-        <div class="step-footer">
-          <div class="step-metric mono">{{ step.metric }}</div>
-          <div class="step-details">{{ step.details }}</div>
-        </div>
       </div>
       }
     </div>
   </section>
+  }
 
-  <!-- Section 3: Data Point Map & Explorer (40 Compliance Points) -->
-  <section class="datapoints-section">
-    <div class="section-header-split">
-      <div>
-        <h2>Data Point Map &amp; Lineage Flow</h2>
-        <p>40 regulatory data points for UK EPR, Denmark EPR, and EU PPWR, filtered by who holds the data</p>
-      </div>
-
-      <!-- Filter Pills -->
+  <!-- ─── VIEW 3: DATA POINT MAP TABLE ─── -->
+  @if (activeView() === 'table') {
+  <section class="table-section">
+    <div class="table-filter-bar">
       <div class="filter-pills">
-        <button type="button" class="pill" [class.active]="selectedFilter() === 'ALL'" (click)="selectedFilter.set('ALL')">
-          All (40 Points)
+        <button type="button" class="filter-pill" [class.active]="selectedFilter() === 'ALL'" (click)="setFilter('ALL')">
+          All Data Points ({{ dataPoints.length }})
         </button>
-        <button type="button" class="pill" [class.active]="selectedFilter() === 'SNOWFLAKE'" (click)="selectedFilter.set('SNOWFLAKE')">
-          Snowflake (Sales)
+        <button type="button" class="filter-pill" [class.active]="selectedFilter() === 'DEVEX'" (click)="setFilter('DEVEX')">
+          Packaging &middot; Devex PLM
         </button>
-        <button type="button" class="pill" [class.active]="selectedFilter() === 'DEVEX'" (click)="selectedFilter.set('DEVEX')">
-          Trace One (PLM BOM)
+        <button type="button" class="filter-pill" [class.active]="selectedFilter() === 'SNOWFLAKE'" (click)="setFilter('SNOWFLAKE')">
+          Sales &middot; Snowflake DW
         </button>
-        <button type="button" class="pill" [class.active]="selectedFilter() === 'SUPPLIERS'" (click)="selectedFilter.set('SUPPLIERS')">
-          Suppliers (PCR &amp; Audits)
+        <button type="button" class="filter-pill" [class.active]="selectedFilter() === 'SUPPLIERS'" (click)="setFilter('SUPPLIERS')">
+          Vendors &middot; Supplier Portal
         </button>
-        <button type="button" class="pill" [class.active]="selectedFilter() === 'UK_EPR'" (click)="selectedFilter.set('UK_EPR')">
-          UK Defra pEPR
-        </button>
-        <button type="button" class="pill" [class.active]="selectedFilter() === 'PPWR'" (click)="selectedFilter.set('PPWR')">
-          EU PPWR
+        <button type="button" class="filter-pill" [class.active]="selectedFilter() === 'PPWR'" (click)="setFilter('PPWR')">
+          EU PPWR (Article 6)
         </button>
       </div>
     </div>
 
-    <!-- Data Points Table -->
-    <div class="table-container">
-      <table class="datapoints-table">
+    <div class="data-table-wrap">
+      <table class="data-point-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Data Point Name</th>
-            <th>Who Holds It (Source)</th>
-            <th>Regulatory Target</th>
-            <th>Status</th>
-            <th>Sample / Discrepancy Observation</th>
-            <th>Fee Impact</th>
+            <th>DP ID</th>
+            <th>Canonical Data Point</th>
+            <th>Primary Source</th>
+            <th>Statutory Obligation Target</th>
+            <th>Sample Ingestion Value</th>
+            <th>Verification Status</th>
           </tr>
         </thead>
         <tbody>
-          @for (dp of getFilteredDataPoints(); track dp.id) {
-          <tr [class.gap-row]="dp.status === 'GAP_FLAGGED'">
+          @for (dp of filteredDataPoints(); track dp.id) {
+          <tr>
             <td class="mono font-bold">{{ dp.id }}</td>
-            <td class="dp-name">
-              <strong>{{ dp.name }}</strong>
-            </td>
+            <td class="dp-name">{{ dp.name }}</td>
+            <td><span class="source-tag">{{ dp.sourceHolder }}</span></td>
+            <td><span class="target-tag">{{ dp.regulatoryTarget }}</span></td>
+            <td class="mono dp-sample">{{ dp.sampleValue }}</td>
             <td>
-              <span class="source-pill" [class]="dp.sourceHolder.toLowerCase().includes('snowflake') ? 'snowflake' : dp.sourceHolder.toLowerCase().includes('trace') ? 'devex' : 'supplier'">
-                {{ dp.sourceHolder }}
+              <span class="status-chip" [class]="dp.status.toLowerCase()">
+                {{ dp.status === 'VERIFIED' ? 'Verified' : dp.status === 'GAP_FLAGGED' ? 'Gap Flagged' : 'Mapped' }}
               </span>
-            </td>
-            <td>
-              <span class="reg-pill">{{ dp.regulatoryTarget }}</span>
-            </td>
-            <td>
-              <span class="status-badge" [class]="dp.status.toLowerCase()">
-                {{ dp.status === 'VERIFIED' ? 'Verified' : 'Gap Flagged' }}
-              </span>
-            </td>
-            <td class="mono cell-sample">
-              {{ dp.sampleValue }}
-            </td>
-            <td class="cell-impact mono">
-              @if (dp.impactFeeMargin) {
-              <span class="impact-tag">{{ dp.impactFeeMargin }}</span>
-              } @else {
-              <span class="text-muted">—</span>
-              }
             </td>
           </tr>
           }
         </tbody>
       </table>
     </div>
-
-    <div class="table-footer-banner">
-      <div class="footer-note">
-        <strong>Pouch Golden Thread Notice:</strong> Data point <code>DP08</code> highlights the 10.6g packaging tare weight vs 9.8g Devex conflict on the Heinz Sauce Pouch, affecting UK Defra tonnage by ±£8,600.
-      </div>
-      <a routerLink="/quality" class="btn-table-action">Open Discrepancy Worklist (Screen 06) →</a>
-    </div>
   </section>
-
-  <!-- Section 4: Connected Systems & Export -->
-  <section class="connectors-overview-grid">
-    <div class="content-panel">
-      <div class="panel-header">
-        <div class="panel-header-title">
-          <h3>Connected Source Systems</h3>
-          <p>Read-only extraction pipeline (No manual data entry required)</p>
-        </div>
-      </div>
-
-      <div class="systems-list">
-        <div class="system-item">
-          <div class="sys-info">
-            <span class="sys-title">Trace One PLM (Devex)</span>
-            <span class="sys-desc">Packaging Specifications &amp; Material BOMs</span>
-          </div>
-          <div class="sys-status">
-            <span class="completeness-pill">86% Complete</span>
-            <span class="status-live">Synchronized</span>
-          </div>
-        </div>
-
-        <div class="system-item">
-          <div class="sys-info">
-            <span class="sys-title">Snowflake Cloud Data Warehouse</span>
-            <span class="sys-desc">Sales Volumes &amp; Placed on Market Channel Split</span>
-          </div>
-          <div class="sys-status">
-            <span class="completeness-pill">98% Complete</span>
-            <span class="status-live">Synchronized</span>
-          </div>
-        </div>
-
-        <div class="system-item">
-          <div class="sys-info">
-            <span class="sys-title">Supplier Document &amp; Portal Uploads</span>
-            <span class="sys-desc">PCR Certifications, PFAS Tests &amp; Recyclability Audits</span>
-          </div>
-          <div class="sys-status">
-            <span class="completeness-pill warning">64% Complete</span>
-            <span class="status-action">Audits Active</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Quick Navigation to Next Screens in Act 2 -->
-    <div class="content-panel">
-      <div class="panel-header">
-        <div class="panel-header-title">
-          <h3>Next In Journey</h3>
-          <p>Explore granular packaging records and close remaining gaps</p>
-        </div>
-      </div>
-
-      <div class="next-actions-list">
-        <a routerLink="/products" class="next-action-card">
-          <div class="action-icon"></div>
-          <div class="action-details">
-            <strong>Screen 10: Pack Record Explorer</strong>
-            <p>Inspect multi-layer packaging BOMs, tare weights, and market splits</p>
-          </div>
-          <span class="action-arrow">→</span>
-        </a>
-
-        <a routerLink="/quality" class="next-action-card">
-          <div class="action-icon"></div>
-          <div class="action-details">
-            <strong>Screen 06: Gap Closure Worklist</strong>
-            <p>Close 157 open gaps ranked by financial fee liability impact</p>
-          </div>
-          <span class="action-arrow">→</span>
-        </a>
-      </div>
-    </div>
-  </section>
+  }
 
 </div>
-

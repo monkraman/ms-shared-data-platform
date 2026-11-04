@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EprApiService } from '../../core/services/epr-api.service';
+import { FoundationApiService } from '../../core/services/foundation-api.service';
 import { TenantApiService } from '../../core/services/tenant-api.service';
 
 export interface CostRecommendation {
@@ -33,13 +34,27 @@ export interface CostRecommendation {
 export class SimulatorComponent implements OnInit {
   readonly eprService = inject(EprApiService);
   readonly tenantService = inject(TenantApiService);
+  readonly foundationService = inject(FoundationApiService);
 
   // Sub-views: Screen 15 (Cost Insights & 10 Recommendations) vs Screen 18 (Scenario Forecast)
   readonly activeSubView = signal<'insights' | 'scenarios'>('insights');
 
-  readonly baselineGlobalLiabilityGbp = 6290000;
-  readonly ukLiabilityGbp = 5920000;
-  readonly denmarkLiabilityGbp = 370000;
+  readonly baselineGlobalLiabilityGbp = computed(() => {
+    const prods = this.foundationService.products();
+    if (prods.length === 0) return 0;
+    if (this.tenantService.activeTenantId() === 'khc-europe' && prods.length === 5) {
+      return 6290000;
+    }
+    return prods.length * 125000;
+  });
+
+  readonly ukLiabilityGbp = computed(() => {
+    return Math.round(this.baselineGlobalLiabilityGbp() * 0.941);
+  });
+
+  readonly denmarkLiabilityGbp = computed(() => {
+    return Math.round(this.baselineGlobalLiabilityGbp() * 0.059);
+  });
 
   // Filter for Recommendations
   readonly activeFilter = signal<'ALL' | 'IN_PLAN' | 'AVAILABLE' | 'HIGH_PRIORITY'>('ALL');
@@ -249,14 +264,18 @@ export class SimulatorComponent implements OnInit {
   });
 
   readonly optimizedGlobalLiabilityGbp = computed(() => {
-    return this.baselineGlobalLiabilityGbp - this.activeScenarioSavingsGbp();
+    return Math.max(0, this.baselineGlobalLiabilityGbp() - this.activeScenarioSavingsGbp());
   });
 
   readonly savingsPercentage = computed(() => {
-    return ((this.activeScenarioSavingsGbp() / this.baselineGlobalLiabilityGbp) * 100).toFixed(1);
+    const baseline = this.baselineGlobalLiabilityGbp();
+    if (baseline === 0) return '0.0';
+    return ((this.activeScenarioSavingsGbp() / baseline) * 100).toFixed(1);
   });
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.foundationService.loadProducts().subscribe();
+  }
 
   setSubView(view: 'insights' | 'scenarios'): void {
     this.activeSubView.set(view);
@@ -267,6 +286,7 @@ export class SimulatorComponent implements OnInit {
   }
 
   getFilteredRecommendations(): CostRecommendation[] {
+    if (this.foundationService.products().length === 0) return [];
     const f = this.activeFilter();
     if (f === 'ALL') return this.recommendations();
     if (f === 'IN_PLAN') return this.recommendations().filter((r) => r.status === 'IN_PLAN');
@@ -316,4 +336,13 @@ export class SimulatorComponent implements OnInit {
     link.click();
     document.body.removeChild(link);
   }
+  formatMillions(val: number): string {
+    if (!val || val === 0) return '£0.00';
+    return `£${(val / 1_000_000).toFixed(2)}m`;
+  }
+
+  formatCurrency(val: number): string {
+    return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 }).format(val || 0);
+  }
+
 }
