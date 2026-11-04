@@ -144,15 +144,6 @@
         </div>
       </div>
 
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Client Workspaces</h2>
-          <p class="section-desc">Provisioned enterprise client databases with isolated packaging specifications and
-            sales volumes.</p>
-        </div>
-        
-      </div>
-
       @if (loading()) {
       <div class="empty-state">Loading workspaces from database...</div>
       } @else if (tenants().length === 0) {
@@ -252,14 +243,7 @@
 <!-- ══════════════════════ TAB: BATCHES ══════════════════════ -->
     @if (activeTab() === 'batches') {
     <div class="tab-content">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Ingestion History & Source Batches</h2>
-          <p class="section-desc">Audited record of all file uploads, ERP synchronizations, and detected quality gaps.
-          </p>
-        </div>
-        <button class="btn-refresh" (click)="loadBatches()">Refresh Batches</button>
-      </div>
+
 
       @if (batches().length === 0) {
       <div class="empty-state">No ingestion batches recorded yet. Use "Import SKU Catalog" to ingest data.</div>
@@ -299,12 +283,6 @@
     <!-- ══════════════════════ TAB: ENTERPRISE USER DIRECTORY & IAM ══════════════════════ -->
     @if (activeTab() === 'users') {
     <div class="tab-content" id="tab-users">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Enterprise User Directory &amp; Access Management (IAM)</h2>
-          <p class="section-desc">Platform-wide user identities, role-based access controls, tenant isolation, and client login credentials.</p>
-        </div>
-      </div>
 
       <!-- IAM Platform Metric Strip -->
       <div class="kpi-strip user-kpi-strip">
@@ -477,15 +455,6 @@
     <!-- ══════════════════════ TAB: CANONICAL DATA POINTS (DP01–DP45) ══════════════════════ -->
     @if (activeTab() === 'datapoints') {
     <div class="tab-content" id="tab-datapoints">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Canonical Shared Data Foundation (DP01&ndash;DP45)</h2>
-          <p class="section-desc">Governed regulatory data point dictionary linking enterprise source systems (SAP, PLM, Lab) directly to statutory returns.</p>
-        </div>
-        <div class="header-action-group">
-          <button class="btn-refresh" (click)="loadDataPoints()">Refresh Dictionary</button>
-        </div>
-      </div>
 
       <!-- KPI Strip -->
       <div class="kpi-strip user-kpi-strip">
@@ -592,13 +561,7 @@
     <!-- ══════════════════════ TAB: RULE & TARIFF LIBRARY ══════════════════════ -->
     @if (activeTab() === 'tariffs') {
     <div class="tab-content" id="tab-tariffs">
-      <!-- Section Header (Clean, zero duplicate refresh button) -->
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Regulatory Fee Schedules &amp; Eco-Modulation Rates</h2>
-          <p class="section-desc">Versioned national base fees, RAM RAG multipliers, and recyclability criteria cited directly from statutory regulatory gazettes.</p>
-        </div>
-      </div>
+
 
       <!-- Human-Crafted Intelligence & Application Strip -->
       <div class="tariff-impact-strip">
@@ -710,13 +673,6 @@
     <!-- ══════════════════════ TAB: GOVERNED COUNTRIES & SECTORS ══════════════════════ -->
     @if (activeTab() === 'masters') {
     <div class="tab-content" id="tab-masters">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Governed Countries &amp; Industry Sectors</h2>
-          <p class="section-desc">Statutory market jurisdictions, national EPR authorities, and industry packaging category master records.</p>
-        </div>
-        
-      </div>
 
       @if (masterData(); as masters) {
       <!-- Sectors Table -->
