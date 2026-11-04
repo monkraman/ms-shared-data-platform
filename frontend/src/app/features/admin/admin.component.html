@@ -66,7 +66,14 @@
           @if (activeTab() === 'masters') { Governed Countries &amp; Industry Sectors }
           @if (activeTab() === 'batches') { Ingestion History &amp; Lineage Batches }
         </h1>
-        <p class="page-sub">Monk Spaces Operator View &middot; Canonical FMCG Data Foundation &amp; Governance</p>
+        <p class="page-sub">
+          @if (activeTab() === 'organisations') { Multi-tenant enterprise database provisioning, isolated BOM catalogs, and module entitlements. }
+          @if (activeTab() === 'users') { Enterprise role-based access control (RBAC), credentials provisioning, and security directory. }
+          @if (activeTab() === 'datapoints') { Master packaging data dictionary (DP01&ndash;DP45) and cross-system ETL mappings. }
+          @if (activeTab() === 'tariffs') { Governed statutory packaging base fees, RAM eco-modulation discounts, and statutory penalty multipliers. }
+          @if (activeTab() === 'masters') { Statutory market jurisdictions, national PRO/EPR authorities, and industry categories. }
+          @if (activeTab() === 'batches') { Trace One PLM synchronization audit trail and automated ingestion lineage history. }
+        </p>
       </div>
       <div class="topbar-actions">
         @if (activeTab() === 'organisations') {
@@ -91,8 +98,11 @@
         </button>
         }
         @if (activeTab() === 'tariffs') {
-        <button class="btn-secondary" (click)="loadMasterData()">
-          Refresh Tariffs
+        <a routerLink="/simulator" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+          Simulate Fee Impact &rarr;
+        </a>
+        <button class="btn-primary" (click)="loadTariffs()">
+          Refresh Tariff Library
         </button>
         }
         @if (activeTab() === 'masters') {
@@ -137,7 +147,7 @@
           <p class="section-desc">Provisioned enterprise client databases with isolated packaging specifications and
             sales volumes.</p>
         </div>
-        <button class="btn-refresh" (click)="refreshTenants()">Refresh List</button>
+        
       </div>
 
       @if (loading()) {
@@ -577,14 +587,71 @@
     <!-- ══════════════════════ TAB: RULE & TARIFF LIBRARY ══════════════════════ -->
     @if (activeTab() === 'tariffs') {
     <div class="tab-content" id="tab-tariffs">
+      <!-- Section Header (Clean, zero duplicate refresh button) -->
       <div class="section-header">
         <div>
           <h2 class="section-title">Regulatory Fee Schedules &amp; Eco-Modulation Rates</h2>
-          <p class="section-desc">Versioned national base fees, RAM RAG multipliers, and recyclability criteria cited from statutory notices.</p>
+          <p class="section-desc">Versioned national base fees, RAM RAG multipliers, and recyclability criteria cited directly from statutory regulatory gazettes.</p>
         </div>
-        <button class="btn-refresh" (click)="loadMasterData()">Refresh Tariffs</button>
       </div>
 
+      <!-- Human-Crafted Intelligence & Application Strip -->
+      <div class="tariff-impact-strip">
+        <div class="impact-col">
+          <span class="impact-lbl">Active Statutory Ruleset</span>
+          <span class="impact-num mono font-bold">UK Defra pEPR (2025/2026 v2.1)</span>
+          <span class="impact-sub">Effective 01 April 2025 under statutory instrument</span>
+        </div>
+        <div class="impact-col">
+          <span class="impact-lbl">Live Calculation Connection</span>
+          <span class="impact-num">Layer 3 EPR Engine &amp; What-If Simulator</span>
+          <span class="impact-sub">Applied automatically to every canonical SKU packaging BOM</span>
+        </div>
+        <div class="impact-col">
+          <span class="impact-lbl">RAM Eco-Modulation Spread</span>
+          <span class="impact-num mono font-bold text-success">-15% <span class="text-secondary">&rarr;</span> <span class="text-alert">+35%</span></span>
+          <span class="impact-sub">Green discount for high recyclability / Red penalty for disruptors</span>
+        </div>
+        <div class="impact-col">
+          <span class="impact-lbl">Governed Packaging Substrates</span>
+          <span class="impact-num mono font-bold">{{ tariffs().length }} Material Streams</span>
+          <span class="impact-sub">Rigid, Flexible, Paper, Glass, Steel, Aluminium, Beverage Cartons</span>
+        </div>
+      </div>
+
+      <!-- Search & Jurisdiction Filter Toolbar -->
+      <div class="user-toolbar" style="margin-bottom: 16px;">
+        <div class="toolbar-search">
+          <input
+            type="text"
+            class="search-input"
+            [ngModel]="tariffSearchQuery()"
+            (ngModelChange)="tariffSearchQuery.set($event)"
+            placeholder="Search material classification (e.g. Plastic, Glass, Aluminium, Corrugated)..."
+          />
+        </div>
+
+        <div class="toolbar-filters">
+          <div class="filter-group">
+            <label class="filter-lbl">Statutory Authority:</label>
+            <select
+              class="filter-select"
+              [ngModel]="tariffJurisdictionFilter()"
+              (ngModelChange)="tariffJurisdictionFilter.set($event)"
+            >
+              <option value="ALL">All Authorities &amp; Markets</option>
+              <option value="UK">UK Defra (pEPR)</option>
+              <option value="DK">Denmark DPA (Milj&#248;styrelsen)</option>
+              <option value="FR">France CITEO / ADEME</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tariffs Table -->
+      @if (tariffs().length === 0) {
+      <div class="empty-state">Loading versioned statutory tariffs from engine...</div>
+      } @else {
       <div class="table-container">
         <table class="data-table">
           <thead>
@@ -600,28 +667,37 @@
             </tr>
           </thead>
           <tbody>
-            @for (t of tariffs(); track t.material_code) {
+            @for (t of getFilteredTariffs(); track t.material_code) {
             <tr>
-              <td><span class="pill-status">{{ t.jurisdiction }}</span></td>
-              <td class="font-bold">{{ t.material_name }} (<code>{{ t.material_code }}</code>)</td>
-              <td class="mono font-bold">{{ t.currency }} {{ t.base_rate_per_tonne | number:'1.2-2' }}</td>
-              <td class="mono text-muted">{{ t.ram_green_discount_pct }}%</td>
+              <td><span class="pill-status mono font-bold">{{ t.jurisdiction }}</span></td>
+              <td>
+                <div class="font-bold">{{ t.material_name }}</div>
+                <code class="mono font-xs" style="background: var(--bg-primary); padding: 1px 5px; border: 1px solid var(--border-subtle); border-radius: 3px;">{{ t.material_code }}</code>
+              </td>
+              <td class="mono font-bold" style="font-size: 13px;">{{ t.currency }} {{ t.base_rate_per_tonne | number:'1.2-2' }}</td>
+              <td class="mono text-success font-bold">{{ t.ram_green_discount_pct }}%</td>
               <td class="mono text-muted">{{ t.ram_amber_rate_pct }}%</td>
               <td class="mono text-alert font-bold">+{{ t.ram_red_penalty_pct }}%</td>
               <td class="mono">{{ t.effective_year }}</td>
-              <td class="table-msg text-subtle">{{ t.source_citation }}</td>
+              <td class="table-msg text-subtle" style="font-size: 11px; max-width: 260px;">{{ t.source_citation }}</td>
             </tr>
             }
           </tbody>
         </table>
       </div>
+      }
 
-      <div class="info-callout" style="margin-top: 24px; padding: 16px; border: 1px solid var(--border-subtle); border-radius: 6px; background: var(--bg-card);">
-        <h4 style="margin: 0 0 6px 0; font-size: 13px; font-weight: 700; color: var(--text-primary);">PPWR Recyclability Performance Benchmarks (Article 6)</h4>
-        <p style="margin: 0; font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
-          Grade A (&ge;95% recyclability) &middot; Grade B (&ge;80% recyclability) &middot; Grade C (&ge;70% recyclability).
-          Packaging rated below Grade C is prohibited from EU placement starting 2030 under EU 2025/40.
-        </p>
+      <div class="info-callout" style="margin-top: 24px; padding: 16px; border: 1px solid var(--border-subtle); border-radius: 6px; background: var(--bg-card); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h4 style="margin: 0 0 4px 0; font-size: 13px; font-weight: 700; color: var(--text-primary);">How are these rates used in Compliance Hub?</h4>
+          <p style="margin: 0; font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+            Every packaging component in your client catalog is automatically matched to its statutory tariff line.
+            If a component contains disruptors (e.g. carbon black pigments or incompatible barrier foils), the engine automatically applies the <strong>RAM Red Penalty</strong>.
+          </p>
+        </div>
+        <a routerLink="/simulator" class="btn-secondary font-xs" style="text-decoration: none; white-space: nowrap; margin-left: 20px;">
+          Open Fee Simulator &rarr;
+        </a>
       </div>
     </div>
     }
@@ -634,7 +710,7 @@
           <h2 class="section-title">Governed Countries &amp; Industry Sectors</h2>
           <p class="section-desc">Statutory market jurisdictions, national EPR authorities, and industry packaging category master records.</p>
         </div>
-        <button class="btn-refresh" (click)="loadSectors(); loadCountries();">Refresh Masters</button>
+        
       </div>
 
       @if (masterData(); as masters) {

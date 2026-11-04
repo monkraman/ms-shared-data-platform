@@ -50,6 +50,8 @@ export class AdminComponent implements OnInit {
   readonly userRoles = signal<UserRoleConfig[]>([]);
   readonly dpSearchQuery = signal<string>('');
   readonly dpSourceFilter = signal<string>('ALL');
+  readonly tariffSearchQuery = signal<string>('');
+  readonly tariffJurisdictionFilter = signal<string>('ALL');
 
   // Platform Metrics
   readonly totalOrgs = computed(() => this.tenants().length);
@@ -284,6 +286,21 @@ export class AdminComponent implements OnInit {
     this.configService.getUserRoles().subscribe({
       next: (r) => this.userRoles.set(r),
       error: (err) => console.warn('Failed loading user roles via RBAC', err),
+    });
+  }
+
+  getFilteredTariffs(): TariffRate[] {
+    const q = this.tariffSearchQuery().toLowerCase().trim();
+    const jur = this.tariffJurisdictionFilter();
+    return this.tariffs().filter((t) => {
+      const matchQ =
+        !q ||
+        t.material_name.toLowerCase().includes(q) ||
+        t.material_code.toLowerCase().includes(q) ||
+        t.source_citation.toLowerCase().includes(q);
+      const matchJur =
+        jur === 'ALL' || t.jurisdiction.toUpperCase().includes(jur.toUpperCase());
+      return matchQ && matchJur;
     });
   }
 
