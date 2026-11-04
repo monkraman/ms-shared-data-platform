@@ -234,18 +234,18 @@
 
             <!-- Flow Step 1: Upstream Raw Data Holders -->
             <div class="flow-lane">
-              <div class="lane-badge">1. SOURCE DATA HOLDERS</div>
+              <div class="lane-badge">1. UPSTREAM DATA SOURCES</div>
               <div class="flow-box">
-                <strong>Snowflake Cloud DW</strong>
-                <p>Placed-on-market sales volumes, distribution nation, retail vs B2B channels.</p>
+                <strong>Enterprise ERPs (SAP &middot; Oracle &middot; NetSuite)</strong>
+                <p>Placed-on-market sales volumes, distribution channels, and dispatch weights.</p>
               </div>
               <div class="flow-box">
-                <strong>Trace One Devex PLM</strong>
-                <p>Hierarchical BOMs, component tare weights, polymer categories, separability.</p>
+                <strong>PLM &amp; Flat Files (Devex &middot; Infor &middot; CSV/Excel)</strong>
+                <p>Hierarchical BOM specifications, packaging components, and polymer weights.</p>
               </div>
               <div class="flow-box">
-                <strong>Supplier Audits</strong>
-                <p>Certified PCR %, heavy metals declarations, PFAS chemical compliance.</p>
+                <strong>Supplier Declarations &amp; Lab Audits</strong>
+                <p>Certified PCR audit trails, barrier coatings, and PFAS-free laboratory test sheets.</p>
               </div>
             </div>
 
@@ -289,7 +289,7 @@
 
           <!-- Informative Notice Banner -->
           <div class="flowchart-footer">
-            <span class="icon">ℹ️</span>
+            <span class="icon mono font-xs font-bold">[INFO]</span>
             <div>
               <strong>Zero Form-Filling Requirement:</strong>
               Neither the client nor the SuperAdmin needs to manually answer data surveys. The platform extracts data directly from existing systems and highlights only missing PCR certificates or tare weight conflicts.
@@ -322,30 +322,34 @@
             Ready to Initialize for {{ profileForm.get('companyName')?.value }}
           </div>
 
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
-            <div class="connect-card">
-              <div class="connect-header">
-                <span class="connect-title">Trace One Devex PLM</span>
-                <span class="connect-status ready">READY</span>
-              </div>
-              <p class="connect-desc">Packaging specifications, weights, and component hierarchies.</p>
-            </div>
+          <div style="font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #000000;">
+            Primary Ingestion Architecture &amp; Data Pipeline
+          </div>
+          <p style="font-size: 12px; color: #6b7280; margin-bottom: 16px;">
+            Select the ingestion method for this client. You can push data via API, ingest standard Excel/CSV sheets, or connect existing ERP/PLM feeds.
+          </p>
 
-            <div class="connect-card">
-              <div class="connect-header">
-                <span class="connect-title">Snowflake Cloud Data</span>
-                <span class="connect-status ready">READY</span>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px;">
+            @for (mode of ingestionModes; track mode.id) {
+            <div 
+              class="connect-card" 
+              [style.borderColor]="selectedIngestionMode() === mode.id ? '#000000' : '#e5e7eb'"
+              [style.background]="selectedIngestionMode() === mode.id ? '#fafafa' : '#ffffff'"
+              (click)="selectedIngestionMode.set(mode.id)"
+              style="cursor: pointer; padding: 14px 16px; border: 1px solid #e5e7eb; border-radius: 6px; transition: all 0.15s ease;"
+            >
+              <div class="connect-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                <div>
+                  <span class="connect-title" style="font-weight: 700; font-size: 13px; color: #000000;">{{ mode.title }}</span>
+                  <div style="font-size: 11px; color: #6b7280; margin-top: 2px;">{{ mode.subtitle }}</div>
+                </div>
+                <span class="mono font-xs" [style.background]="selectedIngestionMode() === mode.id ? '#000000' : '#f3f4f6'" [style.color]="selectedIngestionMode() === mode.id ? '#ffffff' : '#374151'" style="padding: 2px 6px; border-radius: 3px; font-weight: 700;">
+                  {{ selectedIngestionMode() === mode.id ? '[SELECTED]' : mode.badge }}
+                </span>
               </div>
-              <p class="connect-desc">Placed on market sales volumes and distribution data.</p>
+              <p class="connect-desc" style="font-size: 12px; color: #4b5563; margin: 0; line-height: 1.4;">{{ mode.desc }}</p>
             </div>
-
-            <div class="connect-card">
-              <div class="connect-header">
-                <span class="connect-title">Neon PostgreSQL DB</span>
-                <span class="connect-status ready">READY</span>
-              </div>
-              <p class="connect-desc">Isolated partition under <code>tenant_{{ profileForm.get('tenantSlug')?.value }}</code>.</p>
-            </div>
+            }
           </div>
 
           <!-- Provisioned Client Admin Account Details -->

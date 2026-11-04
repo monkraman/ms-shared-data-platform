@@ -14,7 +14,7 @@
     <div class="header-actions">
       <button type="button" class="btn btn-secondary" [disabled]="syncing()" (click)="triggerSync()">
         <span class="sync-icon" [class.spinning]="syncing()"></span>
-        {{ syncing() ? 'Extracting PLM Specs...' : 'Sync Trace One Devex' }}
+        {{ syncing() ? 'Extracting Upstream Specs...' : 'Sync Upstream Sources' }}
       </button>
       <a routerLink="/products" class="btn btn-primary">
         Inspect Pack Records (BOM) →

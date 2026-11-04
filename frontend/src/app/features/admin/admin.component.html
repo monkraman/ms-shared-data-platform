@@ -80,8 +80,8 @@
         <button class="btn-secondary" (click)="openImportModal()">
           Import SKU Catalog
         </button>
-        <button type="button" class="btn-primary" (click)="goToOnboarding()" style="display: inline-flex; align-items: center; gap: 6px;">
-          + Onboard Client Wizard &rarr;
+        <button type="button" class="btn-primary" (click)="goToOnboarding()">
+          + Onboard Client
         </button>
         }
         @if (activeTab() === 'users') {
@@ -152,6 +152,14 @@
 
       @if (loading()) {
       <div class="empty-state">Loading workspaces from database...</div>
+      } @else if (tenants().length === 0) {
+      <div class="empty-state" style="text-align: center; padding: 48px;">
+        <h3>No Client Workspaces Provisioned</h3>
+        <p>Start by onboarding your first enterprise client or setting up a test workspace.</p>
+        <button type="button" class="btn-primary" (click)="goToOnboarding()" style="margin-top: 16px;">
+          + Onboard Client
+        </button>
+      </div>
       } @else {
       <div class="org-grid">
         @for (org of tenants(); track org.id) {
@@ -226,15 +234,7 @@
         </div>
         }
 
-        <!-- Onboard Card -->
-        <div class="org-card new-card" (click)="goToOnboarding()" style="cursor: pointer;">
-          <div class="new-card-inner">
-            <span class="new-plus">+</span>
-            <h3>Onboard New Client</h3>
-            <p>Configure company database, activate required compliance modules, and prepare SKU catalog feed.</p>
-            <button type="button" (click)="goToOnboarding()" class="btn-outline" style="margin-top: 8px;">Launch Wizard &rarr;</button>
-          </div>
-        </div>
+
       </div>
       }
     </div>

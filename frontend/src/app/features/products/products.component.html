@@ -319,7 +319,7 @@
             }
           </button>
           <button type="button" class="tab-btn" [class.active]="activeTab() === 'lineage'" (click)="activeTab.set('lineage')">
-            Source Lineage (Devex &amp; Snowflake)
+            Source Lineage &amp; Ingestion Audit
           </button>
         </div>
       </div>
@@ -772,21 +772,29 @@
       </div>
       }
 
-      <!-- TAB 6: SOURCE LINEAGE (DEVEX & SNOWFLAKE) -->
+      <!-- TAB 6: SOURCE LINEAGE & INGESTION AUDIT -->
       @if (activeTab() === 'lineage') {
       <div class="module-panel-card">
-        <h3>Trace One PLM Lineage &amp; ERP Audit Trail</h3>
-        <p class="section-desc">Raw source system ingestion logs and synchronization metadata for this SKU.</p>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+          <div>
+            <h3>Upstream Ingestion Lineage &amp; Audit Trail</h3>
+            <p class="section-desc">Traceable data origins across connected enterprise ERPs, PLMs, cloud warehouses, and flat-file batch feeds.</p>
+          </div>
+          <span class="pill-status mono font-xs font-bold">[CONNECTOR-SYNCED]</span>
+        </div>
 
         <div class="lineage-grid">
           <div class="lineage-card">
             <span class="lineage-type">SPECIFICATION SOURCE</span>
-            <h4>Trace One Devex PLM</h4>
+            <h4>{{ p.source_lineage?.source_system || 'Enterprise PLM / Spec Connector' }}</h4>
             <div class="lineage-detail">
-              <span>Spec Record:</span> <code class="mono">{{ p.source_lineage?.source_record_id || 'DEV-AUTO' }}</code>
+              <span>Spec Record ID:</span> <code class="mono">{{ p.source_lineage?.source_record_id || 'SPEC-EXT-AUTO' }}</code>
             </div>
             <div class="lineage-detail">
-              <span>Ingested Batch:</span> <code class="mono">{{ p.source_lineage?.import_batch_id || 'BATCH-001' }}</code>
+              <span>Ingested Batch:</span> <code class="mono">{{ p.source_lineage?.import_batch_id || 'BATCH-INIT-01' }}</code>
+            </div>
+            <div class="lineage-detail">
+              <span>Ingestion Mode:</span> <span class="mono font-xs">Automated API / Scheduled Webhook</span>
             </div>
             <div class="lineage-detail">
               <span>Verification Status:</span> <span class="pill-ok font-bold">[VERIFIED]</span>
@@ -794,16 +802,19 @@
           </div>
 
           <div class="lineage-card">
-            <span class="lineage-type">SALES VOLUME SOURCE</span>
-            <h4>SAP ERP S/4HANA</h4>
+            <span class="lineage-type">SALES &amp; POM VOLUME SOURCE</span>
+            <h4>Enterprise ERP (SAP &middot; Oracle &middot; NetSuite &middot; CSV / SFTP)</h4>
             <div class="lineage-detail">
-              <span>Sales Module:</span> <code class="mono">SAP-SD-POM-2025</code>
+              <span>Sales Module:</span> <code class="mono">ERP-POM-FIN-2025</code>
             </div>
             <div class="lineage-detail">
-              <span>Primary Market:</span> <code class="mono">FR (France) / UK / DE</code>
+              <span>Reporting Scope:</span> <code class="mono">{{ p.category || 'EU / UK Statutory Scope' }}</code>
             </div>
             <div class="lineage-detail">
-              <span>Reporting Accuracy:</span> <span class="pill-ok font-bold">[100% RECONCILED]</span>
+              <span>Sync Frequency:</span> <span class="mono font-xs">Daily Automated Reconciliation</span>
+            </div>
+            <div class="lineage-detail">
+              <span>Audit Accuracy:</span> <span class="pill-ok font-bold">[100% RECONCILED]</span>
             </div>
           </div>
         </div>

@@ -48,23 +48,56 @@ export class OnboardingComponent implements OnInit {
 
   readonly stepTitle = computed(() => {
     switch (this.currentStep()) {
-      case 1: return 'Client Workspace Setup · Identity & Branding';
-      case 2: return 'Regulatory Scope · Markets & Jurisdictions';
-      case 3: return 'Compliance Data Journey & Flowchart';
-      case 4: return 'System Connections & Provisioning';
+      case 1: return 'Client Workspace Setup [Identity & Branding]';
+      case 2: return 'Regulatory Scope [Markets & Jurisdictions]';
+      case 3: return 'Universal Compliance Data Flowchart';
+      case 4: return 'Data Ingestion Architecture & Provisioning';
       default: return 'Client Workspace Setup';
     }
   });
 
   readonly stepSubtitle = computed(() => {
     switch (this.currentStep()) {
-      case 1: return 'Set client legal entity, custom logo, and branded theme';
-      case 2: return 'Select target sales markets to activate EPR & PPWR rule libraries';
-      case 3: return 'Overview of required data points flowing from Snowflake, PLM, and suppliers';
-      case 4: return 'Connect once — continuous automated normalization with zero manual templates';
+      case 1: return 'Set client corporate entity, custom branding, and reporting currency';
+      case 2: return 'Select target sales markets to activate EPR, PPWR, and statutory rules';
+      case 3: return 'Universal SaaS data pipeline: ERP, PLM, API webhooks, and CSV batch feeds';
+      case 4: return 'Configure data ingestion connectors and provision isolated workspace';
       default: return '';
     }
   });
+
+  // Universal Data Ingestion Modes for Enterprise SaaS
+  readonly ingestionModes = [
+    {
+      id: 'api_erp',
+      title: 'Enterprise REST API & Webhooks',
+      subtitle: 'SAP, Oracle, NetSuite & In-House ERPs',
+      badge: 'AUTOMATED',
+      desc: 'Push packaging BOMs and sales movements programmatically with scheduled or event-driven sync.',
+    },
+    {
+      id: 'managed_csv',
+      title: 'Managed Bulk File Ingestion',
+      subtitle: 'CSV, Excel & Master Spec Sheets',
+      badge: 'ZERO SETUP',
+      desc: 'Upload existing packaging data files. Our DP01-DP45 engine normalizes schemas automatically.',
+    },
+    {
+      id: 'plm_connector',
+      title: 'Enterprise PLM Connector',
+      subtitle: 'Trace One Devex, Siemens Teamcenter, Infor',
+      badge: 'NATIVE ADAPTOR',
+      desc: 'Hierarchical sync of component tare weights, polymer types, and packaging structures.',
+    },
+    {
+      id: 'cloud_sftp',
+      title: 'Secure SFTP / Cloud Lake Sync',
+      subtitle: 'SFTP, AWS S3, Snowflake, Azure Storage',
+      badge: 'NIGHTLY BATCH',
+      desc: 'Scheduled automated sync pulling versioned catalogs directly from client cloud storage.',
+    },
+  ];
+  readonly selectedIngestionMode = signal<string>('api_erp');
 
   // Pre-configured brand accent themes for SuperAdmin
   readonly brandThemes: BrandThemeOption[] = [
@@ -245,6 +278,7 @@ export class OnboardingComponent implements OnInit {
       adminEmail: 'compliance.officer@kraftheinz.com',
       adminName: 'Kraft Heinz Compliance Officer',
       adminPassword: 'password123',
+      ingestionMode: this.selectedIngestionMode(),
     };
 
     // Save directly to PostgreSQL database via tenantService
