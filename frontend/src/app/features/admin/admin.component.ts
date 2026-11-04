@@ -1,7 +1,8 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs';
 import { AuthService, AuthUser } from '../../core/services/auth.service';
 import { TenantApiService, BackendTenantRecord } from '../../core/services/tenant-api.service';
 import {
@@ -25,7 +26,7 @@ type AdminTab = 'organisations' | 'users' | 'tariffs' | 'masters' | 'batches';
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css',
 })
@@ -201,6 +202,31 @@ export class AdminComponent implements OnInit {
     this.refreshTenants();
     this.loadMasterData();
     this.loadUsers();
+    this.syncTabFromUrl(this.router.url);
+
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) => {
+        this.syncTabFromUrl(event.urlAfterRedirects || event.url);
+      });
+  }
+
+  syncTabFromUrl(url: string): void {
+    if (url.includes('/admin/users')) {
+      this.activeTab.set('users');
+      this.loadUsers();
+    } else if (url.includes('/admin/tariffs')) {
+      this.activeTab.set('tariffs');
+      this.loadMasterData();
+    } else if (url.includes('/admin/masters')) {
+      this.activeTab.set('masters');
+      this.loadMasterData();
+    } else if (url.includes('/admin/batches')) {
+      this.activeTab.set('batches');
+      this.loadBatches();
+    } else {
+      this.activeTab.set('organisations');
+    }
   }
 
   loadMasterData(): void {
@@ -234,6 +260,8 @@ export class AdminComponent implements OnInit {
 
   setTab(tab: AdminTab): void {
     this.activeTab.set(tab);
+    const subpath = tab === 'organisations' ? 'workspaces' : tab;
+    this.router.navigate(['/admin', subpath]);
     if (tab === 'batches') {
       this.loadBatches();
     } else if (tab === 'tariffs' || tab === 'masters') {

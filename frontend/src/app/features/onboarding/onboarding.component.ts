@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { APP_CONFIG } from '../../core/config/client-theme.config';
 import { TenantApiService } from '../../core/services/tenant-api.service';
 import { ConfigApiService } from '../../core/services/config-api.service';
@@ -31,7 +31,7 @@ export interface BrandThemeOption {
 @Component({
   selector: 'app-onboarding',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './onboarding.component.html',
   styleUrl: './onboarding.component.css',
 })

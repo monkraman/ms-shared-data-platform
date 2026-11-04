@@ -12,12 +12,15 @@
     <div class="onboard-main">
 
       <!-- Brand Header Row -->
-      <div class="brand-header-row">
+      <div class="brand-header-row" style="display: flex; justify-content: space-between; align-items: center;">
         <div class="brand-cluster">
           <span class="small brand-label">Compliance Hub</span>
           <span class="brand-rule"></span>
           <span class="small muted">Multi-Tenant Client Provisioning</span>
         </div>
+        <a routerLink="/admin/workspaces" class="btn" style="text-decoration: none; font-size: 11px; font-weight: 600; padding: 5px 12px; border: 1px solid var(--border-subtle, #333); background: transparent; color: inherit; border-radius: 4px;">
+          &larr; Exit to SuperAdmin Console
+        </a>
       </div>
 
       <!-- Steps Stepper Navigation -->

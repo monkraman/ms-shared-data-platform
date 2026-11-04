@@ -16,8 +16,13 @@ export const routes: Routes = [
   // Auth
   { path: 'sign-in', component: SignInComponent, title: 'Sign In — Compliance Hub' },
 
-  // SuperAdmin Panel (Restricted strictly to SuperAdmin)
-  { path: 'admin', component: AdminComponent, canActivate: [superAdminGuard], title: 'SuperAdmin Panel — Compliance Hub' },
+  // SuperAdmin Console Dedicated Routes (Strictly SuperAdmin)
+  { path: 'admin', redirectTo: 'admin/workspaces', pathMatch: 'full' },
+  { path: 'admin/workspaces', component: AdminComponent, canActivate: [superAdminGuard], title: 'Client Workspaces — SuperAdmin' },
+  { path: 'admin/users', component: AdminComponent, canActivate: [superAdminGuard], title: 'User Directory & IAM — SuperAdmin' },
+  { path: 'admin/tariffs', component: AdminComponent, canActivate: [superAdminGuard], title: 'Rule & Tariff Library — SuperAdmin' },
+  { path: 'admin/masters', component: AdminComponent, canActivate: [superAdminGuard], title: 'Master Data Catalog — SuperAdmin' },
+  { path: 'admin/batches', component: AdminComponent, canActivate: [superAdminGuard], title: 'Ingestion Batches — SuperAdmin' },
   { path: 'onboarding', component: OnboardingComponent, canActivate: [superAdminGuard], title: 'Client Setup — Compliance Hub' },
 
   // Client Workspace Routes (Restricted strictly to Client users)

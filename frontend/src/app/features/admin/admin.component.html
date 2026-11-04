@@ -19,32 +19,26 @@
     </div>
 
     <nav class="sidebar-nav">
-      <button class="nav-item" [class.active]="activeTab() === 'organisations'" (click)="setTab('organisations')">
+      <a routerLink="/admin/workspaces" routerLinkActive="active" class="nav-item">
         <span class="nav-bullet"></span>
         <span>Client Workspaces</span>
-      </button>
-      <button class="nav-item" [class.active]="activeTab() === 'users'" (click)="setTab('users')">
+      </a>
+      <a routerLink="/admin/users" routerLinkActive="active" class="nav-item">
         <span class="nav-bullet"></span>
         <span>User Directory &amp; IAM</span>
-      </button>
-      <button class="nav-item" [class.active]="activeTab() === 'tariffs'" (click)="setTab('tariffs')">
+      </a>
+      <a routerLink="/admin/tariffs" routerLinkActive="active" class="nav-item">
         <span class="nav-bullet"></span>
         <span>Rule &amp; Tariff Library</span>
-      </button>
-      <button class="nav-item" [class.active]="activeTab() === 'masters'" (click)="setTab('masters')">
+      </a>
+      <a routerLink="/admin/masters" routerLinkActive="active" class="nav-item">
         <span class="nav-bullet"></span>
         <span>Master Data Catalog</span>
-      </button>
-      <button class="nav-item" [class.active]="activeTab() === 'batches'" (click)="setTab('batches')">
+      </a>
+      <a routerLink="/admin/batches" routerLinkActive="active" class="nav-item">
         <span class="nav-bullet"></span>
         <span>Ingestion Batches</span>
-      </button>
-
-      <!-- Direct Quick Link to 4-Step Onboarding Wizard -->
-      <button type="button" class="nav-item nav-item-onboard" (click)="goToOnboarding()">
-        <span class="nav-bullet"></span>
-        <span>+ Onboard New Client</span>
-      </button>
+      </a>
     </nav>
 
     <div class="sidebar-bottom">
@@ -70,12 +64,37 @@
         <p class="page-sub">Monk Spaces Operator View &middot; Canonical FMCG Data Foundation &amp; Governance</p>
       </div>
       <div class="topbar-actions">
+        @if (activeTab() === 'organisations') {
         <button class="btn-secondary" (click)="openImportModal()">
           Import SKU Catalog
         </button>
         <button type="button" class="btn-primary" (click)="goToOnboarding()" style="display: inline-flex; align-items: center; gap: 6px;">
           + Onboard Client Wizard &rarr;
         </button>
+        }
+        @if (activeTab() === 'users') {
+        <button class="btn-secondary" (click)="loadUsers()">
+          Refresh Directory
+        </button>
+        <button type="button" class="btn-primary" (click)="openInviteModal()">
+          + Provision Enterprise User
+        </button>
+        }
+        @if (activeTab() === 'tariffs') {
+        <button class="btn-secondary" (click)="loadMasterData()">
+          Refresh Tariffs
+        </button>
+        }
+        @if (activeTab() === 'masters') {
+        <button class="btn-secondary" (click)="loadMasterData()">
+          Refresh Masters
+        </button>
+        }
+        @if (activeTab() === 'batches') {
+        <button class="btn-secondary" (click)="loadBatches()">
+          Refresh Batches
+        </button>
+        }
       </div>
     </header>
 
