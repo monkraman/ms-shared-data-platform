@@ -289,6 +289,21 @@ export class FoundationApiService {
       );
   }
 
+  createProduct(product: any): Observable<CanonicalProduct> {
+    return this.http
+      .post<CanonicalProduct>(`${this.baseUrl}/api/v1/foundation/products`, product, {
+        headers: this.getHeaders(),
+      })
+      .pipe(
+        tap({
+          next: (created) => {
+            this.products.update((list) => [created, ...list.filter((p) => p.sku !== created.sku)]);
+            this.selectedProduct.set(created);
+          },
+        })
+      );
+  }
+
   loadPpwrDoc(sku: string): Observable<PPWRDeclarationOfConformity> {
     return this.http
       .get<PPWRDeclarationOfConformity>(`${this.baseUrl}/api/v1/compliance/modules/ppwr/${sku}`, {

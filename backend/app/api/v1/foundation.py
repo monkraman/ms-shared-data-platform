@@ -4,7 +4,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.core.security import get_current_tenant_id
-from app.schemas.canonical import IngestionBatch, ProductResponse, SkuImportPayload, SkuImportResponse
+from app.schemas.canonical import IngestionBatch, ProductBase, ProductResponse, SkuImportPayload, SkuImportResponse
 from app.services.layer1_foundation import Layer1FoundationService
 
 router = APIRouter(prefix="/foundation", tags=["Layer 1: Shared Data Foundation"])
@@ -51,4 +51,24 @@ def trigger_traceone_sync(
 def import_sku_catalog(payload: SkuImportPayload) -> SkuImportResponse:
     """Import flat SKU catalog, resolve packaging components, and register data quality gaps."""
     return Layer1FoundationService.import_skus(payload)
+
+
+@router.post("/products", response_model=ProductResponse, status_code=201)
+def create_manual_product(
+    payload: ProductBase,
+    tenant_id: str = Depends(get_current_tenant_id),
+) -> ProductResponse:
+    """Manually create a new SKU with packaging BOM components directly in database."""
+    return Layer1FoundationService.create_or_update_product(tenant_id, payload)
+
+
+@router.put("/products/{sku}", response_model=ProductResponse)
+def update_manual_product(
+    sku: str,
+    payload: ProductBase,
+    tenant_id: str = Depends(get_current_tenant_id),
+) -> ProductResponse:
+    """Manually update an existing SKU and its packaging components in database."""
+    payload.sku = sku
+    return Layer1FoundationService.create_or_update_product(tenant_id, payload)
 

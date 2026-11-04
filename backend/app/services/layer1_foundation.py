@@ -289,3 +289,42 @@ class Layer1FoundationService:
                 message=f"Successfully stored {len(payload.items)} SKUs in database. {new_issues_count} quality gaps flagged for source correction.",
             )
 
+    @staticmethod
+    def create_or_update_product(tenant_id: str, payload: ProductBase) -> ProductResponse:
+        """Manually create or edit a SKU and its packaging BOM components directly in database."""
+        with data_store._lock:
+            if tenant_id not in data_store.products:
+                data_store.products[tenant_id] = {}
+
+            total_wt = sum(c.weight_grams for c in payload.components)
+            mat_names = [c.material.value if hasattr(c.material, 'value') else str(c.material) for c in payload.components]
+            mat_summary = ", ".join(sorted(set(mat_names)))
+
+            prod_resp = ProductResponse(
+                sku=payload.sku,
+                brand=payload.brand,
+                name=payload.name,
+                category=payload.category,
+                unit_volume_ml=payload.unit_volume_ml,
+                net_content_grams=payload.net_content_grams,
+                status=payload.status or "active",
+                components=payload.components,
+                source_lineage=payload.source_lineage,
+                ppwr_enrichment=payload.ppwr_enrichment,
+                dpp_enrichment=payload.dpp_enrichment,
+                lca_enrichment=payload.lca_enrichment,
+                epr_enrichment=payload.epr_enrichment,
+                tenant_id=tenant_id,
+                total_packaging_weight_grams=round(total_wt, 2),
+                primary_material_summary=mat_summary or "Multi-Material",
+                has_quality_issues=False,
+                open_issue_count=0,
+            )
+            data_store.products[tenant_id][payload.sku] = prod_resp
+
+            # Update tenant SKU counter
+            if tenant_id in data_store.tenants:
+                data_store.tenants[tenant_id].active_products_count = len(data_store.products[tenant_id])
+
+            return prod_resp
+

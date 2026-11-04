@@ -58,6 +58,19 @@ export class ProductsComponent implements OnInit {
   // Step 3: Module Additional Data & Enrichment Modals
   readonly showPpwrModal = signal<boolean>(false);
   readonly showLcaModal = signal<boolean>(false);
+
+  // Manual SKU Creation Form Signals
+  readonly showCreateSkuModal = signal<boolean>(false);
+  readonly newSku = signal<string>('');
+  readonly newName = signal<string>('');
+  readonly newBrand = signal<string>('The Kraft Heinz Company');
+  readonly newCategory = signal<string>('Condiments & Sauces');
+  readonly newNetContentGrams = signal<number>(400);
+  readonly newComponentName = signal<string>('Top-Down Squeezy Bottle');
+  readonly newComponentMaterial = signal<string>('Plastic Rigid (PET)');
+  readonly newComponentWeight = signal<number>(24.5);
+  readonly newComponentPcrPct = signal<number>(30);
+  readonly creatingSku = signal<boolean>(false);
   readonly showDppModal = signal<boolean>(false);
   readonly isSavingEnrichment = signal<boolean>(false);
   readonly enrichmentNotice = signal<string | null>(null);
@@ -418,5 +431,48 @@ export class ProductsComponent implements OnInit {
         sourceTraceNote: 'Trace One Spec Baseline verified in SAP ERP',
       })),
     };
+  }
+
+  openCreateSkuModal(): void {
+    this.newSku.set(`KHC-MANUAL-${Math.floor(100 + Math.random() * 900)}`);
+    this.newName.set('');
+    this.showCreateSkuModal.set(true);
+  }
+
+  submitNewSku(): void {
+    if (!this.newSku() || !this.newName() || this.newComponentWeight() <= 0) return;
+    this.creatingSku.set(true);
+
+    const payload = {
+      sku: this.newSku().trim().toUpperCase(),
+      name: this.newName().trim(),
+      brand: this.newBrand().trim() || 'Enterprise Brand',
+      category: this.newCategory().trim() || 'Food & Beverage',
+      net_content_grams: Number(this.newNetContentGrams()) || 100,
+      status: 'active',
+      components: [
+        {
+          id: `COMP-${this.newSku().trim().toUpperCase()}-01`,
+          name: this.newComponentName().trim() || 'Primary Container',
+          level: 'primary',
+          material: this.newComponentMaterial(),
+          weight_grams: Number(this.newComponentWeight()),
+          recycled_content_pct: Number(this.newComponentPcrPct()),
+          is_recyclable: true,
+          separable_by_consumer: true,
+          has_disruptor_pigment: false,
+        }
+      ]
+    };
+
+    this.foundationService.createProduct(payload).subscribe({
+      next: (created) => {
+        this.creatingSku.set(false);
+        this.showCreateSkuModal.set(false);
+        this.selectProduct(created.sku);
+        this.viewMode.set('detail');
+      },
+      error: () => this.creatingSku.set(false),
+    });
   }
 }
