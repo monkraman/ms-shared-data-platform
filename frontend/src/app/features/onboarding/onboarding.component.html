@@ -121,19 +121,30 @@
                 </div>
               </div>
 
-              <!-- Custom Logo URL / Preset -->
+              <!-- Custom Logo URL / Preset / File Upload -->
               <div style="margin-top: 14px;">
                 <label class="small muted font-bold">Client Logo Specification</label>
-                <div style="display: flex; gap: 10px; align-items: center; margin-top: 6px;">
+                <div style="display: flex; gap: 10px; align-items: center; margin-top: 6px; flex-wrap: wrap;">
                   <select formControlName="logoPreset" class="form-input" style="max-width: 220px;">
+                    <option value="upload">Upload File (PNG / SVG / JPG)</option>
+                    <option value="custom">Custom Image URL</option>
                     <option value="khc">Kraft Heinz Wordmark</option>
                     <option value="nordhavn">Nordhavn Spirits Monogram</option>
-                    <option value="custom">Custom Image URL</option>
                   </select>
+                  @if (profileForm.get('logoPreset')?.value === 'upload') {
+                    <input type="file" accept="image/png,image/jpeg,image/svg+xml" (change)="onLogoFileSelected($event)" class="form-input" style="flex: 1; min-width: 200px;" />
+                  }
                   @if (profileForm.get('logoPreset')?.value === 'custom') {
-                  <input type="text" formControlName="customLogoUrl" class="form-input" placeholder="Paste HTTPS image URL (PNG / SVG)" />
+                    <input type="text" formControlName="customLogoUrl" class="form-input" placeholder="Paste HTTPS image URL (PNG / SVG)" style="flex: 1; min-width: 200px;" />
                   }
                 </div>
+                @if (uploadedLogoBase64() || (profileForm.get('logoPreset')?.value === 'custom' && profileForm.get('customLogoUrl')?.value)) {
+                  <div style="margin-top: 8px; display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px; background: var(--bg-secondary); border: 1px solid var(--border-subtle); border-radius: 4px;">
+                    <span class="font-xs muted">Live Preview:</span>
+                    <img [src]="uploadedLogoBase64() || profileForm.get('customLogoUrl')?.value" alt="Logo preview" style="max-height: 28px; max-width: 120px; object-fit: contain; background: #fff; padding: 2px 4px; border: 1px solid #ccc; border-radius: 3px;" />
+                    <button type="button" class="btn font-xs" (click)="clearUploadedLogo()" style="padding: 1px 6px;">Clear</button>
+                  </div>
+                }
               </div>
             </div>
           </div>

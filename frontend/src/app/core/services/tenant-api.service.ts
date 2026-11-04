@@ -121,6 +121,19 @@ export class TenantApiService {
     );
   }
 
+  /**
+   * Update tenant branding, logo, name, or modules
+   */
+  updateTenantWorkspace(tenantId: string, data: Partial<BackendTenantRecord>): Observable<BackendTenantRecord> {
+    return this.http.patch<BackendTenantRecord>(`${this.baseUrl}/api/v1/tenants/${tenantId}`, data).pipe(
+      tap((updated) => {
+        this.tenants.update((list) =>
+          list.map((t) => (t.id === tenantId ? { ...t, ...updated } : t))
+        );
+      })
+    );
+  }
+
   setActiveTenant(id: string): void {
     this.activeTenantId.set(id);
   }

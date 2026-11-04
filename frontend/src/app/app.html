@@ -1,6 +1,6 @@
 <!-- Global App Shell: Left Sidebar + Main Content Layout -->
 @if (showGlobalNav()) {
-<div class="app-layout" [class.mobile-open]="mobileNavOpen()">
+<div class="app-layout" [class.mobile-open]="mobileNavOpen()" [style.--client-theme-accent]="activeTenantColor()">
 
   <!-- Responsive Mobile Top Bar (Visible only on < 1024px) -->
   <header class="mobile-top-bar" aria-label="Mobile Navigation Bar">

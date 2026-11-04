@@ -3,7 +3,7 @@
 from typing import List
 from fastapi import APIRouter, HTTPException
 
-from app.schemas.tenancy import TenantCreate, TenantResponse, TenantModulesUpdate
+from app.schemas.tenancy import TenantCreate, TenantResponse, TenantModulesUpdate, TenantUpdate
 from app.services.store import data_store
 
 router = APIRouter(prefix="/tenants", tags=["Multi-Tenancy"])
@@ -45,6 +45,16 @@ def get_tenant(tenant_id: str) -> TenantResponse:
 def update_tenant_modules(tenant_id: str, payload: TenantModulesUpdate) -> TenantResponse:
     """Toggle active compliance and intelligence modules (epr, ppwr, dpp, lca) for a tenant workspace."""
     tenant = data_store.update_tenant_modules(tenant_id, payload.active_modules)
+    if not tenant:
+        raise HTTPException(status_code=404, detail=f"Tenant '{tenant_id}' not found.")
+    return tenant
+
+
+@router.patch("/{tenant_id}", response_model=TenantResponse)
+def update_tenant(tenant_id: str, payload: TenantUpdate) -> TenantResponse:
+    """Update metadata, branding logo, theme color, and modules for a tenant workspace."""
+    update_data = payload.model_dump(exclude_unset=True)
+    tenant = data_store.update_tenant(tenant_id, update_data)
     if not tenant:
         raise HTTPException(status_code=404, detail=f"Tenant '{tenant_id}' not found.")
     return tenant

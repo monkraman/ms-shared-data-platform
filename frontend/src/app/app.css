@@ -381,7 +381,7 @@
   background: var(--bg-card-hover);
   color: var(--text-primary);
   font-weight: 600;
-  border-left: 2px solid var(--text-primary);
+  border-left: 2px solid var(--client-theme-accent, var(--text-primary));
 }
 
 .nav-indicator {
@@ -394,7 +394,7 @@
 }
 
 .sidebar-nav-item.active .nav-indicator {
-  background: var(--text-primary);
+  background: var(--client-theme-accent, var(--text-primary));
   opacity: 1;
 }
 

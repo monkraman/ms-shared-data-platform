@@ -57,6 +57,15 @@ class TenantModulesUpdate(BaseModel):
     )
 
 
+class TenantUpdate(BaseModel):
+    name: Optional[str] = Field(default=None, description="Updated full legal company name")
+    sector: Optional[str] = Field(default=None, description="Updated industry sector")
+    tier: Optional[TenantTier] = Field(default=None, description="Enterprise tier")
+    logo_url: Optional[str] = Field(default=None, description="Custom branding logo URL or base64")
+    theme_color: Optional[str] = Field(default=None, description="Client brand theme hex color")
+    active_modules: Optional[List[str]] = Field(default=None, description="Subscribed modules")
+
+
 class TenantResponse(TenantBase):
     active_products_count: int = 0
     open_quality_issues_count: int = 0

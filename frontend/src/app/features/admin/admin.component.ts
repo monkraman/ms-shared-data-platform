@@ -143,12 +143,16 @@ export class AdminComponent implements OnInit {
   adminPassword = 'password123';
 
 
-  // Module Entitlement Modal State
+  // Module Entitlement & Workspace Branding Modal State
   readonly showModulesModal = signal<boolean>(false);
   readonly selectedOrgForModules = signal<BackendTenantRecord | null>(null);
   readonly isUpdatingModules = signal<boolean>(false);
   readonly moduleSaveSuccess = signal<string | null>(null);
   readonly moduleSaveError = signal<string | null>(null);
+  orgNameEdit = '';
+  orgThemeColorEdit = '#111827';
+  orgLogoUrlEdit = '';
+  readonly orgUploadedLogoBase64 = signal<string | null>(null);
   modEpr = true;
   modPpwr = true;
   modDpp = true;
@@ -563,6 +567,10 @@ Login URL: ${window.location.origin}/sign-in`;
 
   openModulesModal(org: BackendTenantRecord): void {
     this.selectedOrgForModules.set(org);
+    this.orgNameEdit = org.name;
+    this.orgThemeColorEdit = org.theme_color || '#111827';
+    this.orgLogoUrlEdit = org.logo_url || '';
+    this.orgUploadedLogoBase64.set(null);
     const mods = org.active_modules || ['epr', 'ppwr', 'dpp', 'lca'];
     this.modEpr = mods.includes('epr');
     this.modPpwr = mods.includes('ppwr');
@@ -571,6 +579,20 @@ Login URL: ${window.location.origin}/sign-in`;
     this.moduleSaveSuccess.set(null);
     this.moduleSaveError.set(null);
     this.showModulesModal.set(true);
+  }
+
+  onOrgLogoFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        const res = reader.result as string;
+        this.orgUploadedLogoBase64.set(res);
+        this.orgLogoUrlEdit = res;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   closeModulesModal(): void {
@@ -588,10 +610,18 @@ Login URL: ${window.location.origin}/sign-in`;
     if (this.modLca) activeList.push('lca');
     this.isUpdatingModules.set(true);
     this.moduleSaveError.set(null);
-    this.tenantService.updateTenantModules(org.id, activeList).subscribe({
-      next: () => {
+
+    const updatePayload: Partial<BackendTenantRecord> = {
+      name: this.orgNameEdit.trim() || org.name,
+      theme_color: this.orgThemeColorEdit,
+      logo_url: this.orgUploadedLogoBase64() || this.orgLogoUrlEdit.trim() || undefined,
+      active_modules: activeList,
+    };
+
+    this.tenantService.updateTenantWorkspace(org.id, updatePayload).subscribe({
+      next: (updated) => {
         this.isUpdatingModules.set(false);
-        this.moduleSaveSuccess.set(`Entitlements updated successfully for ${org.name}!`);
+        this.moduleSaveSuccess.set(`Workspace "${updated.name}" updated successfully!`);
         setTimeout(() => {
           this.closeModulesModal();
           this.refreshTenants();
@@ -599,7 +629,7 @@ Login URL: ${window.location.origin}/sign-in`;
       },
       error: (err) => {
         this.isUpdatingModules.set(false);
-        this.moduleSaveError.set(err.message || 'Failed to update module entitlements');
+        this.moduleSaveError.set(err.message || 'Failed to update workspace configuration');
       },
     });
   }

@@ -1357,6 +1357,18 @@ class DataStore:
             p.epr_enrichment = data
             return p
 
+    def update_tenant(self, tenant_id: str, update_dict: dict):
+        """Update metadata, branding, and modules for an existing tenant workspace."""
+        with self._lock:
+            if tenant_id not in self.tenants:
+                return None
+            tenant = self.tenants[tenant_id]
+            for key, val in update_dict.items():
+                if val is not None and hasattr(tenant, key):
+                    setattr(tenant, key, val)
+            self._save_persisted_tenant(tenant)
+            return tenant
+
     def update_tenant_modules(self, tenant_id: str, modules: list[str]):
         """Toggle active compliance and intelligence modules for a tenant workspace."""
         with self._lock:

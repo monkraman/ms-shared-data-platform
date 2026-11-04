@@ -130,6 +130,9 @@ export class OnboardingComponent implements OnInit {
     { countryCode: 'IT', countryName: 'Italy', regulationLabel: 'CONAI', selected: false },
   ]);
 
+  // Uploaded Logo Base64
+  readonly uploadedLogoBase64 = signal<string | null>(null);
+
   // Form Controls for Step 1
   readonly profileForm: FormGroup = this.fb.group({
     companyName: ['The Kraft Heinz Company Europe', [Validators.required, Validators.minLength(3)]],
@@ -143,6 +146,25 @@ export class OnboardingComponent implements OnInit {
     customLogoUrl: [''],
     themeColor: ['#111827'],
   });
+
+  onLogoFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        const res = reader.result as string;
+        this.uploadedLogoBase64.set(res);
+        this.profileForm.patchValue({ customLogoUrl: res });
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  clearUploadedLogo(): void {
+    this.uploadedLogoBase64.set(null);
+    this.profileForm.patchValue({ customLogoUrl: '' });
+  }
 
   readonly selectedMarketsCount = computed(() => {
     const col1 = this.marketsCol1().filter(m => m.selected).length;
@@ -273,10 +295,12 @@ export class OnboardingComponent implements OnInit {
       primaryCurrency: formVals.primaryCurrency || 'EUR',
       activeJurisdictions: selectedJurisdictions,
       tier: 'enterprise',
-      logoUrl: formVals.customLogoUrl || formVals.logoPreset,
+      logoUrl: this.uploadedLogoBase64() || formVals.customLogoUrl || formVals.logoPreset,
       themeColor: formVals.themeColor || '#111827',
-      adminEmail: 'compliance.officer@kraftheinz.com',
-      adminName: 'Kraft Heinz Compliance Officer',
+      adminEmail: (formVals.tenantSlug === 'khc-europe') 
+        ? 'compliance.officer@kraftheinz.com' 
+        : `compliance.officer@${formVals.tenantSlug}.com`,
+      adminName: `${formVals.companyName} Compliance Officer`,
       adminPassword: 'password123',
       ingestionMode: this.selectedIngestionMode(),
     };
