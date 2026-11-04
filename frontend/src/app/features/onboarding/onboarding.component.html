@@ -222,9 +222,12 @@
             <h1>The Packaging Data Journey (End-to-End Flowchart)</h1>
             <p>How raw data from ERP, PLM, and Suppliers flows into audit-ready EPR filings without manual forms.</p>
           </div>
-          <div style="display: flex; gap: 8px">
-            <button type="button" class="btn" (click)="goToStep(2)">← Back</button>
-            <button type="button" class="btn p" (click)="goToStep(4)">Continue to Connect Systems →</button>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <a href="/data-explorer/index.html" target="_blank" class="btn" style="text-decoration: none; font-size: 11px; font-weight: 700; padding: 6px 12px; border: 1px solid var(--border-subtle); background: var(--bg-card); color: inherit; border-radius: 4px; display: inline-flex; align-items: center; gap: 5px;">
+              <span>Interactive 54-Point Flowchart &nearr;</span>
+            </a>
+            <button type="button" class="btn" (click)="goToStep(2)">&larr; Back</button>
+            <button type="button" class="btn p" (click)="goToStep(4)">Continue to Connect Systems &rarr;</button>
           </div>
         </div>
 
@@ -268,20 +271,27 @@
             <!-- Arrow -->
             <div class="flow-arrow">-></div>
 
-            <!-- Flow Step 3: Audit-Ready Filings & Optimization -->
+            <!-- Flow Step 3: Dynamic Regulatory Outputs (Driven by Step 2 Selections) -->
             <div class="flow-lane">
-              <div class="lane-badge">3. REGULATORY OUTPUTS</div>
-              <div class="flow-box success">
-                <strong>UK Defra pEPR Submission</strong>
-                <p>Standardized packaging weight and polymer filings for H1 2026.</p>
+              <div class="lane-badge">3. REGULATORY OUTPUTS ({{ activeLaws().length }} ACTIVE)</div>
+
+              @for (law of activeLaws(); track law.lawName) {
+              <div class="flow-box success" style="margin-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <strong>{{ law.lawName }}</strong>
+                  <span class="mono font-xs" style="background: #000000; color: #ffffff; padding: 1px 5px; border-radius: 3px; font-weight: 700;">[{{ law.countryCode }}]</span>
+                </div>
+                <p style="margin: 0; font-size: 11.5px; line-height: 1.35;">{{ law.description }}</p>
               </div>
+              }
+
+              <!-- Universal EU PPWR & DPP Technical File -->
               <div class="flow-box success">
-                <strong>Denmark DPA Declaration</strong>
-                <p>Fee modulation schedules &amp; household recycling contribution.</p>
-              </div>
-              <div class="flow-box success">
-                <strong>EU PPWR Technical File &amp; DPP</strong>
-                <p>Article 6 recyclability grades (A–E) and GS1 Digital Product Passport.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <strong>EU PPWR Technical File &amp; DPP</strong>
+                  <span class="mono font-xs" style="background: #000000; color: #ffffff; padding: 1px 5px; border-radius: 3px; font-weight: 700;">[EU-WIDE]</span>
+                </div>
+                <p style="margin: 0; font-size: 11.5px; line-height: 1.35;">Article 6 recyclability grades (A–E) and GS1 Digital Product Passport.</p>
               </div>
             </div>
 
