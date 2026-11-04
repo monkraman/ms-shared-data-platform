@@ -141,6 +141,17 @@ export class AdminComponent implements OnInit {
   adminPassword = 'password123';
 
 
+  // Module Entitlement Modal State
+  readonly showModulesModal = signal<boolean>(false);
+  readonly selectedOrgForModules = signal<BackendTenantRecord | null>(null);
+  readonly isUpdatingModules = signal<boolean>(false);
+  readonly moduleSaveSuccess = signal<string | null>(null);
+  readonly moduleSaveError = signal<string | null>(null);
+  modEpr = true;
+  modPpwr = true;
+  modDpp = true;
+  modLca = true;
+
   // SKU Import & Mapping Modal State
   readonly showImportModal = signal<boolean>(false);
   readonly showSchemaGuide = signal<boolean>(false);
@@ -528,6 +539,54 @@ Login URL: ${window.location.origin}/sign-in`;
   }
 
   // ─── SKU Import & Column Mapping ───
+  hasModule(org: BackendTenantRecord, key: string): boolean {
+    const mods = org.active_modules || ['epr', 'ppwr', 'dpp', 'lca'];
+    return mods.includes(key);
+  }
+
+  openModulesModal(org: BackendTenantRecord): void {
+    this.selectedOrgForModules.set(org);
+    const mods = org.active_modules || ['epr', 'ppwr', 'dpp', 'lca'];
+    this.modEpr = mods.includes('epr');
+    this.modPpwr = mods.includes('ppwr');
+    this.modDpp = mods.includes('dpp');
+    this.modLca = mods.includes('lca');
+    this.moduleSaveSuccess.set(null);
+    this.moduleSaveError.set(null);
+    this.showModulesModal.set(true);
+  }
+
+  closeModulesModal(): void {
+    this.showModulesModal.set(false);
+    this.selectedOrgForModules.set(null);
+  }
+
+  submitModuleEntitlements(): void {
+    const org = this.selectedOrgForModules();
+    if (!org) return;
+    const activeList: string[] = [];
+    if (this.modEpr) activeList.push('epr');
+    if (this.modPpwr) activeList.push('ppwr');
+    if (this.modDpp) activeList.push('dpp');
+    if (this.modLca) activeList.push('lca');
+    this.isUpdatingModules.set(true);
+    this.moduleSaveError.set(null);
+    this.tenantService.updateTenantModules(org.id, activeList).subscribe({
+      next: () => {
+        this.isUpdatingModules.set(false);
+        this.moduleSaveSuccess.set(`Entitlements updated successfully for ${org.name}!`);
+        setTimeout(() => {
+          this.closeModulesModal();
+          this.refreshTenants();
+        }, 800);
+      },
+      error: (err) => {
+        this.isUpdatingModules.set(false);
+        this.moduleSaveError.set(err.message || 'Failed to update module entitlements');
+      },
+    });
+  }
+
   openImportModal(tenantId?: string): void {
     if (tenantId) {
       this.selectedTenantForImport.set(tenantId);

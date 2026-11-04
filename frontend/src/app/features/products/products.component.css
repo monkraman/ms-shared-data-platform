@@ -1161,3 +1161,236 @@
 .bom-detail-panel.full-width {
   width: 100%;
 }
+
+
+/* Tab Locked Status Pill */
+.tab-lock-pill {
+  font-size: 10px;
+  background: #f4f4f5;
+  color: #71717a;
+  border: 1px dashed #d4d4d8;
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-left: 6px;
+}
+
+/* Module Locked Notice */
+.module-locked-notice {
+  padding: 32px 24px;
+  border: 1px dashed #d4d4d8;
+  border-radius: var(--radius-md);
+  background: #fafafa;
+  text-align: center;
+  max-width: 680px;
+  margin: 20px auto;
+}
+
+.locked-icon {
+  font-size: 13px;
+  color: #09090b;
+  margin-bottom: 12px;
+}
+
+.module-locked-notice h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #09090b;
+  margin-bottom: 8px;
+}
+
+.module-locked-notice p {
+  font-size: 13px;
+  color: #52525b;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.locked-callout {
+  padding: 10px 14px;
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: #18181b;
+  display: inline-block;
+}
+
+/* LCA Dashboard Panels */
+.lca-header-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.lca-eco-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border: 2px solid #09090b;
+  border-radius: var(--radius-md);
+  background: #09090b;
+  color: #ffffff;
+  text-align: center;
+  min-width: 110px;
+}
+
+.eco-lbl {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+}
+
+.eco-val {
+  font-size: 16px;
+  margin: 2px 0;
+}
+
+.lca-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.lca-kpi-box {
+  padding: 14px 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+.lca-kpi-lbl {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.lca-kpi-num {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 4px 0 2px 0;
+}
+
+.lca-kpi-num .unit {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.lca-table-section {
+  margin-bottom: 28px;
+}
+
+.sub-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.share-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.share-bar-bg {
+  width: 60px;
+  height: 6px;
+  background: var(--border-subtle);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.share-bar-fill {
+  height: 100%;
+  background: #09090b;
+}
+
+/* Decarbonization Roadmap */
+.recs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.rec-card {
+  padding: 14px 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.rec-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.rec-complexity {
+  color: var(--text-muted);
+}
+
+.rec-action {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.rec-stats {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-subtle);
+}
+
+/* Data Gaps */
+.lca-gaps-section {
+  padding: 16px;
+  background: #fafafa;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.gaps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gap-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.gap-bullet {
+  font-size: 11px;
+  color: #09090b;
+  white-space: nowrap;
+}
+
+.gap-text {
+  color: #3f3f46;
+}

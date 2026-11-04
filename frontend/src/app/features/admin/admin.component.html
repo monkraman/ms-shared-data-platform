@@ -179,6 +179,20 @@
             </div>
           </div>
 
+          <!-- Subscribed Compliance & Intelligence Modules -->
+          <div class="org-modules-strip">
+            <div class="org-modules-header">
+              <span class="attr-lbl">Subscribed Modules:</span>
+              <button type="button" class="btn-configure-mods font-xs" (click)="openModulesModal(org)">Configure &rarr;</button>
+            </div>
+            <div class="module-badges-list">
+              <span class="mod-pill mono" [class.active]="hasModule(org, 'epr')" [class.inactive]="!hasModule(org, 'epr')">[EPR]</span>
+              <span class="mod-pill mono" [class.active]="hasModule(org, 'ppwr')" [class.inactive]="!hasModule(org, 'ppwr')">[PPWR]</span>
+              <span class="mod-pill mono" [class.active]="hasModule(org, 'dpp')" [class.inactive]="!hasModule(org, 'dpp')">[DPP]</span>
+              <span class="mod-pill mono" [class.active]="hasModule(org, 'lca')" [class.inactive]="!hasModule(org, 'lca')">[LCA]</span>
+            </div>
+          </div>
+
           <!-- Provisioned Client Credentials Strip -->
           <div class="org-credentials-strip">
             <div class="cred-mini-row">
@@ -1233,3 +1247,86 @@
   }
 
 </div>
+
+  <!-- ══════════════════════ MODAL: CONFIGURE MODULE ENTITLEMENTS ══════════════════════ -->
+  @if (showModulesModal() && selectedOrgForModules(); as org) {
+  <div class="modal-backdrop" (click)="closeModulesModal()">
+    <div class="modal-card" style="max-width: 580px;" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title">Configure Module Entitlements</h2>
+          <p class="modal-sub">Tenant: <strong class="mono">{{ org.name }}</strong> ({{ org.id }})</p>
+        </div>
+        <button type="button" class="btn-close" (click)="closeModulesModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-intro">
+          Select the active regulatory compliance and environmental intelligence modules provisioned for this client database:
+        </p>
+
+        @if (moduleSaveError()) {
+        <div class="alert-box error" style="margin-bottom: 1rem;">
+          {{ moduleSaveError() }}
+        </div>
+        }
+        @if (moduleSaveSuccess()) {
+        <div class="alert-box success" style="margin-bottom: 1rem;">
+          {{ moduleSaveSuccess() }}
+        </div>
+        }
+
+        <div class="module-toggle-list">
+          <label class="module-toggle-card" [class.selected]="modEpr">
+            <input type="checkbox" [(ngModel)]="modEpr" />
+            <div class="mod-toggle-info">
+              <div class="mod-toggle-title">
+                <span class="mono font-bold">[EPR]</span> Extended Producer Responsibility
+              </div>
+              <p class="mod-toggle-desc">Placed on market sales tracking, Defra RPD/DPA packaging category tariffs, fee simulation, and statutory returns.</p>
+            </div>
+          </label>
+
+          <label class="module-toggle-card" [class.selected]="modPpwr">
+            <input type="checkbox" [(ngModel)]="modPpwr" />
+            <div class="mod-toggle-info">
+              <div class="mod-toggle-title">
+                <span class="mono font-bold">[PPWR]</span> EU Packaging &amp; Packaging Waste Reg.
+              </div>
+              <p class="mod-toggle-desc">Article 6 recyclability assessment (Grades A&ndash;E), PCR content verification, NIR sortability checks, and Declaration of Conformity.</p>
+            </div>
+          </label>
+
+          <label class="module-toggle-card" [class.selected]="modDpp">
+            <input type="checkbox" [(ngModel)]="modDpp" />
+            <div class="mod-toggle-info">
+              <div class="mod-toggle-title">
+                <span class="mono font-bold">[DPP]</span> Digital Product Passport
+              </div>
+              <p class="mod-toggle-desc">GS1 Digital Link generation, consumer sorting and disposal guide payload, and QR data carrier issuance.</p>
+            </div>
+          </label>
+
+          <label class="module-toggle-card" [class.selected]="modLca">
+            <input type="checkbox" [(ngModel)]="modLca" />
+            <div class="mod-toggle-info">
+              <div class="mod-toggle-title">
+                <span class="mono font-bold">[LCA]</span> Life Cycle Assessment &amp; Carbon Footprint
+              </div>
+              <p class="mod-toggle-desc">Cradle-to-gate carbon footprint (g CO2e/pack), Scope 3 Category 1 purchased packaging footprint, Eco-Score rating, and decarbonization recommendations.</p>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="closeModulesModal()" [disabled]="isUpdatingModules()">
+          Cancel
+        </button>
+        <button type="button" class="btn-primary" (click)="submitModuleEntitlements()" [disabled]="isUpdatingModules()">
+          @if (isUpdatingModules()) { Saving Entitlements... } @else { Save Entitlements }
+        </button>
+      </div>
+    </div>
+  </div>
+  }

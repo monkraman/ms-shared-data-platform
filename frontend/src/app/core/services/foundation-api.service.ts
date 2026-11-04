@@ -96,6 +96,49 @@ export interface DigitalProductPassport {
   issued_at: string;
 }
 
+export interface LcaComponentLine {
+  component_id: string;
+  component_name: string;
+  packaging_level: string;
+  material: string;
+  weight_grams: number;
+  emission_factor_kg_co2e_per_kg: number;
+  component_co2e_grams: number;
+  share_percentage: number;
+}
+
+export interface LcaReductionRecommendation {
+  action: string;
+  estimated_co2e_saving_pct: number;
+  annual_scope3_saving_tonnes: number;
+  complexity: string;
+}
+
+export interface LcaAssessmentResponse {
+  sku: string;
+  product_name: string;
+  brand: string;
+  primary_material: string;
+  total_packaging_weight_grams: number;
+  pack_carbon_footprint_g_co2e: number;
+  annual_units_placed: number;
+  annual_scope3_tonnes_co2e: number;
+  eco_score_grade: string;
+  eco_score_points: number;
+  recycled_content_reduction_g_co2e: number;
+  grid_carbon_intensity_factor: number;
+  transport_cradle_to_gate_km: number;
+  component_breakdowns: LcaComponentLine[];
+  reduction_recommendations: LcaReductionRecommendation[];
+  required_additional_data: string[];
+}
+
+export interface ModuleEntitlementResponse {
+  tenant_id: string;
+  tenant_name: string;
+  active_modules: string[];
+}
+
 export interface IngestionBatch {
   id: string;
   tenant_id: string;
@@ -153,6 +196,8 @@ export class FoundationApiService {
   readonly selectedProduct = signal<CanonicalProduct | null>(null);
   readonly ppwrDoc = signal<PPWRDeclarationOfConformity | null>(null);
   readonly dppPassport = signal<DigitalProductPassport | null>(null);
+  readonly lcaAssessment = signal<LcaAssessmentResponse | null>(null);
+  readonly moduleEntitlement = signal<ModuleEntitlementResponse | null>(null);
   readonly loading = signal<boolean>(false);
   readonly syncing = signal<boolean>(false);
   readonly lastSyncBatch = signal<IngestionBatch | null>(null);
@@ -196,7 +241,21 @@ export class FoundationApiService {
       this.selectedProduct.set(prod);
       this.loadPpwrDoc(sku).subscribe();
       this.loadDpp(sku).subscribe();
+      this.loadLca(sku).subscribe();
     }
+  }
+
+  loadModuleEntitlement(): Observable<ModuleEntitlementResponse> {
+    return this.http
+      .get<ModuleEntitlementResponse>(`${this.baseUrl}/api/v1/compliance/modules/entitlement`, {
+        headers: this.getHeaders(),
+      })
+      .pipe(
+        tap({
+          next: (ent) => this.moduleEntitlement.set(ent),
+          error: () => this.moduleEntitlement.set(null),
+        })
+      );
   }
 
   loadPpwrDoc(sku: string): Observable<PPWRDeclarationOfConformity> {
@@ -221,6 +280,19 @@ export class FoundationApiService {
         tap({
           next: (passport) => this.dppPassport.set(passport),
           error: () => this.dppPassport.set(null),
+        })
+      );
+  }
+
+  loadLca(sku: string): Observable<LcaAssessmentResponse> {
+    return this.http
+      .get<LcaAssessmentResponse>(`${this.baseUrl}/api/v1/compliance/modules/lca/${sku}`, {
+        headers: this.getHeaders(),
+      })
+      .pipe(
+        tap({
+          next: (lca) => this.lcaAssessment.set(lca),
+          error: () => this.lcaAssessment.set(null),
         })
       );
   }

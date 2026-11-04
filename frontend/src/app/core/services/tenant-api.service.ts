@@ -11,6 +11,7 @@ export interface BackendTenantRecord {
   tier?: string;
   primary_jurisdiction?: string;
   active_jurisdictions?: string[];
+  active_modules?: string[];
   active_products_count?: number;
   open_quality_issues_count?: number;
   source_systems?: string[];
@@ -99,6 +100,21 @@ export class TenantApiService {
       tap(() => {
         this.activeTenantId.set(data.id);
         this.loadTenants().subscribe();
+      })
+    );
+  }
+
+  /**
+   * Update active compliance and intelligence modules (EPR, PPWR, DPP, LCA) for a tenant workspace
+   */
+  updateTenantModules(tenantId: string, modules: string[]): Observable<BackendTenantRecord> {
+    return this.http.patch<BackendTenantRecord>(`${this.baseUrl}/api/v1/tenants/${tenantId}/modules`, {
+      active_modules: modules,
+    }).pipe(
+      tap((updated) => {
+        this.tenants.update((list) =>
+          list.map((t) => (t.id === tenantId ? { ...t, active_modules: updated.active_modules } : t))
+        );
       })
     );
   }

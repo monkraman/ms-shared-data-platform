@@ -48,10 +48,12 @@ export class ProductsComponent implements OnInit {
   // View mode: 'list' (Catalog Data Table) or 'detail' (Full BOM & Calculation Trace)
   readonly viewMode = signal<'list' | 'detail'>('list');
 
-  // 5 Detail Tabs: BOM Tree, Fees & Trace, PPWR DoC, DPP, Source Lineage
-  readonly activeTab = signal<'bom' | 'fees' | 'ppwr' | 'dpp' | 'lineage'>('bom');
+  // 6 Detail Tabs: BOM Tree, Fees & Trace, PPWR DoC, DPP, LCA Carbon, Source Lineage
+  readonly activeTab = signal<'bom' | 'fees' | 'ppwr' | 'dpp' | 'lca' | 'lineage'>('bom');
   readonly ppwrDoc = this.foundationService.ppwrDoc;
   readonly dppPassport = this.foundationService.dppPassport;
+  readonly lcaAssessment = this.foundationService.lcaAssessment;
+  readonly moduleEntitlement = this.foundationService.moduleEntitlement;
 
   // Search & Faceted Filters
   readonly filterQuery = signal<string>('');
@@ -64,6 +66,13 @@ export class ProductsComponent implements OnInit {
 
   ngOnInit(): void {
     this.foundationService.loadProducts().subscribe();
+    this.foundationService.loadModuleEntitlement().subscribe();
+  }
+
+  isModuleActive(moduleKey: string): boolean {
+    const ent = this.moduleEntitlement();
+    if (!ent || !ent.active_modules) return true;
+    return ent.active_modules.includes(moduleKey);
   }
 
   selectProduct(sku: string): void {

@@ -302,9 +302,21 @@
           </button>
           <button type="button" class="tab-btn" [class.active]="activeTab() === 'ppwr'" (click)="activeTab.set('ppwr')">
             EU PPWR Recyclability &amp; DoC
+            @if (!isModuleActive('ppwr')) {
+            <span class="tab-lock-pill mono">[LOCKED]</span>
+            }
           </button>
           <button type="button" class="tab-btn" [class.active]="activeTab() === 'dpp'" (click)="activeTab.set('dpp')">
             Digital Product Passport (DPP)
+            @if (!isModuleActive('dpp')) {
+            <span class="tab-lock-pill mono">[LOCKED]</span>
+            }
+          </button>
+          <button type="button" class="tab-btn" [class.active]="activeTab() === 'lca'" (click)="activeTab.set('lca')">
+            LCA Carbon &amp; Scope 3
+            @if (!isModuleActive('lca')) {
+            <span class="tab-lock-pill mono">[LOCKED]</span>
+            }
           </button>
           <button type="button" class="tab-btn" [class.active]="activeTab() === 'lineage'" (click)="activeTab.set('lineage')">
             Source Lineage (Devex &amp; Snowflake)
@@ -605,7 +617,151 @@
       </div>
       }
 
-      <!-- TAB 5: SOURCE LINEAGE (DEVEX & SNOWFLAKE) -->
+      <!-- TAB 5: LCA CARBON FOOTPRINT & SCOPE 3 (ISO 14067) -->
+      @if (activeTab() === 'lca') {
+      <div class="module-panel-card">
+        @if (!isModuleActive('lca')) {
+        <div class="module-locked-notice">
+          <div class="locked-icon mono font-bold">[MODULE NOT ACTIVATED]</div>
+          <h3>Life Cycle Assessment (LCA) &amp; Scope 3 Packaging Carbon Engine</h3>
+          <p>
+            This enterprise workspace has not subscribed to the ISO 14067 LCA Carbon Accounting Module.
+            Cradle-to-gate carbon intensity modeling, emission factor lookups, and Scope 3 Category 1 calculations are restricted.
+          </p>
+          <div class="locked-callout">
+            <span class="mono font-bold">[STATUS]</span> Active Entitlements for this Workspace:
+            <span class="mono">{{ moduleEntitlement()?.active_modules?.join(', ') || 'epr, ppwr' }}</span>.
+            Contact Monk Spaces Platform SuperAdmin to enable the <strong>[LCA]</strong> module.
+          </div>
+        </div>
+        } @else {
+          @if (lcaAssessment(); as lca) {
+          <!-- LCA Header Strip -->
+          <div class="lca-header-strip">
+            <div>
+              <h3>Cradle-to-Gate Life Cycle Assessment (ISO 14067 / GHG Protocol)</h3>
+              <p class="section-desc">Automated packaging carbon footprint derived from canonical BOM tare weights and DEFRA/Ecoinvent emission factors.</p>
+            </div>
+            <div class="lca-eco-badge" [attr.data-eco]="lca.eco_score_grade">
+              <span class="eco-lbl">Eco-Score</span>
+              <span class="eco-val font-bold">Grade {{ lca.eco_score_grade }}</span>
+              <span class="eco-pts mono font-xs">{{ lca.eco_score_points }}/100 pts</span>
+            </div>
+          </div>
+
+          <!-- Carbon KPI Strip -->
+          <div class="lca-kpi-grid">
+            <div class="lca-kpi-box">
+              <span class="lca-kpi-lbl">Pack Carbon Footprint</span>
+              <span class="lca-kpi-num">{{ lca.pack_carbon_footprint_g_co2e }} <span class="unit">g CO2e/pack</span></span>
+              <span class="lca-kpi-sub font-xs text-subtle">Cradle-to-filler gate</span>
+            </div>
+            <div class="lca-kpi-box">
+              <span class="lca-kpi-lbl">Annual Scope 3 Cat 1</span>
+              <span class="lca-kpi-num">{{ lca.annual_scope3_tonnes_co2e | number:'1.2-2' }} <span class="unit">t CO2e</span></span>
+              <span class="lca-kpi-sub font-xs text-subtle">Based on {{ lca.annual_units_placed | number }} units placed</span>
+            </div>
+            <div class="lca-kpi-box">
+              <span class="lca-kpi-lbl">Total Packaging Tare</span>
+              <span class="lca-kpi-num">{{ lca.total_packaging_weight_grams }} <span class="unit">g</span></span>
+              <span class="lca-kpi-sub font-xs text-subtle">Primary + Secondary components</span>
+            </div>
+            <div class="lca-kpi-box">
+              <span class="lca-kpi-lbl">PCR Avoided Emissions</span>
+              <span class="lca-kpi-num text-success">-{{ lca.recycled_content_reduction_g_co2e }} <span class="unit">g CO2e</span></span>
+              <span class="lca-kpi-sub font-xs text-subtle">Saved via post-consumer content</span>
+            </div>
+          </div>
+
+          <!-- Component Breakdown Table -->
+          <div class="lca-table-section">
+            <h4 class="sub-section-title">Component-by-Component Carbon Intensity</h4>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Component ID</th>
+                    <th>Name &amp; Level</th>
+                    <th>Substrate Material</th>
+                    <th>Tare Weight</th>
+                    <th>Emission Factor</th>
+                    <th>Cradle-to-Gate Footprint</th>
+                    <th>Pack Share</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (comp of lca.component_breakdowns; track comp.component_id) {
+                  <tr>
+                    <td><span class="pill-bom mono">{{ comp.component_id }}</span></td>
+                    <td>
+                      <div class="font-bold">{{ comp.component_name }}</div>
+                      <span class="tag-level mono font-xs">{{ comp.packaging_level }}</span>
+                    </td>
+                    <td><span class="pill-status mono">{{ comp.material }}</span></td>
+                    <td class="mono font-bold">{{ comp.weight_grams }} g</td>
+                    <td class="mono font-xs">{{ comp.emission_factor_kg_co2e_per_kg }} kg CO2e/kg</td>
+                    <td class="mono font-bold">{{ comp.component_co2e_grams }} g CO2e</td>
+                    <td>
+                      <div class="share-cell">
+                        <div class="share-bar-bg">
+                          <div class="share-bar-fill" [style.width.%]="comp.share_percentage"></div>
+                        </div>
+                        <span class="mono font-xs">{{ comp.share_percentage }}%</span>
+                      </div>
+                    </td>
+                  </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Decarbonization Roadmap & Reduction Levers -->
+          <div class="lca-recommendations-section">
+            <h4 class="sub-section-title">Prioritized Decarbonization Roadmap (Science-Based Levers)</h4>
+            <div class="recs-grid">
+              @for (rec of lca.reduction_recommendations; track rec.action) {
+              <div class="rec-card">
+                <div class="rec-header">
+                  <span class="pill-ok mono font-xs font-bold">[REDUCTION LEVER]</span>
+                  <span class="rec-complexity mono font-xs">Complexity: {{ rec.complexity }}</span>
+                </div>
+                <h5 class="rec-action">{{ rec.action }}</h5>
+                <div class="rec-stats">
+                  <div>
+                    <span class="stat-lbl">Estimated Saving:</span>
+                    <span class="stat-val text-success font-bold">-{{ rec.estimated_co2e_saving_pct }}% CO2e</span>
+                  </div>
+                  <div>
+                    <span class="stat-lbl">Annual Avoided:</span>
+                    <span class="stat-val font-bold mono">{{ rec.annual_scope3_saving_tonnes }} tonnes</span>
+                  </div>
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+
+          <!-- Required Additional Data Gaps for ISO 14067 Assurance -->
+          <div class="lca-gaps-section">
+            <h4 class="sub-section-title">Upstream Verification &amp; Additional Data Requirements</h4>
+            <div class="gaps-list">
+              @for (gap of lca.required_additional_data; track gap) {
+              <div class="gap-item">
+                <span class="gap-bullet font-bold">[DATA NEEDED]</span>
+                <span class="gap-text">{{ gap }}</span>
+              </div>
+              }
+            </div>
+          </div>
+          } @else {
+          <div class="empty-state">Computing cradle-to-gate carbon footprint from canonical BOM specs...</div>
+          }
+        }
+      </div>
+      }
+
+      <!-- TAB 6: SOURCE LINEAGE (DEVEX & SNOWFLAKE) -->
       @if (activeTab() === 'lineage') {
       <div class="module-panel-card">
         <h3>Trace One PLM Lineage &amp; ERP Audit Trail</h3>

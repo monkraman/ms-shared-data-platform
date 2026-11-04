@@ -1399,3 +1399,115 @@
   border: 1px solid var(--border-subtle);
   font-family: monospace;
 }
+
+
+/* Module Badges & Entitlements Strip */
+.org-modules-strip {
+  margin: 12px 0;
+  padding: 10px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.org-modules-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.btn-configure-mods {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.btn-configure-mods:hover {
+  color: var(--text-secondary);
+}
+
+.module-badges-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mod-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 4px;
+}
+
+.mod-pill.active {
+  background: #09090b;
+  color: #ffffff;
+  border: 1px solid #09090b;
+}
+
+.mod-pill.inactive {
+  background: #f4f4f5;
+  color: #a1a1aa;
+  border: 1px dashed #d4d4d8;
+  text-decoration: line-through;
+}
+
+/* Module Toggle Cards in Modal */
+.module-toggle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.module-toggle-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.module-toggle-card:hover {
+  border-color: var(--border-hover);
+}
+
+.module-toggle-card.selected {
+  border-color: #09090b;
+  background: #fafafa;
+}
+
+.module-toggle-card input[type="checkbox"] {
+  margin-top: 3px;
+  accent-color: #09090b;
+  width: 16px;
+  height: 16px;
+}
+
+.mod-toggle-info {
+  flex: 1;
+}
+
+.mod-toggle-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mod-toggle-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-top: 3px;
+}

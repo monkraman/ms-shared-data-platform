@@ -171,6 +171,7 @@ class DataStore:
             sector="Spirits & Beverages",
             tier=TenantTier.ENTERPRISE,
             primary_jurisdiction="DK",
+            active_modules=["epr", "ppwr"],
             source_systems=["ERP Master Data", "Devex PLM Spec", "Supplier Portal"],
             active_products_count=1,
             open_quality_issues_count=1,
@@ -181,6 +182,7 @@ class DataStore:
             sector="Food & Beverage / FMCG",
             tier=TenantTier.ENTERPRISE,
             primary_jurisdiction="GB",
+            active_modules=["epr", "ppwr", "dpp", "lca"],
             source_systems=["Trace One (Devex PLM)", "SAP ERP S/4HANA", "Snowflake Analytics"],
             active_products_count=3,
             open_quality_issues_count=1,
@@ -211,12 +213,14 @@ class DataStore:
                     for r in rows:
                         t_id, t_name, t_sec, t_tier, t_curr, t_jur = r
                         tier_enum = TenantTier.ENTERPRISE if (t_tier or "").lower() == "enterprise" else TenantTier.MID_MARKET
+                        existing_mods = self.tenants[t_id].active_modules if t_id in self.tenants else ["epr", "ppwr", "dpp", "lca"]
                         t_obj = TenantResponse(
                             id=t_id,
                             name=t_name,
                             sector=t_sec or "FMCG / General",
                             tier=tier_enum,
                             primary_jurisdiction=t_jur or "GB",
+                            active_modules=existing_mods,
                             source_systems=["Trace One (Devex PLM)", "Snowflake Analytics", "CSV Importer"],
                             active_products_count=0 if t_id not in self.tenants else self.tenants[t_id].active_products_count,
                             open_quality_issues_count=0 if t_id not in self.tenants else self.tenants[t_id].open_quality_issues_count,
@@ -1313,6 +1317,15 @@ class DataStore:
         self.quality_issues[tenant][issue3.id] = issue3
         self.quality_issues[tenant][issue_pouch.id] = issue_pouch
 
+    def update_tenant_modules(self, tenant_id: str, modules: list[str]):
+        """Toggle active compliance and intelligence modules for a tenant workspace."""
+        with self._lock:
+            if tenant_id not in self.tenants:
+                return None
+            tenant = self.tenants[tenant_id]
+            tenant.active_modules = modules
+            return tenant
+
     def create_tenant(self, data: TenantCreate) -> TenantResponse:
         """Create and provision a new tenant workspace."""
         with self._lock:
@@ -1322,6 +1335,7 @@ class DataStore:
                 sector=data.sector,
                 tier=data.tier,
                 primary_jurisdiction=data.active_jurisdictions[0][:2] if data.active_jurisdictions else "GB",
+                active_modules=data.active_modules if (data.active_modules and len(data.active_modules) > 0) else ["epr", "ppwr", "dpp", "lca"],
                 logo_url=data.logo_url,
                 theme_color=data.theme_color or "#111827",
                 source_systems=["Trace One (Devex PLM)", "Snowflake Data Cloud", "CSV Bulk Importer"],

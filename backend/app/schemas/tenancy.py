@@ -9,6 +9,7 @@ class TenantTier(str, Enum):
     ENTERPRISE = "enterprise"
     PILOT = "pilot"
     DEMO = "demo"
+    MID_MARKET = "mid_market"
 
 
 class TenantBase(BaseModel):
@@ -17,6 +18,10 @@ class TenantBase(BaseModel):
     sector: str = Field(..., description="Industry sector, e.g. Food & Beverage")
     tier: TenantTier = Field(default=TenantTier.ENTERPRISE)
     primary_jurisdiction: str = Field(default="GB", description="Default primary reporting market (ISO 3166-1 alpha-2)")
+    active_modules: List[str] = Field(
+        default_factory=lambda: ["epr", "ppwr", "dpp", "lca"],
+        description="Subscribed compliance and intelligence modules: epr, ppwr, dpp, lca"
+    )
     logo_url: Optional[str] = Field(default=None, description="Custom branding logo URL or base64")
     theme_color: Optional[str] = Field(default="#111827", description="Client brand theme hex color")
     source_systems: List[str] = Field(
@@ -33,12 +38,23 @@ class TenantCreate(BaseModel):
     rpd_organisation_id: Optional[str] = Field(default=None, description="UK Defra RPD ID")
     primary_currency: Optional[str] = Field(default="EUR", description="Reporting currency")
     active_jurisdictions: List[str] = Field(default_factory=list, description="Target EPR jurisdictions")
+    active_modules: List[str] = Field(
+        default_factory=lambda: ["epr", "ppwr", "dpp", "lca"],
+        description="Subscribed compliance and intelligence modules: epr, ppwr, dpp, lca"
+    )
     tier: TenantTier = Field(default=TenantTier.ENTERPRISE)
     logo_url: Optional[str] = Field(default=None, description="Custom branding logo URL or base64")
     theme_color: Optional[str] = Field(default="#111827", description="Client brand theme hex color")
     admin_email: Optional[str] = Field(default=None, description="Initial organization administrator email")
     admin_name: Optional[str] = Field(default=None, description="Initial administrator full name")
     admin_password: Optional[str] = Field(default="password123", description="Initial administrator password")
+
+
+class TenantModulesUpdate(BaseModel):
+    active_modules: List[str] = Field(
+        ...,
+        description="Updated list of active modules: epr, ppwr, dpp, lca"
+    )
 
 
 class TenantResponse(TenantBase):
