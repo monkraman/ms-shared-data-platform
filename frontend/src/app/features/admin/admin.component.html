@@ -121,29 +121,29 @@
       </div>
     </header>
 
-    <!-- Platform KPI Strip -->
-    <div class="kpi-strip">
-      <div class="kpi-card">
-        <span class="kpi-lbl">Active Workspaces</span>
-        <span class="kpi-num">{{ totalOrgs() }}</span>
-      </div>
-      <div class="kpi-card">
-        <span class="kpi-lbl">Canonical SKUs Stored</span>
-        <span class="kpi-num">{{ totalProducts() | number }}</span>
-      </div>
-      <div class="kpi-card" [class.alert]="totalIssues() > 0">
-        <span class="kpi-lbl">Quality Gaps Flagged</span>
-        <span class="kpi-num">{{ totalIssues() }}</span>
-      </div>
-      <div class="kpi-card">
-        <span class="kpi-lbl">Tenants Needing Review</span>
-        <span class="kpi-num">{{ orgsWithIssues() }}</span>
-      </div>
-    </div>
-
     <!-- ══════════════════════ TAB: ORGANISATIONS ══════════════════════ -->
     @if (activeTab() === 'organisations') {
     <div class="tab-content">
+      <!-- Platform KPI Strip (Scoped strictly to Workspaces) -->
+      <div class="kpi-strip">
+        <div class="kpi-card">
+          <span class="kpi-lbl">Active Workspaces</span>
+          <span class="kpi-num">{{ totalOrgs() }}</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-lbl">Canonical SKUs Stored</span>
+          <span class="kpi-num">{{ totalProducts() | number }}</span>
+        </div>
+        <div class="kpi-card" [class.alert]="totalIssues() > 0">
+          <span class="kpi-lbl">Quality Gaps Flagged</span>
+          <span class="kpi-num">{{ totalIssues() }}</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-lbl">Tenants Needing Review</span>
+          <span class="kpi-num">{{ orgsWithIssues() }}</span>
+        </div>
+      </div>
+
       <div class="section-header">
         <div>
           <h2 class="section-title">Client Workspaces</h2>
@@ -303,10 +303,6 @@
         <div>
           <h2 class="section-title">Enterprise User Directory &amp; Access Management (IAM)</h2>
           <p class="section-desc">Platform-wide user identities, role-based access controls, tenant isolation, and client login credentials.</p>
-        </div>
-        <div class="header-action-group">
-          <button class="btn-refresh" (click)="loadUsers()">Refresh Directory</button>
-          <button class="btn-primary" (click)="openInviteModal()">+ Provision Enterprise User</button>
         </div>
       </div>
 
