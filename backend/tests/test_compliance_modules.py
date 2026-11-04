@@ -1,4 +1,4 @@
-"""Functional tests for EU PPWR Declaration of Conformity and DPP modules."""
+"""Functional tests for Modular Compliance: Entitlements, PPWR DoC, DPP, and ISO 14067 LCA."""
 
 from fastapi.testclient import TestClient
 from app.main import app
@@ -38,3 +38,55 @@ def test_digital_product_passport():
     assert len(data["disposal_instructions"]) > 0
     assert data["spec_source_system"] == "Trace One (Devex PLM)"
 
+
+def test_lca_carbon_assessment_khc():
+    """Test ISO 14067 LCA cradle-to-gate carbon engine for subscribed tenant."""
+    response = client.get(
+        "/api/v1/compliance/modules/lca/KHC-HTK-500G-GL",
+        headers={"X-Tenant-ID": "khc-europe"},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["sku"] == "KHC-HTK-500G-GL"
+    assert data["pack_carbon_footprint_g_co2e"] > 0
+    assert data["annual_scope3_tonnes_co2e"] > 0
+    assert data["eco_score_grade"] in ["A", "B", "C", "D", "E"]
+    assert len(data["component_breakdowns"]) >= 3
+    assert len(data["reduction_recommendations"]) >= 1
+    assert len(data["required_additional_data"]) >= 1
+
+
+def test_module_entitlement_gating():
+    """Test that Nordhavn Spirits (not subscribed to LCA) receives 403 Forbidden."""
+    response = client.get(
+        "/api/v1/compliance/modules/lca/KHC-HTK-500G-GL",
+        headers={"X-Tenant-ID": "nordhavn-spirits"},
+    )
+    assert response.status_code == 403
+    assert "not activated for tenant 'nordhavn-spirits'" in response.json()["detail"]
+
+
+def test_tenant_module_update_patch():
+    """Test SuperAdmin toggling modules for a tenant workspace."""
+    # 1. Update nordhavn to include LCA
+    patch_res = client.patch(
+        "/api/v1/tenants/nordhavn-spirits/modules",
+        json={"active_modules": ["epr", "ppwr", "lca"]},
+    )
+    assert patch_res.status_code == 200
+    assert "lca" in patch_res.json()["active_modules"]
+
+    # 2. Now Nordhavn should successfully access LCA
+    lca_res = client.get(
+        "/api/v1/compliance/modules/lca/KHC-HTK-500G-GL",
+        headers={"X-Tenant-ID": "nordhavn-spirits"},
+    )
+    assert lca_res.status_code == 200
+
+    # 3. Reset Nordhavn back to epr and ppwr only
+    reset_res = client.patch(
+        "/api/v1/tenants/nordhavn-spirits/modules",
+        json={"active_modules": ["epr", "ppwr"]},
+    )
+    assert reset_res.status_code == 200
+    assert "lca" not in reset_res.json()["active_modules"]
