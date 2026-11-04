@@ -90,3 +90,41 @@ def test_tenant_module_update_patch():
     )
     assert reset_res.status_code == 200
     assert "lca" not in reset_res.json()["active_modules"]
+
+
+def test_enrich_ppwr_data():
+    """Test attaching lab certificates and verifying PPWR DoC updates."""
+    res = client.post(
+        "/api/v1/compliance/modules/enrichment/KHC-HTK-500G-GL/ppwr",
+        headers={"X-Tenant-ID": "khc-europe"},
+        json={
+            "recyclass_cert_id": "RC-2025-EU-889",
+            "pcr_cert_id": "EU-CERT-994",
+            "pfas_free_declaration": True,
+            "heavy_metals_pass": True,
+        },
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert "DOC-PPWR-RC-2025-EU-889-KHC-HTK-500G-GL" == data["doc_reference"]
+    assert data["pfas_substance_free"] is True
+    assert data["is_compliant_for_eu_market"] is True
+
+
+def test_enrich_lca_data():
+    """Test attaching converter renewable energy and EPD registration."""
+    res = client.post(
+        "/api/v1/compliance/modules/enrichment/KHC-HTK-500G-GL/lca",
+        headers={"X-Tenant-ID": "khc-europe"},
+        json={
+            "renewable_energy_pct": 75.0,
+            "transport_distance_km": 150.0,
+            "epd_registration_id": "EPD-ENV-2024-912",
+        },
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert data["transport_cradle_to_gate_km"] == 150.0
+    gaps_str = " ".join(data["required_additional_data"])
+    assert "EPD-ENV-2024-912" in gaps_str
+    assert "75.0% renewable PPA" in gaps_str

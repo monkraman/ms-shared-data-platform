@@ -28,6 +28,12 @@ class Layer4PPWRDPPService:
             if not product:
                 raise ValueError(f"SKU '{sku}' not found for tenant '{tenant_id}'")
 
+            enrichment = getattr(product, "ppwr_enrichment", None)
+            pfas_ok = enrichment.pfas_free_declaration if enrichment else True
+            heavy_metals_ok = enrichment.heavy_metals_pass if enrichment else True
+            reusable = enrichment.reusable_packaging if enrichment else False
+            doc_ref = f"DOC-PPWR-{enrichment.recyclass_cert_id}-{sku}" if (enrichment and enrichment.recyclass_cert_id) else f"DOC-PPWR-{sku}-2026"
+
             # Evaluate components
             total_weight = sum(c.weight_grams for c in product.components) or 1.0
             weighted_recyclability = 0.0
@@ -91,17 +97,18 @@ class Layer4PPWRDPPService:
 
             gtin = f"08715700{abs(hash(sku)) % 1000000:06d}"
 
+            is_compliant = (grade != PPWRRecyclabilityGrade.GRADE_E) and pfas_ok and heavy_metals_ok
             return PPWRDeclarationOfConformity(
-                doc_reference=f"DOC-PPWR-{sku}-2026",
+                doc_reference=doc_ref,
                 sku=sku,
                 gtin=gtin,
                 product_name=product.name,
                 producer_legal_entity=tenant_name,
                 overall_recyclability_pct=round(weighted_recyclability, 1),
                 recyclability_grade=grade,
-                is_compliant_for_eu_market=is_marketable,
-                heavy_metals_compliant=True,
-                pfas_substance_free=True,
+                is_compliant_for_eu_market=is_compliant,
+                heavy_metals_compliant=heavy_metals_ok,
+                pfas_substance_free=pfas_ok,
                 packaging_minimisation_ratio_pct=21.4,
                 reusable_packaging=False,
                 source_plm_spec=plm_spec,

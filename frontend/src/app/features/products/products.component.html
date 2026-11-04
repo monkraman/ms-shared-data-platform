@@ -532,6 +532,9 @@
             <h3>EU Declaration of Conformity (PPWR 2025/40)</h3>
             <span class="doc-sub">Statutory assessment under Article 6 &amp; 11 Design for Recycling standards.</span>
           </div>
+          <button type="button" class="btn-enrich mono font-xs font-bold" (click)="openPpwrModal()" style="margin-right: 12px;">
+            [+] Attach Lab Cert &amp; PFAS Declaration
+          </button>
           <div class="grade-badge-circle" [attr.data-grade]="doc.recyclability_grade">
             Grade {{ doc.recyclability_grade }}
           </div>
@@ -582,7 +585,12 @@
         </div>
 
         <div class="dpp-info-column">
-          <h3>Consumer Recycling Instructions</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="margin: 0;">Consumer Recycling Instructions</h3>
+            <button type="button" class="btn-enrich mono font-xs font-bold" (click)="openDppModal()">
+              [+] Configure GS1 Link &amp; Sorting
+            </button>
+          </div>
           <div class="instruction-box">
             @for (inst of dpp.disposal_instructions; track inst) {
             <p style="margin: 0 0 4px 0;">{{ inst }}</p>
@@ -642,6 +650,9 @@
               <h3>Cradle-to-Gate Life Cycle Assessment (ISO 14067 / GHG Protocol)</h3>
               <p class="section-desc">Automated packaging carbon footprint derived from canonical BOM tare weights and DEFRA/Ecoinvent emission factors.</p>
             </div>
+            <button type="button" class="btn-enrich mono font-xs font-bold" (click)="openLcaModal()" style="margin-right: 16px;">
+              [+] Update Energy Mix &amp; Freight Km
+            </button>
             <div class="lca-eco-badge" [attr.data-eco]="lca.eco_score_grade">
               <span class="eco-lbl">Eco-Score</span>
               <span class="eco-val font-bold">Grade {{ lca.eco_score_grade }}</span>
@@ -806,3 +817,154 @@
   }
 
 </div>
+
+
+  <!-- ══════════════════════ MODAL: PPWR LAB TEST & DECLARATION ══════════════════════ -->
+  @if (showPpwrModal() && selectedProduct(); as prod) {
+  <div class="modal-backdrop" (click)="closePpwrModal()">
+    <div class="modal-card" style="max-width: 540px;" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title">Attach PPWR Compliance Verification</h2>
+          <p class="modal-sub">SKU: <strong class="mono">{{ prod.sku }}</strong> &middot; {{ prod.name }}</p>
+        </div>
+        <button type="button" class="btn-close" (click)="closePpwrModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        @if (enrichmentNotice()) {
+        <div class="alert-box success" style="margin-bottom: 14px;">{{ enrichmentNotice() }}</div>
+        }
+
+        <div class="form-group">
+          <label class="form-lbl">RecyClass / CEN DfR Lab Certificate ID:</label>
+          <input type="text" class="form-input mono" [(ngModel)]="ppwrRecyclassCert" placeholder="e.g. RC-2025-EU-889" />
+          <span class="form-hint">Accredited laboratory Design for Recycling verification certificate.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-lbl">Post-Consumer Recycled (PCR) Audit Reference:</label>
+          <input type="text" class="form-input mono" [(ngModel)]="ppwrPcrCert" placeholder="e.g. EU-CERT-994" />
+          <span class="form-hint">EuCertPlast or ISO 14021 batch traceability verification ID.</span>
+        </div>
+
+        <div class="form-checkbox-group" style="margin-top: 14px;">
+          <label class="checkbox-row">
+            <input type="checkbox" [(ngModel)]="ppwrPfasFree" />
+            <span><strong>PFAS-Free Declaration (PPWR Art 5)</strong>: Formulation contains &lt;25 ppb total organic fluorine.</span>
+          </label>
+
+          <label class="checkbox-row">
+            <input type="checkbox" [(ngModel)]="ppwrHeavyMetalsPass" />
+            <span><strong>Heavy Metals Limit Pass (PPWR Art 11)</strong>: Combined Pb, Cd, Hg, and Cr VI &lt;100 ppm.</span>
+          </label>
+
+          <label class="checkbox-row">
+            <input type="checkbox" [(ngModel)]="ppwrReusable" />
+            <span><strong>Annex VI Reusable Packaging</strong>: Part of an established closed-loop reuse / refill system.</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="closePpwrModal()" [disabled]="isSavingEnrichment()">Cancel</button>
+        <button type="button" class="btn-primary" (click)="submitPpwrEnrichment(prod.sku)" [disabled]="isSavingEnrichment()">
+          @if (isSavingEnrichment()) { Saving &amp; Recalculating... } @else { Save &amp; Recalculate DoC }
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- ══════════════════════ MODAL: LCA FACTORY MIX & FREIGHT ══════════════════════ -->
+  @if (showLcaModal() && selectedProduct(); as prod) {
+  <div class="modal-backdrop" (click)="closeLcaModal()">
+    <div class="modal-card" style="max-width: 540px;" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title">Update LCA Energy &amp; Freight Ingestion</h2>
+          <p class="modal-sub">SKU: <strong class="mono">{{ prod.sku }}</strong> &middot; {{ prod.name }}</p>
+        </div>
+        <button type="button" class="btn-close" (click)="closeLcaModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        @if (enrichmentNotice()) {
+        <div class="alert-box success" style="margin-bottom: 14px;">{{ enrichmentNotice() }}</div>
+        }
+
+        <div class="form-group">
+          <label class="form-lbl">Primary Converter Green Electricity PPA / REGO (%):</label>
+          <input type="number" min="0" max="100" class="form-input mono" [(ngModel)]="lcaRenewablePct" />
+          <span class="form-hint">Procured renewable power at converter molding facility (reduces Scope 3 carbon).</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-lbl">Inbound Haulage Freight Distance (km):</label>
+          <input type="number" min="1" max="5000" class="form-input mono" [(ngModel)]="lcaTransportKm" />
+          <span class="form-hint">Distance from packaging fabrication plant to final food filler facility.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-lbl">Verified Environmental Product Declaration (EPD ID):</label>
+          <input type="text" class="form-input mono" [(ngModel)]="lcaEpdId" placeholder="e.g. EPD-ENV-2024-912" />
+          <span class="form-hint">ISO 14025 / EN 15804 supplier third-party certified verification ID.</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="closeLcaModal()" [disabled]="isSavingEnrichment()">Cancel</button>
+        <button type="button" class="btn-primary" (click)="submitLcaEnrichment(prod.sku)" [disabled]="isSavingEnrichment()">
+          @if (isSavingEnrichment()) { Updating Carbon Model... } @else { Save &amp; Recalculate LCA }
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- ══════════════════════ MODAL: DPP GS1 & SORTING INSTRUCTIONS ══════════════════════ -->
+  @if (showDppModal() && selectedProduct(); as prod) {
+  <div class="modal-backdrop" (click)="closeDppModal()">
+    <div class="modal-card" style="max-width: 540px;" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title">Configure DPP Digital Link &amp; Sorting</h2>
+          <p class="modal-sub">SKU: <strong class="mono">{{ prod.sku }}</strong> &middot; {{ prod.name }}</p>
+        </div>
+        <button type="button" class="btn-close" (click)="closeDppModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        @if (enrichmentNotice()) {
+        <div class="alert-box success" style="margin-bottom: 14px;">{{ enrichmentNotice() }}</div>
+        }
+
+        <div class="form-group">
+          <label class="form-lbl">14-Digit GS1 GTIN Barcode:</label>
+          <input type="text" class="form-input mono" [(ngModel)]="dppGtin" placeholder="05000157024672" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-lbl">Brand Consumer Sustainability Page URL:</label>
+          <input type="url" class="form-input" [(ngModel)]="dppLandingUrl" placeholder="https://kraftheinz.com/sustainability" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-lbl">Harmonised On-Pack Sorting Standard:</label>
+          <select class="form-select" [(ngModel)]="dppHarmonisedLabel">
+            <option value="Triman / OPRL Standard">Triman (France) &amp; OPRL (UK) Standard</option>
+            <option value="CONAI Packaging Stream">CONAI Mandatory Sorting Mark (Italy)</option>
+            <option value="Grüner Punkt (Duales System)">Der Grüne Punkt (Germany)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="closeDppModal()" [disabled]="isSavingEnrichment()">Cancel</button>
+        <button type="button" class="btn-primary" (click)="submitDppEnrichment(prod.sku)" [disabled]="isSavingEnrichment()">
+          @if (isSavingEnrichment()) { Updating Passport... } @else { Save Passport Payload }
+        </button>
+      </div>
+    </div>
+  </div>
+  }

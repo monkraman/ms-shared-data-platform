@@ -58,6 +58,37 @@ class PackagingComponentBase(BaseModel):
     source_lineage: Optional[SourceLineage] = None
 
 
+
+class PPWREnrichmentData(BaseModel):
+    recyclass_cert_id: Optional[str] = Field(default=None, description="CEN/RecyClass DfR Lab Certificate ID")
+    pcr_cert_id: Optional[str] = Field(default=None, description="EuCertPlast / ISO 14021 Recycled Content Certificate ID")
+    pfas_free_declaration: bool = Field(default=True, description="Conforms to EU 2024 PPWR Article 5 PFAS ban (<25ppb)")
+    heavy_metals_pass: bool = Field(default=True, description="Pb/Cd/Hg/Cr VI combined sum <100 ppm")
+    lab_test_date: Optional[str] = Field(default=None, description="Accredited lab assessment date")
+    reusable_packaging: bool = Field(default=False, description="Complies with Annex VI reuse rotation criteria")
+
+
+class DPPEnrichmentData(BaseModel):
+    gtin: Optional[str] = Field(default=None, description="14-digit GS1 GTIN barcode (e.g. 05000157024672)")
+    gs1_domain: Optional[str] = Field(default="id.monkspaces.com", description="GS1 Digital Link resolver domain")
+    brand_landing_url: Optional[str] = Field(default=None, description="Brand consumer sustainability landing page")
+    disposal_instructions: List[str] = Field(default_factory=list, description="Multilingual consumer disposal steps")
+    harmonised_label: Optional[str] = Field(default="Triman / OPRL Standard", description="Harmonised sorting mark")
+
+
+class LCAEnrichmentData(BaseModel):
+    renewable_energy_pct: float = Field(default=0.0, ge=0.0, le=100.0, description="% converter plant green electricity (PPA/REGO)")
+    transport_distance_km: float = Field(default=350.0, ge=0.0, description="Supplier to packaging filler haulage distance (km)")
+    epd_registration_id: Optional[str] = Field(default=None, description="Verified Environmental Product Declaration (ISO 14025 / EN 15804)")
+    grid_intensity_override: Optional[float] = Field(default=None, description="Custom grid emission factor (kg CO2e/kWh)")
+
+
+class EPREnrichmentData(BaseModel):
+    activity_type: Optional[str] = Field(default="Brand Owner", description="Defra / DPA Producer Packaging Activity")
+    organisation_size: Optional[str] = Field(default="Large Producer", description="Statutory organisation threshold tier")
+    reuse_system_active: bool = Field(default=False, description="Statutory reusable system in place")
+
+
 class ProductBase(BaseModel):
     sku: str = Field(..., description="Unique product SKU code, e.g. KHC-00452")
     brand: str = Field(..., description="Brand name, e.g. Heinz, Kraft, Philadelphia")
@@ -68,6 +99,10 @@ class ProductBase(BaseModel):
     status: str = Field(default="active", description="Lifecycle status: active, pending_validation, archived")
     components: List[PackagingComponentBase] = Field(default_factory=list)
     source_lineage: Optional[SourceLineage] = None
+    ppwr_enrichment: Optional[PPWREnrichmentData] = None
+    dpp_enrichment: Optional[DPPEnrichmentData] = None
+    lca_enrichment: Optional[LCAEnrichmentData] = None
+    epr_enrichment: Optional[EPREnrichmentData] = None
 
 
 class ProductResponse(ProductBase):

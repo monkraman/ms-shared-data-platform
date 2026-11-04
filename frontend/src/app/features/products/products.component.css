@@ -1394,3 +1394,43 @@
 .gap-text {
   color: #3f3f46;
 }
+
+
+/* Enrichment Button & Modals */
+.btn-enrich {
+  background: #ffffff;
+  color: #09090b;
+  border: 1px solid #09090b;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-enrich:hover {
+  background: #09090b;
+  color: #ffffff;
+}
+
+.form-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-primary);
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.checkbox-row input[type="checkbox"] {
+  margin-top: 2px;
+  accent-color: #09090b;
+  width: 15px;
+  height: 15px;
+}

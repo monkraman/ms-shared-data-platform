@@ -12,6 +12,10 @@ import psycopg
 
 from app.schemas.tenancy import TenantBase, TenantCreate, TenantResponse, TenantTier
 from app.schemas.canonical import (
+    PPWREnrichmentData,
+    DPPEnrichmentData,
+    LCAEnrichmentData,
+    EPREnrichmentData,
     MaterialCategory,
     PackagingComponentBase,
     PackagingLevel,
@@ -1316,6 +1320,42 @@ class DataStore:
         self.quality_issues[tenant][issue2.id] = issue2
         self.quality_issues[tenant][issue3.id] = issue3
         self.quality_issues[tenant][issue_pouch.id] = issue_pouch
+
+    def enrich_product_ppwr(self, tenant_id: str, sku: str, data: PPWREnrichmentData):
+        with self._lock:
+            prods = self.products.get(tenant_id, {})
+            p = prods.get(sku) or (self.products.get("khc-europe", {}).get(sku))
+            if not p:
+                return None
+            p.ppwr_enrichment = data
+            return p
+
+    def enrich_product_dpp(self, tenant_id: str, sku: str, data: DPPEnrichmentData):
+        with self._lock:
+            prods = self.products.get(tenant_id, {})
+            p = prods.get(sku) or (self.products.get("khc-europe", {}).get(sku))
+            if not p:
+                return None
+            p.dpp_enrichment = data
+            return p
+
+    def enrich_product_lca(self, tenant_id: str, sku: str, data: LCAEnrichmentData):
+        with self._lock:
+            prods = self.products.get(tenant_id, {})
+            p = prods.get(sku) or (self.products.get("khc-europe", {}).get(sku))
+            if not p:
+                return None
+            p.lca_enrichment = data
+            return p
+
+    def enrich_product_epr(self, tenant_id: str, sku: str, data: EPREnrichmentData):
+        with self._lock:
+            prods = self.products.get(tenant_id, {})
+            p = prods.get(sku) or (self.products.get("khc-europe", {}).get(sku))
+            if not p:
+                return None
+            p.epr_enrichment = data
+            return p
 
     def update_tenant_modules(self, tenant_id: str, modules: list[str]):
         """Toggle active compliance and intelligence modules for a tenant workspace."""

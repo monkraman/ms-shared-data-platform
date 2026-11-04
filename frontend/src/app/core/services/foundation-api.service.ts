@@ -133,6 +133,37 @@ export interface LcaAssessmentResponse {
   required_additional_data: string[];
 }
 
+
+export interface PPWREnrichmentData {
+  recyclass_cert_id?: string | null;
+  pcr_cert_id?: string | null;
+  pfas_free_declaration: boolean;
+  heavy_metals_pass: boolean;
+  lab_test_date?: string | null;
+  reusable_packaging: boolean;
+}
+
+export interface DPPEnrichmentData {
+  gtin?: string | null;
+  gs1_domain?: string | null;
+  brand_landing_url?: string | null;
+  disposal_instructions: string[];
+  harmonised_label?: string | null;
+}
+
+export interface LCAEnrichmentData {
+  renewable_energy_pct: number;
+  transport_distance_km: number;
+  epd_registration_id?: string | null;
+  grid_intensity_override?: number | null;
+}
+
+export interface EPREnrichmentData {
+  activity_type?: string | null;
+  organisation_size?: string | null;
+  reuse_system_active: boolean;
+}
+
 export interface ModuleEntitlementResponse {
   tenant_id: string;
   tenant_name: string;
@@ -315,6 +346,36 @@ export class FoundationApiService {
           error: () => this.syncing.set(false),
         })
       );
+  }
+
+  savePpwrEnrichment(sku: string, payload: PPWREnrichmentData): Observable<PPWRDeclarationOfConformity> {
+    return this.http
+      .post<PPWRDeclarationOfConformity>(
+        `${this.baseUrl}/api/v1/compliance/modules/enrichment/${sku}/ppwr`,
+        payload,
+        { headers: this.getHeaders() }
+      )
+      .pipe(tap((doc) => this.ppwrDoc.set(doc)));
+  }
+
+  saveLcaEnrichment(sku: string, payload: LCAEnrichmentData): Observable<LcaAssessmentResponse> {
+    return this.http
+      .post<LcaAssessmentResponse>(
+        `${this.baseUrl}/api/v1/compliance/modules/enrichment/${sku}/lca`,
+        payload,
+        { headers: this.getHeaders() }
+      )
+      .pipe(tap((lca) => this.lcaAssessment.set(lca)));
+  }
+
+  saveDppEnrichment(sku: string, payload: DPPEnrichmentData): Observable<DigitalProductPassport> {
+    return this.http
+      .post<DigitalProductPassport>(
+        `${this.baseUrl}/api/v1/compliance/modules/enrichment/${sku}/dpp`,
+        payload,
+        { headers: this.getHeaders() }
+      )
+      .pipe(tap((dpp) => this.dppPassport.set(dpp)));
   }
 
   importSkus(payload: SkuImportPayload): Observable<SkuImportResponse> {

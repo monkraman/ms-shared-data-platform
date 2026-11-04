@@ -55,6 +55,30 @@ export class ProductsComponent implements OnInit {
   readonly lcaAssessment = this.foundationService.lcaAssessment;
   readonly moduleEntitlement = this.foundationService.moduleEntitlement;
 
+  // Step 3: Module Additional Data & Enrichment Modals
+  readonly showPpwrModal = signal<boolean>(false);
+  readonly showLcaModal = signal<boolean>(false);
+  readonly showDppModal = signal<boolean>(false);
+  readonly isSavingEnrichment = signal<boolean>(false);
+  readonly enrichmentNotice = signal<string | null>(null);
+
+  // PPWR Form State
+  ppwrRecyclassCert = 'RC-2025-EU-889';
+  ppwrPcrCert = 'EU-CERT-994';
+  ppwrPfasFree = true;
+  ppwrHeavyMetalsPass = true;
+  ppwrReusable = false;
+
+  // LCA Form State
+  lcaRenewablePct = 75.0;
+  lcaTransportKm = 180.0;
+  lcaEpdId = 'EPD-ENV-2024-912';
+
+  // DPP Form State
+  dppGtin = '05000157024672';
+  dppLandingUrl = 'https://kraftheinz.com/sustainability';
+  dppHarmonisedLabel = 'Triman / OPRL Standard';
+
   // Search & Faceted Filters
   readonly filterQuery = signal<string>('');
   readonly categoryFilter = signal<string>('ALL');
@@ -73,6 +97,88 @@ export class ProductsComponent implements OnInit {
     const ent = this.moduleEntitlement();
     if (!ent || !ent.active_modules) return true;
     return ent.active_modules.includes(moduleKey);
+  }
+
+  openPpwrModal(): void {
+    this.enrichmentNotice.set(null);
+    this.showPpwrModal.set(true);
+  }
+
+  closePpwrModal(): void {
+    this.showPpwrModal.set(false);
+  }
+
+  submitPpwrEnrichment(sku: string): void {
+    this.isSavingEnrichment.set(true);
+    this.foundationService.savePpwrEnrichment(sku, {
+      recyclass_cert_id: this.ppwrRecyclassCert,
+      pcr_cert_id: this.ppwrPcrCert,
+      pfas_free_declaration: this.ppwrPfasFree,
+      heavy_metals_pass: this.ppwrHeavyMetalsPass,
+      reusable_packaging: this.ppwrReusable,
+    }).subscribe({
+      next: () => {
+        this.isSavingEnrichment.set(false);
+        this.enrichmentNotice.set('PPWR lab certificates attached & DoC recalculated!');
+        setTimeout(() => this.closePpwrModal(), 900);
+      },
+      error: () => this.isSavingEnrichment.set(false),
+    });
+  }
+
+  openLcaModal(): void {
+    this.enrichmentNotice.set(null);
+    this.showLcaModal.set(true);
+  }
+
+  closeLcaModal(): void {
+    this.showLcaModal.set(false);
+  }
+
+  submitLcaEnrichment(sku: string): void {
+    this.isSavingEnrichment.set(true);
+    this.foundationService.saveLcaEnrichment(sku, {
+      renewable_energy_pct: Number(this.lcaRenewablePct),
+      transport_distance_km: Number(this.lcaTransportKm),
+      epd_registration_id: this.lcaEpdId,
+    }).subscribe({
+      next: () => {
+        this.isSavingEnrichment.set(false);
+        this.enrichmentNotice.set('Converter energy mix & transport updated! Carbon footprint recalculated.');
+        setTimeout(() => this.closeLcaModal(), 900);
+      },
+      error: () => this.isSavingEnrichment.set(false),
+    });
+  }
+
+  openDppModal(): void {
+    this.enrichmentNotice.set(null);
+    this.showDppModal.set(true);
+  }
+
+  closeDppModal(): void {
+    this.showDppModal.set(false);
+  }
+
+  submitDppEnrichment(sku: string): void {
+    this.isSavingEnrichment.set(true);
+    this.foundationService.saveDppEnrichment(sku, {
+      gtin: this.dppGtin,
+      brand_landing_url: this.dppLandingUrl,
+      harmonised_label: this.dppHarmonisedLabel,
+      disposal_instructions: [
+        'Cap: Detach PP closure and dispose in yellow plastic recycling stream.',
+        'Body: Rinse container and place in standard curbside sorting bin.',
+        'Label: Water-soluble adhesive dissolves during recycling caustic wash.'
+      ],
+    }).subscribe({
+      next: () => {
+        this.isSavingEnrichment.set(false);
+        this.enrichmentNotice.set('GS1 Digital Link & passport payload saved!');
+        setTimeout(() => this.closeDppModal(), 900);
+      },
+      error: () => this.isSavingEnrichment.set(false),
+    });
   }
 
   selectProduct(sku: string): void {

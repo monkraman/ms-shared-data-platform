@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from app.core.security import get_current_tenant_id
 from app.schemas.ppwr_dpp import DigitalProductPassport, PPWRDeclarationOfConformity
+from app.schemas.canonical import PPWREnrichmentData, DPPEnrichmentData, LCAEnrichmentData, EPREnrichmentData
 from app.schemas.lca import LcaAssessmentResponse
 from app.services.layer4_ppwr_dpp import Layer4PPWRDPPService
 from app.services.layer4_lca import calculate_lca_assessment
@@ -95,3 +96,44 @@ def get_lca_assessment(
         annual_units = sum(s.units_sold for s in sales if s.sku == sku) or 150000
 
         return calculate_lca_assessment(product, annual_units=annual_units)
+
+
+@router.post("/enrichment/{sku}/ppwr", response_model=PPWRDeclarationOfConformity)
+def enrich_ppwr_module_data(
+    sku: str,
+    payload: PPWREnrichmentData,
+    tenant_id: str = Depends(get_current_tenant_id),
+) -> PPWRDeclarationOfConformity:
+    """Attach module-specific PPWR lab certificates, PCR audits, and PFAS declarations."""
+    prod = data_store.enrich_product_ppwr(tenant_id, sku, payload)
+    if not prod:
+        raise HTTPException(status_code=404, detail=f"SKU '{sku}' not found.")
+    return Layer4PPWRDPPService.generate_ppwr_doc(tenant_id, sku)
+
+
+@router.post("/enrichment/{sku}/lca", response_model=LcaAssessmentResponse)
+def enrich_lca_module_data(
+    sku: str,
+    payload: LCAEnrichmentData,
+    tenant_id: str = Depends(get_current_tenant_id),
+) -> LcaAssessmentResponse:
+    """Attach module-specific LCA data: converter green energy mix %, haulage km, and EPD cert."""
+    prod = data_store.enrich_product_lca(tenant_id, sku, payload)
+    if not prod:
+        raise HTTPException(status_code=404, detail=f"SKU '{sku}' not found.")
+    sales = data_store.sales.get(tenant_id, [])
+    annual_units = sum(s.units_sold for s in sales if s.sku == sku) or 150000
+    return calculate_lca_assessment(prod, annual_units=annual_units)
+
+
+@router.post("/enrichment/{sku}/dpp", response_model=DigitalProductPassport)
+def enrich_dpp_module_data(
+    sku: str,
+    payload: DPPEnrichmentData,
+    tenant_id: str = Depends(get_current_tenant_id),
+) -> DigitalProductPassport:
+    """Configure custom GS1 Digital Link domain, GTIN barcode, and multilingual disposal instructions."""
+    prod = data_store.enrich_product_dpp(tenant_id, sku, payload)
+    if not prod:
+        raise HTTPException(status_code=404, detail=f"SKU '{sku}' not found.")
+    return Layer4PPWRDPPService.generate_dpp(tenant_id, sku)

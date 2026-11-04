@@ -64,6 +64,7 @@ yarn-error.log*
 **/*.log
 uploads/
 local-data/
+backend/app/data/
 *.sqlite3
 tmp/
 temp/
