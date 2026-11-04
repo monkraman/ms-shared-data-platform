@@ -89,6 +89,14 @@ export class ConfigApiService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${APP_CONFIG.apiBaseUrl}/api/v1/config`;
 
+  private getHeaders(): any {
+    let token: string | null = null;
+    try {
+      token = localStorage.getItem('compliance_hub_jwt_token');
+    } catch {}
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
   getMasterData(): Observable<MasterDataResponse> {
     return this.http.get<MasterDataResponse>(`${this.baseUrl}/masters`);
   }
@@ -98,7 +106,7 @@ export class ConfigApiService {
   }
 
   getUserRoles(): Observable<UserRoleConfig[]> {
-    return this.http.get<UserRoleConfig[]>(`${this.baseUrl}/roles`);
+    return this.http.get<UserRoleConfig[]>(`${this.baseUrl}/roles`, { headers: this.getHeaders() });
   }
 
   getSectors(): Observable<SectorConfig[]> {

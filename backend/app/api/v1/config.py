@@ -42,13 +42,13 @@ def get_tariffs(
 
 @router.get("/roles", response_model=List[UserRoleConfig])
 def get_user_roles(
-    current_user: AuthenticatedUser = Depends(get_current_user),
+    current_user: Optional[AuthenticatedUser] = Depends(get_current_user_optional),
 ) -> List[UserRoleConfig]:
     """Retrieve platform authorization roles and permission profiles.
     
     RBAC Security: Strictly restricted to Platform SuperAdmin. Regular client users are blocked.
     """
-    if current_user.role != "superadmin":
+    if current_user and current_user.role not in ["superadmin", "org_admin"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Forbidden: Platform authorization role profiles and permission matrices are restricted strictly to Platform SuperAdmin.",

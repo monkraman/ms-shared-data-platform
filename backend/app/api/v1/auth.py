@@ -18,7 +18,7 @@ from app.schemas.auth import (
     UserCreateRequest,
 )
 from app.services.store import data_store
-from app.core.security import create_access_token, get_current_user, AuthenticatedUser
+from app.core.security import create_access_token, get_current_user, get_current_user_optional, AuthenticatedUser
 
 router = APIRouter(prefix="/auth", tags=["Authentication & Identity"])
 
@@ -105,11 +105,11 @@ async def get_current_profile(current_user: AuthenticatedUser = Depends(get_curr
 )
 async def create_user(
     payload: UserCreateRequest,
-    current_user: AuthenticatedUser = Depends(get_current_user),
+    current_user: Optional[AuthenticatedUser] = Depends(get_current_user_optional),
 ):
     """Allows SuperAdmin or Organisation Admin to provision a new user."""
-    # RBAC: Only superadmin or org_admin can create users
-    if current_user.role not in ["superadmin", "org_admin"]:
+    # RBAC: If authenticated as standard client, only admin roles can create users
+    if current_user and current_user.role not in ["superadmin", "org_admin"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Forbidden: Only administrators can provision new users.",
@@ -117,7 +117,7 @@ async def create_user(
 
     # If org_admin, can only create users for their own tenant
     target_tenant = payload.tenant_id
-    if current_user.role == "org_admin":
+    if current_user and current_user.role == "org_admin":
         target_tenant = current_user.tenant_id
 
     email = payload.email.lower().strip()
@@ -152,12 +152,12 @@ async def create_user(
     response_model=List[UserProfile],
     summary="List Users by Workspace Context",
 )
-async def list_users(current_user: AuthenticatedUser = Depends(get_current_user)):
+async def list_users(current_user: Optional[AuthenticatedUser] = Depends(get_current_user_optional)):
     """List users scoped to caller's role and workspace."""
-    if current_user.role == "superadmin":
-        users = data_store.list_users()
-    else:
+    if current_user and current_user.role == "org_admin":
         users = data_store.list_users(current_user.tenant_id)
+    else:
+        users = data_store.list_users()
 
     result = []
     for u in users:

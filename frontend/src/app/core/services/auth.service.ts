@@ -119,8 +119,13 @@ export class AuthService {
     this._currentUser.set(null);
   }
 
+  private getAuthHeaders(): any {
+    const token = this.getToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
   getUsers(): Observable<AuthUser[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/api/v1/auth/users`).pipe(
+    return this.http.get<any[]>(`${this.baseUrl}/api/v1/auth/users`, { headers: this.getAuthHeaders() }).pipe(
       map(users => users.map(u => ({
         id: u.id,
         email: u.email,
@@ -150,7 +155,7 @@ export class AuthService {
       organisation_name: payload.organisationName,
       password: payload.password || 'password123',
     };
-    return this.http.post<any>(`${this.baseUrl}/api/v1/auth/users`, body).pipe(
+    return this.http.post<any>(`${this.baseUrl}/api/v1/auth/users`, body, { headers: this.getAuthHeaders() }).pipe(
       map(u => ({
         id: u.id,
         email: u.email,
