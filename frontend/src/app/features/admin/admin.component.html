@@ -93,7 +93,10 @@
         </button>
         }
         @if (activeTab() === 'datapoints') {
-        <button class="btn-secondary" (click)="loadDataPoints()">
+        <a href="/data-explorer/index.html" target="_blank" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+          Interactive Flowchart &amp; Explorer &nearr;
+        </a>
+        <button class="btn-primary" (click)="loadDataPoints()">
           Refresh Data Dictionary
         </button>
         }

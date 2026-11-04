@@ -12,6 +12,9 @@
     </div>
 
     <div class="header-actions">
+      <a href="/data-explorer/index.html" target="_blank" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+        <span>Interactive Flowchart &amp; Explorer &nearr;</span>
+      </a>
       <button type="button" class="btn btn-secondary" [disabled]="syncing()" (click)="triggerSync()">
         <span class="sync-icon" [class.spinning]="syncing()"></span>
         {{ syncing() ? 'Extracting Upstream Specs...' : 'Sync Upstream Sources' }}
