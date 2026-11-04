@@ -75,3 +75,4 @@ class LcaAssessmentResponse(BaseModel):
         default_factory=list,
         description="Module-specific data gaps required to certify ISO 14067 / EPD declaration"
     )
+
