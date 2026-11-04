@@ -20,8 +20,9 @@ export const routes: Routes = [
   { path: 'admin', redirectTo: 'admin/workspaces', pathMatch: 'full' },
   { path: 'admin/workspaces', component: AdminComponent, canActivate: [superAdminGuard], title: 'Client Workspaces — SuperAdmin' },
   { path: 'admin/users', component: AdminComponent, canActivate: [superAdminGuard], title: 'User Directory & IAM — SuperAdmin' },
+  { path: 'admin/data-points', component: AdminComponent, canActivate: [superAdminGuard], title: 'Data Points Dictionary — SuperAdmin' },
   { path: 'admin/tariffs', component: AdminComponent, canActivate: [superAdminGuard], title: 'Rule & Tariff Library — SuperAdmin' },
-  { path: 'admin/masters', component: AdminComponent, canActivate: [superAdminGuard], title: 'Master Data Catalog — SuperAdmin' },
+  { path: 'admin/masters', component: AdminComponent, canActivate: [superAdminGuard], title: 'Countries & Sectors — SuperAdmin' },
   { path: 'admin/batches', component: AdminComponent, canActivate: [superAdminGuard], title: 'Ingestion Batches — SuperAdmin' },
   { path: 'onboarding', component: OnboardingComponent, canActivate: [superAdminGuard], title: 'Client Setup — Compliance Hub' },
 

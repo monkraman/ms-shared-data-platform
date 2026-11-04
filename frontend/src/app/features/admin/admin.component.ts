@@ -19,9 +19,10 @@ import {
   SectorConfig,
   CountryConfig,
   UserRoleConfig,
+  DataPointDefinition,
 } from '../../core/services/config-api.service';
 
-type AdminTab = 'organisations' | 'users' | 'tariffs' | 'masters' | 'batches';
+type AdminTab = 'organisations' | 'users' | 'datapoints' | 'tariffs' | 'masters' | 'batches';
 
 @Component({
   selector: 'app-admin',
@@ -43,6 +44,12 @@ export class AdminComponent implements OnInit {
   readonly batches = signal<IngestionBatch[]>([]);
   readonly masterData = signal<MasterDataResponse | null>(null);
   readonly tariffs = signal<TariffRate[]>([]);
+  readonly dataPoints = signal<DataPointDefinition[]>([]);
+  readonly sectors = signal<SectorConfig[]>([]);
+  readonly countries = signal<CountryConfig[]>([]);
+  readonly userRoles = signal<UserRoleConfig[]>([]);
+  readonly dpSearchQuery = signal<string>('');
+  readonly dpSourceFilter = signal<string>('ALL');
 
   // Platform Metrics
   readonly totalOrgs = computed(() => this.tenants().length);
@@ -215,18 +222,82 @@ export class AdminComponent implements OnInit {
     if (url.includes('/admin/users')) {
       this.activeTab.set('users');
       this.loadUsers();
+      this.loadUserRoles();
+    } else if (url.includes('/admin/data-points')) {
+      this.activeTab.set('datapoints');
+      this.loadDataPoints();
     } else if (url.includes('/admin/tariffs')) {
       this.activeTab.set('tariffs');
-      this.loadMasterData();
+      this.loadTariffs();
     } else if (url.includes('/admin/masters')) {
       this.activeTab.set('masters');
-      this.loadMasterData();
+      this.loadSectors();
+      this.loadCountries();
     } else if (url.includes('/admin/batches')) {
       this.activeTab.set('batches');
       this.loadBatches();
     } else {
       this.activeTab.set('organisations');
     }
+  }
+
+  loadDataPoints(): void {
+    this.configService.getDataPoints().subscribe({
+      next: (dps) => this.dataPoints.set(dps),
+      error: (err) => console.warn('Failed loading data points', err),
+    });
+  }
+
+  loadTariffs(): void {
+    this.configService.getTariffs().subscribe({
+      next: (t) => this.tariffs.set(t),
+      error: (err) => console.warn('Failed loading tariffs', err),
+    });
+  }
+
+  loadSectors(): void {
+    this.configService.getSectors().subscribe({
+      next: (s) => this.sectors.set(s),
+      error: (err) => console.warn('Failed loading sectors', err),
+    });
+  }
+
+  loadCountries(): void {
+    this.configService.getCountries().subscribe({
+      next: (c) => this.countries.set(c),
+      error: (err) => console.warn('Failed loading countries', err),
+    });
+  }
+
+  loadUserRoles(): void {
+    this.configService.getUserRoles().subscribe({
+      next: (r) => this.userRoles.set(r),
+      error: (err) => console.warn('Failed loading user roles via RBAC', err),
+    });
+  }
+
+  getFilteredDataPoints(): DataPointDefinition[] {
+    const list = this.dataPoints();
+    const q = this.dpSearchQuery().toLowerCase().trim();
+    const src = this.dpSourceFilter();
+
+    return list.filter((dp) => {
+      const matchesSearch =
+        !q ||
+        dp.id.toLowerCase().includes(q) ||
+        dp.name.toLowerCase().includes(q) ||
+        dp.description.toLowerCase().includes(q) ||
+        dp.comes_from.toLowerCase().includes(q);
+
+      const matchesSrc =
+        src === 'ALL' ||
+        (src === 'ERP' && dp.comes_from.toLowerCase().includes('erp')) ||
+        (src === 'PLM' && dp.comes_from.toLowerCase().includes('plm')) ||
+        (src === 'SUPPLIER' && dp.comes_from.toLowerCase().includes('supplier')) ||
+        (src === 'LAB' && dp.comes_from.toLowerCase().includes('lab'));
+
+      return matchesSearch && matchesSrc;
+    });
   }
 
   loadMasterData(): void {
@@ -260,14 +331,23 @@ export class AdminComponent implements OnInit {
 
   setTab(tab: AdminTab): void {
     this.activeTab.set(tab);
-    const subpath = tab === 'organisations' ? 'workspaces' : tab;
+    let subpath = 'workspaces';
+    if (tab === 'datapoints') subpath = 'data-points';
+    else if (tab !== 'organisations') subpath = tab;
+
     this.router.navigate(['/admin', subpath]);
     if (tab === 'batches') {
       this.loadBatches();
-    } else if (tab === 'tariffs' || tab === 'masters') {
-      this.loadMasterData();
+    } else if (tab === 'tariffs') {
+      this.loadTariffs();
+    } else if (tab === 'datapoints') {
+      this.loadDataPoints();
+    } else if (tab === 'masters') {
+      this.loadSectors();
+      this.loadCountries();
     } else if (tab === 'users') {
       this.loadUsers();
+      this.loadUserRoles();
     }
   }
   // ─── User Management & IAM Actions ───

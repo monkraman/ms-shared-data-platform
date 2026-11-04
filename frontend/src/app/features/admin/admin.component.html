@@ -27,13 +27,17 @@
         <span class="nav-bullet"></span>
         <span>User Directory &amp; IAM</span>
       </a>
+      <a routerLink="/admin/data-points" routerLinkActive="active" class="nav-item">
+        <span class="nav-bullet"></span>
+        <span>Data Dictionary (DP01&ndash;DP45)</span>
+      </a>
       <a routerLink="/admin/tariffs" routerLinkActive="active" class="nav-item">
         <span class="nav-bullet"></span>
         <span>Rule &amp; Tariff Library</span>
       </a>
       <a routerLink="/admin/masters" routerLinkActive="active" class="nav-item">
         <span class="nav-bullet"></span>
-        <span>Master Data Catalog</span>
+        <span>Countries &amp; Sectors</span>
       </a>
       <a routerLink="/admin/batches" routerLinkActive="active" class="nav-item">
         <span class="nav-bullet"></span>
@@ -57,8 +61,9 @@
         <h1 class="page-title">
           @if (activeTab() === 'organisations') { Multi-Tenant Workspace Directory }
           @if (activeTab() === 'users') { Enterprise Identity &amp; User Directory (IAM) }
+          @if (activeTab() === 'datapoints') { Canonical Data Dictionary (DP01&ndash;DP45) }
           @if (activeTab() === 'tariffs') { Versioned Rule &amp; Tariff Library }
-          @if (activeTab() === 'masters') { Platform Master Data Catalog }
+          @if (activeTab() === 'masters') { Governed Countries &amp; Industry Sectors }
           @if (activeTab() === 'batches') { Ingestion History &amp; Lineage Batches }
         </h1>
         <p class="page-sub">Monk Spaces Operator View &middot; Canonical FMCG Data Foundation &amp; Governance</p>
@@ -78,6 +83,11 @@
         </button>
         <button type="button" class="btn-primary" (click)="openInviteModal()">
           + Provision Enterprise User
+        </button>
+        }
+        @if (activeTab() === 'datapoints') {
+        <button class="btn-secondary" (click)="loadDataPoints()">
+          Refresh Data Dictionary
         </button>
         }
         @if (activeTab() === 'tariffs') {
@@ -206,7 +216,7 @@
     </div>
     }
 
-    <!-- ══════════════════════ TAB: BATCHES ══════════════════════ -->
+<!-- ══════════════════════ TAB: BATCHES ══════════════════════ -->
     @if (activeTab() === 'batches') {
     <div class="tab-content">
       <div class="section-header">
@@ -395,6 +405,158 @@
         </table>
       </div>
       }
+    
+<!-- Platform Authorization Roles & RBAC Matrix (SuperAdmin Restricted) -->
+      @if (userRoles().length > 0) {
+      <div style="margin-top: 32px;">
+        <h3 style="font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 10px;">
+          Governed Platform Role Profiles &amp; Access Matrix (RBAC)
+        </h3>
+        <p class="section-desc" style="margin-bottom: 14px;">
+          Cryptographic permissions and client workspace boundaries enforced across APIs.
+        </p>
+
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Role Identifier</th>
+                <th>Display Name</th>
+                <th>Authority Scope &amp; Permission Boundaries</th>
+                <th>Client Assignable</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of userRoles(); track r.role_key) {
+              <tr>
+                <td><span class="pill-role mono font-bold">[{{ r.role_key.toUpperCase() }}]</span></td>
+                <td class="font-bold">{{ r.name }}</td>
+                <td style="font-size: 12px; line-height: 1.4;">{{ r.description }}</td>
+                <td>
+                  <span class="pill-status mono">{{ r.is_client_assignable ? '[CLIENT LEVEL]' : '[PLATFORM RESTRICTED]' }}</span>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+      }
+    </div>
+    }
+
+    <!-- ══════════════════════ TAB: CANONICAL DATA POINTS (DP01–DP45) ══════════════════════ -->
+    @if (activeTab() === 'datapoints') {
+    <div class="tab-content" id="tab-datapoints">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Canonical Shared Data Foundation (DP01&ndash;DP45)</h2>
+          <p class="section-desc">Governed regulatory data point dictionary linking enterprise source systems (SAP, PLM, Lab) directly to statutory returns.</p>
+        </div>
+        <div class="header-action-group">
+          <button class="btn-refresh" (click)="loadDataPoints()">Refresh Dictionary</button>
+        </div>
+      </div>
+
+      <!-- KPI Strip -->
+      <div class="kpi-strip user-kpi-strip">
+        <div class="kpi-card">
+          <span class="kpi-lbl">Total Governed Points</span>
+          <span class="kpi-num">{{ dataPoints().length }} Points</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-lbl">Mandatory for UK Defra</span>
+          <span class="kpi-num">32 Points</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-lbl">Mandatory for Denmark DPA</span>
+          <span class="kpi-num">28 Points</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-lbl">EU PPWR Article 6 &amp; 11</span>
+          <span class="kpi-num mono" style="font-size: 15px;">Full Alignment</span>
+        </div>
+      </div>
+
+      <!-- Toolbar Search & Filter -->
+      <div class="user-toolbar">
+        <div class="toolbar-search">
+          <input
+            type="text"
+            class="search-input"
+            [ngModel]="dpSearchQuery()"
+            (ngModelChange)="dpSearchQuery.set($event)"
+            placeholder="Search data points by ID (e.g. DP01), name, description, or system field..."
+          />
+        </div>
+
+        <div class="toolbar-filters">
+          <div class="filter-group">
+            <label class="filter-lbl">Source Holder:</label>
+            <select
+              class="filter-select"
+              [ngModel]="dpSourceFilter()"
+              (ngModelChange)="dpSourceFilter.set($event)"
+            >
+              <option value="ALL">All Source Systems</option>
+              <option value="ERP">ERP (Sales &amp; Finance)</option>
+              <option value="PLM">PLM (Trace One / Devex Specs)</option>
+              <option value="SUPPLIER">Suppliers (PCR &amp; Lab Audits)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Points Table -->
+      @if (dataPoints().length === 0) {
+      <div class="empty-state">Loading canonical data foundation from API...</div>
+      } @else {
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Point ID</th>
+              <th>Canonical Field Name</th>
+              <th>Specification Scope</th>
+              <th>Originating Source System</th>
+              <th>System Field Example</th>
+              <th>Destination Regulatory Output</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (dp of getFilteredDataPoints(); track dp.id) {
+            <tr>
+              <td>
+                <span class="pill-bom mono font-bold">{{ dp.id }}</span>
+              </td>
+              <td>
+                <div class="font-bold">{{ dp.name }}</div>
+                <div class="text-subtle font-xs">{{ dp.ppwr_note || 'Statutory requirement' }}</div>
+              </td>
+              <td style="max-width: 280px; font-size: 12px; line-height: 1.4;">
+                {{ dp.description }}
+              </td>
+              <td>
+                <span class="pill-status mono">{{ dp.comes_from }}</span>
+              </td>
+              <td>
+                <code class="mono font-xs" style="background: var(--bg-primary); padding: 2px 6px; border: 1px solid var(--border-subtle); border-radius: 3px;">
+                  {{ dp.system_field_example }}
+                </code>
+              </td>
+              <td>
+                <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                  @for (dst of dp.goes_into; track dst) {
+                  <span class="tag-tenant-inline" style="background: var(--bg-surface); padding: 2px 6px; border: 1px solid var(--border-subtle); border-radius: 3px;">{{ dst }}</span>
+                  }
+                </div>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      }
     </div>
     }
 
@@ -450,15 +612,15 @@
     </div>
     }
 
-    <!-- ══════════════════════ TAB: MASTER DATA CATALOG ══════════════════════ -->
+    <!-- ══════════════════════ TAB: GOVERNED COUNTRIES & SECTORS ══════════════════════ -->
     @if (activeTab() === 'masters') {
     <div class="tab-content" id="tab-masters">
       <div class="section-header">
         <div>
-          <h2 class="section-title">Platform Master Data Tables</h2>
-          <p class="section-desc">Governed industry sectors, country compliance obligations, and canonical data points (DP01&ndash;DP45).</p>
+          <h2 class="section-title">Governed Countries &amp; Industry Sectors</h2>
+          <p class="section-desc">Statutory market jurisdictions, national EPR authorities, and industry packaging category master records.</p>
         </div>
-        <button class="btn-refresh" (click)="loadMasterData()">Refresh Masters</button>
+        <button class="btn-refresh" (click)="loadSectors(); loadCountries();">Refresh Masters</button>
       </div>
 
       @if (masterData(); as masters) {
