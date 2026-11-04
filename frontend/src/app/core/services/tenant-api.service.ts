@@ -15,6 +15,8 @@ export interface BackendTenantRecord {
   active_products_count?: number;
   open_quality_issues_count?: number;
   source_systems?: string[];
+  logo_url?: string;
+  theme_color?: string;
   created_at?: string;
 }
 

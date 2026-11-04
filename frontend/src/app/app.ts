@@ -28,13 +28,25 @@ export class App {
 
   // Active Tenant signals
   readonly activeTenantId = this.tenantService.activeTenantId;
-  readonly activeTenantName = computed(() => {
+  readonly activeTenant = computed(() => {
     const list = this.tenantService.tenants();
-    const active = list.find((t) => t.id === this.activeTenantId());
+    return list.find((t) => t.id === this.activeTenantId());
+  });
+
+  readonly activeTenantName = computed(() => {
+    const active = this.activeTenant();
     if (active) return active.name;
     return this.activeTenantId() === 'khc-europe'
       ? 'The Kraft Heinz Company'
       : this.activeTenantId();
+  });
+
+  readonly activeTenantLogo = computed(() => {
+    return this.activeTenant()?.logo_url || null;
+  });
+
+  readonly activeTenantColor = computed(() => {
+    return this.activeTenant()?.theme_color || '#111827';
   });
 
   // Dynamic Quality Issues / Gaps Count from DB

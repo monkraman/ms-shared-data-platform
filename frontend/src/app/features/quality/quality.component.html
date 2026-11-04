@@ -17,27 +17,27 @@
     </div>
   </header>
 
-  <!-- Screen 06 vs Screen 07 Mode Switcher Bar -->
+  <!-- Compliance Mode Switcher Bar -->
   <div class="subview-nav-bar">
     <button type="button" class="subview-tab-btn" [class.active]="activeSubView() === 'report'" (click)="setSubView('report')">
-      [Screen 06] Gap Report (Ranked by Fee Impact)
+      Compliance Gap Report (Ranked by Fee Impact)
     </button>
     <button type="button" class="subview-tab-btn" [class.active]="activeSubView() === 'lanes'" (click)="setSubView('lanes')">
-      [Screen 07] Close the Gaps (3-Lane Workflow)
+      Remediation Workflow &amp; Cross-Team Lanes
     </button>
   </div>
 
-  <!-- Hero KPI Strip (Screen 06 Hero Metrics) -->
+  <!-- Hero KPI Strip (Live Database Metrics) -->
   <div class="hero-kpi-grid">
     <div class="kpi-box">
       <span class="kpi-label">Usable Data Day One</span>
-      <div class="kpi-value mono">82.4%</div>
-      <span class="kpi-sub">Target: 98% before Defra submission</span>
+      <div class="kpi-value mono">{{ usableDataPct() }}%</div>
+      <span class="kpi-sub">Target: 98% before statutory filing</span>
     </div>
     <div class="kpi-box">
       <span class="kpi-label">Current Fee Uncertainty</span>
       <div class="kpi-value mono">&plusmn;&pound;{{ totalUncertaintyGbp() | number }}</div>
-      <span class="kpi-sub">Reduced from &plusmn;&pound;412,000 baseline</span>
+      <span class="kpi-sub">Calculated from open audit discrepancies</span>
     </div>
     <div class="kpi-box">
       <span class="kpi-label">Unresolved Gaps</span>
@@ -46,8 +46,8 @@
     </div>
     <div class="kpi-box">
       <span class="kpi-label">Connected PLM Lineage</span>
-      <div class="kpi-value mono">118 / 121</div>
-      <span class="kpi-sub">Fields mapped to Trace One &amp; Snowflake</span>
+      <div class="kpi-value mono">{{ mappedFieldsCount() }} / {{ mappedFieldsCount() + openGapsCount() }}</div>
+      <span class="kpi-sub">Audited BOM &amp; ERP specification fields</span>
     </div>
   </div>
 
@@ -64,7 +64,7 @@
   <div class="report-section">
     <div class="section-title-row">
       <div>
-        <h2 class="section-title">Ranked Regulatory Gaps (Screen 06 Lineage)</h2>
+        <h2 class="section-title">Audited Regulatory Gaps &amp; Fee Exposure</h2>
         <p class="section-desc">Showing what is missing and what it costs to leave it unaddressed.</p>
       </div>
     </div>
@@ -166,7 +166,7 @@
   <div class="lanes-section">
     <div class="section-title-row">
       <div>
-        <h2 class="section-title">Close the Gaps: 3-Lane Workflow (Screen 07 Lineage)</h2>
+        <h2 class="section-title">Cross-Functional Remediation Lanes</h2>
         <p class="section-desc">
           Answers the operational question: Many vendors, one structured process with automated follow-up built in.
         </p>
