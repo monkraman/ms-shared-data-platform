@@ -1,6 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { APP_CONFIG } from '../../core/config/client-theme.config';
 import { TenantApiService } from '../../core/services/tenant-api.service';
 import { FoundationApiService, CanonicalProduct } from '../../core/services/foundation-api.service';
@@ -30,7 +29,7 @@ export interface DataPointItem {
 @Component({
   selector: 'app-data-overview',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './data-overview.component.html',
   styleUrl: './data-overview.component.css',
 })
