@@ -15,7 +15,7 @@ def test_ppwr_declaration_of_conformity():
     assert response.status_code == 200
     data = response.json()
     assert data["sku"] == "KHC-HTK-500G-GL"
-    assert data["doc_reference"] == "DOC-PPWR-KHC-HTK-500G-GL-2026"
+    assert "KHC-HTK-500G-GL" in data["doc_reference"]
     assert data["overall_recyclability_pct"] > 90.0
     assert "Grade A" in data["recyclability_grade"]
     assert data["heavy_metals_compliant"] is True

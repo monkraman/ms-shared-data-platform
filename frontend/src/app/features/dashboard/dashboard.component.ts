@@ -50,6 +50,16 @@ export interface PendingTaskItem {
   routeLink: string;
 }
 
+export interface ObligationRow {
+  due: string;
+  framework: string;
+  title: string;
+  owner: string;
+  preparedPct: number;
+  statusText: string;
+  statusType: 'ready' | 'risk' | 'scheduled';
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -239,6 +249,39 @@ export class DashboardComponent implements OnInit {
     { name: 'Mono-material pouch', amount: '−£50k' },
     { name: 'Lighter PET bottle', amount: '−£16k' },
   ];
+
+  // Obligations Table (Matches Executive Screen 02 Mockup)
+  readonly obligationsList = computed<ObligationRow[]>(() => {
+    return [
+      {
+        due: '15 Nov 2026',
+        framework: 'Denmark EPR',
+        title: 'VANA Q3 quantity report',
+        owner: 'Anna Morgan',
+        preparedPct: 100,
+        statusText: 'Ready to approve',
+        statusType: 'ready',
+      },
+      {
+        due: '30 Nov 2026',
+        framework: 'EU PPWR',
+        title: 'Sauce pouch DoC and technical file',
+        owner: 'Packaging team',
+        preparedPct: 83,
+        statusText: 'At risk',
+        statusType: 'risk',
+      },
+      {
+        due: '15 Jan 2027',
+        framework: 'Denmark EPR',
+        title: 'VANA Q4 quantity report',
+        owner: 'Anna Morgan',
+        preparedPct: 20,
+        statusText: 'Scheduled',
+        statusType: 'scheduled',
+      },
+    ];
+  });
 
   // Next Deadlines
   readonly nextDeadlines: DeadlineItem[] = [

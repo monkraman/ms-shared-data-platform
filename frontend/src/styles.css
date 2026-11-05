@@ -1,82 +1,148 @@
 /* ==========================================================================
-   Compliance Hub — Enterprise Monochrome Design System
-   Strict Black & White Palette with Dual Theme Support (Light / Dark)
-   Clean, authoritative, high-contrast typography and layout.
+   Compliance Hub — Executive Enterprise Design System
+   Tailored for FMCG Compliance (UK EPR, Denmark EPR, EU PPWR)
+   Authoritative Navy / Tenant Configurable Brand System with Light & Dark Support
    ========================================================================== */
 
-/* ─── Default / Light Theme Tokens (Preferred by Client) ─── */
+/* ─── Default / Light Theme Tokens (Matches Executive Demo Mockups) ─── */
 :root,
 [data-theme="light"],
 .light-theme {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f9fafb;
+  --bg-primary: #F4F6FA;
+  --bg-secondary: #EEF2F9;
   --bg-surface: #ffffff;
   --bg-card: #ffffff;
-  --bg-card-hover: #f4f4f5;
+  --bg-card-hover: #F8FAFC;
   --bg-input: #ffffff;
 
-  --border-subtle: #e4e4e7;
-  --border-hover: #a1a1aa;
-  --border-active: #09090b;
+  --border-subtle: #E2E8F0;
+  --border-hover: #CBD5E1;
+  --border-active: #1B3C6D;
 
-  --text-primary: #09090b;
-  --text-secondary: #52525b;
-  --text-muted: #71717a;
-  --text-subtle: #a1a1aa;
+  --text-primary: #0E1A2E;
+  --text-secondary: #36405A;
+  --text-muted: #5B6478;
+  --text-subtle: #94A3B8;
 
-  --btn-primary-bg: #09090b;
+  --btn-primary-bg: var(--client-theme-accent, #1B3C6D);
   --btn-primary-text: #ffffff;
-  --btn-primary-hover: #27272a;
+  --btn-primary-hover: #0F2447;
 
   --btn-secondary-bg: #ffffff;
-  --btn-secondary-border: #e4e4e7;
-  --btn-secondary-text: #09090b;
-  --btn-secondary-hover: #f4f4f5;
+  --btn-secondary-border: #E2E8F0;
+  --btn-secondary-text: #0E1A2E;
+  --btn-secondary-hover: #EEF2F9;
 
-  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.04);
-  --header-bg: rgba(255, 255, 255, 0.92);
+  --card-shadow: 0 4px 16px rgba(14, 26, 46, 0.05), 0 1px 3px rgba(14, 26, 46, 0.04);
+  --card-shadow-hover: 0 10px 24px rgba(14, 26, 46, 0.09);
+  --header-bg: rgba(255, 255, 255, 0.94);
 
   /* Alert / Banner */
-  --alert-bg: #f4f4f5;
-  --alert-border: #d4d4d8;
-  --alert-text: #18181b;
+  --alert-bg: #EEF2F9;
+  --alert-border: #CBD5E1;
+  --alert-text: #0E1A2E;
+
+  /* Executive Corporate Palette Tokens */
+  --navy-deep: #0F2447;
+  --navy-primary: #1B3C6D;
+  --navy-soft: #EBF3FE;
+  --navy-ink: #0E1A2E;
+
+  /* Status Colors */
+  --status-green-bg: #DCFCE7;
+  --status-green-text: #15803D;
+  --status-green-dot: #16A34A;
+
+  --status-amber-bg: #FEF3C7;
+  --status-amber-text: #B45309;
+  --status-amber-dot: #D97706;
+
+  --status-red-bg: #FEE2E2;
+  --status-red-text: #DC2626;
+  --status-red-dot: #EF4444;
+
+  --status-blue-bg: #EBF3FE;
+  --status-blue-text: #1D4ED8;
+
+  /* Flowchart Multi-Source Channels */
+  --src-snowflake: #1D4ED8;
+  --src-snowflake-bg: #EFF6FF;
+  --src-devex: #7C3AED;
+  --src-devex-bg: #F5F3FF;
+  --src-vendors: #DB2777;
+  --src-vendors-bg: #FDF2F8;
+  --src-team: #0D9488;
+  --src-team-bg: #F0FDFA;
 }
 
 /* ─── Dark Theme Tokens ─── */
 [data-theme="dark"],
 .dark-theme {
-  --bg-primary: #09090b;
-  --bg-secondary: #121214;
-  --bg-surface: #18181b;
-  --bg-card: #121214;
-  --bg-card-hover: #18181b;
-  --bg-input: #09090b;
+  --bg-primary: #0A1222;
+  --bg-secondary: #0F172A;
+  --bg-surface: #131E33;
+  --bg-card: #131E33;
+  --bg-card-hover: #1A2844;
+  --bg-input: #0F172A;
 
-  --border-subtle: #27272a;
-  --border-hover: #3f3f46;
-  --border-active: #ffffff;
+  --border-subtle: #1E2D4A;
+  --border-hover: #334155;
+  --border-active: #38BDF8;
 
-  --text-primary: #ffffff;
-  --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
-  --text-subtle: #52525b;
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --text-subtle: #64748B;
 
-  --btn-primary-bg: #ffffff;
-  --btn-primary-text: #09090b;
-  --btn-primary-hover: #e4e4e7;
+  --btn-primary-bg: var(--client-theme-accent, #38BDF8);
+  --btn-primary-text: #0F172A;
+  --btn-primary-hover: #7DD3FC;
 
-  --btn-secondary-bg: #18181b;
-  --btn-secondary-border: #27272a;
-  --btn-secondary-text: #ffffff;
-  --btn-secondary-hover: #27272a;
+  --btn-secondary-bg: #131E33;
+  --btn-secondary-border: #1E2D4A;
+  --btn-secondary-text: #F8FAFC;
+  --btn-secondary-hover: #1A2844;
 
-  --card-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
-  --header-bg: rgba(18, 18, 20, 0.92);
+  --card-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  --card-shadow-hover: 0 20px 48px rgba(0, 0, 0, 0.7);
+  --header-bg: rgba(19, 30, 51, 0.94);
 
   /* Alert / Banner */
-  --alert-bg: #1c1917;
-  --alert-border: #44403c;
-  --alert-text: #f5f5f4;
+  --alert-bg: #1A2844;
+  --alert-border: #2A3B5E;
+  --alert-text: #F8FAFC;
+
+  /* Executive Dark Tokens */
+  --navy-deep: #070E1C;
+  --navy-primary: #1E2D4A;
+  --navy-soft: #1E293B;
+  --navy-ink: #F8FAFC;
+
+  /* Status Colors */
+  --status-green-bg: #064E3B;
+  --status-green-text: #6EE7B7;
+  --status-green-dot: #10B981;
+
+  --status-amber-bg: #78350F;
+  --status-amber-text: #FDE68A;
+  --status-amber-dot: #F59E0B;
+
+  --status-red-bg: #7F1D1D;
+  --status-red-text: #FCA5A5;
+  --status-red-dot: #EF4444;
+
+  --status-blue-bg: #1E3A8A;
+  --status-blue-text: #93C5FD;
+
+  /* Flowchart Multi-Source Channels (Dark) */
+  --src-snowflake: #60A5FA;
+  --src-snowflake-bg: #172554;
+  --src-devex: #A78BFA;
+  --src-devex-bg: #2E1065;
+  --src-vendors: #F472B6;
+  --src-vendors-bg: #500724;
+  --src-team: #2DD4BF;
+  --src-team-bg: #042F2E;
 }
 
 /* ─── Typography & Shared Tokens ─── */

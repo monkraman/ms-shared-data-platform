@@ -97,9 +97,10 @@
       <div class="kpi-subtext">
         DKK 3.2m &middot; 1,150 t
       </div>
-      <div class="dual-bar-track">
-        <div class="bar-seg-green" style="width: 80%;"></div>
-        <div class="bar-seg-red" style="width: 20%;"></div>
+      <div class="tri-bar-track">
+        <div class="bar-seg-green" style="width: 60%;"></div>
+        <div class="bar-seg-teal" style="width: 25%;"></div>
+        <div class="bar-seg-red" style="width: 15%;"></div>
       </div>
     </div>
 
@@ -121,15 +122,122 @@
         <span class="amount">{{ ppwrTrackedCount() }}</span>
       </div>
       <div class="kpi-subtext">
-        DoCs signed &middot; no fee, proof needed
+        DoCs issued &middot; no fee, proof needed
       </div>
       <div class="dual-bar-track">
-        <div class="bar-seg-blue" style="width: 10%;"></div>
+        <div class="bar-seg-blue" style="width: 12%;"></div>
       </div>
     </div>
   </section>
 
-  <!-- ─── Row 2: Forecast to 2030 and Biggest Cost Hotspots (Side by Side) ─── -->
+  <!-- ─── Row 2: Your Obligations & Forecast to 2030 (Matches Executive Screen 02 Mockup) ─── -->
+  <section class="obligations-forecast-row">
+
+    <!-- Left Card (62%): Your Obligations Table -->
+    <div class="panel-card obligations-card" id="obligations">
+      <div class="panel-card-header">
+        <div class="panel-titles">
+          <h2 class="panel-title">Your obligations</h2>
+          <p class="panel-subtitle">Every report, filing and declaration due across UK EPR, Denmark EPR and EU PPWR &middot; next six months</p>
+        </div>
+        <a routerLink="/quality" class="panel-link">Open Compliance &rarr;</a>
+      </div>
+
+      <div class="obligations-table-wrap">
+        <table class="obligations-table">
+          <thead>
+            <tr>
+              <th class="th-due">Due</th>
+              <th class="th-fw">Framework</th>
+              <th class="th-ob">Obligation and owner</th>
+              <th class="th-prep">Prepared</th>
+              <th class="th-status">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (ob of obligationsList(); track ob.title) {
+            <tr class="ob-tr">
+              <td class="td-due">{{ ob.due }}</td>
+              <td class="td-fw">
+                <span class="framework-pill">{{ ob.framework }}</span>
+              </td>
+              <td class="td-ob">
+                <div class="ob-title">{{ ob.title }}</div>
+                <div class="ob-owner">{{ ob.owner }}</div>
+              </td>
+              <td class="td-prep">
+                <div class="prep-wrap">
+                  <div class="prep-track">
+                    <div class="prep-fill" [class]="'fill-' + ob.statusType" [style.width.%]="ob.preparedPct"></div>
+                  </div>
+                  <span class="prep-pct mono">{{ ob.preparedPct }}%</span>
+                </div>
+              </td>
+              <td class="td-status">
+                <span class="status-pill-exec" [class]="'pill-' + ob.statusType">
+                  @if (ob.statusType === 'ready') {
+                    <span class="dot-green"></span>
+                  } @else if (ob.statusType === 'risk') {
+                    <span class="dot-amber"></span>
+                  }
+                  {{ ob.statusText }}
+                </span>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right Card (38%): Forecast to 2030 -->
+    <div class="panel-card forecast-card">
+      <div class="panel-card-header">
+        <div class="panel-titles">
+          <h2 class="panel-title">Forecast to 2030</h2>
+          <p class="panel-subtitle">UK and Denmark trajectory</p>
+        </div>
+        <a routerLink="/simulator" class="panel-link">Scenarios &rarr;</a>
+      </div>
+
+      @if (globalLiabilityGbp() > 0) {
+      <!-- Visual 6-Year Column Bar Chart -->
+      <div class="chart-wrapper-compact">
+        <div class="chart-columns-grid">
+          @for (item of forecastYears(); track item.year) {
+          <div class="col-chart-item">
+            <div class="col-bar-wrap">
+              <div class="col-bar-fill" [class.bar-navy]="item.isNavy" [class.bar-navy-muted]="item.isNavyMuted" [style.height.%]="item.heightPct">
+              </div>
+            </div>
+            <div class="col-year mono">{{ item.year.slice(2) }}</div>
+          </div>
+          }
+        </div>
+      </div>
+
+      <!-- Forecast Callout Summary -->
+      <div class="forecast-compact-callout">
+        <div class="callout-line">
+          <span class="callout-muted">2030, no change:</span>
+          <span class="callout-bold mono">{{ formatCurrencyMillions(baselineProjected2030Gbp()) }}</span>
+        </div>
+        <div class="callout-line green-line">
+          <span class="callout-muted-green">With recommendations:</span>
+          <span class="callout-green-bold mono">{{ formatCurrencyMillions(withRecommendations2030Gbp()) }}</span>
+        </div>
+      </div>
+      } @else {
+      <div class="forecast-empty-box">
+        <h4 class="empty-title">Awaiting SKU Catalog</h4>
+        <p class="empty-desc">Import packaging data to calculate 2026–2030 liability.</p>
+      </div>
+      }
+    </div>
+
+  </section>
+
+  <!-- ─── Row 3: Biggest Cost Hotspots & Strategic Scenarios ─── -->
   <section class="forecast-hotspots-row">
 
     <!-- Left Card: Forecast to 2030 -->

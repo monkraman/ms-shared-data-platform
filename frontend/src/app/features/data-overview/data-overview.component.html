@@ -3,10 +3,9 @@
   <!-- ─── Header: Data Collection / Data Point Map ─── -->
   <header class="page-header">
     <div class="header-left">
-      <div class="breadcrumb-trail">Data collection / Data point map</div>
-      <h1 class="page-title">Overview of your data points</h1>
+      <h1 class="page-title">Data collection</h1>
       <p class="page-subtitle">
-        40 data points for UK EPR, Denmark EPR and EU PPWR &middot; who holds each one, how it reaches us, and where it goes &middot; examples below the map
+        Where every data point comes from, and the data still missing &mdash; which you resolve in Data validation
       </p>
     </div>
 
@@ -14,7 +13,7 @@
     <div class="header-actions">
       <div class="view-toggle-group">
         <button type="button" class="btn-toggle" [class.active]="activeView() === 'flowchart'" (click)="activeView.set('flowchart')">
-          Flowchart
+          Interactive Map
         </button>
         <button type="button" class="btn-toggle" [class.active]="activeView() === 'table'" (click)="activeView.set('table')">
           Table
@@ -77,76 +76,161 @@
     </div>
   </section>
 
-  <!-- ─── VIEW 1: FLOWCHART (Screen 04 from Mockups) ─── -->
+  <!-- ─── VIEW 1: NATIVE INTERACTIVE DATA POINT MAP (Screen 04 Mockup) ─── -->
   @if (activeView() === 'flowchart') {
-  <div class="flowchart-container-section">
-    <!-- Embedded Interactive Data Points Flowchart Explorer -->
-    <div class="flowchart-frame-wrapper">
-      <iframe src="/data-explorer/index.html" class="flowchart-embedded-frame" title="EPR and PPWR Data Point Map Flowchart"></iframe>
+  <div class="data-map-wrapper-card">
+    <div class="map-card-header">
+      <h2 class="map-card-title">Your data point map</h2>
+      <p class="map-card-sub">
+        49 data points &middot; coloured by source &mdash; Snowflake, Trace One Devex, your vendors or the Heinz team &mdash; and traced to what each one feeds
+      </p>
     </div>
 
-    <!-- How each source reaches us (Bottom 4 Cards matching Mockup) -->
-    <div class="sources-reaches-section">
-      <h3 class="section-title">How each source reaches us</h3>
+    <!-- Visual 4-Source to 6-Output Diagram Canvas -->
+    <div class="flowchart-canvas-layout">
 
-      <div class="sources-grid">
-        <!-- Source 1: Sales · Snowflake -->
-        <div class="source-card">
-          <div class="source-header">
-            <span class="source-name">Sales &middot; Snowflake</span>
-            <span class="source-count mono">10 data points</span>
+      <!-- Left: 4 Source Columns -->
+      <div class="source-columns-grid">
+
+        <!-- Column 1: Snowflake (Sales & ERP) -->
+        <div class="source-col col-snowflake">
+          <div class="col-head head-snowflake">
+            <div class="col-head-text">
+              <span class="col-main-name">Snowflake</span>
+              <span class="col-sub-name">Sales &amp; ERP</span>
+            </div>
+            <span class="col-count-pill mono">13</span>
           </div>
-          <div class="source-mode-pill">
-            <span class="dot-live"></span> Real-time API
-          </div>
-          <div class="source-desc">
-            Automatic &middot; synced every night from data warehouse ERP sales tables
+          <div class="nodes-list">
+            @for (dp of snowflakePoints; track dp.id) {
+            <button type="button" class="node-btn" [class.selected]="selectedDataPoint() === dp.id" (click)="selectPoint(dp.id)">
+              <span class="dp-id mono">{{ dp.id }}</span>
+              <span class="dp-name">{{ dp.name }}</span>
+              <span class="dp-status-ok">&#10003;</span>
+            </button>
+            }
           </div>
         </div>
 
-        <!-- Source 2: Packaging · Devex -->
-        <div class="source-card">
-          <div class="source-header">
-            <span class="source-name">Packaging &middot; Devex</span>
-            <span class="source-count mono">10 data points</span>
+        <!-- Column 2: Trace One Devex (Packaging Specs) -->
+        <div class="source-col col-devex">
+          <div class="col-head head-devex">
+            <div class="col-head-text">
+              <span class="col-main-name">Trace One Devex</span>
+              <span class="col-sub-name">Packaging specs</span>
+            </div>
+            <span class="col-count-pill mono">11</span>
           </div>
-          <div class="source-mode-pill">
-            <span class="dot-live"></span> Real-time API
-          </div>
-          <div class="source-desc">
-            Automatic &middot; synced every night from PLM packaging component specifications
-          </div>
-        </div>
-
-        <!-- Source 3: Vendors -->
-        <div class="source-card">
-          <div class="source-header">
-            <span class="source-name">Vendors &middot; Supplier Portal</span>
-            <span class="source-count mono">11 data points</span>
-          </div>
-          <div class="source-mode-pill portal">
-            <span class="dot-amber"></span> Manual &middot; vendor portal
-          </div>
-          <div class="source-desc">
-            Asked each cycle &middot; self-service supplier portal or certificate document upload
+          <div class="nodes-list">
+            @for (dp of devexPoints; track dp.id) {
+            <button type="button" class="node-btn" [class.selected]="selectedDataPoint() === dp.id" (click)="selectPoint(dp.id)">
+              <span class="dp-id mono">{{ dp.id }}</span>
+              <span class="dp-name">{{ dp.name }}</span>
+              @if (dp.status === 'gap') {
+                <span class="dp-gap-pill">gap</span>
+              } @else {
+                <span class="dp-status-ok">&#10003;</span>
+              }
+            </button>
+            }
           </div>
         </div>
 
-        <!-- Source 4: Internal Compliance Team -->
-        <div class="source-card">
-          <div class="source-header">
-            <span class="source-name">Client Compliance Team</span>
-            <span class="source-count mono">9 data points</span>
+        <!-- Column 3: Vendors (Declarations & Tests) -->
+        <div class="source-col col-vendors">
+          <div class="col-head head-vendors">
+            <div class="col-head-text">
+              <span class="col-main-name">Vendors</span>
+              <span class="col-sub-name">Declarations &amp; tests</span>
+            </div>
+            <span class="col-count-pill mono">12</span>
           </div>
-          <div class="source-mode-pill internal">
-            <span class="dot-neutral"></span> Manual &middot; entered once
+          <div class="nodes-list">
+            @for (dp of vendorPoints; track dp.id) {
+            <button type="button" class="node-btn" [class.selected]="selectedDataPoint() === dp.id" (click)="selectPoint(dp.id)">
+              <span class="dp-id mono">{{ dp.id }}</span>
+              <span class="dp-name">{{ dp.name }}</span>
+              @if (dp.status === 'gap') {
+                <span class="dp-gap-pill">gap</span>
+              } @else {
+                <span class="dp-status-ok">&#10003;</span>
+              }
+            </button>
+            }
           </div>
-          <div class="source-desc">
-            Set at onboarding setup &middot; verified once a year or upon regulation changes
+        </div>
+
+        <!-- Column 4: Heinz Team (Entities & Sign-off) -->
+        <div class="source-col col-team">
+          <div class="col-head head-team">
+            <div class="col-head-text">
+              <span class="col-main-name">Heinz team</span>
+              <span class="col-sub-name">Entities &amp; sign-off</span>
+            </div>
+            <span class="col-count-pill mono">13</span>
           </div>
+          <div class="nodes-list">
+            @for (dp of teamPoints; track dp.id) {
+            <button type="button" class="node-btn" [class.selected]="selectedDataPoint() === dp.id" (click)="selectPoint(dp.id)">
+              <span class="dp-id mono">{{ dp.id }}</span>
+              <span class="dp-name">{{ dp.name }}</span>
+              <span class="dp-status-ok">&#10003;</span>
+            </button>
+            }
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Center Flow Connector Indicator (Sankey Flow) -->
+      <div class="flowchart-sankey-divider">
+        <span class="goes-into-label">GOES INTO &rarr;</span>
+      </div>
+
+      <!-- Right: 6 Output Categories ("Goes into") -->
+      <div class="output-columns-container">
+        <div class="out-col-header">
+          <span class="out-title">Goes into</span>
+          <span class="out-count mono">6</span>
+        </div>
+
+        <div class="output-cards-list">
+          @for (out of outputCategories; track out.id) {
+          <div class="out-card" [class.connected]="isOutputConnected(out.id)">
+            <div class="out-card-top">
+              <span class="out-dot" [style.background-color]="out.dotColor"></span>
+              <b class="out-name">{{ out.name }}</b>
+              <span class="out-num mono">{{ out.count }}</span>
+            </div>
+            <p class="out-sub">{{ out.sub }}</p>
+          </div>
+          }
         </div>
       </div>
+
     </div>
+
+    <!-- Active Selected Point Inspection Strip -->
+    @if (currentPointDetail(); as pt) {
+    <div class="point-detail-strip" [class.has-gap]="pt.status === 'gap'">
+      <div class="detail-left">
+        <span class="badge-dp-tag mono">{{ pt.id }}</span>
+        <div class="detail-name-wrap">
+          <strong class="detail-name">{{ pt.name }}</strong>
+          <span class="detail-sub">Feeds {{ pt.out.length }} statutory compliance outputs &middot; {{ pt.status === 'gap' ? 'Action required: tare conflict in PLM' : 'Fully verified in source database' }}</span>
+        </div>
+      </div>
+      <div class="detail-actions">
+        @if (pt.status === 'gap') {
+          <span class="fee-impact-badge" title="Potential RAM eco-penalty">{{ pt.feeImpact || 'Fee At Risk' }}</span>
+          <a routerLink="/quality" class="btn-resolve-gap">Resolve in Data Validation &rarr;</a>
+        } @else {
+          <span class="verified-tag">&#10003; Upstream Verified</span>
+        }
+      </div>
+    </div>
+    }
+
   </div>
   }
 

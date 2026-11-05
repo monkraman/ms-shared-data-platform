@@ -26,6 +26,22 @@ export interface DataPointItem {
   impactFeeMargin?: string;
 }
 
+export interface FlowchartPoint {
+  id: string;
+  name: string;
+  status: 'ok' | 'gap';
+  out: ('rep' | 'fee' | 'doc' | 'lab' | 'evid' | 'dpp')[];
+  feeImpact?: string;
+}
+
+export interface OutputCategory {
+  id: 'rep' | 'fee' | 'doc' | 'lab' | 'evid' | 'dpp';
+  name: string;
+  count: number;
+  sub: string;
+  dotColor: string;
+}
+
 @Component({
   selector: 'app-data-overview',
   standalone: true,
@@ -40,6 +56,9 @@ export class DataOverviewComponent implements OnInit {
   readonly config = APP_CONFIG;
   readonly activeView = signal<'flowchart' | 'table' | 'journey'>('flowchart');
 
+  // Currently selected Data Point for interactive Sankey flowchart (default DP09 matching Screen 04)
+  readonly selectedDataPoint = signal<string>('DP09');
+
   // Real Database Signals
   readonly products = this.foundationService.products;
   readonly qualityIssues = this.qualityService.issues;
@@ -48,6 +67,99 @@ export class DataOverviewComponent implements OnInit {
 
   // Selected Filter for Data Points (by Holder or by Law)
   readonly selectedFilter = signal<'ALL' | 'SNOWFLAKE' | 'DEVEX' | 'SUPPLIERS' | 'PPWR' | 'UK_EPR'>('ALL');
+
+  // 4 Source Columns (49 Data Points Matching Screen 04 Mockup)
+  readonly snowflakePoints: FlowchartPoint[] = [
+    { id: 'DP01', name: 'Article / SKU number', status: 'ok', out: ['evid', 'doc', 'dpp'] },
+    { id: 'DP02', name: 'GTIN / barcode', status: 'ok', out: ['doc', 'lab', 'dpp'] },
+    { id: 'DP03', name: 'Packaging component list', status: 'ok', out: ['rep', 'fee', 'doc'] },
+    { id: 'DP05', name: 'Units per pack', status: 'ok', out: ['rep', 'fee'] },
+    { id: 'DP22', name: 'Units placed on the market', status: 'ok', out: ['rep', 'fee'] },
+    { id: 'DP23', name: 'Sales channel', status: 'ok', out: ['rep', 'fee'] },
+    { id: 'DP24', name: 'Delivery nation (UK)', status: 'ok', out: ['rep', 'fee'] },
+    { id: 'DP25', name: 'Household / non-household', status: 'ok', out: ['rep', 'fee'] },
+    { id: 'DP27', name: 'B2C vs B2B packaging split', status: 'ok', out: ['rep', 'fee'] },
+    { id: 'DP35', name: 'Retailer customer code', status: 'ok', out: ['rep'] },
+    { id: 'DP36', name: 'Gross & net sales turnover', status: 'ok', out: ['rep'] },
+    { id: 'DP37', name: 'Depot & warehouse location', status: 'ok', out: ['rep'] },
+    { id: 'DP38', name: 'Shipment batch timestamp', status: 'ok', out: ['evid'] },
+  ];
+
+  readonly devexPoints: FlowchartPoint[] = [
+    { id: 'DP04', name: 'Packaging level', status: 'ok', out: ['rep', 'fee'] },
+    { id: 'DP06', name: 'Component material', status: 'ok', out: ['rep', 'fee', 'doc', 'lab', 'dpp'] },
+    { id: 'DP09', name: 'Component weight (empty)', status: 'gap', out: ['rep', 'fee', 'doc'], feeImpact: '±£54,000' },
+    { id: 'DP15', name: 'Reusable or single-use', status: 'ok', out: ['rep', 'doc', 'dpp'] },
+    { id: 'DP16', name: 'Food-contact packaging', status: 'ok', out: ['doc', 'dpp'] },
+    { id: 'DP20', name: 'Minimisation evidence', status: 'ok', out: ['doc'] },
+    { id: 'DP21', name: 'Empty space ratio', status: 'ok', out: ['doc'] },
+    { id: 'DP39', name: 'Secondary carton dimensions', status: 'ok', out: ['doc'] },
+    { id: 'DP40', name: 'Barrier coating chemistry', status: 'ok', out: ['doc', 'fee'] },
+    { id: 'DP41', name: 'Closure neck diameter', status: 'ok', out: ['fee', 'lab'] },
+    { id: 'DP42', name: 'Label surface coverage %', status: 'ok', out: ['fee', 'lab'] },
+  ];
+
+  readonly vendorPoints: FlowchartPoint[] = [
+    { id: 'DP07', name: 'Polymer type', status: 'gap', out: ['fee', 'doc', 'lab'], feeImpact: 'RAM Red' },
+    { id: 'DP08', name: 'Multi-material split', status: 'gap', out: ['rep', 'fee', 'doc'] },
+    { id: 'DP10', name: 'Colour and opacity', status: 'gap', out: ['fee'] },
+    { id: 'DP11', name: 'Additives, inks and adhesives', status: 'gap', out: ['fee', 'doc'] },
+    { id: 'DP12', name: 'Recyclability result', status: 'gap', out: ['fee', 'doc', 'dpp'] },
+    { id: 'DP13', name: 'Recycled content %', status: 'gap', out: ['fee', 'doc', 'dpp'] },
+    { id: 'DP14', name: 'Recycled content source', status: 'gap', out: ['doc'] },
+    { id: 'DP17', name: 'Substances of concern (PFAS)', status: 'gap', out: ['doc'] },
+    { id: 'DP18', name: 'Heavy metals concentration', status: 'gap', out: ['doc', 'evid'] },
+    { id: 'DP19', name: 'Compostability certificate', status: 'gap', out: ['doc', 'lab'] },
+    { id: 'DP43', name: 'Supplier ISO 14001 certification', status: 'ok', out: ['evid'] },
+    { id: 'DP44', name: 'PCR resin Certificate of Analysis', status: 'gap', out: ['doc', 'evid'] },
+  ];
+
+  readonly teamPoints: FlowchartPoint[] = [
+    { id: 'DP26', name: 'Deposit scheme status', status: 'ok', out: ['rep', 'fee'] },
+    { id: 'DP28', name: 'Producer role', status: 'ok', out: ['rep', 'fee', 'doc'] },
+    { id: 'DP29', name: 'EPR registration number', status: 'ok', out: ['rep'] },
+    { id: 'DP30', name: 'Compliance scheme membership', status: 'ok', out: ['rep'] },
+    { id: 'DP31', name: 'Authorised representative', status: 'ok', out: ['rep', 'doc'] },
+    { id: 'DP32', name: 'Organisation size and thresholds', status: 'ok', out: ['rep'] },
+    { id: 'DP33', name: 'Reduction targets baseline', status: 'ok', out: ['doc'] },
+    { id: 'DP34', name: 'Executive signatory approval', status: 'ok', out: ['doc', 'evid'] },
+    { id: 'DP45', name: 'Corporate entity VAT & EORI', status: 'ok', out: ['rep'] },
+    { id: 'DP46', name: 'Brand trademark owner title', status: 'ok', out: ['rep', 'doc'] },
+    { id: 'DP47', name: 'Importer of record registration', status: 'ok', out: ['rep'] },
+    { id: 'DP48', name: 'UK nation delivery split', status: 'ok', out: ['rep'] },
+    { id: 'DP49', name: 'Annual audit sign-off', status: 'ok', out: ['evid'] },
+  ];
+
+  // 6 Output Categories ("Goes into")
+  readonly outputCategories: OutputCategory[] = [
+    { id: 'rep', name: 'National EPR reports', count: 19, sub: 'UK RPD file · Denmark producer register', dotColor: '#1D4ED8' },
+    { id: 'fee', name: 'EPR fee / eco-modulation', count: 15, sub: 'UK RAM rating · Danish Green, Yellow, Red', dotColor: '#D97706' },
+    { id: 'doc', name: 'PPWR DoC and technical file', count: 24, sub: 'EU Declaration of Conformity and proof', dotColor: '#059669' },
+    { id: 'lab', name: 'PPWR labelling', count: 9, sub: 'Harmonised material label, sorting info, QR', dotColor: '#DC2626' },
+    { id: 'evid', name: 'Evidence and audit file', count: 5, sub: 'Records kept for checks and audits', dotColor: '#4B5565' },
+    { id: 'dpp', name: 'Digital Product Passport', count: 12, sub: 'On-pack QR to public and retailer passport', dotColor: '#7C3AED' },
+  ];
+
+  selectPoint(id: string): void {
+    this.selectedDataPoint.set(id);
+  }
+
+  isPointConnected(point: FlowchartPoint): boolean {
+    return point.id === this.selectedDataPoint();
+  }
+
+  isOutputConnected(outputId: 'rep' | 'fee' | 'doc' | 'lab' | 'evid' | 'dpp'): boolean {
+    const selId = this.selectedDataPoint();
+    const all = [...this.snowflakePoints, ...this.devexPoints, ...this.vendorPoints, ...this.teamPoints];
+    const match = all.find(p => p.id === selId);
+    return match ? match.out.includes(outputId) : false;
+  }
+
+  readonly currentPointDetail = computed(() => {
+    const selId = this.selectedDataPoint();
+    const all = [...this.snowflakePoints, ...this.devexPoints, ...this.vendorPoints, ...this.teamPoints];
+    return all.find(p => p.id === selId) || this.devexPoints[2];
+  });
 
   // Dynamic Headline Metrics
   readonly totalRecordsIn = computed(() => {
