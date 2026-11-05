@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, of } from 'rxjs';
 import { APP_CONFIG } from '../config/client-theme.config';
 import { TenantApiService } from './tenant-api.service';
 import { AuthService } from './auth.service';
@@ -244,7 +244,10 @@ export class FoundationApiService {
     return headers;
   }
 
-  loadProducts(): Observable<CanonicalProduct[]> {
+  loadProducts(force = false): Observable<CanonicalProduct[]> {
+    if (!force && this.products().length > 0) {
+      return of(this.products());
+    }
     this.loading.set(true);
     return this.http
       .get<CanonicalProduct[]>(`${this.baseUrl}/api/v1/foundation/products`, {

@@ -225,9 +225,6 @@ export class AdminComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.refreshTenants();
-    this.loadMasterData();
-    this.loadUsers();
     this.syncTabFromUrl(this.router.url);
 
     this.router.events
@@ -240,23 +237,36 @@ export class AdminComponent implements OnInit {
   syncTabFromUrl(url: string): void {
     if (url.includes('/admin/users')) {
       this.activeTab.set('users');
-      this.loadUsers();
-      this.loadUserRoles();
+      if (this.users().length === 0) {
+        this.loadUsers();
+        this.loadUserRoles();
+      }
     } else if (url.includes('/admin/data-points')) {
       this.activeTab.set('datapoints');
-      this.loadDataPoints();
+      if (this.dataPoints().length === 0) {
+        this.loadDataPoints();
+      }
     } else if (url.includes('/admin/tariffs')) {
       this.activeTab.set('tariffs');
-      this.loadTariffs();
+      if (this.tariffs().length === 0) {
+        this.loadTariffs();
+      }
     } else if (url.includes('/admin/masters')) {
       this.activeTab.set('masters');
-      this.loadSectors();
-      this.loadCountries();
+      if (this.sectors().length === 0) {
+        this.loadSectors();
+        this.loadCountries();
+      }
     } else if (url.includes('/admin/batches')) {
       this.activeTab.set('batches');
-      this.loadBatches();
+      if (this.batches().length === 0) {
+        this.loadBatches();
+      }
     } else {
       this.activeTab.set('organisations');
+      if (this.tenants().length === 0) {
+        this.refreshTenants();
+      }
     }
   }
 

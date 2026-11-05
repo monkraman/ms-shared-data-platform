@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, of } from 'rxjs';
 import { APP_CONFIG } from '../config/client-theme.config';
 import { ClientWorkspaceProfile } from '../models/tenant.model';
 
@@ -63,7 +63,10 @@ export class TenantApiService {
   /**
    * Fetch all active tenants from FastAPI PostgreSQL database
    */
-  loadTenants(): Observable<BackendTenantRecord[]> {
+  loadTenants(force = false): Observable<BackendTenantRecord[]> {
+    if (!force && this.tenants().length > 0) {
+      return of(this.tenants());
+    }
     this.loading.set(true);
     this.error.set(null);
     return this.http.get<BackendTenantRecord[]>(`${this.baseUrl}/api/v1/tenants`).pipe(
