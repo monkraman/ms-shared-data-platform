@@ -407,4 +407,19 @@ export class DashboardComponent implements OnInit {
   formatNumber(value: number): string {
     return new Intl.NumberFormat('en-GB').format(value);
   }
+
+  // Dynamic 6-year forecast based on tenant's real liability
+  readonly forecastYears = computed(() => {
+    const base = this.globalLiabilityGbp();
+    if (base === 0) return [];
+    return [
+      { year: '2025', status: 'actual', feeGbp: Math.round(base * 0.877), heightPct: 65, isNavy: true },
+      { year: '2026', status: 'invoiced', feeGbp: base, heightPct: 74, isNavy: true, hasCap: true },
+      { year: '2027', status: 'forecast', feeGbp: Math.round(base * 1.044), heightPct: 78, isNavyMuted: true, hasCap: true },
+      { year: '2028', status: 'forecast', feeGbp: Math.round(base * 1.095), heightPct: 82, isNavyMuted: true, hasCap: true },
+      { year: '2029', status: 'forecast', feeGbp: Math.round(base * 1.151), heightPct: 87, isNavyMuted: true, hasCap: true },
+      { year: '2030', status: 'forecast', feeGbp: this.baselineProjected2030Gbp(), heightPct: 92, isNavyMuted: true, hasCap: true, optimizedFee: this.withRecommendations2030Gbp() }
+    ];
+  });
+
 }

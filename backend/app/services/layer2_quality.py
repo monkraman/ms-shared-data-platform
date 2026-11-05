@@ -160,7 +160,7 @@ class Layer2QualityService:
                     remaining = [
                         i for i in tenant_issues.values()
                         if (i.entity_id == p.sku or any(c.id == i.entity_id for c in p.components))
-                        and i.status not in (IssueStatus.RESOLVED, IssueStatus.RESOLVED_IN_SOURCE)
+                        and i.status != IssueStatus.RESOLVED_IN_SOURCE
                     ]
                     if not remaining:
                         p.has_quality_issues = False
