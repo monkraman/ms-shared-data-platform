@@ -6,25 +6,23 @@
       <div class="breadcrumb-trail">Home</div>
       <h1 class="greeting-title">Good afternoon, {{ greetingName() }}</h1>
       <p class="greeting-subtitle">
-        Your EPR position across UK EPR, Denmark EPR and EU PPWR &middot; data locked 28 Oct &middot; specialist reviewed
+        {{ dynamicGreetingSubtitle() }}
       </p>
     </div>
 
     <!-- Right Controls: Market Segment Pills, Year Selector, Export Board Pack Button -->
     <div class="header-right-controls">
       <div class="segmented-market-bar" role="tablist" aria-label="Jurisdiction Market Filter">
-        <button type="button" class="market-pill" [class.active]="selectedMarket() === 'all'" (click)="setMarket('all')">
-          All markets
-        </button>
-        <button type="button" class="market-pill" [class.active]="selectedMarket() === 'uk'" (click)="setMarket('uk')">
-          UK
-        </button>
-        <button type="button" class="market-pill" [class.active]="selectedMarket() === 'denmark'" (click)="setMarket('denmark')">
-          Denmark
-        </button>
-        <button type="button" class="market-pill" [class.active]="selectedMarket() === 'ppwr'" (click)="setMarket('ppwr')">
-          EU PPWR
-        </button>
+        @for (m of availableFilterMarkets(); track m.id) {
+          <button
+            type="button"
+            class="market-pill"
+            [class.active]="selectedMarket() === m.id"
+            (click)="setMarket(m.id)"
+          >
+            {{ m.label }}
+          </button>
+        }
       </div>
 
       <div class="year-select-wrap">
@@ -48,7 +46,7 @@
     </div>
   </header>
 
-  <!-- ─── Row 1: 4 Top KPI Metric Cards (Hero Dark Navy + 3 Crisp White Cards) ─── -->
+  <!-- ─── Row 1: 4 Top KPI Metric Cards (Hero Dark Navy + 3 Dynamic Breakdown Cards) ─── -->
   <section class="kpi-grid">
     <!-- Card 1: HERO DEEP DARK NAVY CARD -->
     <div class="kpi-card hero-navy-card">
@@ -60,74 +58,46 @@
         <span class="uncertainty-chip">{{ globalLiabilityGbp() > 0 ? '± £0.19m' : '£0 Margin' }}</span>
       </div>
       <div class="kpi-subtext">
-        +14% vs 2025 &middot; UK and Denmark fees
+        +14% vs 2025 &middot; {{ dynamicScopeNames() }}
       </div>
       <div class="hero-bar-track">
         <div class="hero-bar-fill" style="width: 82%;"></div>
       </div>
     </div>
 
-    <!-- Card 2: UK EPR -->
-    <div class="kpi-card white-kpi-card">
-      <div class="kpi-top-row">
-        <span class="kpi-kicker">UK EPR</span>
-        <span class="badge-pill pill-green">High confidence</span>
-      </div>
-      <div class="kpi-main-val">
-        <span class="amount">{{ ukLiabilityGbp() > 0 ? formatCurrencyMillions(ukLiabilityGbp()) : '£0.00' }}</span>
-      </div>
-      <div class="kpi-subtext">
-        18,420 t &middot; +11% vs 2025
-      </div>
-      <div class="dual-bar-track">
-        <div class="bar-seg-green" style="width: 94%;"></div>
-        <div class="bar-seg-amber" style="width: 6%;"></div>
-      </div>
-    </div>
-
-    <!-- Card 3: DENMARK EPR -->
-    <div class="kpi-card white-kpi-card">
-      <div class="kpi-top-row">
-        <span class="kpi-kicker">DENMARK EPR</span>
-        <span class="badge-pill pill-neutral">First full year</span>
-      </div>
-      <div class="kpi-main-val">
-        <span class="amount">{{ denmarkLiabilityGbp() > 0 ? formatCurrencyMillions(denmarkLiabilityGbp()) : '£0.00' }}</span>
-      </div>
-      <div class="kpi-subtext">
-        DKK 3.2m &middot; 1,150 t
-      </div>
-      <div class="tri-bar-track">
-        <div class="bar-seg-green" style="width: 60%;"></div>
-        <div class="bar-seg-teal" style="width: 25%;"></div>
-        <div class="bar-seg-red" style="width: 15%;"></div>
-      </div>
-    </div>
-
-    <!-- Card 4: EU PPWR -->
-    <div class="kpi-card white-kpi-card">
-      <div class="kpi-top-row">
-        <span class="kpi-kicker">EU PPWR</span>
-        @if (totalTrackedSkus() === 0) {
-        <span class="badge-pill pill-neutral">0 at risk</span>
-        } @else if (ppwrNonCompliantCount() > 0) {
-        <span class="badge-pill pill-red">
-          <span class="dot-red"></span> {{ ppwrNonCompliantCount() }} at risk
-        </span>
+    <!-- Cards 2, 3, 4: DYNAMIC CARDS COMPUTED FROM TENANT'S ACTIVE JURISDICTIONS & MODULES -->
+    @for (card of dynamicBreakdownCards(); track card.id) {
+      <div class="kpi-card white-kpi-card">
+        <div class="kpi-top-row">
+          <span class="kpi-kicker">{{ card.kicker }}</span>
+          <span class="badge-pill" [ngClass]="'pill-' + card.badgeType">
+            @if (card.hasDot) {
+              <span [class]="'dot-' + card.badgeType"></span>
+            }
+            {{ card.badgeText }}
+          </span>
+        </div>
+        <div class="kpi-main-val">
+          <span class="amount">{{ card.amount }}</span>
+        </div>
+        <div class="kpi-subtext">
+          {{ card.subtext }}
+        </div>
+        @if (card.barType === 'tri') {
+          <div class="tri-bar-track">
+            @for (seg of card.barSegments; track $index) {
+              <div [class]="'bar-seg-' + seg.color" [style.width.%]="seg.widthPct"></div>
+            }
+          </div>
         } @else {
-        <span class="badge-pill pill-green">On track</span>
+          <div class="dual-bar-track">
+            @for (seg of card.barSegments; track $index) {
+              <div [class]="'bar-seg-' + seg.color" [style.width.%]="seg.widthPct"></div>
+            }
+          </div>
         }
       </div>
-      <div class="kpi-main-val">
-        <span class="amount">{{ ppwrTrackedCount() }}</span>
-      </div>
-      <div class="kpi-subtext">
-        DoCs issued &middot; no fee, proof needed
-      </div>
-      <div class="dual-bar-track">
-        <div class="bar-seg-blue" style="width: 12%;"></div>
-      </div>
-    </div>
+    }
   </section>
 
   <!-- ─── Row 2: Your Obligations & Forecast to 2030 (Matches Executive Screen 02 Mockup) ─── -->
@@ -138,7 +108,7 @@
       <div class="panel-card-header">
         <div class="panel-titles">
           <h2 class="panel-title">Your obligations</h2>
-          <p class="panel-subtitle">Every report, filing and declaration due across UK EPR, Denmark EPR and EU PPWR &middot; next six months</p>
+          <p class="panel-subtitle">Every report, filing and declaration due across {{ dynamicScopeNames() }} &middot; next six months</p>
         </div>
         <a routerLink="/quality" class="panel-link">Open Compliance &rarr;</a>
       </div>
@@ -195,7 +165,7 @@
       <div class="panel-card-header">
         <div class="panel-titles">
           <h2 class="panel-title">Forecast to 2030</h2>
-          <p class="panel-subtitle">UK and Denmark trajectory</p>
+          <p class="panel-subtitle">{{ dynamicScopeNames() }} trajectory</p>
         </div>
         <a routerLink="/simulator" class="panel-link">Scenarios &rarr;</a>
       </div>

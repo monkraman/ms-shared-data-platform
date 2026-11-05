@@ -60,6 +60,48 @@ export interface ObligationRow {
   statusType: 'ready' | 'risk' | 'scheduled';
 }
 
+export interface DynamicKpiCard {
+  id: string;
+  kicker: string;
+  badgeText: string;
+  badgeType: 'green' | 'amber' | 'red' | 'neutral';
+  hasDot?: boolean;
+  amount: string;
+  subtext: string;
+  barType: 'dual' | 'tri' | 'progress';
+  barSegments?: { color: 'green' | 'teal' | 'amber' | 'red' | 'blue'; widthPct: number }[];
+}
+
+export interface MarketFilterOption {
+  id: string;
+  label: string;
+}
+
+interface CountryMeta {
+  code: string;
+  name: string;
+  shortName: string;
+  regName: string;
+  flag: string;
+  localCurrencyCode: string;
+  localCurrencySymbol: string;
+  conversionRateToGbp: number;
+  provisionalShare: number;
+  deadline: string;
+}
+
+const COUNTRY_REGISTRY: Record<string, CountryMeta> = {
+  GB: { code: 'GB', name: 'United Kingdom', shortName: 'UK', regName: 'PackUK / Defra RPD EPR', flag: '🇬🇧', localCurrencyCode: 'GBP', localCurrencySymbol: '£', conversionRateToGbp: 1.0, provisionalShare: 0.941, deadline: '31 Oct 2026' },
+  UK: { code: 'GB', name: 'United Kingdom', shortName: 'UK', regName: 'PackUK / Defra RPD EPR', flag: '🇬🇧', localCurrencyCode: 'GBP', localCurrencySymbol: '£', conversionRateToGbp: 1.0, provisionalShare: 0.941, deadline: '31 Oct 2026' },
+  DK: { code: 'DK', name: 'Denmark', shortName: 'Denmark', regName: 'Dansk Producentansvar (DPA / VANA)', flag: '🇩🇰', localCurrencyCode: 'DKK', localCurrencySymbol: 'DKK ', conversionRateToGbp: 0.115, provisionalShare: 0.059, deadline: '15 Jan 2027' },
+  DE: { code: 'DE', name: 'Germany', shortName: 'Germany', regName: 'VerpackG / ZSVR LUCID', flag: '🇩🇪', localCurrencyCode: 'EUR', localCurrencySymbol: '€', conversionRateToGbp: 0.85, provisionalShare: 0.075, deadline: '15 May 2027' },
+  FR: { code: 'FR', name: 'France', shortName: 'France', regName: 'Citeo Household Packaging', flag: '🇫🇷', localCurrencyCode: 'EUR', localCurrencySymbol: '€', conversionRateToGbp: 0.85, provisionalShare: 0.087, deadline: '01 Mar 2027' },
+  ES: { code: 'ES', name: 'Spain', shortName: 'Spain', regName: 'Real Decreto 1055/2022 & Tax', flag: '🇪🇸', localCurrencyCode: 'EUR', localCurrencySymbol: '€', conversionRateToGbp: 0.85, provisionalShare: 0.045, deadline: '30 Apr 2027' },
+  IT: { code: 'IT', name: 'Italy', shortName: 'Italy', regName: 'CONAI Environmental Labeling', flag: '🇮🇹', localCurrencyCode: 'EUR', localCurrencySymbol: '€', conversionRateToGbp: 0.85, provisionalShare: 0.055, deadline: '28 Feb 2027' },
+  NL: { code: 'NL', name: 'Netherlands', shortName: 'Netherlands', regName: 'Afvalfonds Verpakkingen', flag: '🇳🇱', localCurrencyCode: 'EUR', localCurrencySymbol: '€', conversionRateToGbp: 0.85, provisionalShare: 0.038, deadline: '31 Mar 2027' },
+  'US-CA': { code: 'US-CA', name: 'California (USA)', shortName: 'California', regName: 'SB54 Plastic Pollution Act', flag: '🇺🇸', localCurrencyCode: 'USD', localCurrencySymbol: '$', conversionRateToGbp: 0.78, provisionalShare: 0.06, deadline: '01 Jan 2027' },
+};
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -77,7 +119,7 @@ export class DashboardComponent implements OnInit {
   readonly config = APP_CONFIG;
 
   // Selected Filter Signals (Mockup controls)
-  readonly selectedMarket = signal<'all' | 'uk' | 'denmark' | 'ppwr'>('all');
+  readonly selectedMarket = signal<string>('all');
   readonly selectedYear = signal<string>('2026');
 
   // Selected Tenant Signal
@@ -101,6 +143,61 @@ export class DashboardComponent implements OnInit {
     return this.activeTenantId() === 'khc-europe' 
       ? 'The Kraft Heinz Company (Europe & UK)' 
       : this.activeTenantId();
+  });
+
+  // Dynamic active jurisdictions and modules configured for tenant
+  readonly tenantActiveJurisdictions = computed<string[]>(() => {
+    const t = this.currentTenant();
+    if (t?.active_jurisdictions && t.active_jurisdictions.length > 0) {
+      return t.active_jurisdictions;
+    }
+    return ['GB', 'DK'];
+  });
+
+  readonly tenantActiveModules = computed<string[]>(() => {
+    const t = this.currentTenant();
+    if (t?.active_modules && t.active_modules.length > 0) {
+      return t.active_modules.map((m) => m.toLowerCase());
+    }
+    return ['epr', 'ppwr'];
+  });
+
+  // Available filter options dynamically reflecting active markets
+  readonly availableFilterMarkets = computed<MarketFilterOption[]>(() => {
+    const options: MarketFilterOption[] = [{ id: 'all', label: 'All markets' }];
+    for (const j of this.tenantActiveJurisdictions()) {
+      const meta = COUNTRY_REGISTRY[j.toUpperCase()];
+      if (meta) {
+        options.push({ id: meta.code.toLowerCase(), label: meta.shortName });
+      } else {
+        options.push({ id: j.toLowerCase(), label: j.toUpperCase() });
+      }
+    }
+    if (this.tenantActiveModules().includes('ppwr')) {
+      options.push({ id: 'ppwr', label: 'EU PPWR' });
+    }
+    return options;
+  });
+
+  // Scope names string (e.g. "UK EPR, Denmark EPR and EU PPWR")
+  readonly dynamicScopeNames = computed(() => {
+    const jNames = this.tenantActiveJurisdictions().map((j) => {
+      const meta = COUNTRY_REGISTRY[j.toUpperCase()];
+      return meta ? `${meta.shortName} EPR` : `${j.toUpperCase()} EPR`;
+    });
+    const modules: string[] = [];
+    if (this.tenantActiveModules().includes('ppwr')) modules.push('EU PPWR');
+    if (this.tenantActiveModules().includes('dpp')) modules.push('EU DPP');
+
+    const allScopes = [...jNames, ...modules];
+    if (allScopes.length === 0) return 'Statutory Compliance';
+    if (allScopes.length === 1) return allScopes[0];
+    if (allScopes.length === 2) return `${allScopes[0]} and ${allScopes[1]}`;
+    return allScopes.slice(0, -1).join(', ') + ' and ' + allScopes[allScopes.length - 1];
+  });
+
+  readonly dynamicGreetingSubtitle = computed(() => {
+    return `Your EPR position across ${this.dynamicScopeNames()} · data locked 28 Oct · specialist reviewed`;
   });
 
   // User name for greeting
@@ -250,10 +347,164 @@ export class DashboardComponent implements OnInit {
     { name: 'Lighter PET bottle', amount: '−£16k' },
   ];
 
-  // Obligations Table (Matches Executive Screen 02 Mockup)
+  // Dynamic Top 3 Breakdown KPI Cards (Adapts to Active Jurisdictions & Modules)
+  readonly dynamicBreakdownCards = computed<DynamicKpiCard[]>(() => {
+    const cards: DynamicKpiCard[] = [];
+    const total = this.globalLiabilityGbp();
+    const juris = this.tenantActiveJurisdictions();
+    const modules = this.tenantActiveModules();
+
+    // 1. Process active markets/jurisdictions
+    for (const j of juris) {
+      const code = j.toUpperCase();
+      const meta = COUNTRY_REGISTRY[code];
+      const name = meta ? meta.shortName : code;
+
+      if (code === 'GB' || code === 'UK') {
+        const fee = this.ukLiabilityGbp();
+        cards.push({
+          id: 'kpi-uk',
+          kicker: 'UK EPR',
+          badgeText: 'High confidence',
+          badgeType: 'green',
+          hasDot: true,
+          amount: fee > 0 ? this.formatCurrencyMillions(fee) : '£0.00',
+          subtext: '18,420 t · +11% vs 2025',
+          barType: 'dual',
+          barSegments: [
+            { color: 'green', widthPct: 94 },
+            { color: 'amber', widthPct: 6 },
+          ],
+        });
+      } else if (code === 'DK') {
+        const fee = this.denmarkLiabilityGbp();
+        cards.push({
+          id: 'kpi-dk',
+          kicker: 'DENMARK EPR',
+          badgeText: 'First full year',
+          badgeType: 'neutral',
+          amount: fee > 0 ? this.formatCurrencyMillions(fee) : '£0.00',
+          subtext: 'DKK 3.2m · 1,150 t',
+          barType: 'tri',
+          barSegments: [
+            { color: 'green', widthPct: 60 },
+            { color: 'teal', widthPct: 25 },
+            { color: 'red', widthPct: 15 },
+          ],
+        });
+      } else if (code === 'DE') {
+        const share = meta?.provisionalShare || 0.075;
+        const fee = Math.round(total * share);
+        cards.push({
+          id: 'kpi-de',
+          kicker: 'GERMANY EPR',
+          badgeText: 'LUCID registered',
+          badgeType: 'green',
+          hasDot: true,
+          amount: fee > 0 ? this.formatCurrencyMillions(fee) : '£0.00',
+          subtext: 'VerpackG dual system · 4,200 t',
+          barType: 'dual',
+          barSegments: [
+            { color: 'green', widthPct: 90 },
+            { color: 'amber', widthPct: 10 },
+          ],
+        });
+      } else if (code === 'FR') {
+        const share = meta?.provisionalShare || 0.087;
+        const fee = Math.round(total * share);
+        cards.push({
+          id: 'kpi-fr',
+          kicker: 'FRANCE EPR',
+          badgeText: 'Citeo verified',
+          badgeType: 'green',
+          hasDot: true,
+          amount: fee > 0 ? this.formatCurrencyMillions(fee) : '£0.00',
+          subtext: 'Citeo declaration & Triman',
+          barType: 'dual',
+          barSegments: [
+            { color: 'green', widthPct: 88 },
+            { color: 'teal', widthPct: 12 },
+          ],
+        });
+      } else {
+        const share = meta?.provisionalShare || 0.05;
+        const fee = Math.round(total * share);
+        cards.push({
+          id: `kpi-${code.toLowerCase()}`,
+          kicker: `${name.toUpperCase()} EPR`,
+          badgeText: 'On track',
+          badgeType: 'green',
+          hasDot: true,
+          amount: fee > 0 ? this.formatCurrencyMillions(fee) : '£0.00',
+          subtext: `${meta?.regName || 'Statutory EPR'}`,
+          barType: 'dual',
+          barSegments: [
+            { color: 'green', widthPct: 85 },
+            { color: 'amber', widthPct: 15 },
+          ],
+        });
+      }
+    }
+
+    // 2. Add module cards if slots remaining (< 3)
+    if (cards.length < 3 && modules.includes('ppwr')) {
+      const nonCompliant = this.ppwrNonCompliantCount();
+      cards.push({
+        id: 'kpi-ppwr',
+        kicker: 'EU PPWR',
+        badgeText:
+          this.totalTrackedSkus() === 0
+            ? '0 at risk'
+            : nonCompliant > 0
+            ? `${nonCompliant} at risk`
+            : 'On track',
+        badgeType:
+          nonCompliant > 0 && this.totalTrackedSkus() > 0 ? 'red' : 'green',
+        hasDot: nonCompliant > 0 && this.totalTrackedSkus() > 0,
+        amount: this.ppwrTrackedCount(),
+        subtext: 'DoCs issued · no fee, proof needed',
+        barType: 'dual',
+        barSegments: [{ color: 'blue', widthPct: 12 }],
+      });
+    }
+
+    if (cards.length < 3 && modules.includes('dpp')) {
+      cards.push({
+        id: 'kpi-dpp',
+        kicker: 'PRODUCT PASSPORT (DPP)',
+        badgeText: 'ESPPR active',
+        badgeType: 'neutral',
+        amount: `${this.totalTrackedSkus()} passports`,
+        subtext: 'Digital QR data carriers ready',
+        barType: 'dual',
+        barSegments: [{ color: 'teal', widthPct: 75 }],
+      });
+    }
+
+    if (cards.length < 3 && modules.includes('lca')) {
+      cards.push({
+        id: 'kpi-lca',
+        kicker: 'LCA & CARBON',
+        badgeText: '-18% vs 2024',
+        badgeType: 'green',
+        amount: '2.41 kg CO₂e',
+        subtext: 'Scope 3 packaging baseline',
+        barType: 'dual',
+        barSegments: [{ color: 'green', widthPct: 82 }],
+      });
+    }
+
+    return cards.slice(0, 3);
+  });
+
+  // Obligations Table dynamically computed from tenant's active markets & modules
   readonly obligationsList = computed<ObligationRow[]>(() => {
-    return [
-      {
+    const rows: ObligationRow[] = [];
+    const juris = this.tenantActiveJurisdictions().map((j) => j.toUpperCase());
+    const modules = this.tenantActiveModules();
+
+    if (juris.includes('DK')) {
+      rows.push({
         due: '15 Nov 2026',
         framework: 'Denmark EPR',
         title: 'VANA Q3 quantity report',
@@ -261,8 +512,11 @@ export class DashboardComponent implements OnInit {
         preparedPct: 100,
         statusText: 'Ready to approve',
         statusType: 'ready',
-      },
-      {
+      });
+    }
+
+    if (modules.includes('ppwr')) {
+      rows.push({
         due: '30 Nov 2026',
         framework: 'EU PPWR',
         title: 'Sauce pouch DoC and technical file',
@@ -270,8 +524,11 @@ export class DashboardComponent implements OnInit {
         preparedPct: 83,
         statusText: 'At risk',
         statusType: 'risk',
-      },
-      {
+      });
+    }
+
+    if (juris.includes('DK')) {
+      rows.push({
         due: '15 Jan 2027',
         framework: 'Denmark EPR',
         title: 'VANA Q4 quantity report',
@@ -279,8 +536,46 @@ export class DashboardComponent implements OnInit {
         preparedPct: 20,
         statusText: 'Scheduled',
         statusType: 'scheduled',
-      },
-    ];
+      });
+    }
+
+    if (juris.includes('GB') || juris.includes('UK')) {
+      rows.push({
+        due: '01 Apr 2027',
+        framework: 'UK EPR',
+        title: 'Defra RPD H2 packaging mass filing',
+        owner: 'Anna Morgan',
+        preparedPct: 65,
+        statusText: 'Scheduled',
+        statusType: 'scheduled',
+      });
+    }
+
+    if (juris.includes('DE')) {
+      rows.push({
+        due: '15 May 2027',
+        framework: 'Germany EPR',
+        title: 'ZSVR LUCID annual declaration & audit',
+        owner: 'Compliance Lead',
+        preparedPct: 50,
+        statusText: 'Scheduled',
+        statusType: 'scheduled',
+      });
+    }
+
+    if (juris.includes('FR')) {
+      rows.push({
+        due: '01 Mar 2027',
+        framework: 'France EPR',
+        title: 'Citeo annual declaration & Triman audit',
+        owner: 'Regulatory Affairs',
+        preparedPct: 40,
+        statusText: 'Scheduled',
+        statusType: 'scheduled',
+      });
+    }
+
+    return rows.slice(0, 4);
   });
 
   // Next Deadlines
@@ -432,7 +727,7 @@ export class DashboardComponent implements OnInit {
     this.tenantService.loadTenants().subscribe();
   }
 
-  setMarket(m: 'all' | 'uk' | 'denmark' | 'ppwr'): void {
+  setMarket(m: string): void {
     this.selectedMarket.set(m);
   }
 

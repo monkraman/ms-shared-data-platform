@@ -289,11 +289,30 @@
   color: #DC2626;
 }
 
+.pill-amber {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
 .dot-red {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: #DC2626;
+}
+
+.dot-green {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+}
+
+.dot-amber {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #F59E0B;
 }
 
 /* Progress bar tracks */
