@@ -867,6 +867,25 @@ Login URL: ${window.location.origin}/sign-in`;
     reader.readAsText(file);
   }
 
+  handleFileDrop(event: DragEvent): void {
+    event.preventDefault();
+    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+      const file = event.dataTransfer.files[0];
+      if (file.name.toLowerCase().endsWith('.csv')) {
+        this.importSourceName.set(file.name);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const text = (e.target?.result as string) || '';
+          this.csvTextInput.set(text);
+          this.parseCsvInput();
+        };
+        reader.readAsText(file);
+      } else {
+        this.importError.set('Please upload a valid CSV file (.csv extension).');
+      }
+    }
+  }
+
   executeImport(): void {
     const targetTenant = this.selectedTenantForImport();
     if (!targetTenant) {

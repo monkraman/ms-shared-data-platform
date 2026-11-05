@@ -1027,9 +1027,30 @@
         }
 
         @if (importMode() === 'file') {
-        <div class="file-dropzone">
-          <input type="file" accept=".csv" (change)="handleFileUpload($event)" />
-          <p>Select or drop a CSV file containing SKU packaging data.</p>
+        <div class="file-dropzone-styled" (dragover)="$event.preventDefault()" (drop)="handleFileDrop($event)">
+          <input type="file" id="csv-file-upload-input" accept=".csv" class="hidden-file-input" (change)="handleFileUpload($event)" />
+          <label for="csv-file-upload-input" class="dropzone-label">
+            <div class="dropzone-icon-box">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            </div>
+            @if (parsedSkus().length > 0 && importMode() === 'file') {
+              <div class="file-loaded-info">
+                <span class="file-loaded-badge">Ready to Ingest</span>
+                <span class="file-loaded-name mono font-bold">{{ importSourceName() }}</span>
+                <span class="file-loaded-stats">{{ parsedSkus().length }} SKU records parsed & verified</span>
+              </div>
+              <span class="btn-browse-pill">Choose another file</span>
+            } @else {
+              <div class="dropzone-text">
+                <span class="dropzone-main-text">Drag & drop your CSV file here, or <strong class="text-link">browse files</strong></span>
+                <span class="dropzone-sub-text">Standard ERP export formats accepted (.CSV, up to 50MB)</span>
+              </div>
+            }
+          </label>
         </div>
         }
 

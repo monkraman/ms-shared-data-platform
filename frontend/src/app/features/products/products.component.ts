@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { FoundationApiService, CanonicalProduct, PackagingComponent } from '../../core/services/foundation-api.service';
+import { FoundationApiService, CanonicalProduct, PackagingComponent, SkuImportItem, SkuImportPayload, SkuImportResponse } from '../../core/services/foundation-api.service';
 import { TenantApiService } from '../../core/services/tenant-api.service';
 
 export interface ComponentFeeTrace {
@@ -74,6 +74,16 @@ export class ProductsComponent implements OnInit {
   readonly showDppModal = signal<boolean>(false);
   readonly isSavingEnrichment = signal<boolean>(false);
   readonly enrichmentNotice = signal<string | null>(null);
+
+  // Client Bulk CSV Import State
+  readonly showImportModal = signal<boolean>(false);
+  readonly importMode = signal<'sample' | 'paste' | 'file'>('file');
+  readonly importSourceName = signal<string>('Client_Catalog_Update.csv');
+  readonly csvTextInput = signal<string>('');
+  readonly parsedImportSkus = signal<SkuImportItem[]>([]);
+  readonly isImporting = signal<boolean>(false);
+  readonly importError = signal<string | null>(null);
+  readonly importResult = signal<SkuImportResponse | null>(null);
 
   // PPWR Form State
   ppwrRecyclassCert = 'RC-2025-EU-889';
@@ -473,6 +483,165 @@ export class ProductsComponent implements OnInit {
         this.viewMode.set('detail');
       },
       error: () => this.creatingSku.set(false),
+    });
+  }
+
+  openImportModal(): void {
+    this.importResult.set(null);
+    this.importError.set(null);
+    this.parsedImportSkus.set([]);
+    this.showImportModal.set(true);
+  }
+
+  closeImportModal(): void {
+    this.showImportModal.set(false);
+    this.importResult.set(null);
+    this.importError.set(null);
+  }
+
+  setImportMode(mode: 'sample' | 'paste' | 'file'): void {
+    this.importMode.set(mode);
+  }
+
+  handleFileUpload(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+    this.importSourceName.set(file.name);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = (e.target?.result as string) || '';
+      this.csvTextInput.set(text);
+      this.parseCsvInput();
+    };
+    reader.readAsText(file);
+  }
+
+  handleFileDrop(event: DragEvent): void {
+    event.preventDefault();
+    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+      const file = event.dataTransfer.files[0];
+      if (file.name.toLowerCase().endsWith('.csv')) {
+        this.importSourceName.set(file.name);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const text = (e.target?.result as string) || '';
+          this.csvTextInput.set(text);
+          this.parseCsvInput();
+        };
+        reader.readAsText(file);
+      } else {
+        this.importError.set('Please drop a valid .csv file.');
+      }
+    }
+  }
+
+  onCsvTextChange(text: string): void {
+    this.csvTextInput.set(text);
+    this.parseCsvInput();
+  }
+
+  parseCsvInput(): void {
+    const text = this.csvTextInput().trim();
+    if (!text) {
+      this.parsedImportSkus.set([]);
+      return;
+    }
+    const lines = text.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
+    if (lines.length < 2) {
+      this.parsedImportSkus.set([]);
+      return;
+    }
+
+    const parseLine = (line: string): string[] => {
+      const result: string[] = [];
+      let inQuotes = false;
+      let current = '';
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      result.push(current.trim());
+      return result;
+    };
+
+    const headers = parseLine(lines[0]).map((h) => h.toLowerCase().replace(/[^a-z0-9_]/g, ''));
+    const skuIdx = headers.findIndex((h) => h.includes('sku') || h.includes('code') || h.includes('id') || h.includes('matnr') || h.includes('article') || h.includes('item'));
+    const nameIdx = headers.findIndex((h) => h.includes('name') || h.includes('title') || h.includes('desc') || h.includes('designation') || h.includes('label'));
+    const brandIdx = headers.findIndex((h) => h.includes('brand') || h.includes('make') || h.includes('mfr'));
+    const catIdx = headers.findIndex((h) => h.includes('cat') || h.includes('segment') || h.includes('group'));
+    const matIdx = headers.findIndex((h) => h.includes('mat') || h.includes('subst') || h.includes('polymer') || h.includes('pkg'));
+    const weightIdx = headers.findIndex((h) => h.includes('weight') || h.includes('tare') || h.includes('gram') || h.includes('mass'));
+    const pcrIdx = headers.findIndex((h) => h.includes('pcr') || h.includes('recycled'));
+    const salesIdx = headers.findIndex((h) => h.includes('sale') || h.includes('unit') || h.includes('volume') || h.includes('qty'));
+    const jurIdx = headers.findIndex((h) => h.includes('jur') || h.includes('country') || h.includes('market') || h.includes('geo') || h.includes('iso'));
+
+    const items: SkuImportItem[] = [];
+    for (let i = 1; i < lines.length; i++) {
+      const cols = parseLine(lines[i]);
+      if (cols.length === 0 || !cols[0]) continue;
+
+      const sku = skuIdx >= 0 ? cols[skuIdx] : cols[0];
+      const name = nameIdx >= 0 ? cols[nameIdx] : (cols[1] || sku);
+      const brand = brandIdx >= 0 ? cols[brandIdx] : 'Enterprise Brand';
+      const category = catIdx >= 0 ? cols[catIdx] : 'General';
+      const material = matIdx >= 0 ? cols[matIdx] : '';
+      const rawWeight = weightIdx >= 0 ? cols[weightIdx] : '';
+      const weight = rawWeight && !isNaN(Number(rawWeight)) ? Number(rawWeight) : null;
+      const rawPcr = pcrIdx >= 0 ? cols[pcrIdx] : '0';
+      const pcr = rawPcr && !isNaN(Number(rawPcr)) ? Number(rawPcr) : 0;
+      const rawSales = salesIdx >= 0 ? cols[salesIdx] : '0';
+      const sales = rawSales && !isNaN(Number(rawSales)) ? Number(rawSales) : null;
+      const jur = jurIdx >= 0 && cols[jurIdx] ? cols[jurIdx] : 'UK';
+
+      items.push({
+        sku,
+        name,
+        brand,
+        category,
+        material,
+        packaging_weight_grams: weight,
+        recycled_content_pct: pcr,
+        is_recyclable: true,
+        units_sold: sales,
+        jurisdiction: jur,
+      });
+    }
+
+    this.parsedImportSkus.set(items);
+  }
+
+  executeClientImport(): void {
+    const tenantId = this.tenantService.activeTenantId();
+    const items = this.parsedImportSkus();
+    if (items.length === 0) {
+      this.importError.set('No valid SKU rows parsed.');
+      return;
+    }
+    this.isImporting.set(true);
+    this.importError.set(null);
+    const payload: SkuImportPayload = {
+      tenant_id: tenantId,
+      source_name: this.importSourceName(),
+      items: items,
+    };
+    this.foundationService.importSkus(payload).subscribe({
+      next: (res) => {
+        this.isImporting.set(false);
+        this.importResult.set(res);
+        this.foundationService.loadProducts().subscribe();
+      },
+      error: (err) => {
+        this.isImporting.set(false);
+        this.importError.set(err?.error?.detail || err.message || 'Failed to import SKU records.');
+      }
     });
   }
 }
