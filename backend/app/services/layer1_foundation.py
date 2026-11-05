@@ -279,6 +279,9 @@ class Layer1FoundationService:
                     if i.status in [IssueStatus.OPEN, IssueStatus.PENDING_SOURCE_UPDATE]
                 ])
 
+            data_store.save_persisted_products(tenant_id)
+            data_store.save_persisted_issues(tenant_id)
+            data_store.save_persisted_batches(tenant_id)
             return SkuImportResponse(
                 tenant_id=tenant_id,
                 batch_id=batch_id,

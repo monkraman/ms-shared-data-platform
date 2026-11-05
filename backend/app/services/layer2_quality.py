@@ -168,4 +168,6 @@ class Layer2QualityService:
                     else:
                         p.open_issue_count = len(remaining)
 
+            data_store.save_persisted_issues(tenant_id)
+            data_store.save_persisted_products(tenant_id)
             return issue
