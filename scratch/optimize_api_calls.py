@@ -165,3 +165,4 @@ if old_init in a_code:
     print('Updated AdminComponent with strict lazy-loaded tabs and deduplication')
 else:
     print('AdminComponent ngOnInit pattern not matched or already updated')
+

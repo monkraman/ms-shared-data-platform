@@ -108,3 +108,4 @@ with open(path_store, 'w', encoding='utf-8') as f:
     f.write(code)
 
 print('Updated store.py with user persistence successfully')
+
