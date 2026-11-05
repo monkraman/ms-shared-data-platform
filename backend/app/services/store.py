@@ -40,6 +40,7 @@ from app.schemas.epr import (
 
 PERSISTENCE_DIR = Path(__file__).resolve().parent.parent / "data"
 PERSISTENCE_FILE = PERSISTENCE_DIR / "persisted_tenants.json"
+USER_PERSISTENCE_FILE = PERSISTENCE_DIR / "persisted_users.json"
 
 
 class DataStore:
@@ -62,6 +63,7 @@ class DataStore:
         self._seed_rule_sets()
         self._seed_khc_data()
         self._load_persisted_tenants()
+        self._load_persisted_users()
 
     def _load_persisted_tenants(self) -> None:
         """Load any custom workspaces created by users across reboots."""
@@ -105,6 +107,39 @@ class DataStore:
                 json.dump(existing, f, indent=2)
         except Exception as e:
             print(f"[DataStore] Failed saving persisted tenant: {e}")
+
+    def _load_persisted_users(self) -> None:
+        """Load any custom provisioned users across reboots."""
+        if not USER_PERSISTENCE_FILE.exists():
+            return
+        try:
+            with open(USER_PERSISTENCE_FILE, "r", encoding="utf-8") as f:
+                records = json.load(f)
+                for item in records:
+                    email = item.get("email", "").lower().strip()
+                    if email:
+                        self.users[email] = item
+        except Exception as e:
+            print(f"[DataStore] Failed loading persisted users: {e}")
+
+    def _save_persisted_user(self, user_data: dict) -> None:
+        """Persist user record to disk."""
+        try:
+            PERSISTENCE_DIR.mkdir(parents=True, exist_ok=True)
+            existing = []
+            if USER_PERSISTENCE_FILE.exists():
+                with open(USER_PERSISTENCE_FILE, "r", encoding="utf-8") as f:
+                    try:
+                        existing = json.load(f)
+                    except Exception:
+                        existing = []
+            email = user_data["email"].lower().strip()
+            existing = [u for u in existing if u.get("email", "").lower().strip() != email]
+            existing.append(user_data)
+            with open(USER_PERSISTENCE_FILE, "w", encoding="utf-8") as f:
+                json.dump(existing, f, indent=2)
+        except Exception as e:
+            print(f"[DataStore] Failed saving persisted user: {e}")
 
     def _seed_users(self) -> None:
         self.users["superadmin@monkspaces.com"] = {
@@ -1418,7 +1453,7 @@ class DataStore:
             if data.admin_email and data.admin_email.strip():
                 admin_email = data.admin_email.lower().strip()
                 initials = "".join([part[0].upper() for part in (data.admin_name or data.name).split()[:2]]) or "AD"
-                self.users[admin_email] = {
+                new_admin = {
                     "id": f"usr-{data.id[:4]}-{uuid4().hex[:4]}",
                     "email": admin_email,
                     "password": data.admin_password or "password123",
@@ -1428,6 +1463,8 @@ class DataStore:
                     "organisation_name": data.name,
                     "avatar_initials": initials,
                 }
+                self.users[admin_email] = new_admin
+                self._save_persisted_user(new_admin)
 
             # 2. Persist to PostgreSQL database platform.tenants table
             try:
@@ -1494,6 +1531,7 @@ class DataStore:
         with self._lock:
             email = user_data["email"].lower().strip()
             self.users[email] = user_data
+            self._save_persisted_user(user_data)
             return user_data
 
     def list_users(self, tenant_id: Optional[str] = None) -> List[dict]:

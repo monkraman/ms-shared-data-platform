@@ -102,10 +102,13 @@ export class AdminComponent implements OnInit {
         u.email.toLowerCase().includes(query) ||
         (u.organisationName && u.organisationName.toLowerCase().includes(query));
 
+      const orgLower = org.toLowerCase().trim();
       const matchesOrg =
         org === 'ALL' ||
         (org === 'platform' && !u.organisationId) ||
-        u.organisationId === org;
+        u.organisationId === org ||
+        (u.organisationSlug && u.organisationSlug.toLowerCase().trim() === orgLower) ||
+        (u.organisationName && u.organisationName.toLowerCase().trim() === orgLower);
 
       const matchesRole = role === 'ALL' || u.role === role;
 
@@ -448,6 +451,9 @@ export class AdminComponent implements OnInit {
         next: (created) => {
           this.isProvisioning.set(false);
           this.inviteSuccess.set(`Successfully provisioned account for ${created.fullName}.`);
+          this.userFilterOrg.set('ALL');
+          this.userFilterRole.set('ALL');
+          this.userSearchQuery.set('');
           this.loadUsers();
           setTimeout(() => {
             this.closeInviteModal();
@@ -560,6 +566,7 @@ Login URL: ${window.location.origin}/sign-in`;
         setTimeout(() => {
           this.closeOnboardModal();
           this.refreshTenants();
+          this.loadUsers();
         }, 1200);
       },
       error: (err) => {
