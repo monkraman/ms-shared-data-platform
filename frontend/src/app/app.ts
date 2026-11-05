@@ -7,6 +7,7 @@ import { TenantApiService } from './core/services/tenant-api.service';
 import { AuthService } from './core/services/auth.service';
 import { ThemeService } from './core/services/theme.service';
 import { QualityApiService } from './core/services/quality-api.service';
+import { ToastService } from './core/services/toast.service';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +22,7 @@ export class App {
   readonly authService = inject(AuthService);
   readonly themeService = inject(ThemeService);
   readonly qualityService = inject(QualityApiService);
+  readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
 
   readonly currentUrl = signal<string>(this.router.url);

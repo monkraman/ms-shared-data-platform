@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EprApiService } from '../../core/services/epr-api.service';
 import { FoundationApiService } from '../../core/services/foundation-api.service';
+import { ToastService } from '../../core/services/toast.service';
 import { TenantApiService } from '../../core/services/tenant-api.service';
 
 export interface CostRecommendation {
@@ -35,6 +36,7 @@ export class SimulatorComponent implements OnInit {
   readonly eprService = inject(EprApiService);
   readonly tenantService = inject(TenantApiService);
   readonly foundationService = inject(FoundationApiService);
+  readonly toastService = inject(ToastService);
 
   // Sub-views: Screen 15 (Cost Insights & 10 Recommendations) vs Screen 18 (Scenario Forecast)
   readonly activeSubView = signal<'insights' | 'scenarios'>('insights');
@@ -335,6 +337,7 @@ export class SimulatorComponent implements OnInit {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    this.toastService.show('Official UK Defra RPD CSV exported successfully', 'success');
   }
   formatMillions(val: number): string {
     if (!val || val === 0) return '£0.00';

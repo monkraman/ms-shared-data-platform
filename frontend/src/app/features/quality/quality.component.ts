@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { QualityApiService, DataQualityIssue } from '../../core/services/quality-api.service';
+import { ToastService } from '../../core/services/toast.service';
 import { FoundationApiService, CanonicalProduct } from '../../core/services/foundation-api.service';
 import { TenantApiService } from '../../core/services/tenant-api.service';
 
@@ -33,6 +34,7 @@ export interface ComplianceGapItem {
 })
 export class QualityComponent implements OnInit {
   readonly qualityService = inject(QualityApiService);
+  readonly toastService = inject(ToastService);
   readonly foundationService = inject(FoundationApiService);
   readonly tenantService = inject(TenantApiService);
 
@@ -206,6 +208,7 @@ export class QualityComponent implements OnInit {
         next: (resolved) => {
           this.proposing.set(false);
           this.dispatchSuccessMessage.set(`[RESOLVED] Gap ${gapId} successfully closed and verified in master database!`);
+          this.toastService.show(`✓ Gap ${gapId} resolved in source system (Trace One PLM)`, 'success');
           this.qualityService.loadIssues().subscribe();
           this.foundationService.loadProducts().subscribe();
           this.tenantService.loadTenants().subscribe();

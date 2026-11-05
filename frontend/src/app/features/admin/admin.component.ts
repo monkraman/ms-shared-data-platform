@@ -5,6 +5,7 @@ import { RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/ro
 import { filter } from 'rxjs';
 import { AuthService, AuthUser } from '../../core/services/auth.service';
 import { TenantApiService, BackendTenantRecord } from '../../core/services/tenant-api.service';
+import { ToastService } from '../../core/services/toast.service';
 import {
   FoundationApiService,
   SkuImportItem,
@@ -35,6 +36,7 @@ export class AdminComponent implements OnInit {
   private readonly router = inject(Router);
   readonly authService = inject(AuthService);
   readonly tenantService = inject(TenantApiService);
+  readonly toastService = inject(ToastService);
   readonly foundationService = inject(FoundationApiService);
   readonly configService = inject(ConfigApiService);
 
@@ -647,6 +649,7 @@ Login URL: ${window.location.origin}/sign-in`;
       next: (updated) => {
         this.isUpdatingModules.set(false);
         this.moduleSaveSuccess.set(`Workspace "${updated.name}" updated successfully!`);
+        this.toastService.show(`✓ Workspace "${updated.name}" theme & configuration updated`, 'success');
         setTimeout(() => {
           this.closeModulesModal();
           this.refreshTenants();

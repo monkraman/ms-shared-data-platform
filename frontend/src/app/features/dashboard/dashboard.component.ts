@@ -6,6 +6,7 @@ import { TenantApiService, BackendTenantRecord } from '../../core/services/tenan
 import { FoundationApiService, CanonicalProduct } from '../../core/services/foundation-api.service';
 import { QualityApiService, DataQualityIssue } from '../../core/services/quality-api.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 
 export interface MarketFeeBreakdown {
   countryCode: string;
@@ -61,6 +62,7 @@ export class DashboardComponent implements OnInit {
   readonly tenantService = inject(TenantApiService);
   readonly foundationService = inject(FoundationApiService);
   readonly qualityService = inject(QualityApiService);
+  readonly toastService = inject(ToastService);
   readonly authService = inject(AuthService);
   readonly config = APP_CONFIG;
 
@@ -459,5 +461,6 @@ export class DashboardComponent implements OnInit {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    this.toastService.show('Executive Compliance Board Pack exported successfully', 'success');
   }
 }
