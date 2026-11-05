@@ -142,3 +142,4 @@ Follow this 5-step checklist for the first sync meeting:
 3. [ ] **Verify Lineage:** Ingest sample batch in Monkspaces (`BATCH-INIT-001`) and verify that 40 Data Points map correctly in `/data-overview`.
 4. [ ] **Run Quality Rules:** Check that missing tare weight or polymer triggers a clear gap (`DQI-XXXX`) without breaking calculations.
 5. [ ] **Automate Cron:** Switch from manual CSV ingestion to scheduled automated nightly sync.
+
