@@ -255,3 +255,4 @@ if __name__ == "__main__":
     port = int(sys.argv[2]) if len(sys.argv) > 2 and sys.argv[1] == "--port" else 8090
     print(f"Starting Mock Enterprise PLM & Snowflake Server on port {port}...")
     uvicorn.run("mock_erp_plm_service:app", host="0.0.0.0", port=port, reload=True)
+
