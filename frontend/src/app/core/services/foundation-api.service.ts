@@ -360,6 +360,28 @@ export class FoundationApiService {
             this.lastSyncBatch.set(batch);
             this.syncing.set(false);
             this.loadProducts().subscribe();
+            this.getBatches().subscribe();
+          },
+          error: () => this.syncing.set(false),
+        })
+      );
+  }
+
+  triggerSnowflakeSync(queryId = 'QRY-SNOW-9921'): Observable<IngestionBatch> {
+    this.syncing.set(true);
+    return this.http
+      .post<IngestionBatch>(
+        `${this.baseUrl}/api/v1/foundation/sync/snowflake?query_id=${queryId}`,
+        {},
+        { headers: this.getHeaders() }
+      )
+      .pipe(
+        tap({
+          next: (batch) => {
+            this.lastSyncBatch.set(batch);
+            this.syncing.set(false);
+            this.loadProducts().subscribe();
+            this.getBatches().subscribe();
           },
           error: () => this.syncing.set(false),
         })

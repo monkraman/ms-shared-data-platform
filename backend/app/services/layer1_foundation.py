@@ -97,6 +97,28 @@ class Layer1FoundationService:
             return batch
 
     @staticmethod
+    def simulate_snowflake_sync(tenant_id: str, query_id: str = "QRY-SNOW-9921") -> IngestionBatch:
+        """Simulate an automated ETL sync from Client Snowflake Data Cloud warehouse."""
+        batch_id = f"BATCH-SNOW-{uuid4().hex[:8].upper()}"
+        with data_store._lock:
+            batch = IngestionBatch(
+                id=batch_id,
+                tenant_id=tenant_id,
+                source_type=SourceSystemType.SNOWFLAKE,
+                source_reference=f"Snowflake Warehouse ETL: Query {query_id}",
+                created_at=datetime.now(timezone.utc),
+                status="completed",
+                records_received=1240,
+                records_normalized=1240,
+                quality_issues_detected=0,
+                message=f"Synchronized 1,240 sales volume & invoicing records from Snowflake data warehouse.",
+            )
+            if tenant_id not in data_store.batches:
+                data_store.batches[tenant_id] = []
+            data_store.batches[tenant_id].append(batch)
+            return batch
+
+    @staticmethod
     def import_skus(payload: SkuImportPayload) -> SkuImportResponse:
         """Batch-import flat SKU packaging and sales records into canonical foundation."""
         tenant_id = payload.tenant_id

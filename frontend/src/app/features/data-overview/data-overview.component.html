@@ -23,10 +23,16 @@
         </button>
       </div>
 
-      <button type="button" class="btn-sync" [disabled]="syncing()" (click)="triggerSync()">
-        <span class="sync-icon" [class.spinning]="syncing()"></span>
-        {{ syncing() ? 'Extracting Upstream...' : 'Sync Upstream Sources' }}
-      </button>
+      <div class="sync-actions-group" style="display: flex; gap: 8px;">
+        <button type="button" class="btn-sync" [disabled]="syncing()" (click)="triggerSync()" title="Extract live packaging BOM specifications from Trace One Devex PLM">
+          <span class="sync-icon" [class.spinning]="syncing()"></span>
+          {{ syncing() ? 'Extracting PLM...' : 'Sync Trace One Devex' }}
+        </button>
+        <button type="button" class="btn-sync" [disabled]="syncing()" (click)="triggerSnowflakeSync()" style="background: #1e3a8a; border-color: #1d4ed8;" title="Extract sales by market and invoicing records from Snowflake Data Cloud">
+          <span class="sync-icon" [class.spinning]="syncing()"></span>
+          {{ syncing() ? 'Extracting Sales...' : 'Sync Snowflake Sales' }}
+        </button>
+      </div>
     </div>
   </header>
 

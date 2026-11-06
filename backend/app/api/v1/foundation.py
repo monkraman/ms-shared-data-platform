@@ -47,6 +47,15 @@ def trigger_traceone_sync(
     return Layer1FoundationService.simulate_trace_one_sync(tenant_id, spec_id)
 
 
+@router.post("/sync/snowflake", response_model=IngestionBatch)
+def trigger_snowflake_sync(
+    query_id: str = Query("QRY-SNOW-9921", description="Snowflake query / pipeline run ID"),
+    tenant_id: str = Depends(get_current_tenant_id),
+) -> IngestionBatch:
+    """Simulate on-demand ETL pipeline sync from Snowflake Data Cloud warehouse."""
+    return Layer1FoundationService.simulate_snowflake_sync(tenant_id, query_id)
+
+
 @router.post("/import", response_model=SkuImportResponse, status_code=201)
 def import_sku_catalog(payload: SkuImportPayload) -> SkuImportResponse:
     """Import flat SKU catalog, resolve packaging components, and register data quality gaps."""

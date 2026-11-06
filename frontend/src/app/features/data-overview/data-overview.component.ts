@@ -452,6 +452,10 @@ export class DataOverviewComponent implements OnInit {
     this.foundationService.triggerTraceOneSync().subscribe();
   }
 
+  triggerSnowflakeSync(): void {
+    this.foundationService.triggerSnowflakeSync().subscribe();
+  }
+
   getFilteredDataPoints(): DataPointItem[] {
     const filter = this.selectedFilter();
     if (filter === 'ALL') return this.dataPoints;

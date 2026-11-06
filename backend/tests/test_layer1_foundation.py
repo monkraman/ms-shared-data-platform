@@ -54,3 +54,16 @@ def test_simulate_traceone_sync(client: TestClient) -> None:
     batch = response.json()
     assert "BATCH-SYNC-" in batch["id"]
     assert "DEV-8821" in batch["source_reference"]
+
+
+def test_simulate_snowflake_sync(client: TestClient) -> None:
+    """Test on-demand ETL pipeline sync from Snowflake Data Cloud."""
+    response = client.post(
+        "/api/v1/foundation/sync/snowflake?query_id=QRY-SNOW-9921",
+        headers={"X-Tenant-ID": "khc-europe"}
+    )
+    assert response.status_code == 200
+    batch = response.json()
+    assert "BATCH-SNOW-" in batch["id"]
+    assert "QRY-SNOW-9921" in batch["source_reference"]
+    assert batch["records_received"] == 1240
