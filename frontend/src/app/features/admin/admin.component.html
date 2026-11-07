@@ -160,8 +160,10 @@
         <div class="org-card">
           <div class="org-card-header">
             <div class="org-identity">
-              @if (org.logo_url && org.logo_url.length > 5) {
+              @if (org.logo_url && org.logo_url.length > 5 && org.logo_url !== 'null') {
                 <img [src]="org.logo_url" [alt]="org.name" class="org-logo-preview" style="max-height: 32px; max-width: 65px; object-fit: contain; margin-right: 10px; background: #ffffff; padding: 2px; border: 1px solid var(--border-subtle); border-radius: 4px;" />
+              } @else if (org.id === 'khc-europe') {
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Kraft_Heinz_Logo.svg/320px-Kraft_Heinz_Logo.svg.png" [alt]="org.name" class="org-logo-preview" style="max-height: 32px; max-width: 65px; object-fit: contain; margin-right: 10px; background: #ffffff; padding: 2px; border: 1px solid var(--border-subtle); border-radius: 4px;" />
               } @else {
                 <span class="org-avatar" [style.background-color]="org.theme_color || '#111827'" style="color: #ffffff; font-weight: 700;">
                   {{ org.name.charAt(0).toUpperCase() }}

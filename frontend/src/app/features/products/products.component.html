@@ -1171,3 +1171,374 @@
     </div>
   </div>
   }
+
+  <!-- ══════════════════════ MODAL: MANUAL SKU & PACKAGING BOM DATA COLLECTION ══════════════════════ -->
+  @if (showCreateSkuModal()) {
+  <div class="modal-backdrop" (click)="closeCreateSkuModal()">
+    <div class="modal-card modal-wide sku-form-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="dp-tag" style="background: #0f172a; color: #ffffff; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px;">DP01–DP49</span>
+            <h2 class="modal-title" style="margin: 0;">Add Product SKU &amp; Packaging BOM</h2>
+          </div>
+          <p class="modal-sub" style="margin-top: 4px;">
+            Enterprise master product definition and multi-level packaging Bill of Materials (BOM) data collection.
+          </p>
+        </div>
+        <button type="button" class="btn-close" (click)="closeCreateSkuModal()">&times;</button>
+      </div>
+
+      <div class="modal-body" style="gap: 20px;">
+        @if (createSkuError()) {
+        <div class="alert-banner alert-error" style="padding: 10px 14px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; color: #991b1b; font-size: 13px;">
+          <strong>Error:</strong> {{ createSkuError() }}
+        </div>
+        }
+
+        <!-- SECTION 1: Master Product Identity -->
+        <div class="form-section-box">
+          <div class="form-section-header">
+            <span class="section-badge">1</span>
+            <div>
+              <h4 class="section-title">Master Product Identity</h4>
+              <p class="section-desc">ERP article code, commercial name, brand portfolio and net fill weight</p>
+            </div>
+          </div>
+
+          <div class="form-grid-3">
+            <div class="form-field">
+              <label class="field-label">
+                SKU / Article Number <span class="dp-badge">DP01</span> <span class="req">*</span>
+              </label>
+              <input
+                type="text"
+                class="table-cell-input mono"
+                [ngModel]="newSku()"
+                (ngModelChange)="newSku.set($event)"
+                placeholder="e.g. KHC-00912"
+              />
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">
+                GTIN / GS1 Barcode <span class="dp-badge">DP02</span>
+              </label>
+              <input
+                type="text"
+                class="table-cell-input mono"
+                [ngModel]="newGtin()"
+                (ngModelChange)="newGtin.set($event)"
+                placeholder="e.g. 05000157024672"
+              />
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">Brand Portfolio <span class="req">*</span></label>
+              <input
+                type="text"
+                class="table-cell-input"
+                [ngModel]="newBrand()"
+                (ngModelChange)="newBrand.set($event)"
+                placeholder="e.g. The Kraft Heinz Company"
+              />
+            </div>
+          </div>
+
+          <div class="form-grid-3" style="margin-top: 12px;">
+            <div class="form-field" style="grid-column: span 2;">
+              <label class="field-label">
+                Commercial Product Description <span class="req">*</span>
+              </label>
+              <input
+                type="text"
+                class="table-cell-input"
+                [ngModel]="newName()"
+                (ngModelChange)="newName.set($event)"
+                placeholder="e.g. Heinz Tomato Ketchup Top-Down Squeezy Bottle 500g"
+              />
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">Category Segment</label>
+              <input
+                type="text"
+                class="table-cell-input"
+                [ngModel]="newCategory()"
+                (ngModelChange)="newCategory.set($event)"
+                placeholder="e.g. Condiments &amp; Sauces"
+              />
+            </div>
+          </div>
+
+          <div class="form-grid-3" style="margin-top: 12px;">
+            <div class="form-field">
+              <label class="field-label">Net Content (g / ml)</label>
+              <input
+                type="number"
+                min="1"
+                class="table-cell-input mono"
+                [ngModel]="newNetContentGrams()"
+                (ngModelChange)="newNetContentGrams.set(+$event)"
+              />
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">Primary Target Market</label>
+              <select
+                class="table-cell-select"
+                [ngModel]="newPrimaryJurisdiction()"
+                (ngModelChange)="newPrimaryJurisdiction.set($event)"
+              >
+                <option value="GB">United Kingdom (UK EPR / Defra RPD)</option>
+                <option value="DK">Denmark (Danish EPR / VANA)</option>
+                <option value="DE">Germany (VerpackG / Duales System)</option>
+                <option value="FR">France (Citeo / ADEME EPR)</option>
+                <option value="NL">Netherlands (Afvalfonds Verpakkingen)</option>
+                <option value="EU">Pan-European (EU PPWR Baseline)</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">
+                Annual Placed On Market Units <span class="dp-badge">DP22</span>
+              </label>
+              <input
+                type="number"
+                min="0"
+                class="table-cell-input mono"
+                [ngModel]="newAnnualUnits()"
+                (ngModelChange)="newAnnualUnits.set(+$event)"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: Packaging BOM Components -->
+        <div class="form-section-box">
+          <div class="form-section-header" style="justify-content: space-between;">
+            <div style="display: flex; align-items: flex-start; gap: 10px;">
+              <span class="section-badge">2</span>
+              <div>
+                <h4 class="section-title">Packaging Bill of Materials (BOM Hierarchy)</h4>
+                <p class="section-desc">Deconstruct every physical packaging component placed on the market (DP03–DP16)</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="btn-add-comp"
+              (click)="addFormComponent()"
+            >
+              + Add Packaging Component
+            </button>
+          </div>
+
+          <div class="bom-builder-table-wrap">
+            <table class="bom-builder-table">
+              <thead>
+                <tr>
+                  <th style="width: 32px;">#</th>
+                  <th>Component Name &amp; Role</th>
+                  <th style="width: 140px;">Level <span class="dp-badge-xs">DP04</span></th>
+                  <th style="width: 220px;">Substrate Material <span class="dp-badge-xs">DP06</span></th>
+                  <th style="width: 110px;">Tare Wt <span class="dp-badge-xs">DP09</span></th>
+                  <th style="width: 90px;">PCR % <span class="dp-badge-xs">DP13</span></th>
+                  <th style="width: 160px;">Attributes</th>
+                  <th style="width: 44px; text-align: center;"></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (comp of formComponents(); track $index; let i = $index) {
+                <tr>
+                  <td class="mono font-xs" style="color: #64748b; font-weight: 700; text-align: center;">
+                    {{ i + 1 }}
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      class="table-cell-input"
+                      [ngModel]="comp.name"
+                      (ngModelChange)="comp.name = $event"
+                      placeholder="e.g. 500ml Bottle Body, Cap, Sleeve..."
+                    />
+                  </td>
+                  <td>
+                    <select
+                      class="table-cell-select"
+                      [ngModel]="comp.level"
+                      (ngModelChange)="comp.level = $event"
+                    >
+                      <option value="primary">Primary (Direct)</option>
+                      <option value="secondary">Secondary (Pack)</option>
+                      <option value="tertiary">Tertiary (Pallet)</option>
+                    </select>
+                  </td>
+                  <td>
+                    <select
+                      class="table-cell-select"
+                      [ngModel]="comp.material"
+                      (ngModelChange)="comp.material = $event"
+                    >
+                      <option value="PET (Clear / Light Blue)">PET (Clear / Light Blue)</option>
+                      <option value="PET (Opaque / Colored)">PET (Opaque / Colored)</option>
+                      <option value="HDPE (Rigid)">HDPE (Rigid)</option>
+                      <option value="PP (Polypropylene)">PP (Polypropylene)</option>
+                      <option value="Flexible PE (LDPE/LLDPE)">Flexible PE (LDPE/LLDPE)</option>
+                      <option value="Paper / Corrugated Board">Paper / Corrugated Board</option>
+                      <option value="Glass">Glass</option>
+                      <option value="Aluminum">Aluminum</option>
+                      <option value="Steel / Tinplate">Steel / Tinplate</option>
+                      <option value="Liquid Packaging Board (Tetra Pak / Composite)">Liquid Packaging Board (Tetra Pak)</option>
+                      <option value="Other Composite / Multi-Material">Other Composite / Multi-Material</option>
+                    </select>
+                  </td>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                      <input
+                        type="number"
+                        min="0.1"
+                        step="0.1"
+                        class="table-cell-input mono"
+                        style="text-align: right;"
+                        [ngModel]="comp.weightGrams"
+                        (ngModelChange)="comp.weightGrams = +$event"
+                      />
+                      <span class="unit-tag">g</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        class="table-cell-input mono"
+                        style="text-align: right;"
+                        [ngModel]="comp.recycledContentPct"
+                        (ngModelChange)="comp.recycledContentPct = +$event"
+                      />
+                      <span class="unit-tag">%</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="cell-flags">
+                      <label class="flag-pill" [class.active]="comp.isRecyclable" title="DP12 Recyclable in standard stream">
+                        <input
+                          type="checkbox"
+                          [ngModel]="comp.isRecyclable"
+                          (ngModelChange)="comp.isRecyclable = $event"
+                        />
+                        Recyc
+                      </label>
+                      <label class="flag-pill" [class.active]="comp.foodContact" title="DP16 Food-Contact Compliance">
+                        <input
+                          type="checkbox"
+                          [ngModel]="comp.foodContact"
+                          (ngModelChange)="comp.foodContact = $event"
+                        />
+                        Food
+                      </label>
+                      <label class="flag-pill" [class.active]="comp.separableByConsumer" title="Separable by consumer prior to disposal">
+                        <input
+                          type="checkbox"
+                          [ngModel]="comp.separableByConsumer"
+                          (ngModelChange)="comp.separableByConsumer = $event"
+                        />
+                        Sep
+                      </label>
+                      <label class="flag-pill flag-warn" [class.active]="comp.hasDisruptorPigment" title="DP10 Carbon Black or NIR sortation disruptor">
+                        <input
+                          type="checkbox"
+                          [ngModel]="comp.hasDisruptorPigment"
+                          (ngModelChange)="comp.hasDisruptorPigment = $event"
+                        />
+                        Disr
+                      </label>
+                    </div>
+                  </td>
+                  <td style="text-align: center;">
+                    <button
+                      type="button"
+                      class="btn-row-delete"
+                      [disabled]="formComponents().length <= 1"
+                      (click)="removeFormComponent(i)"
+                      title="Remove component"
+                    >
+                      &times;
+                    </button>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SECTION 3: Live Calculated Packaging Summary Strip -->
+        <div class="bom-summary-strip">
+          <div class="summary-kpi">
+            <span class="summary-kpi-label">Total Packaging Tare</span>
+            <span class="summary-kpi-value mono">{{ totalFormTareWeightGrams() }} g</span>
+          </div>
+          <div class="summary-kpi-sep"></div>
+          <div class="summary-kpi">
+            <span class="summary-kpi-label">Weighted PCR Content</span>
+            <span class="summary-kpi-value mono" [class.text-green]="weightedFormPcrPct() >= 30">
+              {{ weightedFormPcrPct() }}%
+            </span>
+          </div>
+          <div class="summary-kpi-sep"></div>
+          <div class="summary-kpi">
+            <span class="summary-kpi-label">BOM Components</span>
+            <span class="summary-kpi-value mono">{{ formComponents().length }} registered</span>
+          </div>
+          <div class="summary-kpi-sep"></div>
+          <div class="summary-kpi">
+            <span class="summary-kpi-label">Validation Status</span>
+            @if (isFormValid()) {
+            <span class="status-pill status-ready">&#x2713; Ready to Publish</span>
+            } @else {
+            <span class="status-pill status-pending">Incomplete Data</span>
+            }
+          </div>
+        </div>
+
+        <!-- Lineage & Traceability Note -->
+        <div class="form-lineage-note">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; color: #0284c7;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span>
+            <strong>Traceability Assured:</strong> Saved components are stamped with Layer 1 Canonical IDs and immediately synchronized with UK Defra RPD EPR, Danish VANA, and EU PPWR compliance calculations.
+          </span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="closeCreateSkuModal()"
+          [disabled]="creatingSku()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn-primary"
+          [disabled]="!isFormValid() || creatingSku()"
+          (click)="submitNewSku()"
+          style="display: inline-flex; align-items: center; gap: 8px;"
+        >
+          @if (creatingSku()) {
+            Creating Canonical SKU...
+          } @else {
+            + Create Canonical SKU &amp; BOM
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+  }

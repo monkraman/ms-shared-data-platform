@@ -345,10 +345,11 @@ class DataStore:
             sector="Food & Beverage / FMCG",
             tier=TenantTier.ENTERPRISE,
             primary_jurisdiction="GB",
+            logo_url="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Kraft_Heinz_Logo.svg/320px-Kraft_Heinz_Logo.svg.png",
             active_modules=["epr", "ppwr", "dpp", "lca"],
             source_systems=["Trace One (Devex PLM)", "SAP ERP S/4HANA", "Snowflake Analytics"],
-            active_products_count=3,
-            open_quality_issues_count=1,
+            active_products_count=12,
+            open_quality_issues_count=4,
         )
         self.tenants[nordhavn_dk.id] = nordhavn_dk
         self.tenants[khc_eu.id] = khc_eu
@@ -377,16 +378,23 @@ class DataStore:
                         t_id, t_name, t_sec, t_tier, t_curr, t_jur = r
                         tier_enum = TenantTier.ENTERPRISE if (t_tier or "").lower() == "enterprise" else TenantTier.MID_MARKET
                         existing_mods = self.tenants[t_id].active_modules if t_id in self.tenants else ["epr", "ppwr", "dpp", "lca"]
+                        existing_logo = getattr(self.tenants[t_id], "logo_url", None) if t_id in self.tenants else None
+                        if not existing_logo and t_id == "khc-europe":
+                            existing_logo = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Kraft_Heinz_Logo.svg/320px-Kraft_Heinz_Logo.svg.png"
+                        elif not existing_logo and t_id == "nordhavn-spirits":
+                            existing_logo = "https://images.unsplash.com/photo-1527061011665-3652c757a4d4?w=120&auto=format&fit=crop&q=80"
+
                         t_obj = TenantResponse(
                             id=t_id,
                             name=t_name,
                             sector=t_sec or "FMCG / General",
                             tier=tier_enum,
                             primary_jurisdiction=t_jur or "GB",
+                            logo_url=existing_logo,
                             active_modules=existing_mods,
                             source_systems=["Trace One (Devex PLM)", "Snowflake Analytics", "CSV Importer"],
-                            active_products_count=0 if t_id not in self.tenants else self.tenants[t_id].active_products_count,
-                            open_quality_issues_count=0 if t_id not in self.tenants else self.tenants[t_id].open_quality_issues_count,
+                            active_products_count=12 if t_id == "khc-europe" else (0 if t_id not in self.tenants else self.tenants[t_id].active_products_count),
+                            open_quality_issues_count=4 if t_id == "khc-europe" else (0 if t_id not in self.tenants else self.tenants[t_id].open_quality_issues_count),
                         )
                         self.tenants[t_id] = t_obj
                         if t_id not in self.products:

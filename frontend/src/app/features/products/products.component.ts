@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -26,6 +26,18 @@ export interface SkuFinancialSummary {
   ecoModulationDescription: string;
   recommendationSavingsGbp?: number;
   lineItems: ComponentFeeTrace[];
+}
+
+export interface FormBomComponent {
+  name: string;
+  level: 'primary' | 'secondary' | 'tertiary';
+  material: string;
+  weightGrams: number;
+  recycledContentPct: number;
+  isRecyclable: boolean;
+  separableByConsumer: boolean;
+  foodContact: boolean;
+  hasDisruptorPigment: boolean;
 }
 
 @Component({
@@ -59,18 +71,70 @@ export class ProductsComponent implements OnInit {
   readonly showPpwrModal = signal<boolean>(false);
   readonly showLcaModal = signal<boolean>(false);
 
-  // Manual SKU Creation Form Signals
+  // Manual SKU Creation Form Signals (BOM Multi-Component Collection)
   readonly showCreateSkuModal = signal<boolean>(false);
   readonly newSku = signal<string>('');
   readonly newName = signal<string>('');
   readonly newBrand = signal<string>('The Kraft Heinz Company');
   readonly newCategory = signal<string>('Condiments & Sauces');
   readonly newNetContentGrams = signal<number>(400);
-  readonly newComponentName = signal<string>('Top-Down Squeezy Bottle');
-  readonly newComponentMaterial = signal<string>('Plastic Rigid (PET)');
-  readonly newComponentWeight = signal<number>(24.5);
-  readonly newComponentPcrPct = signal<number>(30);
+  readonly newGtin = signal<string>('05000157024672');
+  readonly newPrimaryJurisdiction = signal<string>('GB');
+  readonly newAnnualUnits = signal<number>(1200000);
   readonly creatingSku = signal<boolean>(false);
+  readonly createSkuError = signal<string | null>(null);
+
+  readonly formComponents = signal<FormBomComponent[]>([
+    {
+      name: 'Primary Squeezy Bottle Body',
+      level: 'primary',
+      material: 'PET (Clear / Light Blue)',
+      weightGrams: 28.5,
+      recycledContentPct: 30,
+      isRecyclable: true,
+      separableByConsumer: true,
+      foodContact: true,
+      hasDisruptorPigment: false,
+    },
+    {
+      name: 'Flip-Top Dispensing Closure Cap',
+      level: 'primary',
+      material: 'PP (Polypropylene)',
+      weightGrams: 4.8,
+      recycledContentPct: 0,
+      isRecyclable: true,
+      separableByConsumer: true,
+      foodContact: true,
+      hasDisruptorPigment: false,
+    }
+  ]);
+
+  readonly totalFormTareWeightGrams = computed(() => {
+    return Math.round(
+      this.formComponents().reduce((acc, c) => acc + (Number(c.weightGrams) || 0), 0) * 10
+    ) / 10;
+  });
+
+  readonly weightedFormPcrPct = computed(() => {
+    const totalWeight = this.totalFormTareWeightGrams();
+    if (totalWeight <= 0) return 0;
+    const weightedSum = this.formComponents().reduce(
+      (acc, c) => acc + (Number(c.weightGrams) || 0) * (Number(c.recycledContentPct) || 0),
+      0
+    );
+    return Math.round((weightedSum / totalWeight) * 10) / 10;
+  });
+
+  readonly isFormValid = computed(() => {
+    const skuOk = this.newSku().trim().length >= 3;
+    const nameOk = this.newName().trim().length >= 2;
+    const comps = this.formComponents();
+    if (comps.length === 0) return false;
+    const compsOk = comps.every(
+      (c) => c.name.trim().length > 0 && Number(c.weightGrams) > 0 && c.material.trim().length > 0
+    );
+    return skuOk && nameOk && compsOk;
+  });
   readonly showDppModal = signal<boolean>(false);
   readonly isSavingEnrichment = signal<boolean>(false);
   readonly enrichmentNotice = signal<string | null>(null);
@@ -443,46 +507,135 @@ export class ProductsComponent implements OnInit {
     };
   }
 
+  addFormComponent(): void {
+    const comps = this.formComponents();
+    const nextIdx = comps.length + 1;
+    this.formComponents.update((list) => [
+      ...list,
+      {
+        name: nextIdx === 3 ? 'Paper Front/Back Label' : `Packaging Component #${nextIdx}`,
+        level: nextIdx >= 4 ? 'secondary' : 'primary',
+        material: nextIdx === 3 ? 'Paper / Corrugated Board' : 'Flexible PE (LDPE/LLDPE)',
+        weightGrams: nextIdx === 3 ? 1.2 : 6.0,
+        recycledContentPct: 0,
+        isRecyclable: true,
+        separableByConsumer: true,
+        foodContact: false,
+        hasDisruptorPigment: false,
+      }
+    ]);
+  }
+
+  removeFormComponent(index: number): void {
+    if (this.formComponents().length <= 1) return;
+    this.formComponents.update((list) => list.filter((_, i) => i !== index));
+  }
+
   openCreateSkuModal(): void {
-    this.newSku.set(`KHC-MANUAL-${Math.floor(100 + Math.random() * 900)}`);
+    const activeTenant = this.tenantService.activeTenantId();
+    const isNord = activeTenant === 'nordhavn-spirits';
+    const prefix = isNord ? 'NORD' : 'KHC';
+    const randNum = Math.floor(1000 + Math.random() * 9000);
+
+    this.newSku.set(`${prefix}-${randNum}`);
     this.newName.set('');
+    this.newBrand.set(isNord ? 'Nordhavn Spirits' : 'The Kraft Heinz Company');
+    this.newCategory.set(isNord ? 'Organic Spirits & Beverages' : 'Condiments & Sauces');
+    this.newNetContentGrams.set(isNord ? 700 : 500);
+    this.newGtin.set(`54100${randNum}0981`);
+    this.newPrimaryJurisdiction.set(isNord ? 'DK' : 'GB');
+    this.newAnnualUnits.set(isNord ? 350000 : 1200000);
+    this.createSkuError.set(null);
+
+    this.formComponents.set([
+      {
+        name: isNord ? '700ml Amber Glass Spirit Bottle' : '500ml Squeezy Top-Down Bottle Body',
+        level: 'primary',
+        material: isNord ? 'Glass' : 'PET (Clear / Light Blue)',
+        weightGrams: isNord ? 385.0 : 28.5,
+        recycledContentPct: isNord ? 65 : 30,
+        isRecyclable: true,
+        separableByConsumer: true,
+        foodContact: true,
+        hasDisruptorPigment: false,
+      },
+      {
+        name: isNord ? 'Natural Cork with Wooden Top' : 'PP Flip-Top Dispensing Closure',
+        level: 'primary',
+        material: isNord ? 'Other Composite / Multi-Material' : 'PP (Polypropylene)',
+        weightGrams: isNord ? 14.2 : 4.8,
+        recycledContentPct: 0,
+        isRecyclable: true,
+        separableByConsumer: true,
+        foodContact: true,
+        hasDisruptorPigment: false,
+      }
+    ]);
+
     this.showCreateSkuModal.set(true);
   }
 
+  closeCreateSkuModal(): void {
+    this.showCreateSkuModal.set(false);
+    this.createSkuError.set(null);
+  }
+
   submitNewSku(): void {
-    if (!this.newSku() || !this.newName() || this.newComponentWeight() <= 0) return;
+    if (!this.isFormValid()) return;
     this.creatingSku.set(true);
+    this.createSkuError.set(null);
+
+    const skuClean = this.newSku().trim().toUpperCase();
+    const comps = this.formComponents().map((c, idx) => ({
+      id: `COMP-${skuClean}-${String(idx + 1).padStart(2, '0')}`,
+      name: c.name.trim(),
+      level: c.level,
+      material: c.material,
+      weight_grams: Number(c.weightGrams),
+      recycled_content_pct: Number(c.recycledContentPct),
+      is_recyclable: Boolean(c.isRecyclable),
+      separable_by_consumer: Boolean(c.separableByConsumer),
+      has_disruptor_pigment: Boolean(c.hasDisruptorPigment),
+      source_lineage: {
+        source_system: 'Platform Form Builder',
+        source_record_id: `MANUAL-${skuClean}-C${idx + 1}`,
+        raw_material_code: c.material.split(' ')[0],
+        raw_description: c.name.trim(),
+        extracted_at: new Date().toISOString(),
+      }
+    }));
 
     const payload = {
-      sku: this.newSku().trim().toUpperCase(),
+      sku: skuClean,
       name: this.newName().trim(),
       brand: this.newBrand().trim() || 'Enterprise Brand',
-      category: this.newCategory().trim() || 'Food & Beverage',
-      net_content_grams: Number(this.newNetContentGrams()) || 100,
+      category: this.newCategory().trim() || 'General',
+      net_content_grams: Number(this.newNetContentGrams()) || 0,
+      unit_volume_ml: Number(this.newNetContentGrams()) || null,
       status: 'active',
-      components: [
-        {
-          id: `COMP-${this.newSku().trim().toUpperCase()}-01`,
-          name: this.newComponentName().trim() || 'Primary Container',
-          level: 'primary',
-          material: this.newComponentMaterial(),
-          weight_grams: Number(this.newComponentWeight()),
-          recycled_content_pct: Number(this.newComponentPcrPct()),
-          is_recyclable: true,
-          separable_by_consumer: true,
-          has_disruptor_pigment: false,
-        }
-      ]
+      components: comps,
+      dpp_enrichment: {
+        gtin: this.newGtin().trim(),
+      },
+      epr_enrichment: {
+        activity_type: 'Brand Owner',
+        organisation_size: 'Large Producer',
+        reuse_system_active: false,
+      }
     };
 
     this.foundationService.createProduct(payload).subscribe({
       next: (created) => {
         this.creatingSku.set(false);
         this.showCreateSkuModal.set(false);
+        this.foundationService.loadProducts().subscribe();
         this.selectProduct(created.sku);
         this.viewMode.set('detail');
       },
-      error: () => this.creatingSku.set(false),
+      error: (err) => {
+        this.creatingSku.set(false);
+        this.createSkuError.set(err?.error?.detail || err.message || 'Failed to create product SKU.');
+      }
     });
   }
 
