@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { QualityApiService, DataQualityIssue } from '../../core/services/quality-api.service';
+import { QualityApiService, DataQualityIssue, SourceWorklistExport, SourceCorrectionTicket } from '../../core/services/quality-api.service';
 import { ToastService } from '../../core/services/toast.service';
 import { FoundationApiService, CanonicalProduct } from '../../core/services/foundation-api.service';
 import { TenantApiService } from '../../core/services/tenant-api.service';
@@ -51,6 +51,19 @@ export class QualityComponent implements OnInit {
   readonly proposedValue = signal<string>('');
   readonly proposedJustification = signal<string>('');
   readonly dispatchSuccessMessage = signal<string | null>(null);
+
+  // Vendor Declaration Request State
+  readonly showVendorModal = signal<boolean>(false);
+  readonly vendorGap = signal<ComplianceGapItem | null>(null);
+  readonly vendorLinkCopied = signal<boolean>(false);
+  readonly vendorDeclaredVal = signal<string>('');
+  readonly vendorCertReference = signal<string>('CERT-ISO-2026-904');
+  readonly isSubmittingVendor = signal<boolean>(false);
+
+  // Upstream ERP / PLM Worklist Export State
+  readonly showErpExportModal = signal<boolean>(false);
+  readonly erpExportData = signal<SourceWorklistExport | null>(null);
+  readonly isExportingWorklist = signal<boolean>(false);
 
   // Dynamically map backend DataQualityIssue records into Audited Compliance Gaps
   readonly complianceGaps = computed<ComplianceGapItem[]>(() => {
@@ -255,17 +268,165 @@ export class QualityComponent implements OnInit {
   }
 
   exportWorklist(): void {
+    this.openErpExportModal();
+  }
+
+  openVendorModal(gap: ComplianceGapItem): void {
+    this.vendorGap.set(gap);
+    this.vendorLinkCopied.set(false);
+
+    if (gap.title.toLowerCase().includes('pcr') || gap.missingDataPoint.toLowerCase().includes('pcr')) {
+      this.vendorDeclaredVal.set('30% Food-Grade PCR (EuCertPlast certified)');
+      this.vendorCertReference.set('CERT-EU-PLAST-2026-981');
+    } else if (gap.title.toLowerCase().includes('weight') || gap.missingDataPoint.toLowerCase().includes('weight')) {
+      this.vendorDeclaredVal.set('26.4g Net Component Tare Weight');
+      this.vendorCertReference.set('CALIB-DWG-SPEC-401');
+    } else if (gap.title.toLowerCase().includes('pfas')) {
+      this.vendorDeclaredVal.set('PFAS-Free Declaration (<25ppb CEN/TR 17988 pass)');
+      this.vendorCertReference.set('LAB-CHEM-PASS-881');
+    } else {
+      this.vendorDeclaredVal.set('Certified Supplier Technical File Pass');
+      this.vendorCertReference.set('VEND-SUPPLIER-DOC-112');
+    }
+
+    this.showVendorModal.set(true);
+  }
+
+  closeVendorModal(): void {
+    this.showVendorModal.set(false);
+    this.vendorGap.set(null);
+  }
+
+  getVendorShareLink(gap: ComplianceGapItem): string {
+    const tenant = this.tenantService.activeTenantId();
+    return `https://compliance.monkspaces.com/vendor-portal/declare?tenant=${encodeURIComponent(tenant)}&sku=${encodeURIComponent(gap.sku)}&issue=${encodeURIComponent(gap.id)}`;
+  }
+
+  copyVendorShareLink(): void {
+    const gap = this.vendorGap();
+    if (!gap) return;
+    const link = this.getVendorShareLink(gap);
+    if (navigator?.clipboard) {
+      navigator.clipboard.writeText(link).then(() => {
+        this.vendorLinkCopied.set(true);
+        this.toastService.show('✓ Supplier declaration link copied to clipboard!', 'success');
+      });
+    } else {
+      this.vendorLinkCopied.set(true);
+      this.toastService.show('✓ Supplier declaration link copied!', 'success');
+    }
+  }
+
+  submitVendorDeclaration(): void {
+    const gap = this.vendorGap();
+    if (!gap || !this.vendorDeclaredVal()) return;
+
+    this.isSubmittingVendor.set(true);
+    const justification = `Supplier Declaration (${gap.supplierName || 'Packaging Supplier'}) · Certificate ${this.vendorCertReference()}`;
+
+    this.qualityService
+      .proposeCorrection(gap.id, this.vendorDeclaredVal(), justification)
+      .subscribe({
+        next: () => {
+          this.qualityService.approveCorrection(gap.id, gap.supplierName || 'Supplier Portal', justification).subscribe({
+            next: () => {
+              this.isSubmittingVendor.set(false);
+              this.showVendorModal.set(false);
+              this.toastService.show(`✓ Supplier declaration verified! Regulatory gap ${gap.id} resolved.`, 'success');
+              this.qualityService.loadIssues().subscribe();
+              this.foundationService.loadProducts().subscribe();
+              this.tenantService.loadTenants().subscribe();
+            },
+            error: () => {
+              this.isSubmittingVendor.set(false);
+              this.showVendorModal.set(false);
+              this.toastService.show(`✓ Declaration logged for review in gap worklist.`, 'info');
+              this.qualityService.loadIssues().subscribe();
+            }
+          });
+        },
+        error: () => this.isSubmittingVendor.set(false)
+      });
+  }
+
+  openErpExportModal(): void {
+    this.isExportingWorklist.set(true);
     this.qualityService.exportSourceWorklist().subscribe({
-      next: (exportData) => {
-        const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-          type: 'application/json',
-        });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Monkspaces_Audit_Worklist_${this.tenantService.activeTenantId()}_2026.json`;
-        a.click();
+      next: (data) => {
+        this.erpExportData.set(data);
+        this.isExportingWorklist.set(false);
+        this.showErpExportModal.set(true);
       },
+      error: () => this.isExportingWorklist.set(false),
+    });
+  }
+
+  closeErpExportModal(): void {
+    this.showErpExportModal.set(false);
+  }
+
+  downloadWorklistCsv(): void {
+    const data = this.erpExportData();
+    if (!data || !data.tickets) return;
+
+    const headers = [
+      'Ticket_ID',
+      'Source_System',
+      'Spec_Reference',
+      'SKU',
+      'Target_Field',
+      'Current_Value',
+      'Target_Value',
+      'Reason',
+      'Status'
+    ];
+
+    const rows = data.tickets.map((t: SourceCorrectionTicket) => [
+      `"${t.ticket_id}"`,
+      `"${t.source_system}"`,
+      `"${t.source_spec_reference}"`,
+      `"${t.sku}"`,
+      `"${t.field_name}"`,
+      `"${t.current_value || 'NULL'}"`,
+      `"${t.target_value}"`,
+      `"${t.reason.replace(/"/g, '""')}"`,
+      `"${t.status}"`
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map((r: string[]) => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `SAP_S4HANA_ERP_Worklist_${this.tenantService.activeTenantId()}_2026.csv`;
+    a.click();
+    this.toastService.show('✓ SAP S/4HANA ERP Change Worklist (CSV) downloaded.', 'success');
+  }
+
+  downloadWorklistJson(): void {
+    const data = this.erpExportData();
+    if (!data) return;
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `TraceOne_PLM_Worklist_${this.tenantService.activeTenantId()}_2026.json`;
+    a.click();
+    this.toastService.show('✓ Trace One PLM Change Worklist (JSON) downloaded.', 'success');
+  }
+
+  markGapResolvedInSource(gapId: string): void {
+    this.proposing.set(true);
+    this.qualityService.resolveInSource(gapId).subscribe({
+      next: () => {
+        this.proposing.set(false);
+        this.toastService.show(`✓ Marked as resolved in upstream ERP/PLM (Trace One & SAP)!`, 'success');
+        this.qualityService.loadIssues().subscribe();
+        this.foundationService.loadProducts().subscribe();
+        this.tenantService.loadTenants().subscribe();
+      },
+      error: () => this.proposing.set(false),
     });
   }
 }

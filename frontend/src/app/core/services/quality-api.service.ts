@@ -22,18 +22,28 @@ export interface DataQualityIssue {
   assigned_to?: string;
 }
 
-export interface SourceWorklistExport {
-  export_timestamp: string;
+export interface SourceCorrectionTicket {
+  ticket_id: string;
+  issue_id: string;
   tenant_id: string;
-  total_open_items: number;
-  tickets: Array<{
-    ticket_id: string;
-    target_system: string;
-    spec_id: string;
-    action_required: string;
-    sku: string;
-    severity: string;
-  }>;
+  source_system: string;
+  source_spec_reference: string;
+  sku: string;
+  field_name: string;
+  current_value?: string;
+  target_value: string;
+  reason: string;
+  status: string;
+  generated_at?: string;
+}
+
+export interface SourceWorklistExport {
+  tenant_id: string;
+  total_tickets: number;
+  export_format: string;
+  target_system: string;
+  tickets: SourceCorrectionTicket[];
+  sync_instructions: string;
 }
 
 @Injectable({
@@ -97,6 +107,25 @@ export class QualityApiService {
           proposed_value: proposedVal,
           justification: justification,
           proposer_email: 'compliance@monkspaces.com',
+        },
+        { headers: this.getHeaders() }
+      )
+      .pipe(
+        tap({
+          next: () => this.loadIssues().subscribe(),
+        })
+      );
+  }
+
+  approveCorrection(issueId: string, approverName = 'Compliance Specialist', notes = 'Verified by packaging team'): Observable<DataQualityIssue> {
+    return this.http
+      .post<DataQualityIssue>(
+        `${this.baseUrl}/api/v1/quality/approve-correction`,
+        {
+          issue_id: issueId,
+          approver_name: approverName,
+          notes: notes,
+          export_to_source_worklist: true,
         },
         { headers: this.getHeaders() }
       )

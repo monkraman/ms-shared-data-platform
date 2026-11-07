@@ -1,6 +1,6 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { APP_CONFIG } from './core/config/client-theme.config';
 import { TenantApiService } from './core/services/tenant-api.service';
@@ -8,11 +8,12 @@ import { AuthService } from './core/services/auth.service';
 import { ThemeService } from './core/services/theme.service';
 import { QualityApiService } from './core/services/quality-api.service';
 import { ToastService } from './core/services/toast.service';
+import { SidebarComponent } from './shared/components/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, SidebarComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

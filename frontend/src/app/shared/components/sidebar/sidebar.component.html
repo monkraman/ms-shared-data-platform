@@ -1,0 +1,213 @@
+<!-- Persistent / Responsive Left Sidebar Navigation -->
+<aside
+  class="app-sidebar"
+  [class.drawer-open]="mobileOpen()"
+  [class.sidebar-collapsed]="isCollapsed()"
+  aria-label="Main Navigation"
+>
+  <!-- CLIENT BRAND HEADER -->
+  <div class="sidebar-brand-block">
+    <a routerLink="/dashboard" class="sidebar-client-brand" (click)="handleLinkClick()" [title]="activeTenantName()">
+      @if (activeTenantLogo()) {
+        <img [alt]="activeTenantName()" class="client-logo-img" [src]="activeTenantLogo()" />
+      } @else if (activeTenantId() === 'khc-europe') {
+        <img alt="The Kraft Heinz Company" class="client-logo-img"
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Kraft_Heinz_Logo.svg/320px-Kraft_Heinz_Logo.svg.png" />
+      } @else {
+        <div class="brand-monogram-circle">
+          {{ activeTenantName().charAt(0) }}
+        </div>
+      }
+      @if (!isCollapsed()) {
+        <span class="client-sub-label">EPR &amp; Packaging Compliance</span>
+      }
+    </a>
+    <button
+      type="button"
+      class="btn-collapse-toggle desktop-only"
+      (click)="toggleCollapse()"
+      [title]="isCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+      aria-label="Toggle sidebar collapse"
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        @if (isCollapsed()) {
+          <polyline points="9 18 15 12 9 6"></polyline>
+        } @else {
+          <polyline points="15 18 9 12 15 6"></polyline>
+        }
+      </svg>
+    </button>
+  </div>
+
+  <!-- NAVIGATION LINKS -->
+  <nav class="sidebar-nav">
+    <!-- SECTION: OVERVIEW -->
+    @if (!isCollapsed()) {
+      <div class="nav-section-title">OVERVIEW</div>
+    }
+    <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="sidebar-nav-item" (click)="handleLinkClick()" title="Home">
+      <svg class="nav-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+      @if (!isCollapsed()) {
+        <span class="nav-label">Home</span>
+      }
+    </a>
+
+    <!-- SECTION: DATA FOUNDATION -->
+    @if (!isCollapsed()) {
+      <div class="nav-section-title">DATA FOUNDATION</div>
+    }
+    <a routerLink="/data-map" routerLinkActive="active" class="sidebar-nav-item" (click)="handleLinkClick()" title="Data collection (DP01–DP49)">
+      <svg class="nav-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+      </svg>
+      @if (!isCollapsed()) {
+        <span class="nav-label">Data collection</span>
+      }
+    </a>
+
+    <a routerLink="/products" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="sidebar-nav-item" (click)="handleLinkClick()" title="SKU library">
+      <svg class="nav-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+      </svg>
+      @if (!isCollapsed()) {
+        <span class="nav-label">SKU library</span>
+      }
+    </a>
+
+    <a routerLink="/quality" routerLinkActive="active" class="sidebar-nav-item" (click)="handleLinkClick()" title="Data validation & Gaps">
+      <svg class="nav-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        <polyline points="9 12 11 14 15 10"></polyline>
+      </svg>
+      @if (!isCollapsed()) {
+        <span class="nav-label">Data validation</span>
+        @if (openGapsCount() > 0) {
+          <span class="nav-badge-pill-red">{{ openGapsCount() }}</span>
+        }
+      } @else if (openGapsCount() > 0) {
+        <span class="collapsed-dot-indicator"></span>
+      }
+    </a>
+
+    <!-- SECTION: COMPLIANCE MODULES (DYNAMIC) -->
+    @if (!isCollapsed() && (isModuleActive('epr') || isModuleActive('ppwr') || isModuleActive('dpp') || isModuleActive('lca'))) {
+      <div class="nav-section-title">SUBSCRIBED MODULES</div>
+    }
+
+    <!-- EPR Module -->
+    @if (isModuleActive('epr')) {
+      <a routerLink="/simulator" routerLinkActive="active" class="sidebar-nav-item" (click)="handleLinkClick()" title="EPR Cost Insights &amp; Simulator">
+        <svg class="nav-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+        @if (!isCollapsed()) {
+          <span class="nav-label">EPR Cost insights</span>
+        }
+      </a>
+    }
+
+    <!-- PPWR Module -->
+    @if (isModuleActive('ppwr')) {
+      <a routerLink="/products" [queryParams]="{ tab: 'ppwr' }" class="sidebar-nav-item" (click)="handleLinkClick()" title="EU PPWR Technical File &amp; DoC">
+        <svg class="nav-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+        @if (!isCollapsed()) {
+          <span class="nav-label">PPWR DoC &amp; Lab</span>
+        }
+      </a>
+    }
+
+    <!-- DPP Module -->
+    @if (isModuleActive('dpp')) {
+      <a routerLink="/products" [queryParams]="{ tab: 'dpp' }" class="sidebar-nav-item" (click)="handleLinkClick()" title="Digital Product Passport (GS1 Digital Link)">
+        <svg class="nav-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        @if (!isCollapsed()) {
+          <span class="nav-label">Product passport</span>
+        }
+      </a>
+    }
+
+    <!-- LCA Module -->
+    @if (isModuleActive('lca')) {
+      <a routerLink="/products" [queryParams]="{ tab: 'lca' }" class="sidebar-nav-item" (click)="handleLinkClick()" title="LCA &amp; Packaging Carbon Footprint">
+        <svg class="nav-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2a10 10 0 1 0 10 10H12V2z"></path>
+          <path d="M12 12L2.5 7.5"></path>
+        </svg>
+        @if (!isCollapsed()) {
+          <span class="nav-label">LCA &amp; Carbon</span>
+        }
+      </a>
+    }
+
+    <!-- SUPERADMIN GOVERNANCE -->
+    @if (isSuperAdmin()) {
+      @if (!isCollapsed()) {
+        <div class="nav-section-title">GOVERNANCE</div>
+      }
+      <a routerLink="/admin" routerLinkActive="active" class="sidebar-nav-item" (click)="handleLinkClick()" title="Platform SuperAdmin Workspaces">
+        <svg class="nav-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        @if (!isCollapsed()) {
+          <span class="nav-label">Workspace Admin</span>
+        }
+      </a>
+    }
+  </nav>
+
+  <!-- EXECUTIVE USER CARD & UK SIGNATURE -->
+  <div class="sidebar-footer executive-sidebar-footer">
+    <div class="exec-user-card" [class.collapsed]="isCollapsed()">
+      <div class="user-avatar-navy" [title]="currentUser()?.fullName || 'Packaging Lead'">
+        {{ currentUser()?.avatarInitials || 'AM' }}
+      </div>
+      @if (!isCollapsed()) {
+        <div class="user-details-col">
+          <span class="user-card-name">{{ currentUser()?.fullName || 'Anna Morgan' }}</span>
+          <span class="user-card-role">
+            {{ isSuperAdmin() ? 'Platform SuperAdmin' : 'Packaging compliance lead' }}
+          </span>
+        </div>
+      }
+      <button
+        type="button"
+        class="btn-user-card-logout"
+        (click)="logout()"
+        title="Sign Out"
+        aria-label="Sign Out"
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </button>
+    </div>
+
+    @if (!isCollapsed()) {
+      <div class="sidebar-powered-by">
+        Powered by Monk Spaces &middot; UK-hosted
+      </div>
+    }
+  </div>
+</aside>

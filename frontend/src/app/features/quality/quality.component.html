@@ -10,9 +10,9 @@
       </p>
     </div>
 
-    <div class="header-actions">
-      <button type="button" class="btn-export" (click)="exportWorklist()">
-        Export Gap Worklist (JSON)
+    <div class="header-actions" style="display: flex; gap: 10px; align-items: center;">
+      <button type="button" class="btn-export" (click)="exportWorklist()" [disabled]="isExportingWorklist()">
+        @if (isExportingWorklist()) { Preparing Worklist... } @else { Export ERP &amp; PLM Worklist &rarr; }
       </button>
     </div>
   </header>
@@ -80,7 +80,7 @@
             <th>Assigned Lane</th>
             <th>Collection Route</th>
             <th>Status</th>
-            <th style="text-align: right;">Action</th>
+            <th style="text-align: right; min-width: 170px;">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -116,13 +116,40 @@
                 [{{ gap.status }}]
               </span>
             </td>
-            <td style="text-align: right;">
+            <td style="text-align: right; white-space: nowrap;">
               @if (gap.status !== 'RESOLVED') {
-              <button type="button" class="btn-resolve" (click)="closeGapAction(gap.id); $event.stopPropagation()">
-                Close Gap &rarr;
-              </button>
+                <div style="display: inline-flex; align-items: center; gap: 6px;">
+                  @if (gap.lane === 'supplier' || gap.supplierName) {
+                    <button
+                      type="button"
+                      class="btn-vendor-req"
+                      (click)="openVendorModal(gap); $event.stopPropagation()"
+                      title="Send formal missing packaging data declaration link to supplier"
+                    >
+                      Vendor Request
+                    </button>
+                  }
+                  <button
+                    type="button"
+                    class="btn-resolve"
+                    (click)="closeGapAction(gap.id); $event.stopPropagation()"
+                    title="Quick approve and resolve gap in platform"
+                  >
+                    Quick Fix &rarr;
+                  </button>
+                </div>
               } @else {
-              <span class="resolved-check mono">[VERIFIED]</span>
+                <div style="display: inline-flex; align-items: center; gap: 6px;">
+                  <span class="resolved-check mono">[VERIFIED]</span>
+                  <button
+                    type="button"
+                    class="btn-mark-erp"
+                    (click)="markGapResolvedInSource(gap.id); $event.stopPropagation()"
+                    title="Confirm updated in upstream SAP S/4HANA / Trace One PLM"
+                  >
+                    Mark in ERP
+                  </button>
+                </div>
               }
             </td>
           </tr>
@@ -142,11 +169,21 @@
             SKU: {{ active.sku }} &middot; Impact: &plusmn;&pound;{{ active.feeImpactGbp | number }} &middot; Lane: [{{ active.lane | uppercase }}] &middot; Route: [{{ active.route | uppercase }}]
           </span>
         </div>
-        @if (active.status !== 'RESOLVED') {
-        <button type="button" class="btn-resolve-main" (click)="closeGapAction(active.id)">
-          Mark as Verified &amp; Close Gap
-        </button>
-        }
+        <div style="display: flex; gap: 8px; align-items: center;">
+          @if (active.status !== 'RESOLVED') {
+            @if (active.lane === 'supplier' || active.supplierName) {
+              <button type="button" class="btn-vendor-req-large" (click)="openVendorModal(active)">
+                Request from Supplier &rarr;
+              </button>
+            }
+            <button type="button" class="btn-resolve-main" (click)="closeGapAction(active.id)">
+              Mark Verified &amp; Close Gap
+            </button>
+          }
+          <button type="button" class="btn-mark-erp-large" (click)="markGapResolvedInSource(active.id)">
+            Confirm Synced in Source ERP
+          </button>
+        </div>
       </div>
 
       <div class="gap-detail-body">
@@ -228,8 +265,8 @@
             <div class="item-impact mono">Uncertainty: &plusmn;&pound;{{ item.feeImpactGbp | number }}</div>
             <div class="item-action-note">{{ item.actionNote }}</div>
             @if (item.status !== 'RESOLVED') {
-            <button type="button" class="btn-lane-action" (click)="closeGapAction(item.id)">
-              Simulate Supplier Portal Upload &rarr;
+            <button type="button" class="btn-lane-action" (click)="openVendorModal(item)">
+              Request Supplier Declaration &rarr;
             </button>
             } @else {
             <div class="lane-resolved-notice mono">[CERTIFICATE ATTACHED]</div>
@@ -271,6 +308,190 @@
         </div>
       </div>
 
+    </div>
+  </div>
+  }
+
+  <!-- ══════════════════════ MODAL: VENDOR PACKAGING DATA DECLARATION REQUEST ══════════════════════ -->
+  @if (showVendorModal() && vendorGap(); as gap) {
+  <div class="modal-backdrop" (click)="closeVendorModal()">
+    <div class="modal-card" style="max-width: 620px;" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="lane-tag mono lane-supplier" style="font-size: 10px; font-weight: 800; padding: 2px 7px;">SUPPLIER PORTAL</span>
+            <h2 class="modal-title" style="margin: 0;">Packaging Data Declaration Request</h2>
+          </div>
+          <p class="modal-sub" style="margin-top: 4px;">
+            Target Supplier: <strong>{{ gap.supplierName || 'Packaging Fabricator' }}</strong> &middot; SKU: <strong class="mono">{{ gap.sku }}</strong>
+          </p>
+        </div>
+        <button type="button" class="btn-close" (click)="closeVendorModal()">&times;</button>
+      </div>
+
+      <div class="modal-body" style="gap: 16px;">
+        <!-- Missing Data Summary Card -->
+        <div class="vendor-brief-card">
+          <div class="vendor-brief-row">
+            <span class="v-label">Missing Specification:</span>
+            <strong class="v-val">{{ gap.missingDataPoint }}</strong>
+          </div>
+          <div class="vendor-brief-row">
+            <span class="v-label">Regulatory Rule:</span>
+            <span class="v-val">{{ gap.title }}</span>
+          </div>
+          <div class="vendor-brief-row">
+            <span class="v-label">Statutory Exposure:</span>
+            <span class="v-val mono font-bold" style="color: #b91c1c;">&plusmn;&pound;{{ gap.feeImpactGbp | number }} unmodulated fee</span>
+          </div>
+        </div>
+
+        <!-- Option A: Shareable Vendor Portal Link -->
+        <div class="vendor-field-group">
+          <label class="vendor-field-label">1. Shareable Vendor Declaration Link:</label>
+          <div class="vendor-copy-bar">
+            <input type="text" readonly class="table-cell-input mono font-xs" [value]="getVendorShareLink(gap)" style="flex: 1;" />
+            <button type="button" class="btn-copy-link" (click)="copyVendorShareLink()">
+              @if (vendorLinkCopied()) { &#x2713; Copied! } @else { Copy Link }
+            </button>
+          </div>
+          <span class="form-hint">Send this secure link directly to supplier packaging engineers to upload certified data without login.</span>
+        </div>
+
+        <!-- Option B: Direct / Simulated Supplier Submission -->
+        <div class="vendor-field-group" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; border-radius: 8px;">
+          <label class="vendor-field-label">2. Record Supplier Declaration or Simulate Portal Ingestion:</label>
+          <div style="margin-top: 8px;">
+            <label class="form-lbl" style="font-size: 11px; font-weight: 600; color: #334155;">Supplier Certified Value / Result:</label>
+            <input
+              type="text"
+              class="form-input mono"
+              [ngModel]="vendorDeclaredVal()"
+              (ngModelChange)="vendorDeclaredVal.set($event)"
+              placeholder="e.g. 30% Food-Grade PCR or 24.5g tare weight"
+            />
+          </div>
+
+          <div style="margin-top: 8px;">
+            <label class="form-lbl" style="font-size: 11px; font-weight: 600; color: #334155;">Batch Certificate / Lab Test Reference:</label>
+            <input
+              type="text"
+              class="form-input mono"
+              [ngModel]="vendorCertReference()"
+              (ngModelChange)="vendorCertReference.set($event)"
+              placeholder="e.g. CERT-EU-PLAST-2026-904"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="closeVendorModal()" [disabled]="isSubmittingVendor()">Cancel</button>
+        <button
+          type="button"
+          class="btn-primary"
+          [disabled]="isSubmittingVendor() || !vendorDeclaredVal()"
+          (click)="submitVendorDeclaration()"
+        >
+          @if (isSubmittingVendor()) { Verifying Declaration... } @else { Submit Supplier Declaration &rarr; }
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- ══════════════════════ MODAL: EXPORT UPSTREAM ERP & PLM WORKLIST ══════════════════════ -->
+  @if (showErpExportModal() && erpExportData(); as exportData) {
+  <div class="modal-backdrop" (click)="closeErpExportModal()">
+    <div class="modal-card modal-wide" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="rank-tag mono" style="background: #0f172a; color: #ffffff;">SOURCE OF TRUTH</span>
+            <h2 class="modal-title" style="margin: 0;">Export Upstream ERP &amp; PLM Change Worklist</h2>
+          </div>
+          <p class="modal-sub" style="margin-top: 4px;">
+            Ensure gaps resolved in Monkspaces are pushed back into SAP S/4HANA &amp; Trace One Devex PLM to close them permanently at the source.
+          </p>
+        </div>
+        <button type="button" class="btn-close" (click)="closeErpExportModal()">&times;</button>
+      </div>
+
+      <div class="modal-body" style="gap: 16px;">
+        <!-- Instructions Banner -->
+        <div class="audit-rule-box" style="background: #f0fdf4; border-color: #bbf7d0; color: #166534;">
+          <strong>Upstream Sync Strategy:</strong> {{ exportData.sync_instructions }}
+        </div>
+
+        <!-- Summary Bar -->
+        <div style="display: flex; gap: 14px; align-items: center; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
+          <span style="font-size: 12px; font-weight: 700; color: #334155;">Target Systems:</span>
+          <span class="mono font-xs font-bold" style="background: #e2e8f0; padding: 2px 8px; border-radius: 4px;">{{ exportData.target_system }}</span>
+          <span style="font-size: 12px; font-weight: 700; color: #334155; margin-left: auto;">Total Change Tickets:</span>
+          <span class="mono font-xs font-bold" style="background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 4px;">{{ exportData.total_tickets }} Pending</span>
+        </div>
+
+        <!-- Tickets Table -->
+        <div class="table-container" style="max-height: 280px; overflow-y: auto;">
+          <table class="report-table" style="font-size: 12px;">
+            <thead>
+              <tr>
+                <th style="width: 100px;">Ticket ID</th>
+                <th>System &amp; Spec</th>
+                <th>SKU Code</th>
+                <th>Target Field</th>
+                <th>Proposed Correction</th>
+                <th>Status</th>
+                <th style="text-align: right;">ERP Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (ticket of exportData.tickets; track ticket.ticket_id) {
+              <tr>
+                <td class="mono font-bold">{{ ticket.ticket_id }}</td>
+                <td>
+                  <div style="font-weight: 600;">{{ ticket.source_system }}</div>
+                  <div class="mono font-xs" style="color: #64748b;">Ref: {{ ticket.source_spec_reference }}</div>
+                </td>
+                <td class="mono font-bold">{{ ticket.sku }}</td>
+                <td class="mono font-xs" style="color: #0369a1;">{{ ticket.field_name }}</td>
+                <td>
+                  <div style="font-weight: 600; color: #0f172a;">{{ ticket.target_value }}</div>
+                  <div class="font-xs" style="color: #64748b;">{{ ticket.reason }}</div>
+                </td>
+                <td>
+                  <span class="status-tag mono" style="background: #fef3c7; color: #92400e;">
+                    {{ ticket.status }}
+                  </span>
+                </td>
+                <td style="text-align: right;">
+                  <button
+                    type="button"
+                    class="btn-mark-erp"
+                    (click)="markGapResolvedInSource(ticket.issue_id)"
+                    title="Confirm updated in SAP S/4HANA / Trace One"
+                  >
+                    Mark Synced
+                  </button>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between;">
+        <span style="font-size: 11.5px; color: #64748b;">Select preferred export format for your enterprise IT/ERP team:</span>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-secondary" (click)="downloadWorklistCsv()">
+            Download SAP S/4HANA (CSV) &darr;
+          </button>
+          <button type="button" class="btn-primary" (click)="downloadWorklistJson()">
+            Download Trace One (JSON) &darr;
+          </button>
+        </div>
+      </div>
     </div>
   </div>
   }
