@@ -80,6 +80,11 @@ class DataStore:
                 records = json.load(f)
                 for item in records:
                     t = TenantResponse(**item)
+                    if not t.logo_url:
+                        if t.id == "khc-europe" or "kraft" in t.name.lower():
+                            t.logo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Kraft_Heinz_Logo.svg/320px-Kraft_Heinz_Logo.svg.png"
+                        elif t.id == "nordhavn-spirits" or "nordhavn" in t.name.lower():
+                            t.logo_url = "https://images.unsplash.com/photo-1527061011665-3652c757a4d4?w=120&auto=format&fit=crop&q=80"
                     self.tenants[t.id] = t
                     if t.id not in self.products:
                         self.products[t.id] = {}
@@ -1533,6 +1538,11 @@ class DataStore:
             for key, val in update_dict.items():
                 if val is not None and hasattr(tenant, key):
                     setattr(tenant, key, val)
+            if not tenant.logo_url:
+                if tenant.id == "khc-europe" or "kraft" in tenant.name.lower():
+                    tenant.logo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Kraft_Heinz_Logo.svg/320px-Kraft_Heinz_Logo.svg.png"
+                elif tenant.id == "nordhavn-spirits" or "nordhavn" in tenant.name.lower():
+                    tenant.logo_url = "https://images.unsplash.com/photo-1527061011665-3652c757a4d4?w=120&auto=format&fit=crop&q=80"
             self._save_persisted_tenant(tenant)
             return tenant
 
@@ -1548,6 +1558,13 @@ class DataStore:
     def create_tenant(self, data: TenantCreate) -> TenantResponse:
         """Create and provision a new tenant workspace."""
         with self._lock:
+            resolved_logo = data.logo_url
+            if not resolved_logo:
+                if data.id == "khc-europe" or "kraft" in data.name.lower():
+                    resolved_logo = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Kraft_Heinz_Logo.svg/320px-Kraft_Heinz_Logo.svg.png"
+                elif data.id == "nordhavn-spirits" or "nordhavn" in data.name.lower():
+                    resolved_logo = "https://images.unsplash.com/photo-1527061011665-3652c757a4d4?w=120&auto=format&fit=crop&q=80"
+
             tenant_res = TenantResponse(
                 id=data.id,
                 name=data.name,
@@ -1555,7 +1572,7 @@ class DataStore:
                 tier=data.tier,
                 primary_jurisdiction=data.active_jurisdictions[0][:2] if data.active_jurisdictions else "GB",
                 active_modules=data.active_modules if (data.active_modules and len(data.active_modules) > 0) else ["epr", "ppwr", "dpp", "lca"],
-                logo_url=data.logo_url,
+                logo_url=resolved_logo,
                 theme_color=data.theme_color or "#111827",
                 source_systems=["Trace One (Devex PLM)", "Snowflake Data Cloud", "CSV Bulk Importer"],
                 active_products_count=12,

@@ -162,8 +162,10 @@
             <div class="org-identity">
               @if (org.logo_url && org.logo_url.length > 5 && org.logo_url !== 'null') {
                 <img [src]="org.logo_url" [alt]="org.name" class="org-logo-preview" style="max-height: 32px; max-width: 65px; object-fit: contain; margin-right: 10px; background: #ffffff; padding: 2px; border: 1px solid var(--border-subtle); border-radius: 4px;" />
-              } @else if (org.id === 'khc-europe') {
+              } @else if (org.id === 'khc-europe' || org.name.toLowerCase().includes('kraft')) {
                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Kraft_Heinz_Logo.svg/320px-Kraft_Heinz_Logo.svg.png" [alt]="org.name" class="org-logo-preview" style="max-height: 32px; max-width: 65px; object-fit: contain; margin-right: 10px; background: #ffffff; padding: 2px; border: 1px solid var(--border-subtle); border-radius: 4px;" />
+              } @else if (org.id === 'nordhavn-spirits' || org.name.toLowerCase().includes('nordhavn')) {
+                <img src="https://images.unsplash.com/photo-1527061011665-3652c757a4d4?w=120&auto=format&fit=crop&q=80" [alt]="org.name" class="org-logo-preview" style="max-height: 32px; max-width: 65px; object-fit: contain; margin-right: 10px; background: #ffffff; padding: 2px; border: 1px solid var(--border-subtle); border-radius: 4px;" />
               } @else {
                 <span class="org-avatar" [style.background-color]="org.theme_color || '#111827'" style="color: #ffffff; font-weight: 700;">
                   {{ org.name.charAt(0).toUpperCase() }}

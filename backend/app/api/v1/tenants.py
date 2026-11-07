@@ -27,6 +27,11 @@ def list_tenants() -> List[TenantResponse]:
             open_count = sum(1 for i in issues.values() if i.status in ["open", "pending_source_update"])
             t_copy.active_products_count = len(prods)
             t_copy.open_quality_issues_count = open_count
+            if not t_copy.logo_url:
+                if t_copy.id == "khc-europe" or "kraft" in t_copy.name.lower():
+                    t_copy.logo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Kraft_Heinz_Logo.svg/320px-Kraft_Heinz_Logo.svg.png"
+                elif t_copy.id == "nordhavn-spirits" or "nordhavn" in t_copy.name.lower():
+                    t_copy.logo_url = "https://images.unsplash.com/photo-1527061011665-3652c757a4d4?w=120&auto=format&fit=crop&q=80"
             tenants.append(t_copy)
         return tenants
 
@@ -38,7 +43,13 @@ def get_tenant(tenant_id: str) -> TenantResponse:
         tenant = data_store.tenants.get(tenant_id)
         if not tenant:
             raise HTTPException(status_code=404, detail=f"Tenant '{tenant_id}' not found.")
-        return tenant
+        t_copy = tenant.model_copy()
+        if not t_copy.logo_url:
+            if t_copy.id == "khc-europe" or "kraft" in t_copy.name.lower():
+                t_copy.logo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Kraft_Heinz_Logo.svg/320px-Kraft_Heinz_Logo.svg.png"
+            elif t_copy.id == "nordhavn-spirits" or "nordhavn" in t_copy.name.lower():
+                t_copy.logo_url = "https://images.unsplash.com/photo-1527061011665-3652c757a4d4?w=120&auto=format&fit=crop&q=80"
+        return t_copy
 
 
 @router.patch("/{tenant_id}/modules", response_model=TenantResponse)

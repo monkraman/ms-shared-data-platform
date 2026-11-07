@@ -588,7 +588,15 @@ Login URL: ${window.location.origin}/sign-in`;
     this.selectedOrgForModules.set(org);
     this.orgNameEdit = org.name;
     this.orgThemeColorEdit = org.theme_color || '#111827';
-    this.orgLogoUrlEdit = org.logo_url || '';
+    let defaultLogo = org.logo_url || '';
+    if (!defaultLogo) {
+      if (org.id === 'khc-europe' || org.name.toLowerCase().includes('kraft')) {
+        defaultLogo = 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Kraft_Heinz_Logo.svg/320px-Kraft_Heinz_Logo.svg.png';
+      } else if (org.id === 'nordhavn-spirits' || org.name.toLowerCase().includes('nordhavn')) {
+        defaultLogo = 'https://images.unsplash.com/photo-1527061011665-3652c757a4d4?w=120&auto=format&fit=crop&q=80';
+      }
+    }
+    this.orgLogoUrlEdit = defaultLogo;
     this.orgUploadedLogoBase64.set(null);
     const mods = org.active_modules || ['epr', 'ppwr', 'dpp', 'lca'];
     this.modEpr = mods.includes('epr');
