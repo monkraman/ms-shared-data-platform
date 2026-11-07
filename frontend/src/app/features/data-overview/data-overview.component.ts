@@ -1,9 +1,11 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { APP_CONFIG } from '../../core/config/client-theme.config';
 import { TenantApiService } from '../../core/services/tenant-api.service';
 import { FoundationApiService, CanonicalProduct } from '../../core/services/foundation-api.service';
 import { QualityApiService, DataQualityIssue } from '../../core/services/quality-api.service';
+import { ToastService } from '../../core/services/toast.service';
 
 export interface PipelineStep {
   number: number;
@@ -45,7 +47,7 @@ export interface OutputCategory {
 @Component({
   selector: 'app-data-overview',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './data-overview.component.html',
   styleUrl: './data-overview.component.css',
 })
@@ -53,6 +55,7 @@ export class DataOverviewComponent implements OnInit {
   readonly tenantService = inject(TenantApiService);
   readonly foundationService = inject(FoundationApiService);
   readonly qualityService = inject(QualityApiService);
+  readonly toastService = inject(ToastService);
   readonly config = APP_CONFIG;
   readonly activeView = signal<'flowchart' | 'table' | 'journey'>('flowchart');
 
@@ -64,6 +67,14 @@ export class DataOverviewComponent implements OnInit {
   readonly qualityIssues = this.qualityService.issues;
   readonly syncing = this.foundationService.syncing;
   readonly lastBatch = this.foundationService.lastSyncBatch;
+
+  readonly tenantBrandName = computed(() => {
+    const active = this.tenantService.activeTenantId();
+    if (active === 'khc-europe') return 'Kraft Heinz';
+    if (active === 'nordhavn-spirits') return 'Nordhavn';
+    const t = this.tenantService.tenants().find((ten) => ten.id === active);
+    return t ? t.name : 'Internal Enterprise';
+  });
 
   // Selected Filter for Data Points (by Holder or by Law)
   readonly selectedFilter = signal<'ALL' | 'SNOWFLAKE' | 'DEVEX' | 'SUPPLIERS' | 'PPWR' | 'UK_EPR'>('ALL');
@@ -449,11 +460,23 @@ export class DataOverviewComponent implements OnInit {
   }
 
   triggerSync(): void {
-    this.foundationService.triggerTraceOneSync().subscribe();
+    this.foundationService.triggerTraceOneSync().subscribe({
+      next: (batch) => {
+        this.toastService.show(`✓ Trace One Devex PLM synced (${batch.records_normalized} BOM specs parsed)`, 'success');
+        this.qualityService.loadIssues().subscribe();
+      },
+      error: () => this.toastService.show('Failed to synchronize with Trace One PLM', 'error'),
+    });
   }
 
   triggerSnowflakeSync(): void {
-    this.foundationService.triggerSnowflakeSync().subscribe();
+    this.foundationService.triggerSnowflakeSync().subscribe({
+      next: (batch) => {
+        this.toastService.show(`✓ Snowflake Sales Pipeline synced (${batch.records_normalized} market records updated)`, 'success');
+        this.qualityService.loadIssues().subscribe();
+      },
+      error: () => this.toastService.show('Failed to synchronize with Snowflake', 'error'),
+    });
   }
 
   getFilteredDataPoints(): DataPointItem[] {

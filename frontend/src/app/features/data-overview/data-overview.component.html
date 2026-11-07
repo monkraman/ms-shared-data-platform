@@ -82,13 +82,26 @@
     </div>
   </section>
 
+  <!-- Live Ingestion Batch Sync Lineage Strip -->
+  @if (lastBatch(); as batch) {
+  <div class="live-sync-strip">
+    <div class="sync-strip-info">
+      <span class="live-pulse-dot"></span>
+      <span class="sync-strip-text">
+        <strong>Live Lineage Synced:</strong> Batch <code class="mono font-bold">{{ batch.id }}</code> &middot; {{ batch.source_reference }} &middot; {{ batch.records_normalized }} specs parsed &middot; {{ batch.quality_issues_detected }} gaps flagged
+      </span>
+    </div>
+    <span class="sync-strip-time mono">{{ batch.created_at | date:'HH:mm:ss' }} UTC</span>
+  </div>
+  }
+
   <!-- ─── VIEW 1: NATIVE INTERACTIVE DATA POINT MAP (Screen 04 Mockup) ─── -->
   @if (activeView() === 'flowchart') {
   <div class="data-map-wrapper-card">
     <div class="map-card-header">
       <h2 class="map-card-title">Your data point map</h2>
       <p class="map-card-sub">
-        49 data points &middot; coloured by source &mdash; Snowflake, Trace One Devex, your vendors or the Heinz team &mdash; and traced to what each one feeds
+        49 data points &middot; coloured by source &mdash; Snowflake, Trace One Devex, your vendors or the {{ tenantBrandName() }} team &mdash; and traced to what each one feeds
       </p>
     </div>
 
@@ -166,11 +179,11 @@
           </div>
         </div>
 
-        <!-- Column 4: Heinz Team (Entities & Sign-off) -->
+        <!-- Column 4: Client Team (Entities & Sign-off) -->
         <div class="source-col col-team">
           <div class="col-head head-team">
             <div class="col-head-text">
-              <span class="col-main-name">Heinz team</span>
+              <span class="col-main-name">{{ tenantBrandName() }} team</span>
               <span class="col-sub-name">Entities &amp; sign-off</span>
             </div>
             <span class="col-count-pill mono">13</span>

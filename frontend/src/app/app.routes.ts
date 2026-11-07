@@ -29,6 +29,7 @@ export const routes: Routes = [
   // Client Workspace Routes (Restricted strictly to Client users)
   { path: 'dashboard', component: DashboardComponent, canActivate: [clientGuard], title: 'EPR Dashboard — Compliance Hub' },
   { path: 'data-overview', component: DataOverviewComponent, canActivate: [clientGuard], title: 'Data Overview — Compliance Hub' },
+  { path: 'data-map', redirectTo: 'data-overview', pathMatch: 'full' },
   { path: 'products', component: ProductsComponent, canActivate: [clientGuard], title: 'Pack Record BOM — Compliance Hub' },
   { path: 'quality', component: QualityComponent, canActivate: [clientGuard], title: 'Data Quality Worklist — Compliance Hub' },
   { path: 'simulator', component: SimulatorComponent, canActivate: [clientGuard], title: 'EPR Fee Simulator — Compliance Hub' },

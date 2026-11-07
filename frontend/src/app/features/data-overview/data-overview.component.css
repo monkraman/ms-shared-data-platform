@@ -1215,3 +1215,52 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Live Ingestion Batch Sync Lineage Strip */
+.live-sync-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 12px;
+  color: #166534;
+}
+
+.sync-strip-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.live-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.25);
+  animation: pulseGreen 2s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulseGreen {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.5); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(22, 163, 74, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+}
+
+.sync-strip-text code {
+  background: #dcfce7;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #15803d;
+}
+
+.sync-strip-time {
+  font-size: 11px;
+  color: #15803d;
+  font-weight: 700;
+}
