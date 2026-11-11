@@ -20,6 +20,10 @@ import {
 export const RULE_FIELDS: { key: string; label: string; dp: string }[] = [
   { key: 'gtin', label: 'GTIN', dp: 'DP02' },
   { key: 'weight_g', label: 'Component weight', dp: 'DP09' },
+  { key: 'units_per_pack', label: 'Units per pack', dp: 'DP05' },
+  { key: 'material', label: 'Material', dp: 'DP06' },
+  { key: 'polymer', label: 'Polymer', dp: 'DP07' },
+  { key: 'recycled_content_pct', label: 'Recycled content (%)', dp: 'DP13' },
   { key: 'weight_source', label: 'Weight source', dp: 'DP44' },
   { key: 'recyclability_result', label: 'Recyclability result', dp: 'DP12' },
   { key: 'recycled_content_cert', label: 'Recycled content certificate', dp: 'DP14' },
@@ -105,6 +109,18 @@ export const RULE_FIELDS: { key: string; label: string; dp: string }[] = [
             <input id="r-values" [(ngModel)]="draft.values" />
           </app-form-field>
         }
+        <app-form-field label="Estimate" for="r-estimate">
+          <select id="r-estimate" [(ngModel)]="draft.estimate">
+            <option value="">Needs real data</option>
+            <option value="similar_average">Average of similar components</option>
+            <option value="fixed">Fixed value</option>
+          </select>
+        </app-form-field>
+        @if (draft.estimate === 'fixed') {
+          <app-form-field label="Estimated value" for="r-est-value">
+            <input id="r-est-value" [(ngModel)]="draft.estimateValue" />
+          </app-form-field>
+        }
       </div>
       <div class="section-label">Modules</div>
       <div class="choice-grid">
@@ -181,6 +197,7 @@ export class GapRulesComponent {
     { key: 'dp', label: 'Data point', value: (r) => r.data_point },
     { key: 'check', label: 'Check', value: (r) => describe(r.check) },
     { key: 'severity', label: 'Severity' },
+    { key: 'estimate', label: 'Estimate', value: (r) => estimateLabel(r.estimate) },
     { key: 'modules', label: 'Modules' },
     { key: 'active', label: 'On' },
   ];
@@ -213,6 +230,9 @@ export class GapRulesComponent {
         check,
         severity: this.draft.severity,
         modules: this.modules.filter((m) => this.draft.modules[m]),
+        estimate: this.draft.estimate
+          ? { method: this.draft.estimate, value: this.draft.estimate === 'fixed' ? this.draft.estimateValue : null }
+          : null,
       })
       .subscribe({
         next: (rule) => {
@@ -233,8 +253,15 @@ function blankDraft() {
     kind: 'missing' as 'missing' | 'in',
     values: '',
     severity: 'blocker' as Severity,
+    estimate: '' as '' | 'similar_average' | 'fixed',
+    estimateValue: '',
     modules: { EPR: true, PPWR: false, DPP: false, LCA: false } as Record<ModuleId, boolean>,
   };
+}
+
+export function estimateLabel(e: GapRule['estimate']): string {
+  if (!e) return 'Needs data';
+  return e.method === 'fixed' ? `Fixed: ${e.value ?? ''}` : 'Similar average';
 }
 
 export function describe(check: RuleCheck): string {

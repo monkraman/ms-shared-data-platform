@@ -1719,6 +1719,63 @@
         "title": "EprResult",
         "type": "object"
       },
+      "Estimate": {
+        "properties": {
+          "basis": {
+            "title": "Basis",
+            "type": "string"
+          },
+          "method": {
+            "enum": [
+              "similar_average",
+              "fixed"
+            ],
+            "title": "Method",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "value",
+          "method",
+          "basis"
+        ],
+        "title": "Estimate",
+        "type": "object"
+      },
+      "EstimateRule": {
+        "description": "How a gap may be filled without real data; absent = it needs real data.",
+        "properties": {
+          "method": {
+            "enum": [
+              "similar_average",
+              "fixed"
+            ],
+            "title": "Method",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "method"
+        ],
+        "title": "EstimateRule",
+        "type": "object"
+      },
       "FieldInfo": {
         "properties": {
           "allowed": {
@@ -1791,6 +1848,45 @@
         "title": "FieldValue",
         "type": "object"
       },
+      "FillEstimates": {
+        "properties": {
+          "gap_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Only these gaps; all open estimable gaps if absent",
+            "title": "Gap Ids"
+          }
+        },
+        "title": "FillEstimates",
+        "type": "object"
+      },
+      "FillResult": {
+        "properties": {
+          "filled": {
+            "title": "Filled",
+            "type": "integer"
+          },
+          "skipped": {
+            "title": "Skipped",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "filled",
+          "skipped"
+        ],
+        "title": "FillResult",
+        "type": "object"
+      },
       "GapOut": {
         "properties": {
           "component_id": {
@@ -1822,6 +1918,20 @@
           "data_point": {
             "title": "Data Point",
             "type": "string"
+          },
+          "estimable": {
+            "title": "Estimable",
+            "type": "boolean"
+          },
+          "estimate": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Estimate"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "field": {
             "title": "Field",
@@ -1896,7 +2006,9 @@
           "rule_name",
           "severity",
           "modules",
-          "status"
+          "status",
+          "estimable",
+          "estimate"
         ],
         "title": "GapOut",
         "type": "object"
@@ -1959,6 +2071,16 @@
             "maxLength": 8,
             "title": "Data Point",
             "type": "string"
+          },
+          "estimate": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EstimateRule"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "field": {
             "maxLength": 64,
@@ -2024,6 +2146,16 @@
             "maxLength": 8,
             "title": "Data Point",
             "type": "string"
+          },
+          "estimate": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EstimateRule"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "field": {
             "maxLength": 64,
@@ -2101,6 +2233,16 @@
               }
             ],
             "title": "Countries"
+          },
+          "estimate": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EstimateRule"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "modules": {
             "anyOf": [
@@ -10093,6 +10235,67 @@
           }
         },
         "summary": "Gaps in this workspace",
+        "tags": [
+          "Gaps"
+        ]
+      }
+    },
+    "/api/v1/gaps/estimate": {
+      "post": {
+        "operationId": "fill_estimates_api_v1_gaps_estimate_post",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FillEstimates"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FillResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Fill estimable gaps with their proposed values",
         "tags": [
           "Gaps"
         ]

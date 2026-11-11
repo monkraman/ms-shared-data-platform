@@ -30,6 +30,9 @@ class GapRule(Timestamps, Base):
     # modules and (when set) one of its countries.
     countries: Mapped[list[str]] = mapped_column(ARRAY(String(2)), default=list, nullable=False)
     active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    # How a gap may be filled without real data: {"method": "similar_average"} or
+    # {"method": "fixed", "value": "0"}. None = the gap needs real data.
+    estimate: Mapped[dict[str, Any] | None] = mapped_column(JSONType)
 
 
 class GapState(UUIDPrimaryKey, Timestamps, Base):

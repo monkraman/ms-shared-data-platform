@@ -17,7 +17,7 @@ from typing import Any
 from app.catalog.models import FieldMap, Product
 
 _REFERENCE = Path(__file__).resolve().parent / "reference" / "regimes.json"
-ESTIMATED_SOURCES = {"Spec", "Estimated"}
+ESTIMATED_SOURCES = {"Spec", "Estimated", "Estimate"}
 
 
 @cache

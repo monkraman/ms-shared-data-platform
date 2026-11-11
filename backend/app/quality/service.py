@@ -13,6 +13,7 @@ from app.catalog.models import Product
 from app.core.tenancy import TENANT_SETTING
 from app.platform.models import Tenant
 from app.quality.engine import find_gaps
+from app.quality.estimates import propose
 from app.quality.models import GapRule, GapState
 
 
@@ -22,7 +23,16 @@ async def gaps(db: AsyncSession, products: list[Product] | None = None) -> list[
         products = list((await db.scalars(select(Product).order_by(Product.sku))).all())
     rules = applicable(list((await db.scalars(select(GapRule).order_by(GapRule.id))).all()), await current_tenant(db))
     states = {s.gap_id: s.status for s in (await db.scalars(select(GapState))).all()}
-    return [{**g, "status": states.get(g["id"], "open")} for g in find_gaps(products, rules)]
+    by_rule = {r.id: r for r in rules}
+    components = {c.code: c for p in products for c in p.components}
+    out = []
+    for g in find_gaps(products, rules):
+        estimate = by_rule[g["rule_id"]].estimate
+        proposal = propose(estimate, g["field"], components.get(g["component_id"] or ""), products)
+        out.append(
+            {**g, "status": states.get(g["id"], "open"), "estimable": proposal is not None, "estimate": proposal}
+        )
+    return out
 
 
 async def current_tenant(db: AsyncSession) -> Tenant | None:

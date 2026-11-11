@@ -92,6 +92,9 @@ export class PlatformApi {
     this.api.get('/api/v1/gaps', { query });
   resolveGap = (id: string, body: GapResolve): Observable<Gap> =>
     this.api.post('/api/v1/gaps/{gap_id}/resolve', { path: { gap_id: id }, body });
+  /** Fills estimable gaps (all open ones when no ids) with their proposed values. */
+  fillEstimates = (gapIds?: string[]): Observable<{ filled: number; skipped: number }> =>
+    this.api.post('/api/v1/gaps/estimate', { body: { gap_ids: gapIds ?? null } });
 
   // Screen 8
   dataOverview = (): Observable<DataOverview> => this.api.get('/api/v1/data-overview');
