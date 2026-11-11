@@ -8,9 +8,10 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.audit import record_audit
+from app.core.db import utcnow
 from app.core.jobs import Job, job_handler
 from app.ingestion import service
-from app.ingestion.models import ImportBatch
+from app.ingestion.models import DataSource, ImportBatch
 
 
 @job_handler("ingestion.import")
@@ -22,6 +23,10 @@ async def run_import(session: AsyncSession, job: Job) -> dict[str, Any]:
     result = await service.apply(session, batch.tenant_id, batch)
     result = {**result, "valid_rows": preview["valid_rows"], "invalid_rows": preview["invalid_rows"]}
     batch.status, batch.result = "imported", result
+    if batch.data_source_id:
+        source = await session.get(DataSource, batch.data_source_id)
+        if source is not None:
+            source.last_synced_at, source.last_status, source.last_result = utcnow(), "succeeded", result
     await record_audit(
         session,
         tenant_id=batch.tenant_id,

@@ -174,3 +174,49 @@ def test_gap_rules_are_managed_by_platform_admins(db_client: TestClient, ws: dic
         db_client.post("/api/v1/admin/gap-rules", json={**created.json(), "field": "nope"}, headers=pa).status_code
         == 422
     )
+
+
+def test_rules_follow_the_workspace_modules_and_countries(db_client: TestClient, ws: dict[str, object]) -> None:
+    h, pa = _auth(ws["oa"], ws["a"]), _auth(ws["pa"])
+    all_rules = {g["rule_id"] for g in db_client.get("/api/v1/gaps", headers=h).json()}
+    assert "GR-002" in all_rules  # DPP rule while the workspace has no modules set
+
+    db_client.patch(
+        f"/api/v1/admin/tenants/{ws['a']}",
+        json={
+            "modules": ["EPR"],
+            "countries": ["UK"],
+            "legal_entities": [{"name": "A Ltd", "country": "UK", "registration_number": "1"}],
+        },
+        headers=pa,
+    )
+    epr_only = db_client.get("/api/v1/gaps", headers=h).json()
+    assert epr_only and all("EPR" in g["modules"] for g in epr_only)
+    assert "GR-002" not in {g["rule_id"] for g in epr_only}
+
+
+def test_a_data_source_remembers_its_mapping_and_can_auto_approve(db_client: TestClient, ws: dict[str, object]) -> None:
+    h = _auth(ws["oa"], ws["a"])
+    source = db_client.post("/api/v1/data-sources", json={"system": "plm"}, headers=h).json()
+    assert source["system"] == "plm"
+
+    first = db_client.post(f"/api/v1/data-sources/{source['id']}/sync", headers=h).json()
+    assert first["job_id"] is None  # nothing saved yet: review first
+    mapping = {**first["draft"]["suggested_mapping"], "end_of_life_info": None}
+    db_client.put(f"/api/v1/imports/{first['draft']['id']}/mapping", json={"mapping": mapping}, headers=h)
+    db_client.post(f"/api/v1/imports/{first['draft']['id']}/approve", headers=h)
+    db_client.portal.call(wait_for_inline_jobs)
+
+    saved = db_client.get("/api/v1/data-sources", headers=h).json()
+    plm = next(s for s in saved if s["id"] == source["id"])
+    assert plm["last_status"] == "succeeded" and plm["syncs"] >= 1
+
+    db_client.patch(f"/api/v1/data-sources/{source['id']}", json={"auto_approve": True}, headers=h)
+    second = db_client.post(f"/api/v1/data-sources/{source['id']}/sync", headers=h).json()
+    assert second["draft"]["suggested_mapping"]["end_of_life_info"] is None  # the saved "skip" sticks
+    assert second["job_id"] is not None
+    db_client.portal.call(wait_for_inline_jobs)
+
+    history = db_client.get("/api/v1/imports", headers=h).json()
+    assert history[0]["status"] == "imported" and history[0]["source"] == "plm"
+    assert db_client.get("/api/v1/data-sources", headers=_auth(ws["ob"], ws["b"])).json() == []

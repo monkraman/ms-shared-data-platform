@@ -15,7 +15,7 @@ from app.core.audit import record_audit
 from app.core.auth import PlatformDB, Principal, TenantDB, require_permission
 from app.core.errors import ProblemError
 from app.core.permissions import Perm
-from app.platform.reference import ModuleId
+from app.platform.reference import COUNTRY_CODES, ModuleId
 from app.quality import service as quality
 from app.quality.models import GapRule, GapState
 
@@ -41,6 +41,7 @@ class GapRuleCreate(BaseModel):
     check: RuleCheck
     severity: Severity
     modules: list[ModuleId]
+    countries: list[str] = Field(default_factory=list)
 
 
 class GapRuleOut(GapRuleCreate):
@@ -53,6 +54,7 @@ class GapRulePatch(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
     severity: Severity | None = None
     modules: list[ModuleId] | None = None
+    countries: list[str] | None = None
 
 
 class GapOut(BaseModel):
@@ -119,6 +121,7 @@ def _rule_out(r: GapRule) -> GapRuleOut:
         check=RuleCheck(**r.check),
         severity=r.severity,
         modules=list(r.modules),
+        countries=list(r.countries),
         active=r.active,
     )
 
@@ -145,6 +148,8 @@ async def create_rule(payload: GapRuleCreate, principal: RuleManager, db: Platfo
         raise _invalid("check", "List the values that count as a gap")
     if not payload.modules:
         raise _invalid("modules", "Choose at least one module")
+    if any(c not in COUNTRY_CODES for c in payload.countries):
+        raise _invalid("countries", "Choose a supported country")
     last = await db.scalar(select(func.max(GapRule.id)))
     next_number = int(last.split("-")[1]) + 1 if last else 1
     rule = GapRule(
@@ -155,6 +160,7 @@ async def create_rule(payload: GapRuleCreate, principal: RuleManager, db: Platfo
         check=payload.check.model_dump(exclude_none=True),
         severity=payload.severity,
         modules=payload.modules,
+        countries=payload.countries,
         active=True,
     )
     db.add(rule)

@@ -105,6 +105,7 @@ export const routes: Routes = [
       screen('users', 'platform.users.manage', 'Users', () => import('./screens/users/users.component').then((m) => m.UsersComponent)),
       screen('products', 'products.read', 'Products', () => import('./screens/products/products.component').then((m) => m.ProductsComponent)),
       screen('products/:sku', 'products.read', 'Product', () => import('./screens/products/product-detail.component').then((m) => m.ProductDetailComponent)),
+      screen('data-sources', 'imports.manage', 'Data sources', () => import('./screens/data-sources/data-sources.component').then((m) => m.DataSourcesComponent)),
       screen('import', 'imports.manage', 'Import', () => import('./screens/import/import.component').then((m) => m.ImportComponent)),
       screen('gaps', 'gaps.read', 'Gaps', () => import('./screens/gaps/gaps.component').then((m) => m.GapsComponent)),
       screen('data-overview', 'data.read', 'Data overview', () => import('./screens/data-overview/data-overview.component').then((m) => m.DataOverviewComponent)),

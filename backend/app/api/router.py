@@ -1,21 +1,23 @@
 """Main API router combining domain and system endpoints."""
 
 from fastapi import APIRouter
+
 from app.api.v1 import (
-    health,
-    tenants,
-    foundation,
-    quality,
-    epr,
     auth,
-    config,
     compliance_modules,
-    jobs,
-    workspaces,
+    config,
     data_points,
-    products,
-    imports,
+    data_sources,
+    epr,
+    foundation,
     gaps,
+    health,
+    imports,
+    jobs,
+    products,
+    quality,
+    tenants,
+    workspaces,
 )
 
 api_router = APIRouter()
@@ -40,6 +42,9 @@ api_router.include_router(data_points.router)
 api_router.include_router(products.router)
 api_router.include_router(imports.router)
 api_router.include_router(gaps.router)
+
+# Screen 18 (first part): connected systems with saved mappings
+api_router.include_router(data_sources.router)
 
 # Layer 1: Canonical Shared Data Foundation
 api_router.include_router(foundation.router)

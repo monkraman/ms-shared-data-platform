@@ -62,6 +62,12 @@ export const NAV: NavGroup[] = [
         icon: 'M8 10.5V2.5M5 5.5l3-3 3 3M2.5 10.5v3h11v-3',
       },
       {
+        label: 'Data sources',
+        path: '/app/data-sources',
+        permission: 'imports.manage',
+        icon: 'M8 2.5c3 0 5.5.9 5.5 2s-2.5 2-5.5 2-5.5-.9-5.5-2 2.5-2 5.5-2zM2.5 4.5v7c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2v-7M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2',
+      },
+      {
         label: 'Gaps',
         path: '/app/gaps',
         permission: 'gaps.read',

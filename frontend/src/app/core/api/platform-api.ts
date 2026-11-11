@@ -23,6 +23,9 @@ import {
   WorkspacePatch,
   WorkspaceStatus,
   SyncSystem,
+  DataSource,
+  SyncStarted,
+  ImportHistoryRow,
   GapStatus,
   Severity,
   UserCreate,
@@ -71,6 +74,7 @@ export class PlatformApi {
     this.api.put('/api/v1/imports/{batch_id}/mapping', { path: { batch_id: id }, body: { mapping } });
   approveImport = (id: string): Observable<{ job_id: string }> =>
     this.api.post('/api/v1/imports/{batch_id}/approve', { path: { batch_id: id } });
+  importHistory = (): Observable<ImportHistoryRow[]> => this.api.get('/api/v1/imports');
   job = (jobId: string): Observable<JobStatus> => this.api.get('/api/v1/jobs/{job_id}', { path: { job_id: jobId } });
 
   // Screen 6
@@ -87,4 +91,13 @@ export class PlatformApi {
 
   // Screen 8
   dataOverview = (): Observable<DataOverview> => this.api.get('/api/v1/data-overview');
+
+  // Screen 18 (data sources)
+  dataSources = (): Observable<DataSource[]> => this.api.get('/api/v1/data-sources');
+  connectSource = (system: SyncSystem): Observable<DataSource> =>
+    this.api.post('/api/v1/data-sources', { body: { system } });
+  setAutoApprove = (id: string, auto_approve: boolean): Observable<DataSource> =>
+    this.api.patch('/api/v1/data-sources/{source_id}', { path: { source_id: id }, body: { auto_approve } });
+  syncSource = (id: string): Observable<SyncStarted> =>
+    this.api.post('/api/v1/data-sources/{source_id}/sync', { path: { source_id: id } });
 }
