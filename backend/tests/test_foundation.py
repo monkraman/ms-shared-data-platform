@@ -81,14 +81,18 @@ def _auth(user_id: uuid.UUID, tenant_id: uuid.UUID | None) -> dict[str, str]:
 
 
 def test_app_role_is_subject_to_rls(db_client: TestClient) -> None:
-    async def check() -> tuple[bool, bool]:
+    """Every transaction runs as the restricted role, whatever the login role may do."""
+
+    async def check() -> tuple[str, bool, bool]:
         async with tenant_session(None) as s:
             row = (
-                await s.execute(text("SELECT rolsuper, rolbypassrls FROM pg_roles WHERE rolname = current_user"))
+                await s.execute(
+                    text("SELECT current_user, rolsuper, rolbypassrls FROM pg_roles WHERE rolname = current_user")
+                )
             ).one()
-            return row[0], row[1]
+            return row[0], row[1], row[2]
 
-    assert db_client.portal.call(check) == (False, False)
+    assert db_client.portal.call(check) == ("compliance_rls", False, False)
 
 
 def test_emails_are_stored_lower_case(db_client: TestClient, world: dict[str, uuid.UUID]) -> None:

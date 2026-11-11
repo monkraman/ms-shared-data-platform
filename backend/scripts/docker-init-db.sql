@@ -1,3 +1,3 @@
--- Local Docker only: the app connects as a non-superuser so Row-Level Security applies.
-CREATE ROLE compliance_app LOGIN NOSUPERUSER NOBYPASSRLS PASSWORD 'local_dev_only';
+-- Local Docker only: a non-superuser owner with CREATEROLE (like Neon's owner role).
+CREATE ROLE compliance_app LOGIN NOSUPERUSER CREATEROLE PASSWORD 'local_dev_only';
 CREATE DATABASE compliance_hub OWNER compliance_app;

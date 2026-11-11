@@ -4,8 +4,9 @@ Database tests need a real PostgreSQL (RLS cannot be faked). Point
 ``TEST_DATABASE_URL`` at a server where the user may create roles and databases, e.g.
 ``postgresql://postgres:postgres@localhost:5432/postgres``; without it they are skipped.
 
-The fixture creates a fresh database owned by a non-superuser role, because
-superusers bypass Row-Level Security and would hide isolation bugs.
+The fixture creates a fresh database owned by a login role with CREATEROLE and
+BYPASSRLS, like Neon's owner role. Isolation tests passing with that role prove the
+app's ``SET LOCAL ROLE compliance_rls`` keeps RLS on.
 """
 
 from __future__ import annotations
@@ -51,7 +52,7 @@ def database_url() -> Iterator[str]:
     with psycopg.connect(admin_url, autocommit=True) as conn:
         exists = conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (APP_ROLE,)).fetchone()
         verb = "ALTER" if exists else "CREATE"
-        conn.execute(f"{verb} ROLE {APP_ROLE} LOGIN NOSUPERUSER NOBYPASSRLS PASSWORD '{password}'")
+        conn.execute(f"{verb} ROLE {APP_ROLE} LOGIN NOSUPERUSER BYPASSRLS CREATEROLE PASSWORD '{password}'")
         conn.execute(f"CREATE DATABASE {dbname} OWNER {APP_ROLE}")
 
     app_url = _with_credentials(admin_url, APP_ROLE, password, dbname)

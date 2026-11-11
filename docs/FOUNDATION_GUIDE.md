@@ -36,7 +36,7 @@ Tests: `python -m pytest`. Database tests need `TEST_DATABASE_URL` (a Postgres U
 
 ## Security notes
 
-- The app must connect as a Postgres role that is not a superuser and has no BYPASSRLS; otherwise RLS is silently skipped. Neon's default owner role qualifies.
+- Every transaction runs `SET LOCAL ROLE compliance_rls` (migration 0002), a role that cannot bypass RLS, so isolation holds even though Neon's login role has BYPASSRLS. The migration user needs CREATEROLE. Never connect as a Postgres superuser: a superuser can switch roles freely and skips RLS anyway.
 - Access tokens from the new auth (`ver: 2`) last 15 minutes. Prototype tokens are refused by new endpoints.
 - `app.platform_access` is set only by `PlatformDB` after checking the user is a platform admin.
 

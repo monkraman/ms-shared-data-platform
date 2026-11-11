@@ -9,7 +9,10 @@ Every tenant table has a ``tenant_id`` column and the policy created by
 
 A query that forgets to filter by tenant therefore returns nothing instead of
 another client's data. RLS is ``FORCE``d, so it applies to the table owner too.
-Postgres superusers and roles with BYPASSRLS skip RLS; the app must not use one.
+
+Superusers and roles with BYPASSRLS skip RLS, and hosted Postgres (Neon) often gives
+the login role BYPASSRLS. So every transaction also runs ``SET LOCAL ROLE
+compliance_rls`` (created by migration 0002), a role that cannot bypass RLS.
 """
 
 from __future__ import annotations
@@ -25,6 +28,7 @@ from app.core.db import get_sessionmaker
 
 TENANT_SETTING = "app.tenant_id"
 PLATFORM_SETTING = "app.platform_access"
+RLS_ROLE = "compliance_rls"
 
 
 @asynccontextmanager
@@ -42,7 +46,8 @@ async def tenant_session(tenant_id: uuid.UUID | None, *, platform_access: bool =
 async def apply_tenant_settings(
     session: AsyncSession, tenant_id: uuid.UUID | None, *, platform_access: bool = False
 ) -> None:
-    # set_config(..., true) is transaction-local, like SET LOCAL, and safe with pooling.
+    # Both are transaction-local (SET LOCAL / set_config(..., true)), so safe with pooling.
+    await session.execute(text(f"SET LOCAL ROLE {RLS_ROLE}"))
     await session.execute(
         text("SELECT set_config(:tk, :tv, true), set_config(:pk, :pv, true)"),
         {
