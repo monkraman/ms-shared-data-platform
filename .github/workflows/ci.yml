@@ -66,7 +66,10 @@ jobs:
             app/platform app/api/v1/jobs.py app/api/v1/health.py app/seed.py app/worker.py app/models.py
             migrations tests/test_foundation.py tests/conftest.py
       - name: Tests (including PostgreSQL RLS and tenant isolation)
-        run: python -m pytest -q -rs
+        run: python -m pytest -q -rs --junitxml=junit.xml
+      - name: Report failing tests as annotations
+        if: failure()
+        run: python scripts/junit_annotations.py junit.xml
       - name: Database tests must not be skipped in CI
         run: python -m pytest -q tests/test_foundation.py -rs | tee /tmp/db.txt && ! grep -q "SKIPPED" /tmp/db.txt
 
