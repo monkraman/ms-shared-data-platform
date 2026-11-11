@@ -23,6 +23,10 @@ import {
   WorkspacePatch,
   WorkspaceStatus,
   SyncSystem,
+  Regime,
+  EprResult,
+  DeclarationRow,
+  Declaration,
   DataSource,
   SyncStarted,
   ImportHistoryRow,
@@ -100,4 +104,12 @@ export class PlatformApi {
     this.api.patch('/api/v1/data-sources/{source_id}', { path: { source_id: id }, body: { auto_approve } });
   syncSource = (id: string): Observable<SyncStarted> =>
     this.api.post('/api/v1/data-sources/{source_id}/sync', { path: { source_id: id } });
+
+  // Screens 12–13 (compliance)
+  regimes = (): Observable<Regime[]> => this.api.get('/api/v1/modules/regimes');
+  epr = (regime: 'epr_uk' | 'epr_dk' | 'sb54_ca', year?: string): Observable<EprResult> =>
+    this.api.get('/api/v1/modules/epr/{regime}', { path: { regime }, query: { year } });
+  declarations = (): Observable<DeclarationRow[]> => this.api.get('/api/v1/modules/ppwr/declarations');
+  declaration = (sku: string, lang: 'en' | 'da'): Observable<Declaration> =>
+    this.api.get('/api/v1/modules/ppwr/declarations/{sku}', { path: { sku }, query: { lang } });
 }

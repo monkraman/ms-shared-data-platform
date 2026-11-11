@@ -108,6 +108,8 @@ export const routes: Routes = [
       screen('data-sources', 'imports.manage', 'Data sources', () => import('./screens/data-sources/data-sources.component').then((m) => m.DataSourcesComponent)),
       screen('import', 'imports.manage', 'Import', () => import('./screens/import/import.component').then((m) => m.ImportComponent)),
       screen('gaps', 'gaps.read', 'Gaps', () => import('./screens/gaps/gaps.component').then((m) => m.GapsComponent)),
+      screen('compliance', 'compliance.read', 'Compliance', () => import('./screens/compliance/compliance.component').then((m) => m.ComplianceComponent)),
+      screen('compliance/declarations/:sku', 'compliance.read', 'Declaration of Conformity', () => import('./screens/compliance/declaration.component').then((m) => m.DeclarationComponent)),
       screen('data-overview', 'data.read', 'Data overview', () => import('./screens/data-overview/data-overview.component').then((m) => m.DataOverviewComponent)),
 
     ],

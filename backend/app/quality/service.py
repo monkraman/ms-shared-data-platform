@@ -20,12 +20,12 @@ async def gaps(db: AsyncSession, products: list[Product] | None = None) -> list[
     """Every gap in the workspace (RLS scopes products and states), with its status."""
     if products is None:
         products = list((await db.scalars(select(Product).order_by(Product.sku))).all())
-    rules = applicable(list((await db.scalars(select(GapRule).order_by(GapRule.id))).all()), await _tenant(db))
+    rules = applicable(list((await db.scalars(select(GapRule).order_by(GapRule.id))).all()), await current_tenant(db))
     states = {s.gap_id: s.status for s in (await db.scalars(select(GapState))).all()}
     return [{**g, "status": states.get(g["id"], "open")} for g in find_gaps(products, rules)]
 
 
-async def _tenant(db: AsyncSession) -> Tenant | None:
+async def current_tenant(db: AsyncSession) -> Tenant | None:
     """The workspace this session is bound to (RLS setting), if any."""
     raw = await db.scalar(text(f"SELECT current_setting('{TENANT_SETTING}', true)"))
     return await db.get(Tenant, uuid.UUID(raw)) if raw else None

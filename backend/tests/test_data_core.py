@@ -220,3 +220,24 @@ def test_a_data_source_remembers_its_mapping_and_can_auto_approve(db_client: Tes
     history = db_client.get("/api/v1/imports", headers=h).json()
     assert history[0]["status"] == "imported" and history[0]["source"] == "plm"
     assert db_client.get("/api/v1/data-sources", headers=_auth(ws["ob"], ws["b"])).json() == []
+
+
+def test_epr_and_ppwr_results_come_from_the_workspace_data(db_client: TestClient, ws: dict[str, object]) -> None:
+    h, viewer, b = _auth(ws["oa"], ws["a"]), _auth(ws["viewer"], ws["a"]), _auth(ws["ob"], ws["b"])
+    uk = db_client.get("/api/v1/modules/epr/epr_uk", headers=viewer)
+    assert uk.status_code == 200, uk.text
+    body = uk.json()
+    assert body["currency"] == "GBP" and body["rates_status"] == "published"
+    assert body["total_fee"] > 0 and body["by_material"] and body["by_product"]
+    assert db_client.get("/api/v1/modules/epr/epr_uk", headers=b).json()["total_fee"] == 0
+
+    rows = db_client.get("/api/v1/modules/ppwr/declarations", headers=h).json()
+    assert any(r["sku"] == "HLA-KET-460" for r in rows)
+    doc = db_client.get("/api/v1/modules/ppwr/declarations/HLA-KET-460", params={"lang": "da"}, headers=h).json()
+    assert doc["text"]["title"] == "EU-overensstemmelseserklæring"
+    assert doc["components"] and {r["key"] for r in doc["requirements"]} >= {"substances", "recyclability"}
+    assert db_client.get("/api/v1/modules/ppwr/declarations/HLA-KET-460", headers=b).status_code == 404
+
+    regimes = {r["id"]: r for r in db_client.get("/api/v1/modules/regimes", headers=h).json()}
+    assert regimes["epr_uk"]["in_scope"]  # workspace A is EPR + UK (set in the scoping test)
+    assert not regimes["ppwr_dk"]["in_scope"]

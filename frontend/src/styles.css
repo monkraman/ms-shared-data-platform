@@ -758,3 +758,28 @@ input[type="checkbox"]:checked {
     grid-template-columns: 1fr;
   }
 }
+
+/* Printing a document page (for example a Declaration of Conformity): only the document. */
+@media print {
+  .platform .sidebar,
+  .platform .topbar,
+  .platform .backdrop,
+  .no-print,
+  app-toast-outlet {
+    display: none !important;
+  }
+  .platform .shell,
+  .platform .main,
+  .platform .page {
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #fff !important;
+  }
+  .paper {
+    box-shadow: none !important;
+    border: 0 !important;
+    max-width: none !important;
+    padding: 0 !important;
+  }
+}

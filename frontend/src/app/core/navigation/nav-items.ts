@@ -81,6 +81,17 @@ export const NAV: NavGroup[] = [
       },
     ],
   },
+  {
+    label: 'Compliance',
+    items: [
+      {
+        label: 'EPR and PPWR',
+        path: '/app/compliance',
+        permission: 'compliance.read',
+        icon: 'M8 1.5 13.5 3.5v4c0 3.3-2.3 5.8-5.5 7-3.2-1.2-5.5-3.7-5.5-7v-4zM5.5 8.5h5M5.5 6h5M5.5 11h3',
+      },
+    ],
+  },
 ];
 
 /** Kept for code that wants a flat list. */

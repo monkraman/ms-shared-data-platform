@@ -4,6 +4,12 @@ Things we chose to ship without, so they are not forgotten. Newest first. When o
 
 | Area | Improvement | Why it waits | Where |
 | --- | --- | --- | --- |
+| Compliance | Real EPR Denmark and SB 54 rates (placeholders today); a Tariffs screen to edit rates per year (screen 11) | Rates come from the client's PRO and CalRecycle | `app/modules/reference/regimes.json` |
+| Compliance | UK RAM modulation (red/amber/green) and non-household rules | Needs recyclability assessments per component | `app/modules/epr.py` |
+| Compliance | Sales lines per country (today every sales line counts for every regime) | Sales data has no country field yet | `app/modules/epr.py` |
+| Compliance | Email a declaration from the platform with the PDF attached, and a share link (Email opens the user's mail program today) | Email service not chosen | `screens/compliance/declaration.component.ts` |
+| Compliance | Native-speaker and legal review of the Danish declaration text; PPWR article references | Needs a reviewer | `app/modules/ppwr_doc.py` |
+| Compliance | Defra RPD CSV export from the EPR UK result (screen 13) | Next in the plan | `reference-docs-teams/packaging_data_example_file_2025_LP_submission_v4.csv` |
 | Data sources | Scheduled syncs (for example nightly) | Needs a scheduler (Render cron job or Celery beat) | `app/ingestion/sources.py` |
 | Data sources | Real SAP S/4HANA and Trace One connectors (or a scheduled file drop over SFTP) | Needs the client's IT access and export format; syncs are simulated from the sample data set | `app/ingestion/sync.py` |
 | Data sources | Only changed records per sync (delta) | Simulated syncs send everything | `app/ingestion/sync.py` |
