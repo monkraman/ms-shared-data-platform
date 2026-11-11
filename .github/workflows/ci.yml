@@ -3,7 +3,9 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+    # main plus the working branches of the build plan (step-0/..., screen/NN-name)
+    branches: [main, "step-*/**", "screen/**"]
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
