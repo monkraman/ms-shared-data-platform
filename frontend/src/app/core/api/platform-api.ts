@@ -21,6 +21,7 @@ import {
   Workspace,
   WorkspaceCreate,
   WorkspacePatch,
+  WorkspaceStatus,
 } from './contracts';
 
 /**
@@ -33,17 +34,16 @@ export class PlatformApi {
   private readonly api = inject(ApiClient);
 
   // Reference
-  countries = (): Observable<Country[]> => this.api.call('GET', '/api/v1/reference/countries');
-  modules = (): Observable<ModuleInfo[]> => this.api.call('GET', '/api/v1/reference/modules');
+  countries = (): Observable<Country[]> => this.api.get('/api/v1/reference/countries');
+  modules = (): Observable<ModuleInfo[]> => this.api.get('/api/v1/reference/modules');
   fields = (): Observable<Record<string, FieldInfo>> => this.api.call('GET', '/api/v1/reference/fields');
 
-  // Screen 2
-  workspaces = (query: { q?: string; status?: string } = {}): Observable<Workspace[]> =>
-    this.api.call('GET', '/api/v1/admin/tenants', { query });
-  createWorkspace = (body: WorkspaceCreate): Observable<Workspace> =>
-    this.api.call('POST', '/api/v1/admin/tenants', { body });
+  // Screen 2 (backend built)
+  workspaces = (query: { q?: string; status?: WorkspaceStatus } = {}): Observable<Workspace[]> =>
+    this.api.get('/api/v1/admin/tenants', { query });
+  createWorkspace = (body: WorkspaceCreate): Observable<Workspace> => this.api.post('/api/v1/admin/tenants', { body });
   updateWorkspace = (id: string, body: WorkspacePatch): Observable<Workspace> =>
-    this.api.call('PATCH', '/api/v1/admin/tenants/{id}', { path: { id }, body });
+    this.api.patch('/api/v1/admin/tenants/{tenant_id}', { path: { tenant_id: id }, body });
 
   // Screen 3
   dataPoints = (): Observable<DataPointDictionary> => this.api.call('GET', '/api/v1/admin/data-points');

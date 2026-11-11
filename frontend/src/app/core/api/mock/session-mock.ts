@@ -5,7 +5,8 @@
  * permissions here when its backend (and its entries in `app/core/permissions.py`) ships.
  */
 
-export const PLATFORM_PERMISSIONS = ['platform.tenants.read', 'platform.tenants.manage', 'platform.datapoints.read', 'platform.rules.manage'];
+// platform.tenants.* come from the backend since screen 2 shipped.
+export const PLATFORM_PERMISSIONS = ['platform.datapoints.read', 'platform.rules.manage'];
 export const TENANT_PERMISSIONS = ['workspace.read', 'products.read', 'products.manage', 'imports.manage', 'gaps.read', 'gaps.resolve', 'data.read', 'jobs.read'];
 
 interface MeLike {

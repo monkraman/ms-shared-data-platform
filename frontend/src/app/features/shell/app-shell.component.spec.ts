@@ -7,7 +7,7 @@ import { AppShellComponent, initialsOf } from './app-shell.component';
 
 const me = (permissions: string[], admin = false): Me => ({
   user: { id: 'u1', email: 'ana@x.test', full_name: 'Ana Lima', is_platform_admin: admin },
-  active_tenant: { id: 't1', slug: 'acme', name: 'Acme Foods', status: 'active' },
+  active_tenant: { id: 't1', slug: 'acme', name: 'Acme Foods', status: 'active', brand_color: '#1b3c6d', logo_url: null },
   permissions,
   memberships: [],
 });
@@ -67,7 +67,7 @@ describe('AppShellComponent', () => {
     const two = me(['products.read']);
     two.memberships = [
       { tenant: two.active_tenant!, role: 'org_admin' },
-      { tenant: { id: 't2', slug: 'beta', name: 'Beta', status: 'active' }, role: 'viewer' },
+      { tenant: { id: 't2', slug: 'beta', name: 'Beta', status: 'active', brand_color: '#1b3c6d', logo_url: null }, role: 'viewer' },
     ];
     session.me.set(two);
     expect(render().querySelector('a[aria-label="Switch workspace"]')).not.toBeNull();

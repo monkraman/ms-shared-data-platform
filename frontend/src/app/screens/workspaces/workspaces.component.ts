@@ -60,7 +60,14 @@ import { WorkspaceWizardComponent } from './workspace-wizard.component';
         <ng-template #cell let-row let-key="key" let-value="value">
           @switch (key) {
             @case ('name') {
-              <span class="ws"><span class="dot" [style.background]="row.brand_color"></span><b>{{ row.name }}</b></span>
+              <span class="ws">
+                @if (row.logo_url) {
+                  <img class="logo" [src]="row.logo_url" alt="" />
+                } @else {
+                  <span class="dot" [style.background]="row.brand_color"></span>
+                }
+                <b>{{ row.name }}</b>
+              </span>
             }
             @case ('status') {
               <app-status-chip [tone]="tone(row.status)">{{ label(row.status) }}</app-status-chip>
@@ -81,6 +88,9 @@ import { WorkspaceWizardComponent } from './workspace-wizard.component';
 
     <app-drawer [open]="!!selected()" [title]="selected()?.name ?? ''" (closed)="selected.set(null)">
       @if (selected(); as ws) {
+        @if (ws.logo_url) {
+          <img class="logo-large" [src]="ws.logo_url" [alt]="ws.name + ' logo'" />
+        }
         <dl class="facts">
           <dt>Status</dt>
           <dd><app-status-chip [tone]="tone(ws.status)">{{ label(ws.status) }}</app-status-chip></dd>
@@ -88,6 +98,8 @@ import { WorkspaceWizardComponent } from './workspace-wizard.component';
           <dd class="mono">{{ ws.slug }}</dd>
           <dt>Sector</dt>
           <dd>{{ ws.sector }}</dd>
+          <dt>Brand colour</dt>
+          <dd><span class="ws"><span class="dot" [style.background]="ws.brand_color"></span><span class="mono">{{ ws.brand_color }}</span></span></dd>
           <dt>Countries</dt>
           <dd>{{ ws.countries.join(', ') || '—' }}</dd>
           <dt>Modules</dt>
@@ -106,6 +118,7 @@ import { WorkspaceWizardComponent } from './workspace-wizard.component';
       }
       <ng-container actions>
         @if (selected(); as ws) {
+          <button type="button" class="btn btn-secondary" (click)="editing.set(ws)">Edit</button>
           @if (ws.status === 'suspended') {
             <button type="button" class="btn btn-primary" (click)="setStatus(ws, 'active')">Reactivate</button>
           } @else if (ws.status === 'active') {
@@ -116,6 +129,7 @@ import { WorkspaceWizardComponent } from './workspace-wizard.component';
     </app-drawer>
 
     <app-workspace-wizard [open]="wizardOpen()" (closed)="wizardOpen.set(false)" (created)="created($event)" />
+    <app-workspace-wizard [open]="!!editing()" [workspace]="editing()" (closed)="editing.set(null)" (updated)="updated($event)" />
   `,
   styles: `
     .ws {
@@ -127,6 +141,20 @@ import { WorkspaceWizardComponent } from './workspace-wizard.component';
       width: 10px;
       height: 10px;
       border-radius: 3px;
+    }
+    .logo {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+      border-radius: 5px;
+      background: #fff;
+    }
+    .logo-large {
+      display: block;
+      max-width: 160px;
+      max-height: 56px;
+      object-fit: contain;
+      margin-bottom: 16px;
     }
     .entity {
       display: flex;
@@ -145,6 +173,7 @@ export class WorkspacesComponent {
   protected readonly list = load(() => this.api.workspaces());
   protected readonly selected = signal<Workspace | null>(null);
   protected readonly wizardOpen = signal(false);
+  protected readonly editing = signal<Workspace | null>(null);
 
   protected readonly rows = computed(() => {
     const q = this.q().toLowerCase();
@@ -175,12 +204,22 @@ export class WorkspacesComponent {
   protected setStatus(ws: Workspace, status: WorkspaceStatus): void {
     this.api.updateWorkspace(ws.id, { status }).subscribe({
       next: (updated) => {
-        this.selected.set(updated);
-        this.list.set((this.list.value() ?? []).map((w) => (w.id === updated.id ? updated : w)));
+        this.replace(updated);
         this.toast.show(status === 'suspended' ? `${ws.name} suspended` : `${ws.name} reactivated`);
       },
       error: (e: unknown) => this.toast.show(toProblem(e).detail, 'error'),
     });
+  }
+
+  protected updated(ws: Workspace): void {
+    this.editing.set(null);
+    this.replace(ws);
+    this.toast.show(`${ws.name} saved`);
+  }
+
+  private replace(ws: Workspace): void {
+    this.selected.set(ws);
+    this.list.set((this.list.value() ?? []).map((w) => (w.id === ws.id ? ws : w)));
   }
 
   protected created(ws: Workspace): void {

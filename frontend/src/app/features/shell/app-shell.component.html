@@ -1,7 +1,11 @@
 <div class="shell" [class.menu-open]="menuOpen()">
   <nav id="sidebar" class="sidebar" aria-label="Main">
     <a class="brand" routerLink="/app" [title]="session.workspaceName()">
-      <span class="mark" aria-hidden="true">{{ session.workspaceName().charAt(0) }}</span>
+      @if (tenant()?.logo_url; as logo) {
+        <img class="mark logo" [src]="logo" alt="" />
+      } @else {
+        <span class="mark" aria-hidden="true" [style.background]="tenant()?.brand_color">{{ session.workspaceName().charAt(0) }}</span>
+      }
       <span class="workspace">{{ session.workspaceName() }}</span>
     </a>
 

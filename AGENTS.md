@@ -14,7 +14,8 @@ The prototype is being rebuilt **screen by screen** on a secure foundation. See 
 | --- | --- | --- |
 | Foundation (DB, RLS, permissions, audit, jobs, API client, shell) | `backend/app/core`, `frontend/src/app/core` | Done (Step 0) |
 | Screen 1: secure sign-in | `backend/app/platform/sign_in.py`, `api/v1/auth.py`, `frontend/src/app/core/session`, `features/auth` | In review (Playwright test and staging demo open) |
-| Screens 2–8 (workspaces → data overview) | `frontend/src/app/screens/*` | Frontend done on the **mock API**; backend per screen next |
+| Screen 2: client workspaces | `backend/app/api/v1/workspaces.py`, `frontend/src/app/screens/workspaces` | Backend built (Postgres, RLS on legal entities, audit); in review |
+| Screens 3–8 (data points → data overview) | `frontend/src/app/screens/*` | Frontend done on the **mock API**; backend per screen next |
 | Prototype pages | `frontend/src/app/features/*`, `backend/app/services/store.py` | Live until each screen replaces them |
 
 ## Repository map
@@ -56,9 +57,9 @@ reference-docs-teams/        reference material and data sets (input, not app co
 - Production builds call the API on the same origin (`/api`, proxied by `vercel.json`) so the refresh cookie is first-party. Do not set `API_BASE_URL` to the Render URL.
 - Prototype pages read the user through `AuthService`, which now wraps `SessionService`.
 
-## The mock API (screens 2–8)
+## The mock API (screens 3–8)
 
-Screens 2–8 call real-looking endpoints (`contracts.ts`). Until a screen's backend ships, `core/api/mock/mock-api.interceptor.ts` answers them from an in-browser database seeded from fixtures. Changes persist in localStorage (`ch.mockdb.v1`). It is switched on by `environment.mockApi` (`MOCK_API=false` at build time turns it off).
+Screens 3–8 call real-looking endpoints (`contracts.ts`). Until a screen's backend ships, `core/api/mock/mock-api.interceptor.ts` answers them from an in-browser database seeded from fixtures. Changes persist in localStorage (`ch.mockdb.v1`). It is switched on by `environment.mockApi` (`MOCK_API=false` at build time turns it off).
 
 To connect a screen to the backend:
 

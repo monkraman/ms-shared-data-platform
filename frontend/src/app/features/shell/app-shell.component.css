@@ -32,6 +32,12 @@
   border-bottom: 1px solid var(--border);
 }
 
+.mark.logo {
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid var(--border);
+}
+
 .mark {
   flex: none;
   display: grid;

@@ -1,10 +1,31 @@
 {
   "tenants": [
-    {"slug": "nordhavn-spirits", "name": "Nordhavn Spirits ApS", "status": "active"},
-    {"slug": "harbour-foods", "name": "Harbour Foods Ltd", "status": "active"}
+    {
+      "slug": "khc-europe", "name": "The Kraft Heinz Company Europe", "status": "active", "sector": "Food",
+      "brand_color": "#1b3c6d",
+      "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Kraft_Heinz_Logo.svg/320px-Kraft_Heinz_Logo.svg.png",
+      "countries": ["UK", "DK"], "modules": ["EPR", "PPWR"],
+      "legal_entities": [
+        {"name": "H.J. Heinz Foods UK Ltd", "country": "UK", "registration_number": "00147624"},
+        {"name": "Kraft Heinz Danmark ApS", "country": "DK", "registration_number": "DK-27112211"}
+      ]
+    },
+    {
+      "slug": "nordhavn-spirits", "name": "Nordhavn Spirits ApS", "status": "active", "sector": "Beverages",
+      "brand_color": "#0e2340",
+      "logo_url": "https://images.unsplash.com/photo-1527061011665-3652c757a4d4?w=120&auto=format&fit=crop&q=80",
+      "countries": ["DK"], "modules": ["EPR"],
+      "legal_entities": [{"name": "Nordhavn Spirits ApS", "country": "DK", "registration_number": "DK-39881204"}]
+    },
+    {
+      "slug": "harbour-foods", "name": "Harbour Foods Ltd", "status": "draft", "sector": "Food",
+      "brand_color": "#1f7a5a", "countries": ["UK"], "modules": ["EPR"],
+      "legal_entities": [{"name": "Harbour Foods Ltd", "country": "UK", "registration_number": "09876543"}]
+    }
   ],
   "users": [
     {"email": "superadmin@demo.monkspaces.test", "full_name": "Platform Admin", "is_platform_admin": true, "memberships": []},
+    {"email": "admin@khc.demo.test", "full_name": "Emma Clarke", "memberships": [{"tenant": "khc-europe", "role": "org_admin"}]},
     {"email": "admin@nordhavn.demo.test", "full_name": "Jonas Moller", "memberships": [{"tenant": "nordhavn-spirits", "role": "org_admin"}]},
     {"email": "admin@harbour.demo.test", "full_name": "Priya Shah", "memberships": [{"tenant": "harbour-foods", "role": "org_admin"}]}
   ]

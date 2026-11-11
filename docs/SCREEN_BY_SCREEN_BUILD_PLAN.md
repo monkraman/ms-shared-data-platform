@@ -34,7 +34,7 @@ Status values: Not started · Spec agreed · In build · In review · Done.
 | --- | --- | --- | --- | --- | --- | --- |
 | 0 | Foundation (not a screen) | Both | — | Schema drafts, test suite | L | In review (sign-in lands with screen 1; EU staging open) |
 | 1 | Sign-in and session | Both | 0 | Sign-in layout and styles | M | In review (Playwright test, staging demo and sign-off open) |
-| 2 | Client workspaces and setup wizard | SuperAdmin | 1 | Workspace cards, onboarding steps 1–2, theme engine | L | In build (frontend on mock API) |
+| 2 | Client workspaces and setup wizard | SuperAdmin | 1 | Workspace cards, onboarding steps 1–2, theme engine | L | In review (backend built; invitation emails wait for the email service) |
 | 3 | Data point dictionary | SuperAdmin | 2 | Data points page, `REGULATORY_DATA_DICTIONARY_SPEC.csv` | M | In build (frontend on mock API) |
 | 4 | Products and packaging (list, detail, BOM tree, manual entry) | Org Admin | 3 | SKU table, manual SKU modal, packaging BOM form | L | In build (frontend on mock API) |
 | 5 | Import: upload, map, review, approve | Org Admin | 4 | CSV dropzone, bulk import modal | L | In build (frontend on mock API) |
@@ -200,6 +200,8 @@ Screens 1 and 2 are specified in full so building can start right after Step 0; 
 - Branding (logo, colours) shows in the client's app shell.
 
 **Reuse.** Workspace card layout, wizard steps 1–2, theme engine. Today's step 3 (data journey flowchart) and step 4 (connect systems) move to the Data sources screen (18).
+
+**As built (Nov 2026).** Countries and modules are columns on `tenants` (not a separate subscriptions table yet); logos are an https link or an uploaded image under 300 KB stored with the workspace until object storage exists; the first org admin is added as an invited user, and the invitation email follows once the email service is chosen. Prototype workspaces in Neon's `platform.tenants` are copied by migration 0004.
 
 **Out of scope.** Billing and plans, bulk workspace import.
 

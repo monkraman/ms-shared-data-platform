@@ -64,7 +64,8 @@ jobs:
             app/core/auth.py app/core/audit.py app/core/config.py app/core/db.py app/core/errors.py
             app/core/jobs.py app/core/permissions.py app/core/request_context.py app/core/tenancy.py
             app/platform app/api/v1/jobs.py app/api/v1/health.py app/seed.py app/worker.py app/models.py
-            app/api/v1/auth.py migrations tests/test_foundation.py tests/test_sign_in.py tests/conftest.py
+            app/api/v1/auth.py app/api/v1/workspaces.py migrations tests/test_foundation.py tests/test_sign_in.py
+            tests/test_workspaces.py tests/conftest.py
       - name: Tests (including PostgreSQL RLS and tenant isolation)
         run: python -m pytest -q -rs --junitxml=junit.xml
       - name: Report failing tests as annotations

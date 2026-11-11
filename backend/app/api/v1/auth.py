@@ -123,6 +123,8 @@ class MeTenant(BaseModel):
     slug: str
     name: str
     status: TenantStatus
+    brand_color: str
+    logo_url: str | None
 
 
 class MeMembership(BaseModel):
@@ -138,7 +140,7 @@ class MeResponse(BaseModel):
 
 
 def _tenant(t: Tenant) -> MeTenant:
-    return MeTenant(id=t.id, slug=t.slug, name=t.name, status=t.status)
+    return MeTenant(id=t.id, slug=t.slug, name=t.name, status=t.status, brand_color=t.brand_color, logo_url=t.logo_url)
 
 
 @router.get("/me", response_model=MeResponse, summary="Current session")

@@ -29,6 +29,6 @@ export const meWith = (memberships: Me['memberships'] = [], admin = false): Me =
 });
 
 export const membership = (id: string, name: string): Me['memberships'][number] => ({
-  tenant: { id, slug: id, name, status: 'active' },
+  tenant: { id, slug: id, name, status: 'active', brand_color: '#1b3c6d', logo_url: null },
   role: 'org_admin',
 });

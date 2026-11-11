@@ -25,6 +25,8 @@ export class AppShellComponent {
       (g) => g.items.length,
     ),
   );
+  /** The active workspace's branding (logo, colour) from the session. */
+  protected readonly tenant = computed(() => this.session.me()?.active_tenant ?? null);
   protected readonly name = computed(() => this.session.me()?.user.full_name ?? '');
   protected readonly initials = computed(() => initialsOf(this.name()));
   protected readonly role = computed(() => (this.session.me()?.user.is_platform_admin ? 'Platform admin' : 'Org admin'));
