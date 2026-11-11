@@ -33,8 +33,8 @@ Status values: Not started · Spec agreed · In build · In review · Done.
 | # | Screen | Role | Needs | Reuse from today | Size | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 | 0 | Foundation (not a screen) | Both | — | Schema drafts, test suite | L | In review (sign-in lands with screen 1; EU staging open) |
-| 1 | Sign-in and session | Both | 0 | Sign-in layout and styles | M | In build (branch screen/01-sign-in) |
-| 2 | Client workspaces and setup wizard | SuperAdmin | 1 | Workspace cards, onboarding steps 1–2, theme engine | L | In build (frontend on mock API) |
+| 1 | Sign-in and session | Both | 0 | Sign-in layout and styles | M | In review (Playwright test, staging demo and sign-off open) |
+| 2 | Client workspaces and setup wizard | SuperAdmin | 1 | Workspace cards, onboarding steps 1–2, theme engine | L | In review (backend built; invitation emails wait for the email service) |
 | 3 | Data point dictionary | SuperAdmin | 2 | Data points page, `REGULATORY_DATA_DICTIONARY_SPEC.csv` | M | In build (frontend on mock API) |
 | 4 | Products and packaging (list, detail, BOM tree, manual entry) | Org Admin | 3 | SKU table, manual SKU modal, packaging BOM form | L | In build (frontend on mock API) |
 | 5 | Import: upload, map, review, approve | Org Admin | 4 | CSV dropzone, bulk import modal | L | In build (frontend on mock API) |
@@ -201,6 +201,8 @@ Screens 1 and 2 are specified in full so building can start right after Step 0; 
 
 **Reuse.** Workspace card layout, wizard steps 1–2, theme engine. Today's step 3 (data journey flowchart) and step 4 (connect systems) move to the Data sources screen (18).
 
+**As built (Nov 2026).** Countries and modules are columns on `tenants` (not a separate subscriptions table yet); logos are an https link or an uploaded image under 300 KB stored with the workspace until object storage exists; the first org admin is added as an invited user, and the invitation email follows once the email service is chosen. Prototype workspaces in Neon's `platform.tenants` are copied by migration 0004.
+
 **Out of scope.** Billing and plans, bulk workspace import.
 
 ## Spec template for later screens
@@ -246,7 +248,7 @@ A short weekly check-in covers the screen in build, the next spec, and any found
 
 These four choices affect Step 0 and Screen 1; deciding them now avoids building something twice.
 
-- [ ] **Login provider:** Auth0, Microsoft Entra External ID or Keycloak, or interim local login first. Needed before Screen 1.
+- [x] **Login provider:** interim local login (Argon2) shipped with Screen 1; an OIDC provider can replace it later behind the same endpoints. Needed before Screen 1.
 - [ ] **Hosting for staging and production:** stay on Render and Neon for now (moving to an EU region), or move to AWS or Azure now. Needed during Step 0.
 - [ ] **Email service for invitations:** for example Amazon SES or Postmark. Needed before Screen 2.
 - [ ] **Who builds:** confirm whether one person builds both backend and frontend with AI help, or a pair. This changes the timeline, not the order.

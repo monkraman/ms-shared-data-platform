@@ -43,19 +43,19 @@ Platform screens live under `/app` in the new shell (`features/shell`); prototyp
 | Call the API | `inject(ApiClient).get('/api/v1/...', { path, query, body })`, typed from `core/api/schema.ts` |
 | After backend changes | `npm run api:generate` (CI fails if the committed client is out of date) |
 | Errors | `toProblem(err)` → `detail` for the page, `fields[name]` next to form fields |
-| Who is signed in | `inject(SessionService)`: `me()`, `can('perm')`, `workspaceName()` |
+| Who is signed in | `inject(SessionService)`: `me()`, `can('perm')`, `workspaceName()`, `memberships()`, `switchWorkspace(id)`, `signOut()` |
 | Navigation | Add an entry to `core/navigation/nav-items.ts` with its permission |
 | Route access | `canActivate: [permissionGuard], data: { permission: '...' }` under the `/app` route |
 | UI pieces | `shared/ui`: page header, data table, form field, status chip, empty state, error state, toast outlet; buttons are `btn btn-primary|btn-secondary|btn-ghost` |
 
-401 sends the user to sign in (and back afterwards); a 403 on a page load shows the no-permission page. The platform interceptor never sends a tenant: the workspace comes from the token.
+A 401 refreshes the session once from the httpOnly refresh cookie and retries; if that fails the user signs in again (`?reason=expired`) and comes back afterwards. A 403 on a page load shows the no-permission page. The session interceptor never sends a tenant for workspace users: the workspace comes from the token.
 
 Design rules: labels and data only, with no taglines, helper text or secondary labels. If a screen needs them to make sense, change the layout. Use one primary action per view, and existing tokens from `styles.css`.
 
 ## Security notes
 
 - Every transaction runs `SET LOCAL ROLE compliance_rls` (migration 0002), a role that cannot bypass RLS, so isolation holds even though Neon's login role has BYPASSRLS. The migration user needs CREATEROLE. Never connect as a Postgres superuser: a superuser can switch roles freely and skips RLS anyway.
-- Access tokens from the new auth (`ver: 2`) last 15 minutes. Prototype tokens are refused by new endpoints.
+- Access tokens (`ver: 2`) last 15 minutes and live in sessionStorage. Refresh tokens last 8 hours from sign-in, are httpOnly cookies, are stored only as SHA-256 hashes and are replaced on every refresh. Five wrong passwords lock an account for 15 minutes. Prototype tokens are refused by new endpoints.
 - `app.platform_access` is set only by `PlatformDB` after checking the user is a platform admin.
 
 ## Deploys

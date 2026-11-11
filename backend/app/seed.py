@@ -20,7 +20,7 @@ from app.core.config import get_settings
 from app.core.db import dispose_engine
 from app.core.tenancy import tenant_session
 from app.platform import repository as repo
-from app.platform.models import TenantRole, TenantStatus
+from app.platform.models import LegalEntity, TenantRole, TenantStatus
 from app.platform.passwords import hash_password
 
 SEEDS_DIR = Path(__file__).resolve().parent.parent / "seeds"
@@ -32,9 +32,17 @@ async def seed(name: str, password: str) -> dict[str, int]:
     async with tenant_session(None, platform_access=True) as session:
         tenants = {}
         for t in fixture["tenants"]:
-            tenants[t["slug"]] = await repo.upsert_tenant(
+            tenant = await repo.upsert_tenant(
                 session, slug=t["slug"], name=t["name"], status=TenantStatus(t.get("status", "active"))
             )
+            tenant.sector = t.get("sector", tenant.sector or "Other")
+            tenant.brand_color = t.get("brand_color", tenant.brand_color or "#1b3c6d")
+            tenant.logo_url = t.get("logo_url")
+            tenant.countries = t.get("countries", [])
+            tenant.modules = t.get("modules", [])
+            await session.refresh(tenant, ["legal_entities"])
+            tenant.legal_entities = [LegalEntity(**e) for e in t.get("legal_entities", [])]
+            tenants[t["slug"]] = tenant
         for u in fixture["users"]:
             user = await repo.upsert_user(
                 session,

@@ -13,8 +13,11 @@ import type { paths } from './schema';
  * Regenerate after backend changes: `npm run api:generate`.
  */
 
-/** Marks requests that go through the platform API (token only, no legacy headers). */
+/** Marks requests made through this client (403 on a page load shows the no-permission page). */
 export const PLATFORM_API = new HttpContextToken<boolean>(() => false);
+
+/** Sign-in, refresh and sign-out: the interceptor must not refresh or redirect on their 401s. */
+export const SKIP_SESSION_HANDLING = new HttpContextToken<boolean>(() => false);
 
 type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
 type Op<P extends keyof paths, M extends Method> = NonNullable<paths[P][M & keyof paths[P]]>;
@@ -37,6 +40,7 @@ export interface ApiOptions<O> {
   path?: PathParams<O>;
   query?: QueryParams<O>;
   body?: Body<O>;
+  context?: HttpContext;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -78,11 +82,13 @@ export class ApiClient {
   }
 
   private request<T>(method: string, path: string, options?: ApiOptions<unknown>): Observable<T> {
-    const opts = (options ?? {}) as { path?: object; query?: object; body?: unknown };
+    const opts = (options ?? {}) as { path?: object; query?: object; body?: unknown; context?: HttpContext };
     return this.http.request<T>(method, apiUrl(path, opts.path), {
       body: opts.body,
       params: cleanQuery(opts.query),
-      context: new HttpContext().set(PLATFORM_API, true),
+      context: (opts.context ?? new HttpContext()).set(PLATFORM_API, true),
+      // Sends the refresh cookie on sign-in, refresh and sign-out (and is harmless elsewhere).
+      withCredentials: true,
     });
   }
 }

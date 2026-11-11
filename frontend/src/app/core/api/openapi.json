@@ -1,6 +1,27 @@
 {
   "components": {
     "schemas": {
+      "AdminInvite": {
+        "properties": {
+          "email": {
+            "maxLength": 320,
+            "title": "Email",
+            "type": "string"
+          },
+          "full_name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Full Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "full_name",
+          "email"
+        ],
+        "title": "AdminInvite",
+        "type": "object"
+      },
       "ApproveCorrectionRequest": {
         "properties": {
           "approver_name": {
@@ -364,6 +385,29 @@
           "fee_systems"
         ],
         "title": "ComplianceMatrixResponse",
+        "type": "object"
+      },
+      "Country": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "eu": {
+            "title": "Eu",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "eu"
+        ],
+        "title": "Country",
         "type": "object"
       },
       "CountryConfig": {
@@ -1398,6 +1442,58 @@
         "title": "LcaReductionRecommendation",
         "type": "object"
       },
+      "LegalEntityIn": {
+        "properties": {
+          "country": {
+            "title": "Country",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "registration_number": {
+            "default": "",
+            "maxLength": 64,
+            "title": "Registration Number",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "country"
+        ],
+        "title": "LegalEntityIn",
+        "type": "object"
+      },
+      "LegalEntityOut": {
+        "properties": {
+          "country": {
+            "title": "Country",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "registration_number": {
+            "default": "",
+            "maxLength": 64,
+            "title": "Registration Number",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "country"
+        ],
+        "title": "LegalEntityOut",
+        "type": "object"
+      },
       "LoginRequest": {
         "properties": {
           "email": {
@@ -1587,10 +1683,25 @@
       },
       "MeTenant": {
         "properties": {
+          "brand_color": {
+            "title": "Brand Color",
+            "type": "string"
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
             "type": "string"
+          },
+          "logo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Logo Url"
           },
           "name": {
             "title": "Name",
@@ -1608,7 +1719,9 @@
           "id",
           "slug",
           "name",
-          "status"
+          "status",
+          "brand_color",
+          "logo_url"
         ],
         "title": "MeTenant",
         "type": "object"
@@ -1640,6 +1753,30 @@
           "is_platform_admin"
         ],
         "title": "MeUser",
+        "type": "object"
+      },
+      "ModuleInfo": {
+        "properties": {
+          "id": {
+            "enum": [
+              "EPR",
+              "PPWR",
+              "DPP",
+              "LCA"
+            ],
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "ModuleInfo",
         "type": "object"
       },
       "PPWRComponentAssessment": {
@@ -2908,6 +3045,20 @@
         "title": "SourceWorklistExportResponse",
         "type": "object"
       },
+      "SwitchTenantRequest": {
+        "properties": {
+          "tenant_id": {
+            "format": "uuid",
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_id"
+        ],
+        "title": "SwitchTenantRequest",
+        "type": "object"
+      },
       "TenantCreate": {
         "properties": {
           "active_jurisdictions": {
@@ -3170,9 +3321,11 @@
         "type": "object"
       },
       "TenantRole": {
-        "description": "Roles inside one client workspace. More roles arrive with screen 9.",
+        "description": "Roles inside one client workspace (the prototype's roles). Screen 9 refines them.",
         "enum": [
-          "org_admin"
+          "org_admin",
+          "analyst",
+          "viewer"
         ],
         "title": "TenantRole",
         "type": "string"
@@ -3301,9 +3454,8 @@
             "title": "Organisation Name"
           },
           "password": {
-            "default": "password123",
             "description": "Initial password",
-            "minLength": 6,
+            "minLength": 8,
             "title": "Password",
             "type": "string"
           },
@@ -3327,6 +3479,7 @@
         },
         "required": [
           "email",
+          "password",
           "full_name"
         ],
         "title": "UserCreateRequest",
@@ -3489,6 +3642,297 @@
         "title": "ValidationError",
         "type": "object"
       },
+      "Workspace": {
+        "properties": {
+          "brand_color": {
+            "title": "Brand Color",
+            "type": "string"
+          },
+          "countries": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Countries",
+            "type": "array"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "last_activity_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Activity At"
+          },
+          "legal_entities": {
+            "items": {
+              "$ref": "#/components/schemas/LegalEntityOut"
+            },
+            "title": "Legal Entities",
+            "type": "array"
+          },
+          "logo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Logo Url"
+          },
+          "modules": {
+            "items": {
+              "enum": [
+                "EPR",
+                "PPWR",
+                "DPP",
+                "LCA"
+              ],
+              "type": "string"
+            },
+            "title": "Modules",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "sector": {
+            "title": "Sector",
+            "type": "string"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TenantStatus"
+          },
+          "user_count": {
+            "title": "User Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "sector",
+          "status",
+          "brand_color",
+          "logo_url",
+          "countries",
+          "modules",
+          "legal_entities",
+          "user_count",
+          "last_activity_at",
+          "created_at"
+        ],
+        "title": "Workspace",
+        "type": "object"
+      },
+      "WorkspaceCreate": {
+        "properties": {
+          "admin": {
+            "$ref": "#/components/schemas/AdminInvite"
+          },
+          "brand_color": {
+            "default": "#1b3c6d",
+            "title": "Brand Color",
+            "type": "string"
+          },
+          "countries": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Countries",
+            "type": "array"
+          },
+          "legal_entities": {
+            "items": {
+              "$ref": "#/components/schemas/LegalEntityIn"
+            },
+            "title": "Legal Entities",
+            "type": "array"
+          },
+          "logo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Logo Url"
+          },
+          "modules": {
+            "items": {
+              "enum": [
+                "EPR",
+                "PPWR",
+                "DPP",
+                "LCA"
+              ],
+              "type": "string"
+            },
+            "title": "Modules",
+            "type": "array"
+          },
+          "name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "sector": {
+            "default": "Other",
+            "maxLength": 64,
+            "title": "Sector",
+            "type": "string"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "slug",
+          "legal_entities",
+          "countries",
+          "modules",
+          "admin"
+        ],
+        "title": "WorkspaceCreate",
+        "type": "object"
+      },
+      "WorkspacePatch": {
+        "properties": {
+          "brand_color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Color"
+          },
+          "countries": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Countries"
+          },
+          "legal_entities": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/LegalEntityIn"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Legal Entities"
+          },
+          "logo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Logo Url"
+          },
+          "modules": {
+            "anyOf": [
+              {
+                "items": {
+                  "enum": [
+                    "EPR",
+                    "PPWR",
+                    "DPP",
+                    "LCA"
+                  ],
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modules"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TenantStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "WorkspacePatch",
+        "type": "object"
+      },
       "app__schemas__configuration__TariffRate": {
         "properties": {
           "base_rate_per_tonne": {
@@ -3614,6 +4058,288 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/admin/tenants": {
+      "get": {
+        "operationId": "list_workspaces_api_v1_admin_tenants_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "draft",
+                    "active",
+                    "suspended"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Workspace"
+                  },
+                  "title": "Response List Workspaces Api V1 Admin Tenants Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List client workspaces",
+        "tags": [
+          "Client workspaces"
+        ]
+      },
+      "post": {
+        "operationId": "create_workspace_api_v1_admin_tenants_post",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkspaceCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Workspace"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create a workspace and add its first org admin",
+        "tags": [
+          "Client workspaces"
+        ]
+      }
+    },
+    "/api/v1/admin/tenants/{tenant_id}": {
+      "get": {
+        "operationId": "get_workspace_api_v1_admin_tenants__tenant_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Workspace"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Workspace detail",
+        "tags": [
+          "Client workspaces"
+        ]
+      },
+      "patch": {
+        "operationId": "update_workspace_api_v1_admin_tenants__tenant_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkspacePatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Workspace"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Edit a workspace",
+        "tags": [
+          "Client workspaces"
+        ]
+      }
+    },
     "/api/v1/auth/me": {
       "get": {
         "operationId": "get_me_api_v1_auth_me_get",
@@ -3661,19 +4387,192 @@
         },
         "summary": "Current session",
         "tags": [
-          "Session"
+          "Authentication & Identity"
+        ]
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "operationId": "refresh_api_v1_auth_refresh_post",
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "ch_refresh",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ch Refresh"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthTokenResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Renew the session from the refresh cookie",
+        "tags": [
+          "Authentication & Identity"
         ]
       }
     },
     "/api/v1/auth/sign-in": {
       "post": {
-        "description": "Authenticates corporate credentials, generates real JWT token with role & tenant context, and returns redirect route.",
         "operationId": "sign_in_api_v1_auth_sign_in_post",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthTokenResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Wrong email or password"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "429": {
+            "description": "Locked for 15 minutes"
+          }
+        },
+        "summary": "Sign in with work email and password",
+        "tags": [
+          "Authentication & Identity"
+        ]
+      }
+    },
+    "/api/v1/auth/sign-out": {
+      "post": {
+        "operationId": "sign_out_api_v1_auth_sign_out_post",
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "ch_refresh",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ch Refresh"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Sign out",
+        "tags": [
+          "Authentication & Identity"
+        ]
+      }
+    },
+    "/api/v1/auth/switch-tenant": {
+      "post": {
+        "operationId": "switch_tenant_api_v1_auth_switch_tenant_post",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "cookie",
+            "name": "ch_refresh",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ch Refresh"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwitchTenantRequest"
               }
             }
           },
@@ -3701,27 +4600,7 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Direct Work Email & Password Sign In",
-        "tags": [
-          "Authentication & Identity"
-        ]
-      }
-    },
-    "/api/v1/auth/sign-out": {
-      "post": {
-        "description": "Revoke authenticated session.",
-        "operationId": "sign_out_api_v1_auth_sign_out_post",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "Sign Out",
+        "summary": "Switch to another workspace",
         "tags": [
           "Authentication & Identity"
         ]
@@ -3729,11 +4608,10 @@
     },
     "/api/v1/auth/users": {
       "get": {
-        "description": "List users scoped to caller's role and workspace.",
         "operationId": "list_users_api_v1_auth_users_get",
         "parameters": [
           {
-            "description": "Bearer <JWT> authorization header",
+            "description": "Bearer <access token>",
             "in": "header",
             "name": "authorization",
             "required": false,
@@ -3746,7 +4624,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Bearer <JWT> authorization header",
+              "description": "Bearer <access token>",
               "title": "Authorization"
             }
           }
@@ -3777,17 +4655,16 @@
             "description": "Validation Error"
           }
         },
-        "summary": "List Users by Workspace Context",
+        "summary": "List users",
         "tags": [
           "Authentication & Identity"
         ]
       },
       "post": {
-        "description": "Allows SuperAdmin or Organisation Admin to provision a new user.",
         "operationId": "create_user_api_v1_auth_users_post",
         "parameters": [
           {
-            "description": "Bearer <JWT> authorization header",
+            "description": "Bearer <access token>",
             "in": "header",
             "name": "authorization",
             "required": false,
@@ -3800,7 +4677,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Bearer <JWT> authorization header",
+              "description": "Bearer <access token>",
               "title": "Authorization"
             }
           }
@@ -3837,7 +4714,7 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Provision a User under an Organisation",
+        "summary": "Add a user",
         "tags": [
           "Authentication & Identity"
         ]
@@ -7048,6 +7925,116 @@
         "summary": "Export Source System Worklist",
         "tags": [
           "Layer 2: Data Quality & Source-of-Truth Workflow"
+        ]
+      }
+    },
+    "/api/v1/reference/countries": {
+      "get": {
+        "operationId": "list_countries_api_v1_reference_countries_get",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Country"
+                  },
+                  "title": "Response List Countries Api V1 Reference Countries Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Supported countries",
+        "tags": [
+          "Client workspaces"
+        ]
+      }
+    },
+    "/api/v1/reference/modules": {
+      "get": {
+        "operationId": "list_modules_api_v1_reference_modules_get",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ModuleInfo"
+                  },
+                  "title": "Response List Modules Api V1 Reference Modules Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Compliance modules",
+        "tags": [
+          "Client workspaces"
         ]
       }
     },

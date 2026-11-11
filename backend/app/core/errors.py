@@ -81,7 +81,15 @@ def register_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(RequestValidationError)
     async def _validation(request: Request, exc: RequestValidationError) -> JSONResponse:
-        errors = [{"loc": list(e.get("loc", ())), "msg": e.get("msg"), "type": e.get("type")} for e in exc.errors()]
+        # Custom validators' messages are shown next to form fields as written.
+        errors = [
+            {
+                "loc": list(e.get("loc", ())),
+                "msg": str(e.get("msg", "")).removeprefix("Value error, "),
+                "type": e.get("type"),
+            }
+            for e in exc.errors()
+        ]
         return problem_response(
             request, 422, "The request has invalid fields.", title="Validation failed", extra={"errors": errors}
         )

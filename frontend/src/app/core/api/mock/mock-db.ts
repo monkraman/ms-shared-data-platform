@@ -5,10 +5,8 @@ import {
   FieldValue,
   Gap,
   GapRule,
-  ModuleInfo,
   Product,
   SalesLine,
-  Workspace,
 } from '../contracts';
 import dataPointsFixture from './fixtures/data-points.json';
 import fieldsFixture from './fixtures/fields.json';
@@ -33,15 +31,7 @@ interface RawProduct {
 export const FIELDS = fieldsFixture as Record<string, FieldInfo>;
 export const DICTIONARY = dataPointsFixture as unknown as DataPointDictionary;
 
-export const MODULES: ModuleInfo[] = [
-  { id: 'EPR', name: 'Extended producer responsibility' },
-  { id: 'PPWR', name: 'EU packaging regulation' },
-  { id: 'DPP', name: 'Digital product passport' },
-  { id: 'LCA', name: 'Carbon footprint' },
-];
-
 export interface MockState {
-  workspaces: Workspace[];
   products: Product[];
   rules: GapRule[];
   /** gap id → status and resolution, layered over the computed gaps */
@@ -122,72 +112,8 @@ export function withTotals(p: Product): Product {
   };
 }
 
-const daysAgo = (d: number) => new Date(Date.now() - d * 86_400_000).toISOString();
-
 function seed(): MockState {
-  const company = (productsFixture as { company: string }).company;
   return {
-    workspaces: [
-      {
-        id: 'ws-hla',
-        slug: 'hla-foods',
-        name: company,
-        sector: 'Food',
-        status: 'active',
-        brand_color: '#c0211f',
-        countries: ['DK'],
-        modules: ['EPR', 'PPWR', 'DPP'],
-        legal_entities: [{ name: company, country: 'DK', registration_number: 'DK-41230011' }],
-        user_count: 3,
-        last_activity_at: daysAgo(0),
-        created_at: daysAgo(120),
-      },
-      {
-        id: 'ws-khc',
-        slug: 'khc-europe',
-        name: 'The Kraft Heinz Company Europe',
-        sector: 'Food',
-        status: 'active',
-        brand_color: '#1b3c6d',
-        countries: ['UK', 'DK'],
-        modules: ['EPR', 'PPWR'],
-        legal_entities: [
-          { name: 'H.J. Heinz Foods UK Ltd', country: 'UK', registration_number: '00147624' },
-          { name: 'Kraft Heinz Danmark ApS', country: 'DK', registration_number: 'DK-27112211' },
-        ],
-        user_count: 4,
-        last_activity_at: daysAgo(1),
-        created_at: daysAgo(210),
-      },
-      {
-        id: 'ws-nordhavn',
-        slug: 'nordhavn-spirits',
-        name: 'Nordhavn Spirits ApS',
-        sector: 'Beverages',
-        status: 'active',
-        brand_color: '#0e2340',
-        countries: ['DK'],
-        modules: ['EPR'],
-        legal_entities: [{ name: 'Nordhavn Spirits ApS', country: 'DK', registration_number: 'DK-39881204' }],
-        user_count: 1,
-        last_activity_at: daysAgo(6),
-        created_at: daysAgo(90),
-      },
-      {
-        id: 'ws-harbour',
-        slug: 'harbour-foods',
-        name: 'Harbour Foods Ltd',
-        sector: 'Food',
-        status: 'draft',
-        brand_color: '#15966a',
-        countries: ['UK'],
-        modules: [],
-        legal_entities: [],
-        user_count: 0,
-        last_activity_at: null,
-        created_at: daysAgo(2),
-      },
-    ],
     products: (productsFixture as { products: RawProduct[] }).products.map(toProduct),
     rules: [
       rule('GR-001', 'Value missing', 'DP54', 'registry_id', { kind: 'missing' }, 'blocker', ['DPP']),

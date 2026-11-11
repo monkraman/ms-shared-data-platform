@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { Router, provideRouter } from '@angular/router';
 import { Me, SessionService } from '../../core/session/session.service';
 import { AppShellComponent, initialsOf } from './app-shell.component';
 
 const me = (permissions: string[], admin = false): Me => ({
   user: { id: 'u1', email: 'ana@x.test', full_name: 'Ana Lima', is_platform_admin: admin },
-  active_tenant: { id: 't1', slug: 'acme', name: 'Acme Foods', status: 'active' },
+  active_tenant: { id: 't1', slug: 'acme', name: 'Acme Foods', status: 'active', brand_color: '#1b3c6d', logo_url: null },
   permissions,
   memberships: [],
 });
@@ -49,14 +49,28 @@ describe('AppShellComponent', () => {
     expect(links(el)).toEqual(['Client workspaces', 'Products']);
   });
 
-  it('signs out', () => {
-    session.setToken('t');
+  it('signs out', async () => {
+    session.token.set('t');
     session.me.set(me([]));
     const router = TestBed.inject(Router);
     vi.spyOn(router, 'navigate').mockResolvedValue(true);
     render().querySelector<HTMLButtonElement>('button[aria-label="Sign out"]')!.click();
     expect(session.token()).toBeNull();
-    expect(router.navigate).toHaveBeenCalledWith(['/sign-in']);
+    TestBed.inject(HttpTestingController)
+      .expectOne((r) => r.url.endsWith('/api/v1/auth/sign-out'))
+      .flush(null, { status: 204, statusText: 'No Content' });
+    await vi.waitFor(() => expect(router.navigate).toHaveBeenCalled());
+    expect(router.navigate).toHaveBeenCalledWith(['/sign-in'], { queryParams: { reason: 'signed-out' } });
+  });
+
+  it('offers a workspace switch only to users in several workspaces', () => {
+    const two = me(['products.read']);
+    two.memberships = [
+      { tenant: two.active_tenant!, role: 'org_admin' },
+      { tenant: { id: 't2', slug: 'beta', name: 'Beta', status: 'active', brand_color: '#1b3c6d', logo_url: null }, role: 'viewer' },
+    ];
+    session.me.set(two);
+    expect(render().querySelector('a[aria-label="Switch workspace"]')).not.toBeNull();
   });
 
   it('makes initials from a name', () => {

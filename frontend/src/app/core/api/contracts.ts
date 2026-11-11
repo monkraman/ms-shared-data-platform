@@ -9,20 +9,15 @@
  * Field names follow the backend's snake_case JSON.
  */
 
-// --- Reference data ---------------------------------------------------------------
+import type { components } from './schema';
 
-export interface Country {
-  code: string;
-  name: string;
-  eu: boolean;
-}
+type Schemas = components['schemas'];
 
-export type ModuleId = 'EPR' | 'PPWR' | 'DPP' | 'LCA';
+// --- Reference data (built: GET /api/v1/reference/countries, /reference/modules) ------
 
-export interface ModuleInfo {
-  id: ModuleId;
-  name: string;
-}
+export type Country = Schemas['Country'];
+export type ModuleId = Schemas['ModuleInfo']['id'];
+export type ModuleInfo = Schemas['ModuleInfo'];
 
 /** GET /api/v1/reference/fields → Record<key, FieldInfo>: every collected field and its data point. */
 export interface FieldInfo {
@@ -33,53 +28,17 @@ export interface FieldInfo {
   allowed: string | null;
 }
 
-// --- Screen 2: client workspaces (SuperAdmin) -------------------------------------
+// --- Screen 2: client workspaces (SuperAdmin) — built, types from the OpenAPI schema ---
 // GET    /api/v1/admin/tenants?q=&status=      → Workspace[]
 // POST   /api/v1/admin/tenants                 → Workspace           (WorkspaceCreate)
 // GET    /api/v1/admin/tenants/{id}            → Workspace
 // PATCH  /api/v1/admin/tenants/{id}            → Workspace           (WorkspacePatch)
-// GET    /api/v1/reference/countries           → Country[]
-// GET    /api/v1/reference/modules             → ModuleInfo[]
 
-export type WorkspaceStatus = 'draft' | 'active' | 'suspended';
-
-export interface LegalEntity {
-  name: string;
-  country: string;
-  registration_number: string;
-}
-
-export interface Workspace {
-  id: string;
-  slug: string;
-  name: string;
-  sector: string;
-  status: WorkspaceStatus;
-  brand_color: string;
-  countries: string[];
-  modules: ModuleId[];
-  legal_entities: LegalEntity[];
-  user_count: number;
-  last_activity_at: string | null;
-  created_at: string;
-}
-
-export interface WorkspaceCreate {
-  name: string;
-  slug: string;
-  sector: string;
-  brand_color: string;
-  legal_entities: LegalEntity[];
-  countries: string[];
-  modules: ModuleId[];
-  admin: { full_name: string; email: string };
-}
-
-export interface WorkspacePatch {
-  status?: WorkspaceStatus;
-  countries?: string[];
-  modules?: ModuleId[];
-}
+export type Workspace = Schemas['Workspace'];
+export type WorkspaceStatus = Workspace['status'];
+export type LegalEntity = Schemas['LegalEntityIn'];
+export type WorkspaceCreate = Schemas['WorkspaceCreate'];
+export type WorkspacePatch = Schemas['WorkspacePatch'];
 
 // --- Screen 3: data point dictionary (SuperAdmin) ---------------------------------
 // GET /api/v1/admin/data-points → DataPointDictionary

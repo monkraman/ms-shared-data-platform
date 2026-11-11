@@ -1,5 +1,6 @@
 """Functional tests for Modular Compliance: Entitlements, PPWR DoC, DPP, and ISO 14067 LCA."""
 
+from tests.helpers import as_superadmin
 from fastapi.testclient import TestClient
 from app.main import app
 
@@ -10,7 +11,7 @@ def test_ppwr_declaration_of_conformity():
     """Test generating EU PPWR Article 6 DoC for Kraft Heinz Ketchup Glass SKU."""
     response = client.get(
         "/api/v1/compliance/modules/ppwr/KHC-HTK-500G-GL",
-        headers={"X-Tenant-ID": "khc-europe"},
+        headers=as_superadmin("khc-europe"),
     )
     assert response.status_code == 200
     data = response.json()
@@ -28,7 +29,7 @@ def test_digital_product_passport():
     """Test generating DPP QR Carrier and GS1 link for Kraft Heinz SKU."""
     response = client.get(
         "/api/v1/compliance/modules/dpp/KHC-HTK-500G-GL",
-        headers={"X-Tenant-ID": "khc-europe"},
+        headers=as_superadmin("khc-europe"),
     )
     assert response.status_code == 200
     data = response.json()
@@ -43,7 +44,7 @@ def test_lca_carbon_assessment_khc():
     """Test ISO 14067 LCA cradle-to-gate carbon engine for subscribed tenant."""
     response = client.get(
         "/api/v1/compliance/modules/lca/KHC-HTK-500G-GL",
-        headers={"X-Tenant-ID": "khc-europe"},
+        headers=as_superadmin("khc-europe"),
     )
     assert response.status_code == 200
     data = response.json()
@@ -60,7 +61,7 @@ def test_module_entitlement_gating():
     """Test that Nordhavn Spirits (not subscribed to LCA) receives 403 Forbidden."""
     response = client.get(
         "/api/v1/compliance/modules/lca/KHC-HTK-500G-GL",
-        headers={"X-Tenant-ID": "nordhavn-spirits"},
+        headers=as_superadmin("nordhavn-spirits"),
     )
     assert response.status_code == 403
     assert "not activated for tenant 'nordhavn-spirits'" in response.json()["detail"]
@@ -79,7 +80,7 @@ def test_tenant_module_update_patch():
     # 2. Now Nordhavn should successfully access LCA
     lca_res = client.get(
         "/api/v1/compliance/modules/lca/KHC-HTK-500G-GL",
-        headers={"X-Tenant-ID": "nordhavn-spirits"},
+        headers=as_superadmin("nordhavn-spirits"),
     )
     assert lca_res.status_code == 200
 
@@ -96,7 +97,7 @@ def test_enrich_ppwr_data():
     """Test attaching lab certificates and verifying PPWR DoC updates."""
     res = client.post(
         "/api/v1/compliance/modules/enrichment/KHC-HTK-500G-GL/ppwr",
-        headers={"X-Tenant-ID": "khc-europe"},
+        headers=as_superadmin("khc-europe"),
         json={
             "recyclass_cert_id": "RC-2025-EU-889",
             "pcr_cert_id": "EU-CERT-994",
@@ -115,7 +116,7 @@ def test_enrich_lca_data():
     """Test attaching converter renewable energy and EPD registration."""
     res = client.post(
         "/api/v1/compliance/modules/enrichment/KHC-HTK-500G-GL/lca",
-        headers={"X-Tenant-ID": "khc-europe"},
+        headers=as_superadmin("khc-europe"),
         json={
             "renewable_energy_pct": 75.0,
             "transport_distance_km": 150.0,

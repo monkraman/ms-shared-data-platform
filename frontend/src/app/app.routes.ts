@@ -39,7 +39,14 @@ export const routes: Routes = [
 
   // Auth
 
-  { path: 'sign-in', component: SignInComponent, title: 'Sign In — Compliance Hub' },
+  { path: 'sign-in', component: SignInComponent, title: 'Sign in — Compliance Hub' },
+
+  {
+    path: 'workspace',
+    canActivate: [sessionGuard],
+    loadComponent: () => import('./features/auth/workspace-picker.component').then((m) => m.WorkspacePickerComponent),
+    title: 'Choose a workspace — Compliance Hub',
+  },
 
 
 

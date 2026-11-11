@@ -89,12 +89,9 @@ export class ConfigApiService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${APP_CONFIG.apiBaseUrl}/api/v1/config`;
 
-  private getHeaders(): any {
-    let token: string | null = null;
-    try {
-      token = localStorage.getItem('compliance_hub_jwt_token');
-    } catch {}
-    return token ? { Authorization: `Bearer ${token}` } : {};
+  /** The session interceptor adds the access token to every API request. */
+  private getHeaders(): Record<string, string> {
+    return {};
   }
 
   getMasterData(): Observable<MasterDataResponse> {

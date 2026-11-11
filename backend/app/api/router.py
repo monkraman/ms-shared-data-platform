@@ -1,7 +1,7 @@
 """Main API router combining domain and system endpoints."""
 
 from fastapi import APIRouter
-from app.api.v1 import health, tenants, foundation, quality, epr, auth, config, compliance_modules, jobs, me
+from app.api.v1 import health, tenants, foundation, quality, epr, auth, config, compliance_modules, jobs, workspaces
 
 api_router = APIRouter()
 
@@ -14,8 +14,11 @@ api_router.include_router(config.router)
 # Authentication & Identity ([P1] SSO & Password, [P2] MFA, [P3] Sessions)
 api_router.include_router(auth.router)
 
-# Multi-tenancy
+# Multi-tenancy (prototype; screen 2 replaces it with /admin/tenants below)
 api_router.include_router(tenants.router)
+
+# Screen 2: client workspaces and reference lists
+api_router.include_router(workspaces.router)
 
 # Layer 1: Canonical Shared Data Foundation
 api_router.include_router(foundation.router)
@@ -31,4 +34,3 @@ api_router.include_router(compliance_modules.router)
 
 # Platform foundation (Step 0): background job status
 api_router.include_router(jobs.router)
-api_router.include_router(me.router)

@@ -1,53 +1,44 @@
 <div class="auth-wrapper" id="sign-in-screen">
-
-  <div class="auth-card">
-
-    <!-- Brand Header -->
+  <main class="auth-card">
     <header class="auth-header">
       <div class="header-top-row">
         <div class="brand-badge">
-          <span class="brand-monogram">C</span>
+          <span class="brand-monogram" aria-hidden="true">C</span>
           <span class="brand-title">Compliance Hub</span>
         </div>
-
-        <!-- Theme Toggle -->
         <button
           type="button"
           class="btn-theme-toggle"
           (click)="themeService.toggleTheme()"
-          [title]="'Switch to ' + (themeService.theme() === 'light' ? 'Dark' : 'Light') + ' Mode'"
+          [attr.aria-label]="themeService.theme() === 'light' ? 'Dark mode' : 'Light mode'"
         >
-          <span>{{ themeService.theme() === 'light' ? 'Dark' : 'Light' }}</span>
+          {{ themeService.theme() === 'light' ? 'Dark' : 'Light' }}
         </button>
       </div>
-
-      <h1 class="auth-headline">Sign In</h1>
-      <p class="auth-subline">
-        Multi-Tenant FMCG Packaging & Compliance Platform
-      </p>
+      <h1 class="auth-headline">Sign in</h1>
     </header>
 
-    <!-- Error Alert Banner -->
     @if (errorMessage()) {
-      <div class="alert-banner alert-error" role="alert">
-        <span>{{ errorMessage() }}</span>
-      </div>
+      <div class="alert-banner alert-error" role="alert">{{ errorMessage() }}</div>
+    } @else if (notice()) {
+      <div class="alert-banner alert-info" role="status">{{ notice() }}</div>
     }
 
-    <!-- Direct Email & Password Form -->
     <form [formGroup]="signInForm" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
-      
       <div class="form-field">
-        <label for="work-email" class="field-label">Work Email</label>
+        <label for="work-email" class="field-label">Work email</label>
         <input
           id="work-email"
           type="email"
           formControlName="email"
           class="field-input"
-          placeholder="name@company.com"
-          autocomplete="email"
-          required
+          autocomplete="username"
+          [attr.aria-invalid]="!!fieldError('email')"
+          [attr.aria-describedby]="fieldError('email') ? 'work-email-error' : null"
         />
+        @if (fieldError('email'); as msg) {
+          <span id="work-email-error" class="field-error">{{ msg }}</span>
+        }
       </div>
 
       <div class="form-field">
@@ -58,9 +49,9 @@
             [type]="showPassword() ? 'text' : 'password'"
             formControlName="password"
             class="field-input with-toggle"
-            placeholder="••••••••••••"
             autocomplete="current-password"
-            required
+            [attr.aria-invalid]="!!fieldError('password')"
+            [attr.aria-describedby]="fieldError('password') ? 'work-password-error' : null"
           />
           <button
             type="button"
@@ -71,44 +62,24 @@
             {{ showPassword() ? 'Hide' : 'Show' }}
           </button>
         </div>
+        @if (fieldError('password'); as msg) {
+          <span id="work-password-error" class="field-error">{{ msg }}</span>
+        }
       </div>
 
-      <button
-        type="submit"
-        class="btn-primary-action"
-        [disabled]="authenticating()"
-        id="btn-sign-in"
-      >
-        @if (authenticating()) {
-          <span>Authenticating...</span>
-        } @else {
-          <span>Sign In →</span>
-        }
+      <button type="submit" class="btn-primary-action" [disabled]="authenticating()" id="btn-sign-in">
+        {{ authenticating() ? 'Signing in…' : 'Sign in' }}
       </button>
-
     </form>
 
-    <!-- 1-Click Quick Preset Buttons for Instant Verification -->
-    <div class="auth-presets">
-      <span class="preset-label">Quick Sign-In Presets:</span>
-      <div class="preset-buttons">
-        <button
-          type="button"
-          class="preset-btn"
-          (click)="applyPreset('superadmin')"
-        >
-          SuperAdmin
-        </button>
-        <button
-          type="button"
-          class="preset-btn"
-          (click)="applyPreset('khc_admin')"
-        >
-          Kraft Heinz (Org Admin)
-        </button>
+    @if (presets.length) {
+      <div class="auth-presets">
+        <div class="preset-buttons">
+          @for (p of presets; track p.email) {
+            <button type="button" class="preset-btn" (click)="applyPreset(p.email)">{{ p.label }}</button>
+          }
+        </div>
       </div>
-    </div>
-
-  </div>
-
+    }
+  </main>
 </div>

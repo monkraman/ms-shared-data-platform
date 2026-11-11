@@ -1,5 +1,6 @@
 """Unit and integration tests for Layer 3: EPR Compliance Module."""
 
+from tests.helpers import as_superadmin
 from fastapi.testclient import TestClient
 
 
@@ -27,7 +28,7 @@ def test_execute_epr_calculation_run(client: TestClient) -> None:
     response = client.post(
         "/api/v1/compliance/epr/calculate",
         json=payload,
-        headers={"X-Tenant-ID": "khc-europe"}
+        headers=as_superadmin("khc-europe")
     )
     assert response.status_code == 200
     run = response.json()
@@ -51,7 +52,7 @@ def test_get_fee_hotspots(client: TestClient) -> None:
     """Test retrieving material and SKU fee hotspots."""
     response = client.get(
         "/api/v1/compliance/epr/hotspots",
-        headers={"X-Tenant-ID": "khc-europe"}
+        headers=as_superadmin("khc-europe")
     )
     assert response.status_code == 200
     hotspots = response.json()
@@ -71,7 +72,7 @@ def test_simulate_what_if_scenario(client: TestClient) -> None:
     calc_res = client.post(
         "/api/v1/compliance/epr/calculate",
         json={"tenant_id": "khc-europe", "jurisdiction": "FR", "reporting_year": 2025},
-        headers={"X-Tenant-ID": "khc-europe"}
+        headers=as_superadmin("khc-europe")
     )
     run_id = calc_res.json()["run_id"]
 
@@ -85,7 +86,7 @@ def test_simulate_what_if_scenario(client: TestClient) -> None:
     response = client.post(
         "/api/v1/compliance/epr/simulate-scenario",
         json=sim_payload,
-        headers={"X-Tenant-ID": "khc-europe"}
+        headers=as_superadmin("khc-europe")
     )
     assert response.status_code == 200
     sim = response.json()

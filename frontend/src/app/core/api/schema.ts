@@ -4,6 +4,42 @@
  */
 
 export interface paths {
+    "/api/v1/admin/tenants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List client workspaces */
+        get: operations["list_workspaces_api_v1_admin_tenants_get"];
+        put?: never;
+        /** Create a workspace and add its first org admin */
+        post: operations["create_workspace_api_v1_admin_tenants_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/tenants/{tenant_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Workspace detail */
+        get: operations["get_workspace_api_v1_admin_tenants__tenant_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Edit a workspace */
+        patch: operations["update_workspace_api_v1_admin_tenants__tenant_id__patch"];
+        trace?: never;
+    };
     "/api/v1/auth/me": {
         parameters: {
             query?: never;
@@ -21,6 +57,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Renew the session from the refresh cookie */
+        post: operations["refresh_api_v1_auth_refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/sign-in": {
         parameters: {
             query?: never;
@@ -30,10 +83,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /**
-         * Direct Work Email & Password Sign In
-         * @description Authenticates corporate credentials, generates real JWT token with role & tenant context, and returns redirect route.
-         */
+        /** Sign in with work email and password */
         post: operations["sign_in_api_v1_auth_sign_in_post"];
         delete?: never;
         options?: never;
@@ -50,11 +100,25 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /**
-         * Sign Out
-         * @description Revoke authenticated session.
-         */
+        /** Sign out */
         post: operations["sign_out_api_v1_auth_sign_out_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/switch-tenant": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Switch to another workspace */
+        post: operations["switch_tenant_api_v1_auth_switch_tenant_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -68,16 +132,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /**
-         * List Users by Workspace Context
-         * @description List users scoped to caller's role and workspace.
-         */
+        /** List users */
         get: operations["list_users_api_v1_auth_users_get"];
         put?: never;
-        /**
-         * Provision a User under an Organisation
-         * @description Allows SuperAdmin or Organisation Admin to provision a new user.
-         */
+        /** Add a user */
         post: operations["create_user_api_v1_auth_users_post"];
         delete?: never;
         options?: never;
@@ -833,6 +891,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reference/countries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Supported countries */
+        get: operations["list_countries_api_v1_reference_countries_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reference/modules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Compliance modules */
+        get: operations["list_modules_api_v1_reference_modules_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tenants": {
         parameters: {
             query?: never;
@@ -945,6 +1037,13 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AdminInvite */
+        AdminInvite: {
+            /** Email */
+            email: string;
+            /** Full Name */
+            full_name: string;
+        };
         /** ApproveCorrectionRequest */
         ApproveCorrectionRequest: {
             /** Approver Name */
@@ -1116,6 +1215,15 @@ export interface components {
             source_systems_needed: string[];
             /** Total Data Points Required */
             total_data_points_required: number;
+        };
+        /** Country */
+        Country: {
+            /** Code */
+            code: string;
+            /** Eu */
+            eu: boolean;
+            /** Name */
+            name: string;
         };
         /** CountryConfig */
         CountryConfig: {
@@ -1709,6 +1817,30 @@ export interface components {
              */
             estimated_co2e_saving_pct: number;
         };
+        /** LegalEntityIn */
+        LegalEntityIn: {
+            /** Country */
+            country: string;
+            /** Name */
+            name: string;
+            /**
+             * Registration Number
+             * @default
+             */
+            registration_number: string;
+        };
+        /** LegalEntityOut */
+        LegalEntityOut: {
+            /** Country */
+            country: string;
+            /** Name */
+            name: string;
+            /**
+             * Registration Number
+             * @default
+             */
+            registration_number: string;
+        };
         /** LoginRequest */
         LoginRequest: {
             /**
@@ -1779,11 +1911,15 @@ export interface components {
         };
         /** MeTenant */
         MeTenant: {
+            /** Brand Color */
+            brand_color: string;
             /**
              * Id
              * Format: uuid
              */
             id: string;
+            /** Logo Url */
+            logo_url: string | null;
             /** Name */
             name: string;
             /** Slug */
@@ -1803,6 +1939,16 @@ export interface components {
             id: string;
             /** Is Platform Admin */
             is_platform_admin: boolean;
+        };
+        /** ModuleInfo */
+        ModuleInfo: {
+            /**
+             * Id
+             * @enum {string}
+             */
+            id: "EPR" | "PPWR" | "DPP" | "LCA";
+            /** Name */
+            name: string;
         };
         /** PPWRComponentAssessment */
         PPWRComponentAssessment: {
@@ -2453,6 +2599,14 @@ export interface components {
             /** Total Tickets */
             total_tickets: number;
         };
+        /** SwitchTenantRequest */
+        SwitchTenantRequest: {
+            /**
+             * Tenant Id
+             * Format: uuid
+             */
+            tenant_id: string;
+        };
         /** TenantCreate */
         TenantCreate: {
             /**
@@ -2596,10 +2750,10 @@ export interface components {
         };
         /**
          * TenantRole
-         * @description Roles inside one client workspace. More roles arrive with screen 9.
+         * @description Roles inside one client workspace (the prototype's roles). Screen 9 refines them.
          * @enum {string}
          */
-        TenantRole: "org_admin";
+        TenantRole: "org_admin" | "analyst" | "viewer";
         /**
          * TenantStatus
          * @enum {string}
@@ -2660,7 +2814,6 @@ export interface components {
             /**
              * Password
              * @description Initial password
-             * @default password123
              */
             password: string;
             /**
@@ -2745,6 +2898,84 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /** Workspace */
+        Workspace: {
+            /** Brand Color */
+            brand_color: string;
+            /** Countries */
+            countries: string[];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Last Activity At */
+            last_activity_at: string | null;
+            /** Legal Entities */
+            legal_entities: components["schemas"]["LegalEntityOut"][];
+            /** Logo Url */
+            logo_url: string | null;
+            /** Modules */
+            modules: ("EPR" | "PPWR" | "DPP" | "LCA")[];
+            /** Name */
+            name: string;
+            /** Sector */
+            sector: string;
+            /** Slug */
+            slug: string;
+            status: components["schemas"]["TenantStatus"];
+            /** User Count */
+            user_count: number;
+        };
+        /** WorkspaceCreate */
+        WorkspaceCreate: {
+            admin: components["schemas"]["AdminInvite"];
+            /**
+             * Brand Color
+             * @default #1b3c6d
+             */
+            brand_color: string;
+            /** Countries */
+            countries: string[];
+            /** Legal Entities */
+            legal_entities: components["schemas"]["LegalEntityIn"][];
+            /** Logo Url */
+            logo_url?: string | null;
+            /** Modules */
+            modules: ("EPR" | "PPWR" | "DPP" | "LCA")[];
+            /** Name */
+            name: string;
+            /**
+             * Sector
+             * @default Other
+             */
+            sector: string;
+            /** Slug */
+            slug: string;
+        };
+        /** WorkspacePatch */
+        WorkspacePatch: {
+            /** Brand Color */
+            brand_color?: string | null;
+            /** Countries */
+            countries?: string[] | null;
+            /** Legal Entities */
+            legal_entities?: components["schemas"]["LegalEntityIn"][] | null;
+            /** Logo Url */
+            logo_url?: string | null;
+            /** Modules */
+            modules?: ("EPR" | "PPWR" | "DPP" | "LCA")[] | null;
+            /** Name */
+            name?: string | null;
+            /** Sector */
+            sector?: string | null;
+            status?: components["schemas"]["TenantStatus"] | null;
         };
         /** TariffRate */
         app__schemas__configuration__TariffRate: {
@@ -2850,6 +3081,149 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    list_workspaces_api_v1_admin_tenants_get: {
+        parameters: {
+            query?: {
+                q?: string | null;
+                status?: ("draft" | "active" | "suspended") | null;
+            };
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Workspace"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_workspace_api_v1_admin_tenants_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WorkspaceCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Workspace"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_workspace_api_v1_admin_tenants__tenant_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Workspace"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_workspace_api_v1_admin_tenants__tenant_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WorkspacePatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Workspace"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_me_api_v1_auth_me_get: {
         parameters: {
             query?: never;
@@ -2869,6 +3243,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    refresh_api_v1_auth_refresh_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                ch_refresh?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthTokenResponse"];
                 };
             };
             /** @description Validation Error */
@@ -2904,6 +3309,49 @@ export interface operations {
                     "application/json": components["schemas"]["AuthTokenResponse"];
                 };
             };
+            /** @description Wrong email or password */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Locked for 15 minutes */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    sign_out_api_v1_auth_sign_out_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                ch_refresh?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -2915,14 +3363,23 @@ export interface operations {
             };
         };
     };
-    sign_out_api_v1_auth_sign_out_post: {
+    switch_tenant_api_v1_auth_switch_tenant_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
             path?: never;
-            cookie?: never;
+            cookie?: {
+                ch_refresh?: string | null;
+            };
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SwitchTenantRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -2930,7 +3387,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["AuthTokenResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -2939,7 +3405,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Bearer <JWT> authorization header */
+                /** @description Bearer <access token> */
                 authorization?: string | null;
             };
             path?: never;
@@ -2971,7 +3437,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Bearer <JWT> authorization header */
+                /** @description Bearer <access token> */
                 authorization?: string | null;
             };
             path?: never;
@@ -4420,6 +4886,70 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SourceWorklistExportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_countries_api_v1_reference_countries_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Country"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_modules_api_v1_reference_modules_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModuleInfo"][];
                 };
             };
             /** @description Validation Error */

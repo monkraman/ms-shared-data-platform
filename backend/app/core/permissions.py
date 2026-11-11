@@ -20,6 +20,7 @@ class Perm:
     WORKSPACE_READ = "workspace.read"
     JOBS_READ = "jobs.read"
     AUDIT_READ = "audit.read"
+    USERS_MANAGE = "users.manage"
 
 
 PLATFORM_ADMIN_PERMISSIONS: frozenset[str] = frozenset(
@@ -27,7 +28,9 @@ PLATFORM_ADMIN_PERMISSIONS: frozenset[str] = frozenset(
 )
 
 TENANT_ROLE_PERMISSIONS: dict[TenantRole, frozenset[str]] = {
-    TenantRole.ORG_ADMIN: frozenset({Perm.WORKSPACE_READ, Perm.JOBS_READ, Perm.AUDIT_READ}),
+    TenantRole.ORG_ADMIN: frozenset({Perm.WORKSPACE_READ, Perm.JOBS_READ, Perm.AUDIT_READ, Perm.USERS_MANAGE}),
+    TenantRole.ANALYST: frozenset({Perm.WORKSPACE_READ, Perm.JOBS_READ}),
+    TenantRole.VIEWER: frozenset({Perm.WORKSPACE_READ}),
 }
 
 ALL_TENANT_PERMISSIONS: frozenset[str] = frozenset().union(*TENANT_ROLE_PERMISSIONS.values())

@@ -1,15 +1,26 @@
-import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
+import { Component, computed, inject, signal } from '@angular/core';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
+import { environment } from '../../../environments/environment';
+import { SessionService, SignInReason, errorMessage } from '../../core/session/session.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { TenantApiService } from '../../core/services/tenant-api.service';
 
+const NOTICES: Record<SignInReason, string> = {
+  expired: 'Your session expired. Sign in again.',
+  idle: 'You were signed out after 30 minutes of inactivity.',
+  'signed-out': 'You signed out.',
+};
+
+/** Development builds only: demo users from the prototype store. */
+const PRESETS = [
+  { label: 'Platform admin', email: 'superadmin@monkspaces.com' },
+  { label: 'Org admin', email: 'compliance.officer@kraftheinz.com' },
+];
+
 @Component({
   selector: 'app-sign-in',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './sign-in.component.html',
   styleUrl: './sign-in.component.css',
 })
@@ -17,67 +28,65 @@ export class SignInComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly authService = inject(AuthService);
+  private readonly session = inject(SessionService);
   private readonly tenantService = inject(TenantApiService);
   readonly themeService = inject(ThemeService);
 
-  readonly authenticating = this.authService.isAuthenticating;
+  readonly authenticating = signal(false);
   readonly errorMessage = signal<string | null>(null);
-  readonly showPassword = signal<boolean>(false);
+  readonly showPassword = signal(false);
+  readonly presets = environment.enableDebugTools ? PRESETS : [];
 
-  // Clean, direct Email & Password Form (SuperAdmin default)
-  readonly signInForm: FormGroup = this.fb.group({
-    email: ['superadmin@monkspaces.com', [Validators.required, Validators.email]],
-    password: ['password123', [Validators.required, Validators.minLength(6)]],
+  private readonly reason = this.route.snapshot.queryParamMap.get('reason') as SignInReason | null;
+  readonly notice = computed(() => (this.errorMessage() || !this.reason ? null : (NOTICES[this.reason] ?? null)));
+
+  readonly signInForm = this.fb.nonNullable.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required]],
   });
 
   togglePassword(): void {
     this.showPassword.update((v) => !v);
   }
 
-  // Quick preset helper for development/testing
-  applyPreset(type: 'superadmin' | 'khc_admin'): void {
+  applyPreset(email: string): void {
     this.errorMessage.set(null);
-    if (type === 'superadmin') {
-      this.signInForm.patchValue({
-        email: 'superadmin@monkspaces.com',
-        password: 'password123',
-      });
-    } else {
-      this.signInForm.patchValue({
-        email: 'compliance.officer@kraftheinz.com',
-        password: 'password123',
-      });
+    this.signInForm.patchValue({ email, password: 'password123' });
+  }
+
+  fieldError(name: 'email' | 'password'): string | null {
+    const control = this.signInForm.controls[name];
+    if (!control.touched || control.valid) return null;
+    if (control.hasError('required')) return name === 'email' ? 'Enter your work email' : 'Enter your password';
+    return 'Enter a valid email';
+  }
+
+  async onSubmit(): Promise<void> {
+    if (this.signInForm.invalid) {
+      this.signInForm.markAllAsTouched();
+      return;
+    }
+    this.errorMessage.set(null);
+    this.authenticating.set(true);
+    const { email, password } = this.signInForm.getRawValue();
+    try {
+      const res = await this.session.signIn(email.trim(), password);
+      if (res.user.organisation_slug) this.tenantService.setActiveTenant(res.user.organisation_slug);
+      await this.router.navigateByUrl(await this.destination());
+    } catch (error) {
+      this.errorMessage.set(errorMessage(error));
+      this.signInForm.controls.password.reset();
+    } finally {
+      this.authenticating.set(false);
     }
   }
 
-  // Direct Sign-In Handler — No MFA blocking, real backend JWT
-  async onSubmit(): Promise<void> {
-    if (this.signInForm.invalid) {
-      this.errorMessage.set('Please enter a valid work email and password.');
-      return;
-    }
-
-    this.errorMessage.set(null);
-    const email = this.signInForm.value.email.trim();
-    const password = this.signInForm.value.password;
-
-    const role = await this.authService.login(email, password);
-
+  /** The page the user came from, the workspace picker, or their home screen. */
+  private async destination(): Promise<string> {
     const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-    if (role && returnUrl?.startsWith('/app')) {
-      this.router.navigateByUrl(returnUrl);
-    } else if (role === 'superadmin') {
-      this.router.navigate(['/app/workspaces']);
-    } else if (role === 'client') {
-      // Set active workspace to client's assigned tenant
-      const user = this.authService.currentUser();
-      if (user?.organisationSlug) {
-        this.tenantService.setActiveTenant(user.organisationSlug);
-      }
-      this.router.navigate(['/app/products']);
-    } else {
-      this.errorMessage.set('Invalid work credentials. Please check your email and password.');
-    }
+    if (returnUrl && /^\/(?!\/)/.test(returnUrl) && !returnUrl.startsWith('/sign-in')) return returnUrl;
+    const me = await this.session.load();
+    if ((me?.memberships.length ?? 0) > 1) return '/workspace';
+    return this.session.home();
   }
 }

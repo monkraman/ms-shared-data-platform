@@ -11,13 +11,9 @@ import {
   Product,
   ProductCreate,
   SourceId,
-  Workspace,
-  WorkspaceCreate,
-  WorkspacePatch,
 } from '../contracts';
 import { findGaps } from './gap-engine';
-import { DICTIONARY, FIELDS, MODULES, db, save, toProduct, withTotals } from './mock-db';
-import { mockMe } from './session-mock';
+import { DICTIONARY, FIELDS, db, save, toProduct, withTotals } from './mock-db';
 
 /** Thrown by handlers; becomes a problem-details error response like the real API's. */
 export class MockError {
@@ -60,71 +56,9 @@ export function matchRoute(method: string, url: string): { route: Route; params:
 const notFound = (what: string) => new MockError(404, `${what} not found.`);
 const invalid = (field: string, msg: string) => new MockError(422, 'The request has invalid fields.', [{ loc: ['body', field], msg }]);
 
-// --- Session (until screen 1 ships) ---------------------------------------------------
-
-on('GET', '/api/v1/auth/me', () => {
-  const me = mockMe();
-  if (!me) throw new MockError(401, 'Sign in to continue.');
-  return me;
-});
-
 // --- Reference ----------------------------------------------------------------------
 
-on('GET', '/api/v1/reference/countries', () => DICTIONARY.countries);
-on('GET', '/api/v1/reference/modules', () => MODULES);
 on('GET', '/api/v1/reference/fields', () => FIELDS);
-
-// --- Screen 2: workspaces -----------------------------------------------------------
-
-on('GET', '/api/v1/admin/tenants', ({ query }) => {
-  const q = (query['q'] ?? '').toLowerCase();
-  return db().workspaces.filter(
-    (w) => (!q || w.name.toLowerCase().includes(q) || w.slug.includes(q)) && (!query['status'] || w.status === query['status']),
-  );
-});
-
-on('GET', '/api/v1/admin/tenants/{id}', ({ params }) => workspace(params['id']));
-
-on('POST', '/api/v1/admin/tenants', ({ body }) => {
-  const b = body as WorkspaceCreate;
-  if (!b.name?.trim()) throw invalid('name', 'Enter a name');
-  if (!/^[a-z0-9-]{3,40}$/.test(b.slug ?? '')) throw invalid('slug', 'Use 3–40 lowercase letters, numbers or hyphens');
-  if (db().workspaces.some((w) => w.slug === b.slug)) throw invalid('slug', 'Already in use');
-  if (!b.legal_entities?.length) throw invalid('legal_entities', 'Add at least one legal entity');
-  if (!b.countries?.length) throw invalid('countries', 'Choose at least one country');
-  if (!b.modules?.length) throw invalid('modules', 'Choose at least one module');
-  if (!/^\S+@\S+\.\S+$/.test(b.admin?.email ?? '')) throw invalid('email', 'Enter a valid email');
-  const ws: Workspace = {
-    id: `ws-${b.slug}`,
-    slug: b.slug,
-    name: b.name.trim(),
-    sector: b.sector,
-    status: 'active',
-    brand_color: b.brand_color,
-    countries: b.countries,
-    modules: b.modules,
-    legal_entities: b.legal_entities,
-    user_count: 1,
-    last_activity_at: null,
-    created_at: new Date().toISOString(),
-  };
-  db().workspaces.unshift(ws);
-  save();
-  return ws;
-});
-
-on('PATCH', '/api/v1/admin/tenants/{id}', ({ params, body }) => {
-  const ws = workspace(params['id']);
-  Object.assign(ws, body as WorkspacePatch);
-  save();
-  return ws;
-});
-
-function workspace(id: string): Workspace {
-  const ws = db().workspaces.find((w) => w.id === id);
-  if (!ws) throw notFound('Workspace');
-  return ws;
-}
 
 // --- Screen 3: data points ----------------------------------------------------------
 
