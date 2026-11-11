@@ -51,6 +51,8 @@ _WORK = _READ | {Perm.JOBS_READ, Perm.PRODUCTS_MANAGE, Perm.IMPORTS_MANAGE, Perm
 
 TENANT_ROLE_PERMISSIONS: dict[TenantRole, frozenset[str]] = {
     TenantRole.ORG_ADMIN: frozenset(_WORK | {Perm.AUDIT_READ, Perm.USERS_MANAGE, Perm.SETTINGS_MANAGE}),
+    # Consultants do the client's compliance work; the client's org admin manages its team.
+    TenantRole.CONSULTANT: frozenset(_WORK | {Perm.AUDIT_READ, Perm.SETTINGS_MANAGE}),
     TenantRole.ANALYST: frozenset(_WORK),
     TenantRole.VIEWER: frozenset(_READ),
 }

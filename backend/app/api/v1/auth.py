@@ -15,17 +15,12 @@ from fastapi import APIRouter, Cookie, Response, status
 from pydantic import BaseModel
 from sqlalchemy import select
 
-from app.core.audit import record_audit
-from app.core.auth import CurrentPrincipal, Principal
+from app.core.auth import CurrentPrincipal
 from app.core.config import get_settings
-from app.core.errors import ProblemError
-from app.core.permissions import Perm
 from app.core.tenancy import tenant_session
-from app.platform import repository as repo
 from app.platform import sign_in as auth
-from app.platform.models import Membership, Tenant, TenantRole, TenantStatus, User, UserStatus
-from app.platform.passwords import hash_password
-from app.schemas.auth import AuthTokenResponse, LoginRequest, UserCreateRequest, UserProfile, UserRole
+from app.platform.models import Membership, Tenant, TenantRole, TenantStatus, User
+from app.schemas.auth import AuthTokenResponse, LoginRequest, UserProfile, UserRole
 
 router = APIRouter(prefix="/auth", tags=["Authentication & Identity"])
 
@@ -164,85 +159,3 @@ async def get_me(principal: CurrentPrincipal) -> MeResponse:
             permissions=sorted(principal.permissions),
             memberships=[MeMembership(tenant=_tenant(m.tenant), role=m.role) for m in rows],
         )
-
-
-# --- User directory (prototype IAM page; screen 9 replaces it) ----------------------
-
-
-_TENANT_ROLES = {r.value for r in TenantRole}
-
-
-def _directory_scope(principal: Principal) -> uuid.UUID | None:
-    """Platform admins see everyone; org admins only their workspace; others nothing."""
-    if principal.is_platform_admin:
-        return None
-    if principal.tenant_id is None or not principal.has(Perm.USERS_MANAGE):
-        raise ProblemError(403, "You do not have permission to do this.", extra={"permission": Perm.USERS_MANAGE})
-    return principal.tenant_id
-
-
-@router.post("/users", response_model=UserProfile, status_code=status.HTTP_201_CREATED, summary="Add a user")
-async def create_user(payload: UserCreateRequest, principal: CurrentPrincipal) -> UserProfile:
-    own_tenant = _directory_scope(principal)
-    is_admin = payload.role == UserRole.SUPERADMIN
-    if is_admin and not principal.is_platform_admin:
-        raise ProblemError(403, "You do not have permission to do this.")
-
-    async with tenant_session(None, platform_access=True) as db:
-        existing = await repo.get_user_by_email(db, payload.email)
-        # Platform admins activate an invited user (for example a workspace's first org admin)
-        # with this password until invitation emails exist; anyone else already has an account.
-        if existing and (existing.status != UserStatus.INVITED or not principal.is_platform_admin):
-            raise ProblemError(
-                409,
-                "A user with this email already exists.",
-                extra={"errors": [{"loc": ["body", "email"], "msg": "Already in use", "type": "conflict"}]},
-            )
-        tenant = None
-        if not is_admin:
-            if own_tenant:
-                tenant = await db.get(Tenant, own_tenant)
-            elif payload.tenant_id:
-                tenant = await repo.get_tenant_by_slug(db, payload.tenant_id)
-            if tenant is None:
-                raise ProblemError(422, "Choose a workspace for this user.")
-        user = await repo.upsert_user(
-            db,
-            email=payload.email,
-            full_name=payload.full_name,
-            is_platform_admin=is_admin,
-            password_hash=hash_password(payload.password),
-            status=UserStatus.ACTIVE,
-        )
-        role = None
-        if tenant:
-            role = TenantRole(payload.role.value) if payload.role.value in _TENANT_ROLES else TenantRole.VIEWER
-            await repo.ensure_membership(db, tenant_id=tenant.id, user_id=user.id, role=role)
-        await record_audit(
-            db,
-            principal=principal,
-            tenant_id=tenant.id if tenant else None,
-            action="user.activated" if existing else "user.created",
-            entity_type="user",
-            entity_id=user.id,
-            after={"email": user.email, "role": payload.role.value, "tenant": tenant.slug if tenant else None},
-        )
-        return _profile(user, tenant, role)
-
-
-@router.get("/users", response_model=list[UserProfile], summary="List users")
-async def list_users(principal: CurrentPrincipal) -> list[UserProfile]:
-    own_tenant = _directory_scope(principal)
-    async with tenant_session(None) as db:
-        query = select(User).order_by(User.created_at)
-        if own_tenant:
-            query = query.join(Membership).where(Membership.tenant_id == own_tenant)
-        users = (await db.scalars(query)).all()
-        result = []
-        for user in users:
-            memberships = [m for m in user.memberships if own_tenant is None or m.tenant_id == own_tenant]
-            if not memberships:
-                result.append(_profile(user, None, None))
-            for m in memberships:
-                result.append(_profile(user, m.tenant, m.role))
-        return result

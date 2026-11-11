@@ -4,7 +4,9 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } fro
 import { filter } from 'rxjs';
 import { NAV } from '../../core/navigation/nav-items';
 import { SessionService } from '../../core/session/session.service';
-import { ToastOutletComponent } from '../../shared/ui';
+import { ToastOutletComponent, initialsOf } from '../../shared/ui';
+
+export { initialsOf };
 
 /** Layout for platform screens: grouped sidebar, top bar with product search, and the page. */
 @Component({
@@ -50,9 +52,4 @@ export class AppShellComponent {
     await this.session.signOut();
     await this.router.navigate(['/sign-in'], { queryParams: { reason: 'signed-out' } });
   }
-}
-
-export function initialsOf(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  return ((parts[0]?.[0] ?? '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase() || '?';
 }

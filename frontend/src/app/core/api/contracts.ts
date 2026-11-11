@@ -30,11 +30,15 @@ export type LegalEntity = Schemas['LegalEntityIn'];
 export type WorkspaceCreate = Schemas['WorkspaceCreate'];
 export type WorkspacePatch = Schemas['WorkspacePatch'];
 
-// --- Screen 9 (first part): users — built, GET/POST /api/v1/auth/users -----------------
+// --- Screen 9: users and access — built, /admin/users (platform admins), /team (org admins)
 
-export type UserRow = Schemas['UserProfile'];
-export type UserRole = UserRow['role'];
-export type UserCreate = Schemas['UserCreateRequest'];
+export type UserRow = Schemas['UserOut'];
+export type UserCreate = Schemas['UserCreate'];
+export type UserPatch = Schemas['UserPatch'];
+export type MembershipIn = Schemas['MembershipIn'];
+export type WorkspaceRole = MembershipIn['role'];
+export type Member = Schemas['MemberOut'];
+export type MemberCreate = Schemas['MemberCreate'];
 
 // --- Screen 3: data point dictionary — built, GET /api/v1/admin/data-points -------------
 

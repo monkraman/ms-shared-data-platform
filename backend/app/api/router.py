@@ -14,13 +14,15 @@ from app.api.v1 import (
     insights,
     jobs,
     products,
+    users,
     workspaces,
 )
 
 api_router = APIRouter()
 
 api_router.include_router(health.router, prefix="", tags=["System Health"])
-api_router.include_router(auth.router)  # screen 1 (sign-in) and 9 (users)
+api_router.include_router(auth.router)  # screen 1
+api_router.include_router(users.router)  # screen 9
 api_router.include_router(workspaces.router)  # screen 2
 api_router.include_router(data_points.router)  # screen 3
 api_router.include_router(products.router)  # screen 4

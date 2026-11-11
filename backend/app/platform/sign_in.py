@@ -84,7 +84,7 @@ async def sign_in(email: str, password: str) -> Session:
         elif user.status != UserStatus.ACTIVE:
             failure = ProblemError(403, "Your account is not active.")
         else:
-            user.failed_login_count, user.locked_until = 0, None
+            user.failed_login_count, user.locked_until, user.last_sign_in_at = 0, None, now
             session = await _issue(db, user, _default_membership(user))
             await record_audit(
                 db,

@@ -26,6 +26,7 @@ export const routes: Routes = [
       screen('workspaces', 'platform.tenants.read', 'Client workspaces', () => import('./screens/workspaces/workspaces.component').then((m) => m.WorkspacesComponent)),
       screen('data-points', 'platform.datapoints.read', 'Data points', () => import('./screens/data-points/data-points.component').then((m) => m.DataPointsComponent)),
       screen('gap-rules', 'platform.rules.manage', 'Gap rules', () => import('./screens/gap-rules/gap-rules.component').then((m) => m.GapRulesComponent)),
+      screen('team', 'users.manage', 'Team', () => import('./screens/team/team.component').then((m) => m.TeamComponent)),
       screen('users', 'platform.users.manage', 'Users', () => import('./screens/users/users.component').then((m) => m.UsersComponent)),
       screen('products', 'products.read', 'Products', () => import('./screens/products/products.component').then((m) => m.ProductsComponent)),
       screen('products/:sku', 'products.read', 'Product', () => import('./screens/products/product-detail.component').then((m) => m.ProductDetailComponent)),

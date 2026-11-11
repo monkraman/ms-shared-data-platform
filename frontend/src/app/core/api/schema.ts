@@ -127,6 +127,75 @@ export interface paths {
         patch: operations["update_workspace_api_v1_admin_tenants__tenant_id__patch"];
         trace?: never;
     };
+    "/api/v1/admin/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** All users */
+        get: operations["list_users_api_v1_admin_users_get"];
+        put?: never;
+        /** Add a user */
+        post: operations["create_user_api_v1_admin_users_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Edit, disable or enable a user */
+        patch: operations["update_user_api_v1_admin_users__user_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/users/{user_id}/memberships": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Set a user's workspaces */
+        put: operations["set_memberships_api_v1_admin_users__user_id__memberships_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{user_id}/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Set a temporary password */
+        post: operations["set_password_api_v1_admin_users__user_id__password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/me": {
         parameters: {
             query?: never;
@@ -206,24 +275,6 @@ export interface paths {
         put?: never;
         /** Switch to another workspace */
         post: operations["switch_tenant_api_v1_auth_switch_tenant_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List users */
-        get: operations["list_users_api_v1_auth_users_get"];
-        put?: never;
-        /** Add a user */
-        post: operations["create_user_api_v1_auth_users_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -692,6 +743,59 @@ export interface paths {
         get: operations["list_modules_api_v1_reference_modules_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/team": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Members of this workspace */
+        get: operations["list_team_api_v1_team_get"];
+        put?: never;
+        /** Add a member */
+        post: operations["add_member_api_v1_team_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/team/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a member from this workspace */
+        delete: operations["remove_member_api_v1_team__user_id__delete"];
+        options?: never;
+        head?: never;
+        /** Change a member's role */
+        patch: operations["change_role_api_v1_team__user_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/team/{user_id}/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Set a member's temporary password */
+        post: operations["reset_member_password_api_v1_team__user_id__password_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1715,6 +1819,84 @@ export interface components {
             /** Is Platform Admin */
             is_platform_admin: boolean;
         };
+        /** MemberCreate */
+        MemberCreate: {
+            /** Email */
+            email: string;
+            /** Full Name */
+            full_name: string;
+            /** Password */
+            password?: string | null;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "org_admin" | "analyst" | "viewer";
+        };
+        /** MemberOut */
+        MemberOut: {
+            /** Email */
+            email: string;
+            /** Full Name */
+            full_name: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Last Sign In At */
+            last_sign_in_at: string | null;
+            /** Other Workspaces */
+            other_workspaces: number;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "org_admin" | "consultant" | "analyst" | "viewer";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "invited" | "active" | "disabled";
+        };
+        /** MemberPatch */
+        MemberPatch: {
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "org_admin" | "analyst" | "viewer";
+        };
+        /** MembershipIn */
+        MembershipIn: {
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "org_admin" | "consultant" | "analyst" | "viewer";
+            /**
+             * Tenant Id
+             * Format: uuid
+             */
+            tenant_id: string;
+        };
+        /** MembershipOut */
+        MembershipOut: {
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "org_admin" | "consultant" | "analyst" | "viewer";
+            /**
+             * Tenant Id
+             * Format: uuid
+             */
+            tenant_id: string;
+            /** Tenant Name */
+            tenant_name: string;
+            /** Tenant Slug */
+            tenant_slug: string;
+        };
         /** Milestone */
         Milestone: {
             /**
@@ -1765,6 +1947,11 @@ export interface components {
             name: string;
             /** Regulation */
             regulation: string;
+        };
+        /** PasswordIn */
+        PasswordIn: {
+            /** Password */
+            password: string;
         };
         /** PointReadiness */
         PointReadiness: {
@@ -2056,47 +2243,67 @@ export interface components {
         };
         /**
          * TenantRole
-         * @description Roles inside one client workspace (the prototype's roles). Screen 9 refines them.
+         * @description Roles inside one client workspace.
          * @enum {string}
          */
-        TenantRole: "org_admin" | "analyst" | "viewer";
+        TenantRole: "org_admin" | "consultant" | "analyst" | "viewer";
         /**
          * TenantStatus
          * @enum {string}
          */
         TenantStatus: "draft" | "active" | "suspended";
-        /** UserCreateRequest */
-        UserCreateRequest: {
-            /**
-             * Email
-             * @description User corporate email
-             */
+        /** UserCreate */
+        UserCreate: {
+            /** Email */
             email: string;
-            /**
-             * Full Name
-             * @description Full name of user
-             */
+            /** Full Name */
             full_name: string;
             /**
-             * Organisation Name
-             * @description Organisation display name
+             * Is Platform Admin
+             * @default false
              */
-            organisation_name?: string | null;
+            is_platform_admin: boolean;
+            /** Memberships */
+            memberships?: components["schemas"]["MembershipIn"][];
+            /** Password */
+            password?: string | null;
+        };
+        /** UserOut */
+        UserOut: {
             /**
-             * Password
-             * @description Initial password
+             * Created At
+             * Format: date-time
              */
-            password: string;
+            created_at: string;
+            /** Email */
+            email: string;
+            /** Full Name */
+            full_name: string;
             /**
-             * @description Role: superadmin, org_admin, analyst
-             * @default org_admin
+             * Id
+             * Format: uuid
              */
-            role: components["schemas"]["UserRole"];
+            id: string;
+            /** Is Platform Admin */
+            is_platform_admin: boolean;
+            /** Last Sign In At */
+            last_sign_in_at: string | null;
+            /** Memberships */
+            memberships: components["schemas"]["MembershipOut"][];
             /**
-             * Tenant Id
-             * @description Assigned tenant workspace slug
+             * Status
+             * @enum {string}
              */
-            tenant_id?: string | null;
+            status: "invited" | "active" | "disabled";
+        };
+        /** UserPatch */
+        UserPatch: {
+            /** Full Name */
+            full_name?: string | null;
+            /** Is Platform Admin */
+            is_platform_admin?: boolean | null;
+            /** Status */
+            status?: ("active" | "disabled") | null;
         };
         /** UserProfile */
         UserProfile: {
@@ -2138,7 +2345,7 @@ export interface components {
          * UserRole
          * @enum {string}
          */
-        UserRole: "superadmin" | "org_admin" | "analyst" | "viewer" | "supplier_contact";
+        UserRole: "superadmin" | "org_admin" | "consultant" | "analyst" | "viewer" | "supplier_contact";
         /** ValidationError */
         ValidationError: {
             /** Context */
@@ -2644,6 +2851,186 @@ export interface operations {
             };
         };
     };
+    list_users_api_v1_admin_users_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_user_api_v1_admin_users_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_user_api_v1_admin_users__user_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_memberships_api_v1_admin_users__user_id__memberships_put: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MembershipIn"][];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_password_api_v1_admin_users__user_id__password_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_me_api_v1_auth_me_get: {
         parameters: {
             query?: never;
@@ -2808,74 +3195,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuthTokenResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_users_api_v1_auth_users_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Bearer <access token> */
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserProfile"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_user_api_v1_auth_users_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Bearer <access token> */
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserCreateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserProfile"];
                 };
             };
             /** @description Validation Error */
@@ -3895,6 +4214,180 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ModuleInfo"][];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_team_api_v1_team_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_member_api_v1_team_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MemberCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_member_api_v1_team__user_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    change_role_api_v1_team__user_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MemberPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_member_password_api_v1_team__user_id__password_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

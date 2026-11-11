@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 class UserRole(StrEnum):
     SUPERADMIN = "superadmin"
     ORG_ADMIN = "org_admin"
+    CONSULTANT = "consultant"
     ANALYST = "analyst"
     VIEWER = "viewer"
     SUPPLIER_CONTACT = "supplier_contact"
