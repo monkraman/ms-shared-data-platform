@@ -16,23 +16,6 @@ import {
   StatusChipComponent,
 } from '../../shared/ui';
 
-/** Fields a rule can check (product, passport and component level). */
-export const RULE_FIELDS: { key: string; label: string; dp: string }[] = [
-  { key: 'gtin', label: 'GTIN', dp: 'DP02' },
-  { key: 'weight_g', label: 'Component weight', dp: 'DP09' },
-  { key: 'units_per_pack', label: 'Units per pack', dp: 'DP05' },
-  { key: 'material', label: 'Material', dp: 'DP06' },
-  { key: 'polymer', label: 'Polymer', dp: 'DP07' },
-  { key: 'recycled_content_pct', label: 'Recycled content (%)', dp: 'DP13' },
-  { key: 'weight_source', label: 'Weight source', dp: 'DP44' },
-  { key: 'recyclability_result', label: 'Recyclability result', dp: 'DP12' },
-  { key: 'recycled_content_cert', label: 'Recycled content certificate', dp: 'DP14' },
-  { key: 'pfas_declaration_ref', label: 'PFAS declaration', dp: 'DP17' },
-  { key: 'harmonised_label_status', label: 'Harmonised label status', dp: 'DP39' },
-  { key: 'passport_host', label: 'Passport host', dp: 'DP53' },
-  { key: 'registry_id', label: 'Registry ID', dp: 'DP54' },
-];
-
 /** Screen 6: SuperAdmin keeps the rules that find gaps in client data. */
 @Component({
   selector: 'app-gap-rules',
@@ -73,7 +56,7 @@ export const RULE_FIELDS: { key: string; label: string; dp: string }[] = [
             @case ('active') {
               <label class="switch" [attr.aria-label]="(row.active ? 'Turn off ' : 'Turn on ') + row.id">
                 <input type="checkbox" [checked]="row.active" (change)="toggle(row)" />
-                <span></span>
+                <span class="track" aria-hidden="true"></span>
               </label>
             }
             @default { {{ value }} }
@@ -89,7 +72,7 @@ export const RULE_FIELDS: { key: string; label: string; dp: string }[] = [
         </app-form-field>
         <app-form-field label="Field" for="r-field" class="wide" [error]="problem()?.fields['field']">
           <select id="r-field" [(ngModel)]="draft.field">
-            @for (f of fields; track f.key) { <option [value]="f.key">{{ f.dp }} · {{ f.label }}</option> }
+            @for (f of fields(); track f.key) { <option [value]="f.key">{{ f.dp }} · {{ f.label }}</option> }
           </select>
         </app-form-field>
         <app-form-field label="Check" for="r-check">
@@ -135,49 +118,6 @@ export const RULE_FIELDS: { key: string; label: string; dp: string }[] = [
     </app-dialog>
   `,
   styles: `
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 36px;
-      height: 20px;
-    }
-    .switch input {
-      position: absolute;
-      opacity: 0;
-      inset: 0;
-      margin: 0;
-      cursor: pointer;
-    }
-    .switch span {
-      position: absolute;
-      inset: 0;
-      border-radius: 99px;
-      background: var(--border-2);
-      transition: background 0.15s;
-      pointer-events: none;
-    }
-    .switch span::after {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #fff;
-      box-shadow: var(--shadow-sm);
-      transition: transform 0.15s;
-    }
-    .switch input:checked + span {
-      background: var(--green);
-    }
-    .switch input:checked + span::after {
-      transform: translateX(16px);
-    }
-    .switch input:focus-visible + span {
-      outline: 2px solid var(--navy-700);
-      outline-offset: 2px;
-    }
   `,
 })
 export class GapRulesComponent {
@@ -187,7 +127,13 @@ export class GapRulesComponent {
   protected readonly rules = load(() => this.api.gapRules());
   protected readonly newOpen = signal(false);
   protected readonly problem = signal<Problem | null>(null);
-  protected readonly fields = RULE_FIELDS;
+  private readonly catalogue = load(() => this.api.fields());
+  /** Fields a rule can check: product, passport and component fields that answer a data point. */
+  protected readonly fields = computed(() =>
+    Object.entries(this.catalogue.value() ?? {})
+      .filter(([, f]) => !!f.dp && ['Product', 'Passport', 'Component'].includes(f.level))
+      .map(([key, f]) => ({ key, label: f.label, dp: f.dp as string })),
+  );
   protected readonly modules: ModuleId[] = ['EPR', 'PPWR', 'DPP', 'LCA'];
   protected draft = blankDraft();
 
@@ -216,7 +162,8 @@ export class GapRulesComponent {
   }
 
   protected create(): void {
-    const field = RULE_FIELDS.find((f) => f.key === this.draft.field)!;
+    const field = this.fields().find((f) => f.key === this.draft.field);
+    if (!field) return;
     const check: RuleCheck =
       this.draft.kind === 'in'
         ? { kind: 'in', values: this.draft.values.split(',').map((v) => v.trim()).filter(Boolean) }
@@ -249,7 +196,7 @@ export class GapRulesComponent {
 function blankDraft() {
   return {
     name: '',
-    field: RULE_FIELDS[0].key,
+    field: 'gtin',
     kind: 'missing' as 'missing' | 'in',
     values: '',
     severity: 'blocker' as Severity,

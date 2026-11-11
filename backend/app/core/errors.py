@@ -98,3 +98,10 @@ def register_error_handlers(app: FastAPI) -> None:
     async def _unhandled(request: Request, exc: Exception) -> JSONResponse:
         logger.exception("Unhandled error on %s %s", request.method, request.url.path)
         return problem_response(request, 500, "An unexpected error occurred. Quote the request ID to support.")
+
+
+def invalid_field(field: str, msg: str) -> ProblemError:
+    """422 with one field error, shown next to that field in the UI (``toProblem().fields``)."""
+    return ProblemError(
+        422, "The request has invalid fields.", extra={"errors": [{"loc": ["body", field], "msg": msg}]}
+    )

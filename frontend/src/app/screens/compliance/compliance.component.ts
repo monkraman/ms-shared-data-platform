@@ -32,7 +32,7 @@ const REQUIREMENT_LABELS: Record<(typeof REQUIREMENTS)[number], string> = {
       }
     </app-page-header>
 
-    <nav class="tabs" role="tablist" aria-label="Regimes">
+    <nav class="segmented" role="tablist" aria-label="Regimes">
       @for (r of tabs(); track r.id) {
         <button type="button" role="tab" [attr.aria-selected]="active() === r.id" [class.on]="active() === r.id"
                 (click)="active.set(r.id)">
@@ -128,38 +128,6 @@ const REQUIREMENT_LABELS: Record<(typeof REQUIREMENTS)[number], string> = {
     }
   `,
   styles: `
-    .tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      padding: 4px;
-      margin-bottom: 20px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      width: fit-content;
-      max-width: 100%;
-    }
-    .tabs button {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 14px;
-      border: 0;
-      border-radius: 9px;
-      background: none;
-      color: var(--muted);
-      font: inherit;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .tabs button.on {
-      background: var(--ink, #111);
-      color: #fff;
-    }
-    .tabs button:not(.on):hover {
-      color: var(--ink);
-    }
     .flag {
       font-size: 15px;
     }
@@ -248,11 +216,6 @@ const REQUIREMENT_LABELS: Record<(typeof REQUIREMENTS)[number], string> = {
     .small {
       font-size: 12px;
       margin: 14px 0 0;
-    }
-    .section-title {
-      font-size: 15px;
-      font-weight: 600;
-      margin: 0 0 12px;
     }
     .dots {
       display: inline-flex;

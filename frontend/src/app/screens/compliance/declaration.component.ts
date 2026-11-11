@@ -18,7 +18,7 @@ import { ErrorStateComponent } from '../../shared/ui';
     <div class="bar no-print">
       <a routerLink="/app/compliance" class="back">← Compliance</a>
       <div class="actions">
-        <div class="seg" role="group" aria-label="Language">
+        <div class="segmented" role="group" aria-label="Language">
           <button type="button" [class.on]="lang() === 'da'" (click)="lang.set('da')">Dansk</button>
           <button type="button" [class.on]="lang() === 'en'" (click)="lang.set('en')">English</button>
         </div>
@@ -135,27 +135,6 @@ import { ErrorStateComponent } from '../../shared/ui';
       gap: 8px;
       align-items: center;
       flex-wrap: wrap;
-    }
-    .seg {
-      display: inline-flex;
-      padding: 3px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: var(--card);
-    }
-    .seg button {
-      border: 0;
-      background: none;
-      padding: 6px 12px;
-      border-radius: 7px;
-      font: inherit;
-      font-weight: 600;
-      color: var(--muted);
-      cursor: pointer;
-    }
-    .seg button.on {
-      background: var(--ink, #111);
-      color: #fff;
     }
     .draft {
       display: flex;

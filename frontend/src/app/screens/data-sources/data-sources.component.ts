@@ -146,57 +146,6 @@ const SYSTEMS: SystemCard[] = [
       gap: 12px;
       margin-top: auto;
     }
-    .switch {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      font-size: 13px;
-    }
-    .switch input {
-      position: absolute;
-      opacity: 0;
-      width: 1px;
-      height: 1px;
-    }
-    .track {
-      position: relative;
-      width: 34px;
-      height: 20px;
-      border-radius: 10px;
-      background: var(--border);
-      transition: background 0.15s;
-    }
-    .track::after {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #fff;
-      box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
-      transition: transform 0.15s;
-    }
-    .switch input:checked + .track {
-      background: var(--accent);
-    }
-    .switch input:checked + .track::after {
-      transform: translateX(14px);
-    }
-    .switch input:focus-visible + .track {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }
-    .switch input:disabled + .track {
-      opacity: 0.5;
-    }
-    .section-title {
-      font-size: 15px;
-      font-weight: 600;
-      margin: 0 0 12px;
-    }
     @media (max-width: 560px) {
       .facts {
         grid-template-columns: repeat(2, 1fr);

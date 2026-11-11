@@ -17,7 +17,7 @@ from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 
-from app.catalog.models import Product
+from app.catalog import service as catalog
 from app.core.audit import record_audit
 from app.core.auth import Principal, TenantDB, require_permission
 from app.core.errors import ProblemError
@@ -162,10 +162,6 @@ class ActionOut(BaseModel):
     created_at: datetime
 
 
-async def _products(db: TenantDB) -> list[Product]:
-    return list((await db.scalars(select(Product).order_by(Product.sku))).all())
-
-
 def _action_out(a: ActionItem) -> ActionOut:
     return ActionOut.model_validate(a, from_attributes=True)
 
@@ -174,7 +170,7 @@ def _action_out(a: ActionItem) -> ActionOut:
 async def get_insights(
     regime: EprRegime, _: Reader, db: TenantDB, year: Annotated[str | None, Query(max_length=8)] = None
 ) -> dict[str, Any]:
-    products = await _products(db)
+    products = await catalog.all_products(db)
     result = epr.calculate(regime, products, year)
     actions = {
         a.recommendation_id: a.id
@@ -194,7 +190,7 @@ async def get_insights(
 
 @router.post("/modules/epr/{regime}/scenario", response_model=ScenarioResult, summary="What-if fee (not saved)")
 async def run_scenario(regime: EprRegime, payload: ScenarioRequest, _: Reader, db: TenantDB) -> ScenarioResult:
-    products = await _products(db)
+    products = await catalog.all_products(db)
     overrides = {
         c.component_id: {k: v for k, v in (("weight_g", c.weight_g), ("material", c.material)) if v}
         for c in payload.changes

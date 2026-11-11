@@ -14,6 +14,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from app.catalog.fields import fmt
 from app.catalog.models import Product
 
 HEAVIER_BY = 1.2
@@ -28,10 +29,6 @@ def _kind(name: str) -> str | None:
     """The component's main noun: the last kind word in its name ("6-bottle case" is a case)."""
     words = re.findall(r"[a-z]+", name.lower())
     return next((w.rstrip("s") for w in reversed(words) if w.rstrip("s") in KINDS), None)
-
-
-def _fmt(n: float) -> str:
-    return f"{n:,.0f}" if n >= 100 else f"{n:,.1f}".rstrip("0").rstrip(".")
 
 
 def _volumes(products: list[Product]) -> dict[str, float]:
@@ -57,7 +54,7 @@ def hotspots(result: dict[str, Any]) -> dict[str, Any]:
     top3 = sum(c["fee"] for c in components[:3])
     return {
         "materials": [
-            {**m, "why": f"{_fmt(m['fee_tonnes'])} t × {_fmt(m['rate'])} {cur}/t"} for m in result["by_material"]
+            {**m, "why": f"{fmt(m['fee_tonnes'])} t × {fmt(m['rate'])} {cur}/t"} for m in result["by_material"]
         ],
         "products": [{**p, "share_pct": share(p["fee"])} for p in result["by_product"][:5] if p["fee"] > 0],
         "components": [
@@ -70,8 +67,8 @@ def hotspots(result: dict[str, Any]) -> dict[str, Any]:
                 "fee": round(c["fee"], 2),
                 "share_pct": share(c["fee"]),
                 "estimated": c["estimated"],
-                "why": f"{_fmt(c['per_unit_g'])} g × {c['fee_units'] / 1e6:,.2f}M units = {_fmt(c['tonnes'])} t "
-                f"at {_fmt(c['rate'])} {cur}/t",
+                "why": f"{fmt(c['per_unit_g'])} g × {c['fee_units'] / 1e6:,.2f}M units = {fmt(c['tonnes'])} t "
+                f"at {fmt(c['rate'])} {cur}/t",
             }
             for c in components
         ],
@@ -119,9 +116,9 @@ def recommendations(result: dict[str, Any], products: list[Product]) -> list[dic
                 "id": f"lightweight:{c['component_id']}",
                 "kind": "lightweight",
                 "title": f"Lightweight the {c['name'].lower()} of {c['product_name']}",
-                "detail": f"{_fmt(c['weight_g'])} g is {round((size(c) / avg - 1) * 100)}% heavier than similar "
+                "detail": f"{fmt(c['weight_g'])} g is {round((size(c) / avg - 1) * 100)}% heavier than similar "
                 f"{c['material'].lower()} {basis} ({len(peers)} compared). At their average it would weigh "
-                f"{_fmt(target_g)} g.",
+                f"{fmt(target_g)} g.",
                 "impact_value": round(saving, 2),
                 "impact_label": "Saving per year",
                 "effort": "medium",
@@ -170,7 +167,7 @@ def recommendations(result: dict[str, Any], products: list[Product]) -> list[dic
                     "id": f"measure:{c['component_id']}",
                     "kind": "measure",
                     "title": f"Measure the {c['name'].lower()} of {c['product_name']}",
-                    "detail": f"The fee uses an estimated or specification weight of {_fmt(c['weight_g'])} g.",
+                    "detail": f"The fee uses an estimated or specification weight of {fmt(c['weight_g'])} g.",
                     "impact_value": round(c["fee"], 2),
                     "impact_label": "Fee at stake",
                     "effort": "low",

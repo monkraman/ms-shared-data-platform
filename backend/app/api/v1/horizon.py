@@ -10,12 +10,14 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 
+from app.catalog import service as catalog
 from app.catalog.models import DataPoint, Product
 from app.core.audit import record_audit
 from app.core.auth import Principal, TenantDB, require_permission
 from app.core.errors import ProblemError
 from app.core.permissions import Perm
 from app.modules import horizon
+from app.platform.repository import current_tenant
 from app.quality import service as quality
 
 router = APIRouter(prefix="/modules/horizon", tags=["Horizon scanning"])
@@ -72,7 +74,7 @@ def _coverage(products: list[Product], codes: set[str]) -> dict[str, tuple[int, 
 
 
 async def _build(db: TenantDB) -> Horizon:
-    tenant = await quality.current_tenant(db)
+    tenant = await current_tenant(db)
     if tenant is None:
         raise ProblemError(403, "Choose a workspace first.")
     lead = tenant.horizon_lead_months
@@ -81,7 +83,7 @@ async def _build(db: TenantDB) -> Horizon:
         {"code": d.code, "name": d.name, "source": d.source, "applies_from": d.applies_from}
         for d in (await db.scalars(select(DataPoint).order_by(DataPoint.code))).all()
     ]
-    products = list((await db.scalars(select(Product))).all())
+    products = await catalog.all_products(db)
     gaps = [g for g in await quality.gaps(db, products) if g["status"] != "resolved"]
     modules, countries = set(tenant.modules), set(tenant.countries)
 
@@ -131,7 +133,7 @@ async def get_horizon(_: Reader, db: TenantDB) -> Horizon:
 
 @router.put("/settings", response_model=Horizon, summary="Set the lead time for data collection")
 async def set_lead_time(payload: HorizonSettings, principal: Admin, db: TenantDB) -> Horizon:
-    tenant = await quality.current_tenant(db)
+    tenant = await current_tenant(db)
     if tenant is None:
         raise ProblemError(403, "Choose a workspace first.")
     before = tenant.horizon_lead_months

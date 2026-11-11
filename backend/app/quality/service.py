@@ -2,18 +2,18 @@
 
 from __future__ import annotations
 
-import uuid
 from collections import Counter
 from datetime import date
 from typing import Any
 
-from sqlalchemy import select, text
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.catalog.models import DataPoint, Product
-from app.core.tenancy import TENANT_SETTING
+from app.catalog.service import all_products
 from app.modules import horizon
 from app.platform.models import Tenant
+from app.platform.repository import current_tenant
 from app.quality.engine import find_gaps
 from app.quality.estimates import propose
 from app.quality.models import GapRule, GapState
@@ -22,7 +22,7 @@ from app.quality.models import GapRule, GapState
 async def gaps(db: AsyncSession, products: list[Product] | None = None) -> list[dict[str, Any]]:
     """Every gap in the workspace (RLS scopes products and states), with its status."""
     if products is None:
-        products = list((await db.scalars(select(Product).order_by(Product.sku))).all())
+        products = await all_products(db)
     rules = applicable(list((await db.scalars(select(GapRule).order_by(GapRule.id))).all()), await current_tenant(db))
     states = {s.gap_id: s.status for s in (await db.scalars(select(GapState))).all()}
     by_rule = {r.id: r for r in rules}
@@ -46,12 +46,6 @@ async def gaps(db: AsyncSession, products: list[Product] | None = None) -> list[
             }
         )
     return out
-
-
-async def current_tenant(db: AsyncSession) -> Tenant | None:
-    """The workspace this session is bound to (RLS setting), if any."""
-    raw = await db.scalar(text(f"SELECT current_setting('{TENANT_SETTING}', true)"))
-    return await db.get(Tenant, uuid.UUID(raw)) if raw else None
 
 
 def applicable(rules: list[GapRule], tenant: Tenant | None) -> list[GapRule]:

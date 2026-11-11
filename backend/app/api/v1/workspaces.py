@@ -18,7 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.audit import AuditEvent, record_audit
 from app.core.auth import CurrentPrincipal, PlatformDB, Principal, require_permission
-from app.core.errors import ProblemError
+from app.core.errors import ProblemError, invalid_field
 from app.core.permissions import Perm
 from app.platform import repository as repo
 from app.platform.models import LegalEntity, Membership, Tenant, TenantRole, TenantStatus, UserStatus
@@ -131,26 +131,20 @@ class WorkspacePatch(_Branding):
 # --- Rules --------------------------------------------------------------------------
 
 
-def _invalid(field: str, msg: str) -> ProblemError:
-    return ProblemError(
-        422, "The request has invalid fields.", extra={"errors": [{"loc": ["body", field], "msg": msg}]}
-    )
-
-
 def _check_scope(countries: list[str], modules: list[str], entities: list[LegalEntityIn]) -> None:
     """At least one legal entity, country and module; known countries; EU modules need an EU country."""
     if not entities:
-        raise _invalid("legal_entities", "Add at least one legal entity")
+        raise invalid_field("legal_entities", "Add at least one legal entity")
     if any(e.country not in COUNTRY_CODES for e in entities):
-        raise _invalid("legal_entities", "Choose a supported country")
+        raise invalid_field("legal_entities", "Choose a supported country")
     if not countries:
-        raise _invalid("countries", "Choose at least one country")
+        raise invalid_field("countries", "Choose at least one country")
     if any(c not in COUNTRY_CODES for c in countries):
-        raise _invalid("countries", "Choose a supported country")
+        raise invalid_field("countries", "Choose a supported country")
     if not modules:
-        raise _invalid("modules", "Choose at least one module")
+        raise invalid_field("modules", "Choose at least one module")
     if EU_ONLY_MODULES & set(modules) and not EU_COUNTRIES & set(countries):
-        raise _invalid("modules", "PPWR and DPP need an EU country")
+        raise invalid_field("modules", "PPWR and DPP need an EU country")
 
 
 def _unique(values: list[str]) -> list[str]:
@@ -262,9 +256,9 @@ async def get_workspace(tenant_id: uuid.UUID, _: Reader, db: PlatformDB) -> Work
 )
 async def create_workspace(payload: WorkspaceCreate, principal: Manager, db: PlatformDB) -> Workspace:
     if not SLUG.match(payload.slug):
-        raise _invalid("slug", "Use 3–40 lowercase letters, numbers or hyphens")
+        raise invalid_field("slug", "Use 3–40 lowercase letters, numbers or hyphens")
     if await repo.get_tenant_by_slug(db, payload.slug):
-        raise _invalid("slug", "Already in use")
+        raise invalid_field("slug", "Already in use")
     countries, modules = _unique(payload.countries), _unique(payload.modules)
     _check_scope(countries, modules, payload.legal_entities)
 

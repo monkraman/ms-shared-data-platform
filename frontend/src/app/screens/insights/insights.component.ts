@@ -36,7 +36,7 @@ const MATERIALS = ['Plastic', 'Paper/board', 'Glass', 'Steel', 'Aluminium', 'Woo
       <a class="btn btn-secondary" routerLink="/app/actions">Actions</a>
     </app-page-header>
 
-    <nav class="tabs" role="tablist" aria-label="Regimes">
+    <nav class="segmented" role="tablist" aria-label="Regimes">
       @for (r of tabs(); track r.id) {
         <button type="button" role="tab" [attr.aria-selected]="active() === r.id" [class.on]="active() === r.id" (click)="switchTo(r.id)">
           {{ r.name }}
@@ -163,32 +163,6 @@ const MATERIALS = ['Plastic', 'Paper/board', 'Glass', 'Steel', 'Aluminium', 'Woo
     }
   `,
   styles: `
-    .tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      padding: 4px;
-      margin-bottom: 20px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      width: fit-content;
-      max-width: 100%;
-    }
-    .tabs button {
-      padding: 7px 14px;
-      border: 0;
-      border-radius: 9px;
-      background: none;
-      color: var(--muted);
-      font: inherit;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .tabs button.on {
-      background: var(--ink, #111);
-      color: #fff;
-    }
     .grid {
       display: grid;
       grid-template-columns: 3fr 2fr;
@@ -318,11 +292,6 @@ const MATERIALS = ['Plastic', 'Paper/board', 'Glass', 'Steel', 'Aluminium', 'Woo
     }
     .delta.up {
       color: #c0211f;
-    }
-    .section-title {
-      font-size: 15px;
-      font-weight: 600;
-      margin: 0 0 12px;
     }
     .recs {
       display: grid;

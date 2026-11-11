@@ -14,10 +14,10 @@ from functools import cache
 from pathlib import Path
 from typing import Any
 
-from app.catalog.models import FieldMap, Product
+from app.catalog.fields import NOT_MEASURED_SOURCES, number, value
+from app.catalog.models import Product
 
 _REFERENCE = Path(__file__).resolve().parent / "reference" / "regimes.json"
-ESTIMATED_SOURCES = {"Spec", "Estimated", "Estimate"}
 
 
 @cache
@@ -36,19 +36,10 @@ def material_code(material: str) -> str | None:
     return reference()["material_aliases"].get(text, "OT")
 
 
-def _v(fields: FieldMap, key: str) -> str:
-    return str((fields.get(key) or {}).get("value", "")).strip()
-
-
-def _num(text: str) -> float | None:
-    try:
-        return float(text) if text else None
-    except ValueError:
-        return None
-
-
 def years(products: list[Product]) -> list[str]:
-    return sorted({_v(s.fields, "period") for p in products for s in p.sales if _v(s.fields, "period")}, reverse=True)
+    return sorted(
+        {value(s.fields, "period") for p in products for s in p.sales if value(s.fields, "period")}, reverse=True
+    )
 
 
 def calculate(
@@ -74,7 +65,7 @@ def calculate(
     missing_weight = estimated = components = without_sales = 0
 
     for p in products:
-        lines = [s for s in p.sales if _v(s.fields, "period") == year]
+        lines = [s for s in p.sales if value(s.fields, "period") == year]
         if not lines:
             without_sales += 1
         p_tonnes = p_fee = 0.0
@@ -82,24 +73,26 @@ def calculate(
         for c in p.components:
             components += 1
             change = overrides.get(c.code, {})
-            weight = _num(change.get("weight_g") or _v(c.fields, "weight_g"))
-            material = change.get("material") or _v(c.fields, "material")
+            weight = number(change.get("weight_g") or value(c.fields, "weight_g"))
+            material = change.get("material") or value(c.fields, "material")
             code = material_code(material)
             if weight is None or code is None:
                 missing_weight += 1
                 continue
-            if _v(c.fields, "weight_source") in ESTIMATED_SOURCES:
+            if value(c.fields, "weight_source") in NOT_MEASURED_SOURCES:
                 estimated += 1
-            per_unit_g = weight / (_num(_v(c.fields, "units_per_pack")) or 1)
+            per_unit_g = weight / (number(value(c.fields, "units_per_pack")) or 1)
             c_tonnes = c_fee = c_units = 0.0
             for s in lines:
-                units = max((_num(_v(s.fields, "units_placed")) or 0) - (_num(_v(s.fields, "units_exported")) or 0), 0)
+                units = max(
+                    (number(value(s.fields, "units_placed")) or 0) - (number(value(s.fields, "units_exported")) or 0), 0
+                )
                 t = units * per_unit_g / 1_000_000
                 tonnes[code] += t
                 p_tonnes += t
                 p_materials[code] += t
                 c_tonnes += t
-                if _v(s.fields, "channel") in fee_channels:
+                if value(s.fields, "channel") in fee_channels:
                     fee_tonnes[code] += t
                     p_fee += t * rates.get(code, rates["OT"])
                     c_fee += t * rates.get(code, rates["OT"])
@@ -107,10 +100,10 @@ def calculate(
             by_component.append(
                 {
                     "sku": p.sku,
-                    "product_name": _v(p.fields, "product_name") or p.sku,
+                    "product_name": value(p.fields, "product_name") or p.sku,
                     "component_id": c.code,
-                    "name": _v(c.fields, "component_name"),
-                    "level": _v(c.fields, "packaging_level"),
+                    "name": value(c.fields, "component_name"),
+                    "level": value(c.fields, "packaging_level"),
                     "material": material,
                     "material_code": code,
                     "weight_g": weight,
@@ -119,16 +112,16 @@ def calculate(
                     "tonnes": c_tonnes,
                     "fee": c_fee,
                     "rate": rates.get(code, rates["OT"]),
-                    "estimated": _v(c.fields, "weight_source") in ESTIMATED_SOURCES,
-                    "recyclability": _v(c.fields, "recyclability_result"),
-                    "recycled_content_pct": _num(_v(c.fields, "recycled_content_pct")),
+                    "estimated": value(c.fields, "weight_source") in NOT_MEASURED_SOURCES,
+                    "recyclability": value(c.fields, "recyclability_result"),
+                    "recycled_content_pct": number(value(c.fields, "recycled_content_pct")),
                 }
             )
         main = max(p_materials, key=p_materials.get) if p_materials else None
         by_product.append(
             {
                 "sku": p.sku,
-                "name": _v(p.fields, "product_name") or p.sku,
+                "name": value(p.fields, "product_name") or p.sku,
                 "tonnes": round(p_tonnes, 3),
                 "fee": round(p_fee, 2),
                 "main_material": names[main] if main else None,

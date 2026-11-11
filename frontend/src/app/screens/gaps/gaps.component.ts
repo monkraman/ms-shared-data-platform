@@ -53,7 +53,7 @@ import { toCsv } from '../import/csv';
       <div class="kpi"><div class="kpi-label">Resolved</div><div class="kpi-value">{{ byStatus('resolved') }}</div></div>
     </div>
 
-    <div class="modes groups" role="tablist" aria-label="Gap groups">
+    <div class="segmented" role="tablist" aria-label="Gap groups">
       <button type="button" role="tab" [class.on]="group() === ''" (click)="group.set('')">All</button>
       <button type="button" role="tab" [class.on]="group() === 'estimable'" (click)="group.set('estimable')">
         Can be estimated <span class="count">{{ groupCount(true) }}</span>
@@ -139,7 +139,7 @@ import { toCsv } from '../import/csv';
 
         @if (g.status !== 'resolved') {
           <div class="section-label">Fix</div>
-          <div class="modes" role="tablist">
+          <div class="segmented" role="tablist">
             @if (g.estimate) {
               <button type="button" role="tab" [class.on]="mode() === 'use_estimate'" (click)="mode.set('use_estimate')">Use estimate</button>
             }
@@ -175,43 +175,8 @@ import { toCsv } from '../import/csv';
     </app-drawer>
   `,
   styles: `
-    .modes {
-      display: inline-flex;
-      gap: 4px;
-      padding: 4px;
-      margin-bottom: 14px;
-      border-radius: 10px;
-      background: var(--bg);
-    }
-    .modes button {
-      border: 0;
-      background: none;
-      padding: 7px 12px;
-      border-radius: 8px;
-      font: inherit;
-      font-weight: 600;
-      color: var(--muted);
-      cursor: pointer;
-    }
-    .modes button.on {
-      background: var(--card);
-      color: var(--ink);
-      box-shadow: var(--shadow-sm);
-    }
     textarea {
       min-height: 90px;
-    }
-    .groups {
-      margin-bottom: 12px;
-      background: var(--card);
-      border: 1px solid var(--border);
-    }
-    .groups .count {
-      margin-left: 6px;
-      padding: 1px 7px;
-      border-radius: 999px;
-      background: var(--bg);
-      font-size: 12px;
     }
     .estimate {
       display: flex;

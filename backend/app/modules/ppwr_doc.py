@@ -10,7 +10,8 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from app.catalog.models import FieldMap, Product
+from app.catalog.fields import number, value
+from app.catalog.models import Product
 
 Lang = Literal["en", "da"]
 
@@ -90,17 +91,6 @@ MATERIALS_DA = {
 }
 
 
-def _v(fields: FieldMap, key: str) -> str:
-    return str((fields.get(key) or {}).get("value", "")).strip()
-
-
-def _num(text: str) -> float | None:
-    try:
-        return float(text) if text else None
-    except ValueError:
-        return None
-
-
 def _requirement(key: str, t: dict[str, str], status: str, evidence: list[str]) -> dict[str, Any]:
     return {"key": key, "label": t[f"req_{key}"], "status": status, "evidence": evidence}
 
@@ -112,15 +102,15 @@ def requirements(p: Product, t: dict[str, str]) -> list[dict[str, Any]]:
     # Substances: heavy metals within the limit; PFAS and SoC declarations where needed.
     subst, s_status = [], "ok"
     for c in comps:
-        name = _v(c.fields, "component_name")
-        metals = _num(_v(c.fields, "heavy_metals_mgkg"))
+        name = value(c.fields, "component_name")
+        metals = number(value(c.fields, "heavy_metals_mgkg"))
         if metals is None:
             s_status = "missing"
         elif metals > HEAVY_METALS_LIMIT_MGKG:
             s_status = "warning" if s_status == "ok" else s_status
             subst.append(f"{name}: {metals:g} mg/kg > {HEAVY_METALS_LIMIT_MGKG}")
-        if _v(c.fields, "food_contact") == "Yes":
-            ref = _v(c.fields, "pfas_declaration_ref")
+        if value(c.fields, "food_contact") == "Yes":
+            ref = value(c.fields, "pfas_declaration_ref")
             if ref in ("", "n/a"):
                 s_status = "missing"
             else:
@@ -128,7 +118,7 @@ def requirements(p: Product, t: dict[str, str]) -> list[dict[str, Any]]:
     # Recyclability per component.
     rec, r_status = [], "ok"
     for c in comps:
-        result = _v(c.fields, "recyclability_result")
+        result = value(c.fields, "recyclability_result")
         if not result:
             r_status = "missing"
         elif result in ("Poor", "Not recyclable"):
@@ -136,27 +126,29 @@ def requirements(p: Product, t: dict[str, str]) -> list[dict[str, Any]]:
         elif result == "Limited" and r_status == "ok":
             r_status = "warning"
         if result:
-            rec.append(f"{_v(c.fields, 'component_name')}: {result}")
+            rec.append(f"{value(c.fields, 'component_name')}: {result}")
     # Recycled content in plastic components, with a certificate when claimed.
     rc, rc_status = [], "ok"
-    plastics = [c for c in comps if _v(c.fields, "material").lower() == "plastic"]
+    plastics = [c for c in comps if value(c.fields, "material").lower() == "plastic"]
     for c in plastics:
-        pct = _num(_v(c.fields, "recycled_content_pct"))
-        cert = _v(c.fields, "recycled_content_cert")
+        pct = number(value(c.fields, "recycled_content_pct"))
+        cert = value(c.fields, "recycled_content_cert")
         if pct is None:
             rc_status = "missing"
         else:
-            rc.append(f"{_v(c.fields, 'component_name')}: {pct:g}%" + (f" ({cert})" if cert not in ("", "n/a") else ""))
+            rc.append(
+                f"{value(c.fields, 'component_name')}: {pct:g}%" + (f" ({cert})" if cert not in ("", "n/a") else "")
+            )
             if pct > 0 and cert in ("", "n/a"):
                 rc_status = "missing"
     if not plastics:
         rc = ["—"]
     # Minimisation.
-    mini_ref, ratio = _v(fields, "minimisation_assessment_ref"), _v(fields, "empty_space_ratio_pct")
+    mini_ref, ratio = value(fields, "minimisation_assessment_ref"), value(fields, "empty_space_ratio_pct")
     m_status = "ok" if mini_ref else "missing"
     mini = [x for x in (mini_ref, f"{ratio}%" if ratio else "") if x]
     # Labelling.
-    label, carrier = _v(fields, "harmonised_label_status"), _v(fields, "data_carrier_url")
+    label, carrier = value(fields, "harmonised_label_status"), value(fields, "data_carrier_url")
     l_status = "missing" if not label else ("ok" if label in ("In place", "Done", "Yes") else "warning")
     lab = [x for x in (label, carrier) if x]
 
@@ -173,7 +165,7 @@ def declaration(p: Product, lang: Lang, manufacturer_fallback: str) -> dict[str,
     t = TEXT[lang]
     fields = {**p.fields, **p.passport}
     reqs = requirements(p, t)
-    missing = [k for k in HEADER_FIELDS if not _v(fields, k)]
+    missing = [k for k in HEADER_FIELDS if not value(fields, k)]
     status = "ready" if not missing and all(r["status"] != "missing" for r in reqs) else "draft"
 
     def level(text: str) -> str:
@@ -188,23 +180,23 @@ def declaration(p: Product, lang: Lang, manufacturer_fallback: str) -> dict[str,
         "status_label": t[status],
         "text": t,
         "sku": p.sku,
-        "product_name": _v(fields, "product_name") or p.sku,
-        "gtin": _v(fields, "gtin"),
-        "reference": _v(fields, "doc_reference"),
-        "version": _v(fields, "doc_version"),
-        "manufacturer": _v(fields, "doc_manufacturer") or manufacturer_fallback,
-        "signatory": _v(fields, "doc_signatory"),
-        "issue_date": _v(fields, "doc_issue_date"),
-        "retention_until": _v(fields, "retention_until"),
-        "technical_file_refs": [r.strip() for r in _v(fields, "technical_file_refs").split(";") if r.strip()],
+        "product_name": value(fields, "product_name") or p.sku,
+        "gtin": value(fields, "gtin"),
+        "reference": value(fields, "doc_reference"),
+        "version": value(fields, "doc_version"),
+        "manufacturer": value(fields, "doc_manufacturer") or manufacturer_fallback,
+        "signatory": value(fields, "doc_signatory"),
+        "issue_date": value(fields, "doc_issue_date"),
+        "retention_until": value(fields, "retention_until"),
+        "technical_file_refs": [r.strip() for r in value(fields, "technical_file_refs").split(";") if r.strip()],
         "components": [
             {
-                "name": _v(c.fields, "component_name"),
-                "level": level(_v(c.fields, "packaging_level")),
-                "material": material(_v(c.fields, "material")),
-                "weight_g": _v(c.fields, "weight_g"),
-                "recycled_content_pct": _v(c.fields, "recycled_content_pct"),
-                "recyclability": _v(c.fields, "recyclability_result"),
+                "name": value(c.fields, "component_name"),
+                "level": level(value(c.fields, "packaging_level")),
+                "material": material(value(c.fields, "material")),
+                "weight_g": value(c.fields, "weight_g"),
+                "recycled_content_pct": value(c.fields, "recycled_content_pct"),
+                "recyclability": value(c.fields, "recyclability_result"),
             }
             for c in p.components
         ],

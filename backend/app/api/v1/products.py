@@ -7,13 +7,11 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel, Field
-from sqlalchemy import select
 
 from app.catalog import service as catalog
-from app.catalog.models import Product
 from app.core.audit import record_audit
 from app.core.auth import Principal, TenantDB, require_permission
-from app.core.errors import ProblemError
+from app.core.errors import ProblemError, invalid_field
 from app.core.permissions import Perm
 from app.quality import service as quality
 
@@ -88,12 +86,6 @@ class ProductCreate(BaseModel):
     components: list[ComponentIn]
 
 
-def _invalid(field: str, msg: str) -> ProblemError:
-    return ProblemError(
-        422, "The request has invalid fields.", extra={"errors": [{"loc": ["body", field], "msg": msg}]}
-    )
-
-
 Reader = Annotated[Principal, Depends(require_permission(Perm.PRODUCTS_READ))]
 Manager = Annotated[Principal, Depends(require_permission(Perm.PRODUCTS_MANAGE))]
 
@@ -102,7 +94,7 @@ Manager = Annotated[Principal, Depends(require_permission(Perm.PRODUCTS_MANAGE))
 async def list_products(
     _: Reader, db: TenantDB, q: Annotated[str | None, Query(max_length=100)] = None
 ) -> list[dict[str, object]]:
-    products = list((await db.scalars(select(Product).order_by(Product.sku))).all())
+    products = await catalog.all_products(db)
     open_gaps = quality.open_by_sku(await quality.gaps(db, products))
     rows = [catalog.summary(p, open_gaps[p.sku]) for p in products]
     if q:
@@ -123,13 +115,13 @@ async def get_product(sku: str, _: Reader, db: TenantDB) -> dict[str, object]:
 @router.post("", response_model=ProductOut, status_code=status.HTTP_201_CREATED, summary="Add a product by hand")
 async def create_product(payload: ProductCreate, principal: Manager, db: TenantDB) -> dict[str, object]:
     if not SKU.match(payload.sku):
-        raise _invalid("sku", "Use 3–30 capital letters, numbers or hyphens")
+        raise invalid_field("sku", "Use 3–30 capital letters, numbers or hyphens")
     if await catalog.get_by_sku(db, payload.sku):
-        raise _invalid("sku", "Already exists")
+        raise invalid_field("sku", "Already exists")
     if payload.gtin and not GTIN.match(payload.gtin):
-        raise _invalid("gtin", "Use 8–14 digits")
+        raise invalid_field("gtin", "Use 8–14 digits")
     if not payload.components:
-        raise _invalid("components", "Add at least one component")
+        raise invalid_field("components", "Add at least one component")
     assert principal.tenant_id is not None  # TenantDB guarantees a workspace
     product, _ = await catalog.upsert(
         db,
