@@ -30,8 +30,21 @@ jobs:
     defaults:
       run:
         working-directory: backend
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       APP_ENV: test
+      # Superuser URL used only to create a non-superuser role and a throwaway database,
+      # so Row-Level Security is tested the way the app runs in production.
+      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -40,7 +53,20 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements.txt
       - run: pip install -r requirements.txt
-      - run: python -m pytest -q
+      - name: Lint new foundation code
+        run: |
+          ruff check $NEW_CODE
+          ruff format --check $NEW_CODE
+        env:
+          NEW_CODE: >-
+            app/core/auth.py app/core/audit.py app/core/config.py app/core/db.py app/core/errors.py
+            app/core/jobs.py app/core/permissions.py app/core/request_context.py app/core/tenancy.py
+            app/platform app/api/v1/jobs.py app/api/v1/health.py app/seed.py app/worker.py app/models.py
+            migrations tests/test_foundation.py tests/conftest.py
+      - name: Tests (including PostgreSQL RLS and tenant isolation)
+        run: python -m pytest -q -rs
+      - name: Database tests must not be skipped in CI
+        run: python -m pytest -q tests/test_foundation.py -rs | tee /tmp/db.txt && ! grep -q "SKIPPED" /tmp/db.txt
 
   frontend:
     name: Frontend build and tests

@@ -1,0 +1,11 @@
+{
+  "tenants": [
+    {"slug": "nordhavn-spirits", "name": "Nordhavn Spirits ApS", "status": "active"},
+    {"slug": "harbour-foods", "name": "Harbour Foods Ltd", "status": "active"}
+  ],
+  "users": [
+    {"email": "superadmin@demo.monkspaces.test", "full_name": "Platform Admin", "is_platform_admin": true, "memberships": []},
+    {"email": "admin@nordhavn.demo.test", "full_name": "Jonas Moller", "memberships": [{"tenant": "nordhavn-spirits", "role": "org_admin"}]},
+    {"email": "admin@harbour.demo.test", "full_name": "Priya Shah", "memberships": [{"tenant": "harbour-foods", "role": "org_admin"}]}
+  ]
+}
