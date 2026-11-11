@@ -78,10 +78,8 @@ def test_prototype_user_moves_to_database_on_first_sign_in(api: TestClient) -> N
 
     assert db_client_hash_is_argon2(api.portal.call(stored_hash))
 
-    # The same token works on the new API and on the prototype's endpoints.
     me = api.get("/api/v1/auth/me", headers=bearer(res)).json()
     assert me["active_tenant"]["slug"] == "khc-europe"
-    assert api.get("/api/v1/foundation/products", headers=bearer(res)).status_code == 200
 
     # From now on the database decides.
     assert sign_in(api, "compliance.officer@kraftheinz.com", "wrong-password").status_code == 401

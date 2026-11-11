@@ -5,15 +5,12 @@ import { catchError, from, switchMap, throwError } from 'rxjs';
 import { PLATFORM_API, SKIP_SESSION_HANDLING } from '../api/api-client';
 import { SessionService } from '../session/session.service';
 
-const ACTIVE_TENANT_KEY = 'compliance_hub_active_tenant';
-
 /**
  * Every API request carries the current access token. On 401 the session is refreshed once
  * from the refresh cookie and the request retried; if that fails, the user signs in again
  * and comes back to the same page. A 403 on a platform page load shows the no-permission page.
  *
- * The workspace comes from the token. Only platform admins working in the prototype's admin
- * console still choose one with `X-Tenant-ID`.
+ * The workspace comes from the token only; no tenant header is ever sent.
  */
 export const sessionInterceptor: HttpInterceptorFn = (req, next) => {
   if (!req.url.includes('/api/')) return next(req);
@@ -23,14 +20,8 @@ export const sessionInterceptor: HttpInterceptorFn = (req, next) => {
 
   const withToken = (r: HttpRequest<unknown>) => {
     const token = session.token();
-    let headers = token ? r.headers.set('Authorization', `Bearer ${token}`) : r.headers.delete('Authorization');
-    if (session.profile()?.role === 'superadmin') {
-      const chosen = readActiveTenant();
-      if (chosen && !headers.has('X-Tenant-ID')) headers = headers.set('X-Tenant-ID', chosen);
-    } else {
-      headers = headers.delete('X-Tenant-ID');
-    }
-    return r.clone({ headers });
+    const headers = token ? r.headers.set('Authorization', `Bearer ${token}`) : r.headers.delete('Authorization');
+    return r.clone({ headers: headers.delete('X-Tenant-ID') });
   };
 
   if (req.context.get(SKIP_SESSION_HANDLING)) return next(req);
@@ -57,11 +48,3 @@ export const sessionInterceptor: HttpInterceptorFn = (req, next) => {
     }),
   );
 };
-
-function readActiveTenant(): string | null {
-  try {
-    return localStorage.getItem(ACTIVE_TENANT_KEY);
-  } catch {
-    return null;
-  }
-}

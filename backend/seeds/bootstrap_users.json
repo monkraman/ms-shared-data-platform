@@ -1,0 +1,50 @@
+{
+  "_": "Demo accounts carried over from the prototype. Created in the database on first sign-in with these Argon2 hashes (the prototype's demo passwords). Delete this file to stop it.",
+  "users": [
+    {
+      "email": "superadmin@monkspaces.com",
+      "full_name": "Platform Administrator",
+      "is_platform_admin": true,
+      "tenant": null,
+      "tenant_name": null,
+      "role": null,
+      "password_hash": "$argon2id$v=19$m=65536,t=3,p=4$R6fhrOqGUhhur2yqgCFJmg$odJVoyQTEQv3G5oAP+rqBV3De+PtmYHonBW3wijOIv0"
+    },
+    {
+      "email": "compliance.officer@kraftheinz.com",
+      "full_name": "Sarah Mitchell",
+      "is_platform_admin": false,
+      "tenant": "khc-europe",
+      "tenant_name": "The Kraft Heinz Company Europe",
+      "role": "org_admin",
+      "password_hash": "$argon2id$v=19$m=65536,t=3,p=4$HYE75yAlD/S0gQUxALpj+Q$oZcGJhKKVLvKLxbMJ6ufKbc2/3cQnueI1YdCsUeFJrs"
+    },
+    {
+      "email": "packaging.lead@kraftheinz.com",
+      "full_name": "David Warner",
+      "is_platform_admin": false,
+      "tenant": "khc-europe",
+      "tenant_name": "The Kraft Heinz Company Europe",
+      "role": "analyst",
+      "password_hash": "$argon2id$v=19$m=65536,t=3,p=4$LHB+lQAYtFkI9hYYpJ3J0A$9xHJqaDTi89u2JNZI3RrX0Sle+7IJp2TAJ4YQ+n+RBQ"
+    },
+    {
+      "email": "esg.director@kraftheinz.com",
+      "full_name": "Claire Dupont",
+      "is_platform_admin": false,
+      "tenant": "khc-europe",
+      "tenant_name": "The Kraft Heinz Company Europe",
+      "role": "viewer",
+      "password_hash": "$argon2id$v=19$m=65536,t=3,p=4$wwu3yKNQetW4Nz2EDDGdTg$FF+Qifu4Nzu/UeIUwetWw2pWlm8kAtu1l7bWNXi0Nww"
+    },
+    {
+      "email": "admin@nordhavn-spirits.com",
+      "full_name": "Jonas Møller",
+      "is_platform_admin": false,
+      "tenant": "nordhavn-spirits",
+      "tenant_name": "Nordhavn Spirits ApS",
+      "role": "org_admin",
+      "password_hash": "$argon2id$v=19$m=65536,t=3,p=4$aOXiEJ6VhyYN8qy7p6p6og$GOGfNjKTDymmX8iV+n9hloZQcWqL+IbrHtQtk7RFmH0"
+    }
+  ]
+}

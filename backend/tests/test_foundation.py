@@ -5,6 +5,7 @@ from __future__ import annotations
 import time
 import uuid
 
+import jwt
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import func, select, text
@@ -14,7 +15,7 @@ from app.core.audit import AuditEvent, record_audit
 from app.core.auth import create_platform_token, load_principal
 from app.core.jobs import Job, JobStatus, enqueue
 from app.core.permissions import PLATFORM_ADMIN_PERMISSIONS, Perm, permissions_for
-from app.core.security import create_access_token
+from app.core.security import ALGORITHM, SECRET_KEY
 from app.core.tenancy import tenant_session
 from app.platform import repository as repo
 from app.platform.models import TenantRole, TenantStatus
@@ -39,7 +40,8 @@ def test_request_id_is_echoed_when_safe(client: TestClient) -> None:
 
 
 def test_prototype_tokens_are_refused(client: TestClient) -> None:
-    legacy = create_access_token({"sub": "a@b.test", "role": "superadmin"})
+    # The prototype's token shape: no version, no audience.
+    legacy = jwt.encode({"sub": "a@b.test", "role": "superadmin"}, SECRET_KEY, algorithm=ALGORITHM)
     res = client.get(f"/api/v1/jobs/{uuid.uuid4()}", headers={"Authorization": f"Bearer {legacy}"})
     assert res.status_code == 401
 

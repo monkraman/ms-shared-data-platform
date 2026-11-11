@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { SessionService, SignInReason, errorMessage } from '../../core/session/session.service';
 import { ThemeService } from '../../core/services/theme.service';
-import { TenantApiService } from '../../core/services/tenant-api.service';
 
 const NOTICES: Record<SignInReason, string> = {
   expired: 'Your session expired. Sign in again.',
@@ -29,7 +28,6 @@ export class SignInComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly session = inject(SessionService);
-  private readonly tenantService = inject(TenantApiService);
   readonly themeService = inject(ThemeService);
 
   readonly authenticating = signal(false);
@@ -70,8 +68,7 @@ export class SignInComponent {
     this.authenticating.set(true);
     const { email, password } = this.signInForm.getRawValue();
     try {
-      const res = await this.session.signIn(email.trim(), password);
-      if (res.user.organisation_slug) this.tenantService.setActiveTenant(res.user.organisation_slug);
+      await this.session.signIn(email.trim(), password);
       await this.router.navigateByUrl(await this.destination());
     } catch (error) {
       this.errorMessage.set(errorMessage(error));

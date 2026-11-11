@@ -1,6 +1,6 @@
 # Foundation guide (Step 0)
 
-How every new screen uses the foundation. The prototype (`app/services/store.py` and the old `/api/v1` routes) stays as it is until each screen replaces it; new code never imports `store.py`.
+How every screen uses the foundation.
 
 ## Run it
 
@@ -36,7 +36,7 @@ Tests: `python -m pytest`. Database tests need `TEST_DATABASE_URL` (a Postgres U
 
 ## Frontend
 
-Platform screens live under `/app` in the new shell (`features/shell`); prototype pages keep their old layout until their screen is rebuilt.
+Platform screens live under `/app` in the shell (`features/shell`).
 
 | Need | Use |
 | --- | --- |
@@ -55,7 +55,7 @@ Design rules: labels and data only, with no taglines, helper text or secondary l
 ## Security notes
 
 - Every transaction runs `SET LOCAL ROLE compliance_rls` (migration 0002), a role that cannot bypass RLS, so isolation holds even though Neon's login role has BYPASSRLS. The migration user needs CREATEROLE. Never connect as a Postgres superuser: a superuser can switch roles freely and skips RLS anyway.
-- Access tokens (`ver: 2`) last 15 minutes and live in sessionStorage. Refresh tokens last 8 hours from sign-in, are httpOnly cookies, are stored only as SHA-256 hashes and are replaced on every refresh. Five wrong passwords lock an account for 15 minutes. Prototype tokens are refused by new endpoints.
+- Access tokens (`ver: 2`) last 15 minutes and live in sessionStorage. Refresh tokens last 8 hours from sign-in, are httpOnly cookies, are stored only as SHA-256 hashes and are replaced on every refresh. Five wrong passwords lock an account for 15 minutes.
 - `app.platform_access` is set only by `PlatformDB` after checking the user is a platform admin.
 
 ## Deploys
