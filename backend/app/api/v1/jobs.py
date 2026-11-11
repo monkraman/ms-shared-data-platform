@@ -39,8 +39,8 @@ class JobOut(BaseModel):
 )
 async def get_job(
     job_id: uuid.UUID,
-    session: TenantDB,
     _: Annotated[Principal, Depends(require_permission(Perm.JOBS_READ))],
+    session: TenantDB,
 ) -> JobOut:
     job = await session.get(Job, job_id)
     if job is None:  # Jobs of other tenants are invisible through RLS.

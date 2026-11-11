@@ -18,7 +18,7 @@ Tests: `python -m pytest`. Database tests need `TEST_DATABASE_URL` (a Postgres U
 
 1. Model in the domain package (for example `app/data/products/models.py`), with `tenant_id: Mapped[uuid.UUID]`, and import it in `app/models.py`.
 2. `alembic revision --autogenerate -m "screen 4 products"`, review the file, then add `enable_tenant_rls(op, "products")` after `create_table`.
-3. Endpoints take `session: TenantDB` and `Depends(require_permission(Perm.X))`. Never filter by tenant by hand and never take a tenant from the request: RLS does the filtering, and the tenant comes from the token.
+3. Endpoints take `Depends(require_permission(Perm.X))` first and `session: TenantDB` after it (FastAPI resolves them in order, so the permission check runs first). Never filter by tenant by hand and never take a tenant from the request: RLS does the filtering, and the tenant comes from the token.
 4. Changes call `record_audit(session, principal=..., action=..., before=..., after=...)` in the same transaction.
 5. Add the screen's permissions to `app/core/permissions.py` and the roles that get them.
 6. Add a tenant-isolation test: data created in tenant A is invisible (404) to tenant B's user.
