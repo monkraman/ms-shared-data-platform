@@ -30,7 +30,7 @@ Status values: Not started · Spec agreed · In build · In review · Done.
 
 | # | Screen | Role | Needs | Reuse from today | Size | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| 0 | Foundation (not a screen) | Both | — | Schema drafts, test suite | L | In build (backend done) |
+| 0 | Foundation (not a screen) | Both | — | Schema drafts, test suite | L | In review (sign-in lands with screen 1; EU staging open) |
 | 1 | Sign-in and session | Both | 0 | Sign-in layout and styles | M | Not started |
 | 2 | Client workspaces and setup wizard | SuperAdmin | 1 | Workspace cards, onboarding steps 1–2, theme engine | L | Not started |
 | 3 | Data point dictionary | SuperAdmin | 2 | Data points page, `REGULATORY_DATA_DICTIONARY_SPEC.csv` | M | Not started |
@@ -108,16 +108,16 @@ Step 0 builds the plumbing every screen reuses, so no screen has to invent its o
 
 ### Frontend
 
-- [ ] Generated TypeScript API client from OpenAPI, regenerated in CI.
-- [ ] App shell: layout, sidebar built from the user's permissions, tenant name and branding from the API.
-- [ ] Auth interceptor reads the token only; the tenant comes from the token, and the `localStorage` tenant and API-URL overrides are removed.
-- [ ] Shared component library started: page header, data table, form field, status chip, empty state, error state, toast.
-- [ ] Global error handling: 401 goes to sign-in, 403 shows a no-permission page.
+- [x] Generated TypeScript API client from OpenAPI, regenerated in CI.
+- [x] App shell: layout, sidebar built from the user's permissions, tenant name from the API. *(Branding arrives with screen 2.)*
+- [x] Auth interceptor reads the token only; the tenant comes from the token, and the API-URL override is removed. *(The legacy interceptor still serves prototype pages until each screen moves over.)*
+- [x] Shared component library started: page header, data table, form field, status chip, empty state, error state, toast.
+- [x] Global error handling: 401 goes to sign-in, 403 shows a no-permission page.
 
 ### Delivery
 
 - [x] Docker Compose for API, worker, Postgres, Redis and object storage.
-- [ ] GitHub Actions: lint, type check, backend and frontend tests, secret scan, build.
+- [x] GitHub Actions: lint, type check, backend and frontend tests, secret scan, build, API contract check.
 - [ ] Staging environment in an EU region, deployed from `main`.
 - [x] Current app tagged (`demo-2026-11-11`) and kept on a `demo` branch.
 

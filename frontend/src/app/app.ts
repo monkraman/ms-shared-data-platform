@@ -1,5 +1,5 @@
 import { Component, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { APP_CONFIG } from './core/config/client-theme.config';
@@ -9,11 +9,12 @@ import { ThemeService } from './core/services/theme.service';
 import { QualityApiService } from './core/services/quality-api.service';
 import { ToastService } from './core/services/toast.service';
 import { SidebarComponent } from './shared/components/sidebar/sidebar.component';
+import { ToastOutletComponent } from './shared/ui';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, SidebarComponent],
+  imports: [CommonModule, RouterOutlet, SidebarComponent, ToastOutletComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
@@ -26,7 +27,8 @@ export class App {
   readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
 
-  readonly currentUrl = signal<string>(this.router.url);
+  // Start from the browser's path: router.url is '/' until the first navigation ends.
+  readonly currentUrl = signal<string>(inject(DOCUMENT).location.pathname);
   readonly mobileNavOpen = signal<boolean>(false);
 
   // Active Tenant signals
@@ -70,10 +72,11 @@ export class App {
     this.qualityService.loadIssues().subscribe();
   }
 
-  /** Hide the global shell on sign-in, admin and onboarding pages (standalone layouts) */
+  /** The prototype's shell; sign-in, admin, onboarding and platform screens (/app) bring their own layout. */
   readonly showGlobalNav = computed(() => {
     const url = this.currentUrl();
-    return !url.includes('/sign-in') && !url.includes('/admin') && !url.includes('/onboarding');
+    const ownLayout = url.startsWith('/app') || url.startsWith('/no-permission');
+    return !ownLayout && !url.includes('/sign-in') && !url.includes('/admin') && !url.includes('/onboarding');
   });
 
   toggleMobileNav(): void {

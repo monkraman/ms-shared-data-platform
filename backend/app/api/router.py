@@ -1,7 +1,7 @@
 """Main API router combining domain and system endpoints."""
 
 from fastapi import APIRouter
-from app.api.v1 import health, tenants, foundation, quality, epr, auth, config, compliance_modules, jobs
+from app.api.v1 import health, tenants, foundation, quality, epr, auth, config, compliance_modules, jobs, me
 
 api_router = APIRouter()
 
@@ -31,3 +31,4 @@ api_router.include_router(compliance_modules.router)
 
 # Platform foundation (Step 0): background job status
 api_router.include_router(jobs.router)
+api_router.include_router(me.router)

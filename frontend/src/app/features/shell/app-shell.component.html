@@ -1,0 +1,49 @@
+<div class="shell" [class.menu-open]="menuOpen()">
+  <header class="topbar">
+    <button type="button" class="btn btn-ghost icon" (click)="menuOpen.set(!menuOpen())" aria-label="Menu"
+            [attr.aria-expanded]="menuOpen()" aria-controls="sidebar">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11" />
+      </svg>
+    </button>
+    <span class="workspace">{{ session.workspaceName() }}</span>
+  </header>
+
+  <nav id="sidebar" class="sidebar" aria-label="Main">
+    <div class="workspace" [title]="session.workspaceName()">{{ session.workspaceName() }}</div>
+
+    <ul>
+      @for (item of nav(); track item.path) {
+        <li>
+          <a [routerLink]="item.path" routerLinkActive="active" ariaCurrentWhenActive="page"
+             [routerLinkActiveOptions]="{ exact: !!item.exact }">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"
+                 stroke-linejoin="round" aria-hidden="true">
+              <path [attr.d]="item.icon" />
+            </svg>
+            {{ item.label }}
+          </a>
+        </li>
+      }
+    </ul>
+
+    <div class="user">
+      <span class="avatar" aria-hidden="true">{{ initials() }}</span>
+      <span class="name">{{ session.me()?.user?.full_name }}</span>
+      <button type="button" class="btn btn-ghost icon" (click)="signOut()" aria-label="Sign out" title="Sign out">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 13.5H3.5a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1H6M10.5 11 13.5 8l-3-3M13.5 8H6" />
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <div class="backdrop" (click)="menuOpen.set(false)" aria-hidden="true"></div>
+
+  <main class="page">
+    <router-outlet />
+  </main>
+</div>
+
+<app-toast-outlet />
