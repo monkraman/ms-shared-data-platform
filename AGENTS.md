@@ -17,6 +17,7 @@ The prototype is being rebuilt **screen by screen** on a secure foundation. See 
 | Screen 2: client workspaces | `backend/app/api/v1/workspaces.py`, `frontend/src/app/screens/workspaces` | Backend built (Postgres, RLS on legal entities, audit); in review |
 | Screen 9 (part): users | `frontend/src/app/screens/users`, `GET/POST /api/v1/auth/users` | Platform admins list and add users; org-admin Team view next |
 | Screens 3–8 (data points → data overview) | `backend/app/{catalog,ingestion,quality}`, `frontend/src/app/screens/*` | Backend built, CI-tested and live on `main` |
+| Screens 12–13 (part): compliance | `backend/app/modules`, `api/v1/compliance.py`, `frontend/src/app/screens/compliance` | EPR UK / Denmark / SB 54 fees and PPWR Denmark Declarations of Conformity (Danish and English) on real data |
 | Screen 18 (part): data sources | `backend/app/api/v1/data_sources.py`, `frontend/src/app/screens/data-sources` | Connect ERP/PLM once, saved mapping, auto-approve, sync history (simulated systems) |
 | Prototype pages | `frontend/src/app/features/*`, `backend/app/services/store.py` | Live until each screen replaces them |
 
@@ -68,6 +69,7 @@ Screens 3–8 run on the backend (there is no mock API any more):
 - **Import** (`app/ingestion`): CSV upload and the simulated ERP (SAP S/4HANA) and PLM (Trace One) syncs share one pipeline: draft → mapping (preview with checks) → approve, which runs the `ingestion.import` job. A sync sends only the fields whose data point comes from that system. Only SKU, product name and component are required; other missing values become gaps.
 - **Gaps** (`app/quality`): the rule library (`gap_rules`, platform data) runs over the products on every read (`engine.py`); only people's decisions are stored (`gap_states`, tenant RLS). A workspace sees only rules for its modules and (when a rule names countries) its countries. Fixing a gap with a value writes it into the product.
 - **Data sources** (`app/ingestion/sources.py`): a connected ERP or PLM keeps the mapping of its last approved import, so the next sync maps itself; with auto-approve on, a sync without row errors imports straight away. A CSV with the same columns as an earlier file reuses that file's mapping. `GET /imports` is the sync history.
+- **Compliance** (`app/modules`, under `/api/v1/modules` because the prototype owns `/compliance`): EPR fees = units on the market (placed − exported) × component weight per unit, by material, × the regime's rate for the channels it charges (UK: household only). Rates are in `app/modules/reference/regimes.json`: UK uses the published 2025/26 base fees, Denmark and SB 54 are placeholders and the screen says so. The PPWR declaration is built from the product's fields and checks substances, recyclability, recycled content, minimisation and labelling; Danish text needs a native review before legal use.
 - **Improvements we postponed** are listed in [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md).
 - **Platform admins** open a client's workspace from Client workspaces (Open workspace) to see its products, imports and gaps; their token then carries that workspace.
 

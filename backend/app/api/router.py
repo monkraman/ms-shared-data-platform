@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from app.api.v1 import (
     auth,
+    compliance,
     compliance_modules,
     config,
     data_points,
@@ -45,6 +46,9 @@ api_router.include_router(gaps.router)
 
 # Screen 18 (first part): connected systems with saved mappings
 api_router.include_router(data_sources.router)
+
+# Screens 12-13 (first part): EPR results and PPWR declarations on real data
+api_router.include_router(compliance.router)
 
 # Layer 1: Canonical Shared Data Foundation
 api_router.include_router(foundation.router)

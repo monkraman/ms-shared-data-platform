@@ -85,3 +85,13 @@ export type DataOverview = Schemas['DataOverview'];
 
 export type DataSource = Schemas['DataSourceOut'];
 export type SyncStarted = Schemas['SyncStarted'];
+
+// --- Screens 12–13 (first part): compliance — built, GET /modules/regimes, /modules/epr/{regime},
+// /modules/ppwr/declarations, /modules/ppwr/declarations/{sku}?lang=
+
+export type Regime = Schemas['Regime'];
+export type EprRegime = Schemas['EprResult']['regime'];
+export type EprResult = Schemas['EprResult'];
+export type DeclarationRow = Schemas['DeclarationRow'];
+export type Declaration = Schemas['Declaration'];
+export type RequirementStatus = Schemas['Requirement']['status'];

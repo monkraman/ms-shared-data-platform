@@ -1011,6 +1011,34 @@
         "title": "DataPointOut",
         "type": "object"
       },
+      "DataQuality": {
+        "properties": {
+          "components": {
+            "title": "Components",
+            "type": "integer"
+          },
+          "estimated_weights": {
+            "title": "Estimated Weights",
+            "type": "integer"
+          },
+          "missing_weight_or_material": {
+            "title": "Missing Weight Or Material",
+            "type": "integer"
+          },
+          "products_without_sales": {
+            "title": "Products Without Sales",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "components",
+          "missing_weight_or_material",
+          "estimated_weights",
+          "products_without_sales"
+        ],
+        "title": "DataQuality",
+        "type": "object"
+      },
       "DataQualityIssue": {
         "properties": {
           "assigned_to": {
@@ -1237,6 +1265,175 @@
         "title": "DataSourcePatch",
         "type": "object"
       },
+      "Declaration": {
+        "properties": {
+          "components": {
+            "items": {
+              "$ref": "#/components/schemas/DocComponent"
+            },
+            "title": "Components",
+            "type": "array"
+          },
+          "gtin": {
+            "title": "Gtin",
+            "type": "string"
+          },
+          "issue_date": {
+            "title": "Issue Date",
+            "type": "string"
+          },
+          "lang": {
+            "enum": [
+              "en",
+              "da"
+            ],
+            "title": "Lang",
+            "type": "string"
+          },
+          "manufacturer": {
+            "title": "Manufacturer",
+            "type": "string"
+          },
+          "missing_fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Fields",
+            "type": "array"
+          },
+          "product_name": {
+            "title": "Product Name",
+            "type": "string"
+          },
+          "reference": {
+            "title": "Reference",
+            "type": "string"
+          },
+          "requirements": {
+            "items": {
+              "$ref": "#/components/schemas/Requirement"
+            },
+            "title": "Requirements",
+            "type": "array"
+          },
+          "retention_until": {
+            "title": "Retention Until",
+            "type": "string"
+          },
+          "signatory": {
+            "title": "Signatory",
+            "type": "string"
+          },
+          "sku": {
+            "title": "Sku",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ready",
+              "draft"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "status_label": {
+            "title": "Status Label",
+            "type": "string"
+          },
+          "technical_file_refs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Technical File Refs",
+            "type": "array"
+          },
+          "text": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Text",
+            "type": "object"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "lang",
+          "status",
+          "status_label",
+          "text",
+          "sku",
+          "product_name",
+          "gtin",
+          "reference",
+          "version",
+          "manufacturer",
+          "signatory",
+          "issue_date",
+          "retention_until",
+          "technical_file_refs",
+          "components",
+          "requirements",
+          "missing_fields"
+        ],
+        "title": "Declaration",
+        "type": "object"
+      },
+      "DeclarationRow": {
+        "properties": {
+          "missing_fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Fields",
+            "type": "array"
+          },
+          "product_name": {
+            "title": "Product Name",
+            "type": "string"
+          },
+          "reference": {
+            "title": "Reference",
+            "type": "string"
+          },
+          "requirements": {
+            "additionalProperties": {
+              "enum": [
+                "ok",
+                "warning",
+                "missing"
+              ],
+              "type": "string"
+            },
+            "title": "Requirements",
+            "type": "object"
+          },
+          "sku": {
+            "title": "Sku",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ready",
+              "draft"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sku",
+          "product_name",
+          "status",
+          "reference",
+          "requirements",
+          "missing_fields"
+        ],
+        "title": "DeclarationRow",
+        "type": "object"
+      },
       "DigitalProductPassport": {
         "properties": {
           "brand": {
@@ -1333,6 +1530,44 @@
         "title": "DigitalProductPassport",
         "type": "object"
       },
+      "DocComponent": {
+        "properties": {
+          "level": {
+            "title": "Level",
+            "type": "string"
+          },
+          "material": {
+            "title": "Material",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "recyclability": {
+            "title": "Recyclability",
+            "type": "string"
+          },
+          "recycled_content_pct": {
+            "title": "Recycled Content Pct",
+            "type": "string"
+          },
+          "weight_g": {
+            "title": "Weight G",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "level",
+          "material",
+          "weight_g",
+          "recycled_content_pct",
+          "recyclability"
+        ],
+        "title": "DocComponent",
+        "type": "object"
+      },
       "EPREnrichmentData": {
         "properties": {
           "activity_type": {
@@ -1369,6 +1604,119 @@
           }
         },
         "title": "EPREnrichmentData",
+        "type": "object"
+      },
+      "EprResult": {
+        "properties": {
+          "by_material": {
+            "items": {
+              "$ref": "#/components/schemas/MaterialFee"
+            },
+            "title": "By Material",
+            "type": "array"
+          },
+          "by_product": {
+            "items": {
+              "$ref": "#/components/schemas/ProductFee"
+            },
+            "title": "By Product",
+            "type": "array"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "data_quality": {
+            "$ref": "#/components/schemas/DataQuality"
+          },
+          "fee_channels": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Fee Channels",
+            "type": "array"
+          },
+          "fee_tonnes": {
+            "title": "Fee Tonnes",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "products": {
+            "title": "Products",
+            "type": "integer"
+          },
+          "rates_note": {
+            "title": "Rates Note",
+            "type": "string"
+          },
+          "rates_status": {
+            "enum": [
+              "published",
+              "placeholder"
+            ],
+            "title": "Rates Status",
+            "type": "string"
+          },
+          "regime": {
+            "title": "Regime",
+            "type": "string"
+          },
+          "targets": {
+            "items": {
+              "$ref": "#/components/schemas/app__api__v1__compliance__Target"
+            },
+            "title": "Targets",
+            "type": "array"
+          },
+          "total_fee": {
+            "title": "Total Fee",
+            "type": "number"
+          },
+          "total_tonnes": {
+            "title": "Total Tonnes",
+            "type": "number"
+          },
+          "year": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year"
+          },
+          "years": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Years",
+            "type": "array"
+          }
+        },
+        "required": [
+          "regime",
+          "name",
+          "currency",
+          "year",
+          "years",
+          "rates_status",
+          "rates_note",
+          "fee_channels",
+          "total_fee",
+          "total_tonnes",
+          "fee_tonnes",
+          "products",
+          "by_material",
+          "by_product",
+          "data_quality",
+          "targets"
+        ],
+        "title": "EprResult",
         "type": "object"
       },
       "FieldInfo": {
@@ -1996,7 +2344,7 @@
           },
           "targets": {
             "items": {
-              "$ref": "#/components/schemas/Target"
+              "$ref": "#/components/schemas/app__api__v1__imports__Target"
             },
             "title": "Targets",
             "type": "array"
@@ -2849,6 +3197,49 @@
         "title": "MaterialCategory",
         "type": "string"
       },
+      "MaterialFee": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "fee": {
+            "title": "Fee",
+            "type": "number"
+          },
+          "fee_tonnes": {
+            "title": "Fee Tonnes",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "rate": {
+            "title": "Rate",
+            "type": "number"
+          },
+          "share_pct": {
+            "title": "Share Pct",
+            "type": "number"
+          },
+          "tonnes": {
+            "title": "Tonnes",
+            "type": "number"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "tonnes",
+          "fee_tonnes",
+          "rate",
+          "fee",
+          "share_pct"
+        ],
+        "title": "MaterialFee",
+        "type": "object"
+      },
       "MaterialHotspot": {
         "properties": {
           "material": {
@@ -3532,6 +3923,46 @@
         "title": "ProductCreate",
         "type": "object"
       },
+      "ProductFee": {
+        "properties": {
+          "fee": {
+            "title": "Fee",
+            "type": "number"
+          },
+          "main_material": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Main Material"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "sku": {
+            "title": "Sku",
+            "type": "string"
+          },
+          "tonnes": {
+            "title": "Tonnes",
+            "type": "number"
+          }
+        },
+        "required": [
+          "sku",
+          "name",
+          "tonnes",
+          "fee",
+          "main_material"
+        ],
+        "title": "ProductFee",
+        "type": "object"
+      },
       "ProductHotspot": {
         "properties": {
           "fee_per_thousand_units_eur": {
@@ -3893,6 +4324,63 @@
         "title": "ProposeCorrectionRequest",
         "type": "object"
       },
+      "Regime": {
+        "properties": {
+          "country": {
+            "title": "Country",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "in_scope": {
+            "title": "In Scope",
+            "type": "boolean"
+          },
+          "kind": {
+            "enum": [
+              "epr",
+              "doc"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "module": {
+            "title": "Module",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "rates_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "published",
+                  "placeholder"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rates Status"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "module",
+          "country",
+          "in_scope"
+        ],
+        "title": "Regime",
+        "type": "object"
+      },
       "RegulationConfig": {
         "properties": {
           "applies_from": {
@@ -3965,6 +4453,42 @@
           "fee_system_name"
         ],
         "title": "RegulationConfig",
+        "type": "object"
+      },
+      "Requirement": {
+        "properties": {
+          "evidence": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "warning",
+              "missing"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "status",
+          "evidence"
+        ],
+        "title": "Requirement",
         "type": "object"
       },
       "RuleCheck": {
@@ -4652,41 +5176,6 @@
           "job_id"
         ],
         "title": "SyncStarted",
-        "type": "object"
-      },
-      "Target": {
-        "properties": {
-          "dp": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Dp"
-          },
-          "key": {
-            "title": "Key",
-            "type": "string"
-          },
-          "label": {
-            "title": "Label",
-            "type": "string"
-          },
-          "required": {
-            "title": "Required",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "key",
-          "label",
-          "dp",
-          "required"
-        ],
-        "title": "Target",
         "type": "object"
       },
       "TenantCreate": {
@@ -5566,6 +6055,59 @@
           }
         },
         "title": "WorkspacePatch",
+        "type": "object"
+      },
+      "app__api__v1__compliance__Target": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "target": {
+            "title": "Target",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "target"
+        ],
+        "title": "Target",
+        "type": "object"
+      },
+      "app__api__v1__imports__Target": {
+        "properties": {
+          "dp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dp"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "required": {
+            "title": "Required",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "dp",
+          "required"
+        ],
+        "title": "Target",
         "type": "object"
       },
       "app__schemas__configuration__TariffRate": {
@@ -10038,6 +10580,272 @@
         "summary": "Get job status",
         "tags": [
           "Jobs"
+        ]
+      }
+    },
+    "/api/v1/modules/epr/{regime}": {
+      "get": {
+        "operationId": "epr_result_api_v1_modules_epr__regime__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "regime",
+            "required": true,
+            "schema": {
+              "enum": [
+                "epr_uk",
+                "epr_dk",
+                "sb54_ca"
+              ],
+              "title": "Regime",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 8,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Year"
+            }
+          },
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EprResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "EPR fees by material and product",
+        "tags": [
+          "Compliance"
+        ]
+      }
+    },
+    "/api/v1/modules/ppwr/declarations": {
+      "get": {
+        "operationId": "list_declarations_api_v1_modules_ppwr_declarations_get",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DeclarationRow"
+                  },
+                  "title": "Response List Declarations Api V1 Modules Ppwr Declarations Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Declaration readiness per product",
+        "tags": [
+          "Compliance"
+        ]
+      }
+    },
+    "/api/v1/modules/ppwr/declarations/{sku}": {
+      "get": {
+        "operationId": "get_declaration_api_v1_modules_ppwr_declarations__sku__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sku",
+            "required": true,
+            "schema": {
+              "title": "Sku",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lang",
+            "required": false,
+            "schema": {
+              "default": "da",
+              "enum": [
+                "en",
+                "da"
+              ],
+              "title": "Lang",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Declaration"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "EU Declaration of Conformity for one product",
+        "tags": [
+          "Compliance"
+        ]
+      }
+    },
+    "/api/v1/modules/regimes": {
+      "get": {
+        "operationId": "list_regimes_api_v1_modules_regimes_get",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Regime"
+                  },
+                  "title": "Response List Regimes Api V1 Modules Regimes Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Regimes this workspace covers",
+        "tags": [
+          "Compliance"
         ]
       }
     },

@@ -30,6 +30,7 @@ class Perm:
     GAPS_READ = "gaps.read"  # screen 7
     GAPS_RESOLVE = "gaps.resolve"
     DATA_READ = "data.read"  # screen 8
+    COMPLIANCE_READ = "compliance.read"  # screen 12: EPR results, PPWR declarations
 
 
 PLATFORM_ADMIN_PERMISSIONS: frozenset[str] = frozenset(
@@ -43,7 +44,7 @@ PLATFORM_ADMIN_PERMISSIONS: frozenset[str] = frozenset(
     }
 )
 
-_READ = {Perm.WORKSPACE_READ, Perm.PRODUCTS_READ, Perm.GAPS_READ, Perm.DATA_READ}
+_READ = {Perm.WORKSPACE_READ, Perm.PRODUCTS_READ, Perm.GAPS_READ, Perm.DATA_READ, Perm.COMPLIANCE_READ}
 _WORK = _READ | {Perm.JOBS_READ, Perm.PRODUCTS_MANAGE, Perm.IMPORTS_MANAGE, Perm.GAPS_RESOLVE}
 
 TENANT_ROLE_PERMISSIONS: dict[TenantRole, frozenset[str]] = {

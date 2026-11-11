@@ -1,0 +1,77 @@
+{
+  "materials": {
+    "AL": "Aluminium",
+    "FC": "Fibre composite",
+    "GL": "Glass",
+    "PC": "Paper and card",
+    "PL": "Plastic",
+    "ST": "Steel",
+    "WD": "Wood",
+    "OT": "Other"
+  },
+  "material_aliases": {
+    "aluminium": "AL",
+    "aluminum": "AL",
+    "fibre composite": "FC",
+    "fiber composite": "FC",
+    "glass": "GL",
+    "paper/board": "PC",
+    "paper": "PC",
+    "board": "PC",
+    "card": "PC",
+    "cardboard": "PC",
+    "paper and card": "PC",
+    "plastic": "PL",
+    "steel": "ST",
+    "tinplate": "ST",
+    "metal": "ST",
+    "wood": "WD"
+  },
+  "regimes": {
+    "epr_uk": {
+      "name": "EPR UK",
+      "kind": "epr",
+      "module": "EPR",
+      "country": "UK",
+      "currency": "GBP",
+      "fee_channels": ["Household"],
+      "rates_status": "published",
+      "rates_note": "2025/26 base fees per tonne of household packaging, before RAM modulation. Check against the current PackUK schedule before filing.",
+      "rates": {"AL": 266, "FC": 461, "GL": 192, "PC": 196, "PL": 423, "ST": 259, "WD": 280, "OT": 259}
+    },
+    "epr_dk": {
+      "name": "EPR Denmark",
+      "kind": "epr",
+      "module": "EPR",
+      "country": "DK",
+      "currency": "DKK",
+      "fee_channels": ["Household", "Non-household"],
+      "rates_status": "placeholder",
+      "rates_note": "Placeholder rates per tonne. Replace with the fees of the client's producer responsibility organisation.",
+      "rates": {"AL": 1800, "FC": 2600, "GL": 900, "PC": 1200, "PL": 3500, "ST": 1500, "WD": 900, "OT": 1500}
+    },
+    "sb54_ca": {
+      "name": "SB 54 California",
+      "kind": "epr",
+      "module": "EPR",
+      "country": "US-CA",
+      "currency": "USD",
+      "fee_channels": ["Household", "Non-household"],
+      "rates_status": "placeholder",
+      "rates_note": "Placeholder rates per tonne. SB 54 fees are set by the producer responsibility organisation under CalRecycle's regulations, which are still being finalised.",
+      "rates": {"AL": 300, "FC": 450, "GL": 150, "PC": 200, "PL": 600, "ST": 250, "WD": 200, "OT": 300},
+      "targets": [
+        {"label": "Single-use packaging recyclable or compostable", "target": "100% by 2032"},
+        {"label": "Plastic packaging recycled", "target": "65% by 2032"},
+        {"label": "Plastic packaging source reduction", "target": "25% by 2032"}
+      ]
+    },
+    "ppwr_dk": {
+      "name": "PPWR Denmark",
+      "kind": "doc",
+      "module": "PPWR",
+      "country": "DK",
+      "regulation": "Regulation (EU) 2025/40"
+    }
+  }
+}

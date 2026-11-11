@@ -1015,6 +1015,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/modules/epr/{regime}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** EPR fees by material and product */
+        get: operations["epr_result_api_v1_modules_epr__regime__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/modules/ppwr/declarations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Declaration readiness per product */
+        get: operations["list_declarations_api_v1_modules_ppwr_declarations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/modules/ppwr/declarations/{sku}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** EU Declaration of Conformity for one product */
+        get: operations["get_declaration_api_v1_modules_ppwr_declarations__sku__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/modules/regimes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Regimes this workspace covers */
+        get: operations["list_regimes_api_v1_modules_regimes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/products": {
         parameters: {
             query?: never;
@@ -1762,6 +1830,17 @@ export interface components {
             /** System Field */
             system_field: string | null;
         };
+        /** DataQuality */
+        DataQuality: {
+            /** Components */
+            components: number;
+            /** Estimated Weights */
+            estimated_weights: number;
+            /** Missing Weight Or Material */
+            missing_weight_or_material: number;
+            /** Products Without Sales */
+            products_without_sales: number;
+        };
         /** DataQualityIssue */
         DataQualityIssue: {
             /** Assigned To */
@@ -1853,6 +1932,71 @@ export interface components {
             /** Auto Approve */
             auto_approve: boolean;
         };
+        /** Declaration */
+        Declaration: {
+            /** Components */
+            components: components["schemas"]["DocComponent"][];
+            /** Gtin */
+            gtin: string;
+            /** Issue Date */
+            issue_date: string;
+            /**
+             * Lang
+             * @enum {string}
+             */
+            lang: "en" | "da";
+            /** Manufacturer */
+            manufacturer: string;
+            /** Missing Fields */
+            missing_fields: string[];
+            /** Product Name */
+            product_name: string;
+            /** Reference */
+            reference: string;
+            /** Requirements */
+            requirements: components["schemas"]["Requirement"][];
+            /** Retention Until */
+            retention_until: string;
+            /** Signatory */
+            signatory: string;
+            /** Sku */
+            sku: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ready" | "draft";
+            /** Status Label */
+            status_label: string;
+            /** Technical File Refs */
+            technical_file_refs: string[];
+            /** Text */
+            text: {
+                [key: string]: string;
+            };
+            /** Version */
+            version: string;
+        };
+        /** DeclarationRow */
+        DeclarationRow: {
+            /** Missing Fields */
+            missing_fields: string[];
+            /** Product Name */
+            product_name: string;
+            /** Reference */
+            reference: string;
+            /** Requirements */
+            requirements: {
+                [key: string]: "ok" | "warning" | "missing";
+            };
+            /** Sku */
+            sku: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ready" | "draft";
+        };
         /** DigitalProductPassport */
         DigitalProductPassport: {
             /** Brand */
@@ -1896,6 +2040,21 @@ export interface components {
              */
             verified_by: string;
         };
+        /** DocComponent */
+        DocComponent: {
+            /** Level */
+            level: string;
+            /** Material */
+            material: string;
+            /** Name */
+            name: string;
+            /** Recyclability */
+            recyclability: string;
+            /** Recycled Content Pct */
+            recycled_content_pct: string;
+            /** Weight G */
+            weight_g: string;
+        };
         /** EPREnrichmentData */
         EPREnrichmentData: {
             /**
@@ -1916,6 +2075,43 @@ export interface components {
              * @default false
              */
             reuse_system_active: boolean;
+        };
+        /** EprResult */
+        EprResult: {
+            /** By Material */
+            by_material: components["schemas"]["MaterialFee"][];
+            /** By Product */
+            by_product: components["schemas"]["ProductFee"][];
+            /** Currency */
+            currency: string;
+            data_quality: components["schemas"]["DataQuality"];
+            /** Fee Channels */
+            fee_channels: string[];
+            /** Fee Tonnes */
+            fee_tonnes: number;
+            /** Name */
+            name: string;
+            /** Products */
+            products: number;
+            /** Rates Note */
+            rates_note: string;
+            /**
+             * Rates Status
+             * @enum {string}
+             */
+            rates_status: "published" | "placeholder";
+            /** Regime */
+            regime: string;
+            /** Targets */
+            targets: components["schemas"]["app__api__v1__compliance__Target"][];
+            /** Total Fee */
+            total_fee: number;
+            /** Total Tonnes */
+            total_tonnes: number;
+            /** Year */
+            year: string | null;
+            /** Years */
+            years: string[];
         };
         /** FieldInfo */
         FieldInfo: {
@@ -2129,7 +2325,7 @@ export interface components {
                 [key: string]: string | null;
             };
             /** Targets */
-            targets: components["schemas"]["Target"][];
+            targets: components["schemas"]["app__api__v1__imports__Target"][];
         };
         /** ImportHistoryRow */
         ImportHistoryRow: {
@@ -2573,6 +2769,23 @@ export interface components {
          * @enum {string}
          */
         MaterialCategory: "Glass" | "PET (Clear / Light Blue)" | "PET (Opaque / Colored)" | "HDPE (Rigid)" | "PP (Polypropylene)" | "Flexible PE (LDPE/LLDPE)" | "Paper / Corrugated Board" | "Aluminum" | "Steel / Tinplate" | "Liquid Packaging Board (Tetra Pak / Composite)" | "Other Composite / Multi-Material";
+        /** MaterialFee */
+        MaterialFee: {
+            /** Code */
+            code: string;
+            /** Fee */
+            fee: number;
+            /** Fee Tonnes */
+            fee_tonnes: number;
+            /** Name */
+            name: string;
+            /** Rate */
+            rate: number;
+            /** Share Pct */
+            share_pct: number;
+            /** Tonnes */
+            tonnes: number;
+        };
         /** MaterialHotspot */
         MaterialHotspot: {
             /** Material */
@@ -2894,6 +3107,19 @@ export interface components {
             /** Sku */
             sku: string;
         };
+        /** ProductFee */
+        ProductFee: {
+            /** Fee */
+            fee: number;
+            /** Main Material */
+            main_material: string | null;
+            /** Name */
+            name: string;
+            /** Sku */
+            sku: string;
+            /** Tonnes */
+            tonnes: number;
+        };
         /** ProductHotspot */
         ProductHotspot: {
             /** Fee Per Thousand Units Eur */
@@ -3052,6 +3278,26 @@ export interface components {
              */
             target_source_system: string;
         };
+        /** Regime */
+        Regime: {
+            /** Country */
+            country: string;
+            /** Id */
+            id: string;
+            /** In Scope */
+            in_scope: boolean;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "epr" | "doc";
+            /** Module */
+            module: string;
+            /** Name */
+            name: string;
+            /** Rates Status */
+            rates_status?: ("published" | "placeholder") | null;
+        };
         /** RegulationConfig */
         RegulationConfig: {
             /**
@@ -3106,6 +3352,20 @@ export interface components {
              * @description Unique regulatory code, e.g. UK_PEPR, EU_PPWR, DE_VERPACKG
              */
             regulation_code: string;
+        };
+        /** Requirement */
+        Requirement: {
+            /** Evidence */
+            evidence: string[];
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ok" | "warning" | "missing";
         };
         /** RuleCheck */
         RuleCheck: {
@@ -3429,17 +3689,6 @@ export interface components {
             draft: components["schemas"]["ImportDraft"];
             /** Job Id */
             job_id: string | null;
-        };
-        /** Target */
-        Target: {
-            /** Dp */
-            dp: string | null;
-            /** Key */
-            key: string;
-            /** Label */
-            label: string;
-            /** Required */
-            required: boolean;
         };
         /** TenantCreate */
         TenantCreate: {
@@ -3815,6 +4064,24 @@ export interface components {
             /** Sector */
             sector?: string | null;
             status?: components["schemas"]["TenantStatus"] | null;
+        };
+        /** Target */
+        app__api__v1__compliance__Target: {
+            /** Label */
+            label: string;
+            /** Target */
+            target: string;
+        };
+        /** Target */
+        app__api__v1__imports__Target: {
+            /** Dp */
+            dp: string | null;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Required */
+            required: boolean;
         };
         /** TariffRate */
         app__schemas__configuration__TariffRate: {
@@ -6084,6 +6351,142 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    epr_result_api_v1_modules_epr__regime__get: {
+        parameters: {
+            query?: {
+                year?: string | null;
+            };
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                regime: "epr_uk" | "epr_dk" | "sb54_ca";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EprResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_declarations_api_v1_modules_ppwr_declarations_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeclarationRow"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_declaration_api_v1_modules_ppwr_declarations__sku__get: {
+        parameters: {
+            query?: {
+                lang?: "en" | "da";
+            };
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                sku: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Declaration"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_regimes_api_v1_modules_regimes_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Regime"][];
+                };
             };
             /** @description Validation Error */
             422: {
