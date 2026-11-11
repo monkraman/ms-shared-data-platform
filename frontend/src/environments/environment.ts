@@ -8,7 +8,5 @@ export const environment = {
   appName: 'Compliance Hub',
   version: '1.0.0',
   enableDebugTools: true,
-  /** Serve screens 2-8 from the mock API until their backend ships (core/api/mock). */
-  mockApi: true,
 };
 

@@ -1,12 +1,14 @@
-// Builds the mock API's JSON fixtures from the reference data set
+// Builds the backend's reference data from the team's data set
 // (reference-docs-teams/datapoints-epr-ppwr-main/src: data.js and skudata.js).
-//   node scripts/make-mock-fixtures.js
+//   node backend/scripts/make_reference_data.js
+// Data points are copied into the database by migration 0005; a changed dictionary needs a
+// new migration to update existing databases.
 const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '../..');
 const src = path.join(root, 'reference-docs-teams/datapoints-epr-ppwr-main/src');
-const out = path.resolve(__dirname, '../src/app/core/api/mock/fixtures');
+const out = path.resolve(__dirname, '../app/catalog/reference');
 
 global.window = {};
 require(path.join(src, 'data.js'));
@@ -57,6 +59,6 @@ const fields = Object.fromEntries(
 fs.mkdirSync(out, { recursive: true });
 const write = (name, data) => fs.writeFileSync(path.join(out, name), JSON.stringify(data, null, 1) + '\n');
 write('data-points.json', { data_points: dataPoints, ...reference });
-write('products.json', { company: S.sample.company, market: S.sample.market, products });
+write('sample-products.json', { company: S.sample.company, market: S.sample.market, products });
 write('fields.json', fields);
 console.log(`${dataPoints.length} data points, ${products.length} products, ${Object.keys(fields).length} fields`);

@@ -4,6 +4,58 @@
  */
 
 export interface paths {
+    "/api/v1/admin/data-points": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Data point dictionary */
+        get: operations["get_dictionary_api_v1_admin_data_points_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/gap-rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gap rule library */
+        get: operations["list_rules_api_v1_admin_gap_rules_get"];
+        put?: never;
+        /** Add a gap rule */
+        post: operations["create_rule_api_v1_admin_gap_rules_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/gap-rules/{rule_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Edit or switch a gap rule */
+        patch: operations["update_rule_api_v1_admin_gap_rules__rule_id__patch"];
+        trace?: never;
+    };
     "/api/v1/admin/tenants": {
         parameters: {
             query?: never;
@@ -606,6 +658,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/data-overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** How complete the workspace's data is */
+        get: operations["data_overview_api_v1_data_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/foundation/batches": {
         parameters: {
             query?: never;
@@ -734,6 +803,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/gaps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gaps in this workspace */
+        get: operations["list_gaps_api_v1_gaps_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/gaps/{gap_id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Fix a gap, ask a supplier or accept it */
+        post: operations["resolve_gap_api_v1_gaps__gap_id__resolve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/health": {
         parameters: {
             query?: never;
@@ -774,6 +877,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/imports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start a CSV import */
+        post: operations["start_import_api_v1_imports_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/imports/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sync from ERP or PLM (simulated) */
+        post: operations["start_sync_api_v1_imports_sync_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/imports/{batch_id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve: import the valid rows in the background */
+        post: operations["approve_api_v1_imports__batch_id__approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/imports/{batch_id}/mapping": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Set the column mapping and preview */
+        put: operations["set_mapping_api_v1_imports__batch_id__mapping_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/jobs/{job_id}": {
         parameters: {
             query?: never;
@@ -783,6 +954,41 @@ export interface paths {
         };
         /** Get job status */
         get: operations["get_job_api_v1_jobs__job_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List products */
+        get: operations["list_products_api_v1_products_get"];
+        put?: never;
+        /** Add a product by hand */
+        post: operations["create_product_api_v1_products_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{sku}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Product with packaging and sales */
+        get: operations["get_product_api_v1_products__sku__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -900,6 +1106,23 @@ export interface paths {
         };
         /** Supported countries */
         get: operations["list_countries_api_v1_reference_countries_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reference/fields": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Field catalogue */
+        get: operations["get_fields_api_v1_reference_fields_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1216,6 +1439,61 @@ export interface components {
             /** Total Data Points Required */
             total_data_points_required: number;
         };
+        /** ComponentIn */
+        ComponentIn: {
+            /**
+             * Level
+             * @enum {string}
+             */
+            level: "Primary" | "Secondary" | "Transit";
+            /** Material */
+            material: string;
+            /** Name */
+            name: string;
+            /**
+             * Polymer
+             * @default
+             */
+            polymer: string;
+            /**
+             * Recycled Content Pct
+             * @default 0
+             */
+            recycled_content_pct: number;
+            /** Units Per Pack */
+            units_per_pack: number;
+            /** Weight G */
+            weight_g: number;
+        };
+        /** ComponentOut */
+        ComponentOut: {
+            /** Fields */
+            fields: {
+                [key: string]: components["schemas"]["FieldValue"];
+            };
+            /** Id */
+            id: string;
+            /** Level */
+            level: string;
+            /** Material */
+            material: string;
+            /** Name */
+            name: string;
+            /** Polymer */
+            polymer: string;
+            /** Recyclability */
+            recyclability: string;
+            /** Recycled Content Pct */
+            recycled_content_pct: number | null;
+            /** Supplier Id */
+            supplier_id: string;
+            /** Units Per Pack */
+            units_per_pack: number;
+            /** Weight G */
+            weight_g: number | null;
+            /** Weight Source */
+            weight_source: string;
+        };
         /** Country */
         Country: {
             /** Code */
@@ -1266,6 +1544,15 @@ export interface components {
              */
             regulations?: string[];
         };
+        /** CountryOut */
+        CountryOut: {
+            /** Code */
+            code: string;
+            /** Eu */
+            eu: boolean;
+            /** Name */
+            name: string;
+        };
         /** DPPEnrichmentData */
         DPPEnrichmentData: {
             /**
@@ -1295,6 +1582,43 @@ export interface components {
              * @default Triman / OPRL Standard
              */
             harmonised_label: string | null;
+        };
+        /** DataOverview */
+        DataOverview: {
+            /** By Source */
+            by_source: components["schemas"]["SourceCoverage"][];
+            /** Components */
+            components: number;
+            /** Data Points */
+            data_points: components["schemas"]["DataPointCoverage"][];
+            /** Open Blockers */
+            open_blockers: number;
+            /** Open Warnings */
+            open_warnings: number;
+            /** Products */
+            products: number;
+            /** Readiness Pct */
+            readiness_pct: number;
+        };
+        /** DataPointCoverage */
+        DataPointCoverage: {
+            /** Code */
+            code: string;
+            /** Estimated */
+            estimated: number;
+            /** Filled */
+            filled: number;
+            /** Missing */
+            missing: number;
+            /** Name */
+            name: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "erp" | "supplier" | "plm" | "man";
+            /** Total */
+            total: number;
         };
         /** DataPointDefinition */
         DataPointDefinition: {
@@ -1339,6 +1663,43 @@ export interface components {
              * @default
              */
             system_field_example: string;
+        };
+        /** DataPointDictionary */
+        DataPointDictionary: {
+            /** Countries */
+            countries: components["schemas"]["CountryOut"][];
+            /** Data Points */
+            data_points: components["schemas"]["DataPointOut"][];
+            /** Outputs */
+            outputs: {
+                [key: string]: components["schemas"]["OutputInfo"];
+            };
+            /** Sources */
+            sources: {
+                [key: string]: string;
+            };
+        };
+        /** DataPointOut */
+        DataPointOut: {
+            /** Applies From */
+            applies_from: string | null;
+            /** Code */
+            code: string;
+            /** Countries */
+            countries: string[];
+            /** Description */
+            description: string;
+            /** Name */
+            name: string;
+            /** Outputs */
+            outputs: ("rep" | "fee" | "doc" | "lab" | "evid" | "dpp")[];
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "erp" | "supplier" | "plm" | "man";
+            /** System Field */
+            system_field: string | null;
         };
         /** DataQualityIssue */
         DataQualityIssue: {
@@ -1461,6 +1822,124 @@ export interface components {
              */
             reuse_system_active: boolean;
         };
+        /** FieldInfo */
+        FieldInfo: {
+            /** Allowed */
+            allowed: string | null;
+            /** Dp */
+            dp: string | null;
+            /** Label */
+            label: string;
+            /** Level */
+            level: string;
+            /** Type */
+            type: string;
+        };
+        /** FieldValue */
+        FieldValue: {
+            /** Dp */
+            dp: string | null;
+            /** Value */
+            value: string;
+        };
+        /** GapOut */
+        GapOut: {
+            /** Component Id */
+            component_id: string | null;
+            /** Component Name */
+            component_name: string | null;
+            /** Current Value */
+            current_value: string;
+            /** Data Point */
+            data_point: string;
+            /** Field */
+            field: string;
+            /** Field Label */
+            field_label: string;
+            /** Id */
+            id: string;
+            /** Modules */
+            modules: ("EPR" | "PPWR" | "DPP" | "LCA")[];
+            /** Product Name */
+            product_name: string;
+            /** Rule Id */
+            rule_id: string;
+            /** Rule Name */
+            rule_name: string;
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "blocker" | "warning";
+            /** Sku */
+            sku: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "requested" | "resolved";
+        };
+        /** GapResolve */
+        GapResolve: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "set_value" | "request_supplier" | "accept_estimate";
+            /** Note */
+            note?: string | null;
+            /** Value */
+            value?: string | null;
+        };
+        /** GapRuleCreate */
+        GapRuleCreate: {
+            check: components["schemas"]["RuleCheck"];
+            /** Data Point */
+            data_point: string;
+            /** Field */
+            field: string;
+            /** Modules */
+            modules: ("EPR" | "PPWR" | "DPP" | "LCA")[];
+            /** Name */
+            name: string;
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "blocker" | "warning";
+        };
+        /** GapRuleOut */
+        GapRuleOut: {
+            /** Active */
+            active: boolean;
+            check: components["schemas"]["RuleCheck"];
+            /** Data Point */
+            data_point: string;
+            /** Field */
+            field: string;
+            /** Id */
+            id: string;
+            /** Modules */
+            modules: ("EPR" | "PPWR" | "DPP" | "LCA")[];
+            /** Name */
+            name: string;
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "blocker" | "warning";
+        };
+        /** GapRulePatch */
+        GapRulePatch: {
+            /** Active */
+            active?: boolean | null;
+            /** Modules */
+            modules?: ("EPR" | "PPWR" | "DPP" | "LCA")[] | null;
+            /** Name */
+            name?: string | null;
+            /** Severity */
+            severity?: ("blocker" | "warning") | null;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -1516,6 +1995,67 @@ export interface components {
             total_fee_eur: number;
             /** Total Tonnes */
             total_tonnes: number;
+        };
+        /** ImportCreate */
+        ImportCreate: {
+            /** Columns */
+            columns: string[];
+            /** Filename */
+            filename: string;
+            /** Rows */
+            rows: string[][];
+        };
+        /** ImportDraft */
+        ImportDraft: {
+            /** Columns */
+            columns: string[];
+            /** Filename */
+            filename: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Row Count */
+            row_count: number;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "csv" | "erp" | "plm";
+            /** Suggested Mapping */
+            suggested_mapping: {
+                [key: string]: string | null;
+            };
+            /** Targets */
+            targets: components["schemas"]["Target"][];
+        };
+        /** ImportIssue */
+        ImportIssue: {
+            /** Column */
+            column: string;
+            /** Message */
+            message: string;
+            /** Row */
+            row: number;
+        };
+        /** ImportPreview */
+        ImportPreview: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Invalid Rows */
+            invalid_rows: number;
+            /** Issues */
+            issues: components["schemas"]["ImportIssue"][];
+            /** New Products */
+            new_products: number;
+            /** Updated Products */
+            updated_products: number;
+            /** Valid Rows */
+            valid_rows: number;
         };
         /** IngestionBatch */
         IngestionBatch: {
@@ -1592,6 +2132,14 @@ export interface components {
             /** Started At */
             started_at: string | null;
             status: components["schemas"]["JobStatus"];
+        };
+        /** JobStarted */
+        JobStarted: {
+            /**
+             * Job Id
+             * Format: uuid
+             */
+            job_id: string;
         };
         /**
          * JobStatus
@@ -1862,6 +2410,13 @@ export interface components {
              */
             remember_me: boolean;
         };
+        /** MappingIn */
+        MappingIn: {
+            /** Mapping */
+            mapping: {
+                [key: string]: string | null;
+            };
+        };
         /** MasterDataResponse */
         MasterDataResponse: {
             /** Countries */
@@ -1949,6 +2504,13 @@ export interface components {
             id: "EPR" | "PPWR" | "DPP" | "LCA";
             /** Name */
             name: string;
+        };
+        /** OutputInfo */
+        OutputInfo: {
+            /** Name */
+            name: string;
+            /** Regulation */
+            regulation: string;
         };
         /** PPWRComponentAssessment */
         PPWRComponentAssessment: {
@@ -2177,6 +2739,25 @@ export interface components {
             /** Unit Volume Ml */
             unit_volume_ml?: number | null;
         };
+        /** ProductCreate */
+        ProductCreate: {
+            /**
+             * Brand
+             * @default
+             */
+            brand: string;
+            /** Components */
+            components: components["schemas"]["ComponentIn"][];
+            /**
+             * Gtin
+             * @default
+             */
+            gtin: string;
+            /** Name */
+            name: string;
+            /** Sku */
+            sku: string;
+        };
         /** ProductHotspot */
         ProductHotspot: {
             /** Fee Per Thousand Units Eur */
@@ -2191,6 +2772,39 @@ export interface components {
             total_fee_eur: number;
             /** Units Sold */
             units_sold: number;
+        };
+        /** ProductOut */
+        ProductOut: {
+            /** Brand */
+            brand: string;
+            /** Completeness Pct */
+            completeness_pct: number;
+            /** Component Count */
+            component_count: number;
+            /** Components */
+            components: components["schemas"]["ComponentOut"][];
+            /** Fields */
+            fields: {
+                [key: string]: components["schemas"]["FieldValue"];
+            };
+            /** Gtin */
+            gtin: string;
+            /** Materials */
+            materials: string[];
+            /** Name */
+            name: string;
+            /** Open Gaps */
+            open_gaps: number;
+            /** Packaging G Per Unit */
+            packaging_g_per_unit: number;
+            /** Passport */
+            passport: {
+                [key: string]: components["schemas"]["FieldValue"];
+            };
+            /** Sales */
+            sales: components["schemas"]["SalesLineOut"][];
+            /** Sku */
+            sku: string;
         };
         /** ProductResponse */
         ProductResponse: {
@@ -2253,6 +2867,27 @@ export interface components {
             total_packaging_weight_grams: number;
             /** Unit Volume Ml */
             unit_volume_ml?: number | null;
+        };
+        /** ProductSummary */
+        ProductSummary: {
+            /** Brand */
+            brand: string;
+            /** Completeness Pct */
+            completeness_pct: number;
+            /** Component Count */
+            component_count: number;
+            /** Gtin */
+            gtin: string;
+            /** Materials */
+            materials: string[];
+            /** Name */
+            name: string;
+            /** Open Gaps */
+            open_gaps: number;
+            /** Packaging G Per Unit */
+            packaging_g_per_unit: number;
+            /** Sku */
+            sku: string;
         };
         /** ProposeCorrectionRequest */
         ProposeCorrectionRequest: {
@@ -2335,6 +2970,29 @@ export interface components {
              * @description Unique regulatory code, e.g. UK_PEPR, EU_PPWR, DE_VERPACKG
              */
             regulation_code: string;
+        };
+        /** RuleCheck */
+        RuleCheck: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "missing" | "in" | "certificate_missing" | "pfas_missing";
+            /** Values */
+            values?: string[] | null;
+        };
+        /** SalesLineOut */
+        SalesLineOut: {
+            /** Channel */
+            channel: string;
+            /** Id */
+            id: string;
+            /** Period */
+            period: string;
+            /** Units Exported */
+            units_exported: number;
+            /** Units Placed */
+            units_placed: number;
         };
         /** ScenarioSimulationRequest */
         ScenarioSimulationRequest: {
@@ -2544,6 +3202,18 @@ export interface components {
             /** Ticket Id */
             ticket_id: string;
         };
+        /** SourceCoverage */
+        SourceCoverage: {
+            /** Coverage Pct */
+            coverage_pct: number;
+            /** Name */
+            name: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "erp" | "supplier" | "plm" | "man";
+        };
         /** SourceLineage */
         SourceLineage: {
             /**
@@ -2606,6 +3276,25 @@ export interface components {
              * Format: uuid
              */
             tenant_id: string;
+        };
+        /** SyncRequest */
+        SyncRequest: {
+            /**
+             * System
+             * @enum {string}
+             */
+            system: "erp" | "plm";
+        };
+        /** Target */
+        Target: {
+            /** Dp */
+            dp: string | null;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Required */
+            required: boolean;
         };
         /** TenantCreate */
         TenantCreate: {
@@ -3086,6 +3775,144 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    get_dictionary_api_v1_admin_data_points_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataPointDictionary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_rules_api_v1_admin_gap_rules_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GapRuleOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_rule_api_v1_admin_gap_rules_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GapRuleCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GapRuleOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_rule_api_v1_admin_gap_rules__rule_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                rule_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GapRulePatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GapRuleOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_workspaces_api_v1_admin_tenants_get: {
         parameters: {
             query?: {
@@ -4314,6 +5141,38 @@ export interface operations {
             };
         };
     };
+    data_overview_api_v1_data_overview_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataOverview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_ingestion_batches_api_v1_foundation_batches_get: {
         parameters: {
             query?: {
@@ -4622,6 +5481,79 @@ export interface operations {
             };
         };
     };
+    list_gaps_api_v1_gaps_get: {
+        parameters: {
+            query?: {
+                status?: ("open" | "requested" | "resolved") | null;
+                severity?: ("blocker" | "warning") | null;
+            };
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GapOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resolve_gap_api_v1_gaps__gap_id__resolve_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                gap_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GapResolve"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GapOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     check_health_api_v1_health_get: {
         parameters: {
             query?: never;
@@ -4662,6 +5594,150 @@ export interface operations {
             };
         };
     };
+    start_import_api_v1_imports_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportDraft"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    start_sync_api_v1_imports_sync_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SyncRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportDraft"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_api_v1_imports__batch_id__approve_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                batch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobStarted"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_mapping_api_v1_imports__batch_id__mapping_put: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                batch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MappingIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_job_api_v1_jobs__job_id__get: {
         parameters: {
             query?: never;
@@ -4691,6 +5767,110 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_products_api_v1_products_get: {
+        parameters: {
+            query?: {
+                q?: string | null;
+            };
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductSummary"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_product_api_v1_products_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_product_api_v1_products__sku__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                sku: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductOut"];
+                };
             };
             /** @description Validation Error */
             422: {
@@ -4923,6 +6103,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Country"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_fields_api_v1_reference_fields_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: components["schemas"]["FieldInfo"];
+                    };
                 };
             };
             /** @description Validation Error */

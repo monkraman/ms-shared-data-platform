@@ -38,5 +38,5 @@ Start with [../AGENTS.md](../AGENTS.md) for the repository map and the rules eve
 - API contracts for screens 3–8 (screen 2's types come from the OpenAPI schema): `frontend/src/app/core/api/contracts.ts`
 - Client workspaces API: `backend/app/api/v1/workspaces.py`; migration `20261112_0004_workspaces.py`
 - Sign-in and session: `backend/app/platform/sign_in.py`, `frontend/src/app/core/session/` (see AGENTS.md, "Sign-in and session")
-- Mock API: `frontend/src/app/core/api/mock/` (see AGENTS.md, "The mock API")
+- Products, import, gaps: `backend/app/catalog`, `backend/app/ingestion`, `backend/app/quality` (see AGENTS.md, "Client data")
 - Permissions: `backend/app/core/permissions.py`; frontend navigation permissions: `frontend/src/app/core/navigation/nav-items.ts`

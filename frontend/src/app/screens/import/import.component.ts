@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Subscription, interval, switchMap, takeWhile } from 'rxjs';
-import { ImportDraft, ImportPreview, JobStatus } from '../../core/api/contracts';
+import { ImportDraft, ImportPreview, JobStatus, SyncSystem } from '../../core/api/contracts';
 import { PlatformApi } from '../../core/api/platform-api';
 import { Problem, toProblem } from '../../core/api/problem';
 import { PageHeaderComponent, StatusChipComponent } from '../../shared/ui';
@@ -49,6 +49,10 @@ const TEMPLATE = [
           </svg>
           <b>Drop a CSV file or choose one</b>
         </label>
+        <div class="systems">
+          <button type="button" class="btn btn-secondary" [disabled]="busy()" (click)="sync('erp')">Sync from ERP · SAP S/4HANA</button>
+          <button type="button" class="btn btn-secondary" [disabled]="busy()" (click)="sync('plm')">Sync from PLM · Trace One</button>
+        </div>
       }
       @case ('map') {
         @if (draft(); as d) {
@@ -122,6 +126,12 @@ const TEMPLATE = [
     }
   `,
   styles: `
+    .systems {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
     .stepper {
       display: flex;
       gap: 8px;
@@ -301,6 +311,21 @@ export class ImportComponent {
     const [columns, ...data] = rows;
     this.busy.set(true);
     this.api.startImport({ filename: file.name, columns, rows: data }).subscribe({
+      next: (d) => {
+        this.busy.set(false);
+        this.draft.set(d);
+        this.mapping.set({ ...d.suggested_mapping });
+        this.step.set('map');
+      },
+      error: (err: unknown) => this.fail(err),
+    });
+  }
+
+  /** Pulls the client's records from a (simulated) ERP or PLM system into the same steps. */
+  protected sync(system: SyncSystem): void {
+    this.problem.set(null);
+    this.busy.set(true);
+    this.api.syncImport(system).subscribe({
       next: (d) => {
         this.busy.set(false);
         this.draft.set(d);

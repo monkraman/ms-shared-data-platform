@@ -242,7 +242,7 @@ export function describe(check: RuleCheck): string {
     case 'missing':
       return 'Missing';
     case 'in':
-      return `Is ${check.values.join(' or ')}`;
+      return `Is ${(check.values ?? []).join(' or ')}`;
     case 'certificate_missing':
       return 'Recycled content without certificate';
     case 'pfas_missing':

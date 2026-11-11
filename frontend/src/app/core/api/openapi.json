@@ -387,6 +387,148 @@
         "title": "ComplianceMatrixResponse",
         "type": "object"
       },
+      "ComponentIn": {
+        "properties": {
+          "level": {
+            "enum": [
+              "Primary",
+              "Secondary",
+              "Transit"
+            ],
+            "title": "Level",
+            "type": "string"
+          },
+          "material": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Material",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "polymer": {
+            "default": "",
+            "maxLength": 64,
+            "title": "Polymer",
+            "type": "string"
+          },
+          "recycled_content_pct": {
+            "default": 0,
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Recycled Content Pct",
+            "type": "number"
+          },
+          "units_per_pack": {
+            "exclusiveMinimum": 0.0,
+            "title": "Units Per Pack",
+            "type": "number"
+          },
+          "weight_g": {
+            "minimum": 0.0,
+            "title": "Weight G",
+            "type": "number"
+          }
+        },
+        "required": [
+          "name",
+          "level",
+          "units_per_pack",
+          "material",
+          "weight_g"
+        ],
+        "title": "ComponentIn",
+        "type": "object"
+      },
+      "ComponentOut": {
+        "properties": {
+          "fields": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FieldValue"
+            },
+            "title": "Fields",
+            "type": "object"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "level": {
+            "title": "Level",
+            "type": "string"
+          },
+          "material": {
+            "title": "Material",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "polymer": {
+            "title": "Polymer",
+            "type": "string"
+          },
+          "recyclability": {
+            "title": "Recyclability",
+            "type": "string"
+          },
+          "recycled_content_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recycled Content Pct"
+          },
+          "supplier_id": {
+            "title": "Supplier Id",
+            "type": "string"
+          },
+          "units_per_pack": {
+            "title": "Units Per Pack",
+            "type": "number"
+          },
+          "weight_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight G"
+          },
+          "weight_source": {
+            "title": "Weight Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "level",
+          "units_per_pack",
+          "material",
+          "polymer",
+          "weight_g",
+          "weight_source",
+          "recycled_content_pct",
+          "recyclability",
+          "supplier_id",
+          "fields"
+        ],
+        "title": "ComponentOut",
+        "type": "object"
+      },
       "Country": {
         "properties": {
           "code": {
@@ -461,6 +603,29 @@
         "title": "CountryConfig",
         "type": "object"
       },
+      "CountryOut": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "eu": {
+            "title": "Eu",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "eu"
+        ],
+        "title": "CountryOut",
+        "type": "object"
+      },
       "DPPEnrichmentData": {
         "properties": {
           "brand_landing_url": {
@@ -523,6 +688,104 @@
           }
         },
         "title": "DPPEnrichmentData",
+        "type": "object"
+      },
+      "DataOverview": {
+        "properties": {
+          "by_source": {
+            "items": {
+              "$ref": "#/components/schemas/SourceCoverage"
+            },
+            "title": "By Source",
+            "type": "array"
+          },
+          "components": {
+            "title": "Components",
+            "type": "integer"
+          },
+          "data_points": {
+            "items": {
+              "$ref": "#/components/schemas/DataPointCoverage"
+            },
+            "title": "Data Points",
+            "type": "array"
+          },
+          "open_blockers": {
+            "title": "Open Blockers",
+            "type": "integer"
+          },
+          "open_warnings": {
+            "title": "Open Warnings",
+            "type": "integer"
+          },
+          "products": {
+            "title": "Products",
+            "type": "integer"
+          },
+          "readiness_pct": {
+            "title": "Readiness Pct",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "products",
+          "components",
+          "readiness_pct",
+          "open_blockers",
+          "open_warnings",
+          "by_source",
+          "data_points"
+        ],
+        "title": "DataOverview",
+        "type": "object"
+      },
+      "DataPointCoverage": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "estimated": {
+            "title": "Estimated",
+            "type": "integer"
+          },
+          "filled": {
+            "title": "Filled",
+            "type": "integer"
+          },
+          "missing": {
+            "title": "Missing",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "erp",
+              "supplier",
+              "plm",
+              "man"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "source",
+          "filled",
+          "estimated",
+          "missing",
+          "total"
+        ],
+        "title": "DataPointCoverage",
         "type": "object"
       },
       "DataPointDefinition": {
@@ -589,6 +852,146 @@
           "comes_from"
         ],
         "title": "DataPointDefinition",
+        "type": "object"
+      },
+      "DataPointDictionary": {
+        "properties": {
+          "countries": {
+            "items": {
+              "$ref": "#/components/schemas/CountryOut"
+            },
+            "title": "Countries",
+            "type": "array"
+          },
+          "data_points": {
+            "items": {
+              "$ref": "#/components/schemas/DataPointOut"
+            },
+            "title": "Data Points",
+            "type": "array"
+          },
+          "outputs": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/OutputInfo"
+            },
+            "propertyNames": {
+              "enum": [
+                "rep",
+                "fee",
+                "doc",
+                "lab",
+                "evid",
+                "dpp"
+              ]
+            },
+            "title": "Outputs",
+            "type": "object"
+          },
+          "sources": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "enum": [
+                "erp",
+                "supplier",
+                "plm",
+                "man"
+              ]
+            },
+            "title": "Sources",
+            "type": "object"
+          }
+        },
+        "required": [
+          "data_points",
+          "sources",
+          "outputs",
+          "countries"
+        ],
+        "title": "DataPointDictionary",
+        "type": "object"
+      },
+      "DataPointOut": {
+        "properties": {
+          "applies_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applies From"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "countries": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Countries",
+            "type": "array"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "outputs": {
+            "items": {
+              "enum": [
+                "rep",
+                "fee",
+                "doc",
+                "lab",
+                "evid",
+                "dpp"
+              ],
+              "type": "string"
+            },
+            "title": "Outputs",
+            "type": "array"
+          },
+          "source": {
+            "enum": [
+              "erp",
+              "supplier",
+              "plm",
+              "man"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "system_field": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "System Field"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "description",
+          "source",
+          "system_field",
+          "outputs",
+          "countries",
+          "applies_from"
+        ],
+        "title": "DataPointOut",
         "type": "object"
       },
       "DataQualityIssue": {
@@ -852,6 +1255,413 @@
         "title": "EPREnrichmentData",
         "type": "object"
       },
+      "FieldInfo": {
+        "properties": {
+          "allowed": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Allowed"
+          },
+          "dp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dp"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "level": {
+            "title": "Level",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "dp",
+          "level",
+          "type",
+          "allowed"
+        ],
+        "title": "FieldInfo",
+        "type": "object"
+      },
+      "FieldValue": {
+        "properties": {
+          "dp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dp"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "dp",
+          "value"
+        ],
+        "title": "FieldValue",
+        "type": "object"
+      },
+      "GapOut": {
+        "properties": {
+          "component_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Component Id"
+          },
+          "component_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Component Name"
+          },
+          "current_value": {
+            "title": "Current Value",
+            "type": "string"
+          },
+          "data_point": {
+            "title": "Data Point",
+            "type": "string"
+          },
+          "field": {
+            "title": "Field",
+            "type": "string"
+          },
+          "field_label": {
+            "title": "Field Label",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "modules": {
+            "items": {
+              "enum": [
+                "EPR",
+                "PPWR",
+                "DPP",
+                "LCA"
+              ],
+              "type": "string"
+            },
+            "title": "Modules",
+            "type": "array"
+          },
+          "product_name": {
+            "title": "Product Name",
+            "type": "string"
+          },
+          "rule_id": {
+            "title": "Rule Id",
+            "type": "string"
+          },
+          "rule_name": {
+            "title": "Rule Name",
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "blocker",
+              "warning"
+            ],
+            "title": "Severity",
+            "type": "string"
+          },
+          "sku": {
+            "title": "Sku",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "open",
+              "requested",
+              "resolved"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "sku",
+          "product_name",
+          "component_id",
+          "component_name",
+          "data_point",
+          "field",
+          "field_label",
+          "current_value",
+          "rule_id",
+          "rule_name",
+          "severity",
+          "modules",
+          "status"
+        ],
+        "title": "GapOut",
+        "type": "object"
+      },
+      "GapResolve": {
+        "properties": {
+          "action": {
+            "enum": [
+              "set_value",
+              "request_supplier",
+              "accept_estimate"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "title": "GapResolve",
+        "type": "object"
+      },
+      "GapRuleCreate": {
+        "properties": {
+          "check": {
+            "$ref": "#/components/schemas/RuleCheck"
+          },
+          "data_point": {
+            "maxLength": 8,
+            "title": "Data Point",
+            "type": "string"
+          },
+          "field": {
+            "maxLength": 64,
+            "title": "Field",
+            "type": "string"
+          },
+          "modules": {
+            "items": {
+              "enum": [
+                "EPR",
+                "PPWR",
+                "DPP",
+                "LCA"
+              ],
+              "type": "string"
+            },
+            "title": "Modules",
+            "type": "array"
+          },
+          "name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "blocker",
+              "warning"
+            ],
+            "title": "Severity",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "data_point",
+          "field",
+          "check",
+          "severity",
+          "modules"
+        ],
+        "title": "GapRuleCreate",
+        "type": "object"
+      },
+      "GapRuleOut": {
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "check": {
+            "$ref": "#/components/schemas/RuleCheck"
+          },
+          "data_point": {
+            "maxLength": 8,
+            "title": "Data Point",
+            "type": "string"
+          },
+          "field": {
+            "maxLength": 64,
+            "title": "Field",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "modules": {
+            "items": {
+              "enum": [
+                "EPR",
+                "PPWR",
+                "DPP",
+                "LCA"
+              ],
+              "type": "string"
+            },
+            "title": "Modules",
+            "type": "array"
+          },
+          "name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "blocker",
+              "warning"
+            ],
+            "title": "Severity",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "data_point",
+          "field",
+          "check",
+          "severity",
+          "modules",
+          "id",
+          "active"
+        ],
+        "title": "GapRuleOut",
+        "type": "object"
+      },
+      "GapRulePatch": {
+        "properties": {
+          "active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active"
+          },
+          "modules": {
+            "anyOf": [
+              {
+                "items": {
+                  "enum": [
+                    "EPR",
+                    "PPWR",
+                    "DPP",
+                    "LCA"
+                  ],
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modules"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "severity": {
+            "anyOf": [
+              {
+                "enum": [
+                  "blocker",
+                  "warning"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Severity"
+          }
+        },
+        "title": "GapRulePatch",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -957,6 +1767,172 @@
           "top_products"
         ],
         "title": "HotspotAnalyticsResponse",
+        "type": "object"
+      },
+      "ImportCreate": {
+        "properties": {
+          "columns": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 200,
+            "title": "Columns",
+            "type": "array"
+          },
+          "filename": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Filename",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "maxItems": 20000,
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "filename",
+          "columns",
+          "rows"
+        ],
+        "title": "ImportCreate",
+        "type": "object"
+      },
+      "ImportDraft": {
+        "properties": {
+          "columns": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Columns",
+            "type": "array"
+          },
+          "filename": {
+            "title": "Filename",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "row_count": {
+            "title": "Row Count",
+            "type": "integer"
+          },
+          "source": {
+            "enum": [
+              "csv",
+              "erp",
+              "plm"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "suggested_mapping": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Suggested Mapping",
+            "type": "object"
+          },
+          "targets": {
+            "items": {
+              "$ref": "#/components/schemas/Target"
+            },
+            "title": "Targets",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "filename",
+          "source",
+          "columns",
+          "row_count",
+          "suggested_mapping",
+          "targets"
+        ],
+        "title": "ImportDraft",
+        "type": "object"
+      },
+      "ImportIssue": {
+        "properties": {
+          "column": {
+            "title": "Column",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "row": {
+            "title": "Row",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "row",
+          "column",
+          "message"
+        ],
+        "title": "ImportIssue",
+        "type": "object"
+      },
+      "ImportPreview": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "invalid_rows": {
+            "title": "Invalid Rows",
+            "type": "integer"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/ImportIssue"
+            },
+            "title": "Issues",
+            "type": "array"
+          },
+          "new_products": {
+            "title": "New Products",
+            "type": "integer"
+          },
+          "updated_products": {
+            "title": "Updated Products",
+            "type": "integer"
+          },
+          "valid_rows": {
+            "title": "Valid Rows",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "valid_rows",
+          "invalid_rows",
+          "new_products",
+          "updated_products",
+          "issues"
+        ],
+        "title": "ImportPreview",
         "type": "object"
       },
       "IngestionBatch": {
@@ -1126,6 +2102,20 @@
           "finished_at"
         ],
         "title": "JobOut",
+        "type": "object"
+      },
+      "JobStarted": {
+        "properties": {
+          "job_id": {
+            "format": "uuid",
+            "title": "Job Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id"
+        ],
+        "title": "JobStarted",
         "type": "object"
       },
       "JobStatus": {
@@ -1523,6 +2513,29 @@
         "title": "LoginRequest",
         "type": "object"
       },
+      "MappingIn": {
+        "properties": {
+          "mapping": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Mapping",
+            "type": "object"
+          }
+        },
+        "required": [
+          "mapping"
+        ],
+        "title": "MappingIn",
+        "type": "object"
+      },
       "MasterDataResponse": {
         "properties": {
           "countries": {
@@ -1777,6 +2790,24 @@
           "name"
         ],
         "title": "ModuleInfo",
+        "type": "object"
+      },
+      "OutputInfo": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "regulation": {
+            "title": "Regulation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "regulation"
+        ],
+        "title": "OutputInfo",
         "type": "object"
       },
       "PPWRComponentAssessment": {
@@ -2219,6 +3250,45 @@
         "title": "ProductBase",
         "type": "object"
       },
+      "ProductCreate": {
+        "properties": {
+          "brand": {
+            "default": "",
+            "maxLength": 255,
+            "title": "Brand",
+            "type": "string"
+          },
+          "components": {
+            "items": {
+              "$ref": "#/components/schemas/ComponentIn"
+            },
+            "title": "Components",
+            "type": "array"
+          },
+          "gtin": {
+            "default": "",
+            "title": "Gtin",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "sku": {
+            "title": "Sku",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sku",
+          "name",
+          "components"
+        ],
+        "title": "ProductCreate",
+        "type": "object"
+      },
       "ProductHotspot": {
         "properties": {
           "fee_per_thousand_units_eur": {
@@ -2255,6 +3325,94 @@
           "fee_per_thousand_units_eur"
         ],
         "title": "ProductHotspot",
+        "type": "object"
+      },
+      "ProductOut": {
+        "properties": {
+          "brand": {
+            "title": "Brand",
+            "type": "string"
+          },
+          "completeness_pct": {
+            "title": "Completeness Pct",
+            "type": "integer"
+          },
+          "component_count": {
+            "title": "Component Count",
+            "type": "integer"
+          },
+          "components": {
+            "items": {
+              "$ref": "#/components/schemas/ComponentOut"
+            },
+            "title": "Components",
+            "type": "array"
+          },
+          "fields": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FieldValue"
+            },
+            "title": "Fields",
+            "type": "object"
+          },
+          "gtin": {
+            "title": "Gtin",
+            "type": "string"
+          },
+          "materials": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Materials",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "open_gaps": {
+            "title": "Open Gaps",
+            "type": "integer"
+          },
+          "packaging_g_per_unit": {
+            "title": "Packaging G Per Unit",
+            "type": "number"
+          },
+          "passport": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FieldValue"
+            },
+            "title": "Passport",
+            "type": "object"
+          },
+          "sales": {
+            "items": {
+              "$ref": "#/components/schemas/SalesLineOut"
+            },
+            "title": "Sales",
+            "type": "array"
+          },
+          "sku": {
+            "title": "Sku",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sku",
+          "name",
+          "brand",
+          "gtin",
+          "component_count",
+          "packaging_g_per_unit",
+          "materials",
+          "completeness_pct",
+          "open_gaps",
+          "fields",
+          "passport",
+          "components",
+          "sales"
+        ],
+        "title": "ProductOut",
         "type": "object"
       },
       "ProductResponse": {
@@ -2399,6 +3557,62 @@
         "title": "ProductResponse",
         "type": "object"
       },
+      "ProductSummary": {
+        "properties": {
+          "brand": {
+            "title": "Brand",
+            "type": "string"
+          },
+          "completeness_pct": {
+            "title": "Completeness Pct",
+            "type": "integer"
+          },
+          "component_count": {
+            "title": "Component Count",
+            "type": "integer"
+          },
+          "gtin": {
+            "title": "Gtin",
+            "type": "string"
+          },
+          "materials": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Materials",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "open_gaps": {
+            "title": "Open Gaps",
+            "type": "integer"
+          },
+          "packaging_g_per_unit": {
+            "title": "Packaging G Per Unit",
+            "type": "number"
+          },
+          "sku": {
+            "title": "Sku",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sku",
+          "name",
+          "brand",
+          "gtin",
+          "component_count",
+          "packaging_g_per_unit",
+          "materials",
+          "completeness_pct",
+          "open_gaps"
+        ],
+        "title": "ProductSummary",
+        "type": "object"
+      },
       "ProposeCorrectionRequest": {
         "properties": {
           "apply_provisional_override": {
@@ -2508,6 +3722,72 @@
           "fee_system_name"
         ],
         "title": "RegulationConfig",
+        "type": "object"
+      },
+      "RuleCheck": {
+        "properties": {
+          "kind": {
+            "enum": [
+              "missing",
+              "in",
+              "certificate_missing",
+              "pfas_missing"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "values": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Values"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "RuleCheck",
+        "type": "object"
+      },
+      "SalesLineOut": {
+        "properties": {
+          "channel": {
+            "title": "Channel",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "period": {
+            "title": "Period",
+            "type": "string"
+          },
+          "units_exported": {
+            "title": "Units Exported",
+            "type": "number"
+          },
+          "units_placed": {
+            "title": "Units Placed",
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "period",
+          "channel",
+          "units_placed",
+          "units_exported"
+        ],
+        "title": "SalesLineOut",
         "type": "object"
       },
       "ScenarioSimulationRequest": {
@@ -2936,6 +4216,35 @@
         "title": "SourceCorrectionTicket",
         "type": "object"
       },
+      "SourceCoverage": {
+        "properties": {
+          "coverage_pct": {
+            "title": "Coverage Pct",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "erp",
+              "supplier",
+              "plm",
+              "man"
+            ],
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "name",
+          "coverage_pct"
+        ],
+        "title": "SourceCoverage",
+        "type": "object"
+      },
       "SourceLineage": {
         "properties": {
           "import_batch_id": {
@@ -3057,6 +4366,58 @@
           "tenant_id"
         ],
         "title": "SwitchTenantRequest",
+        "type": "object"
+      },
+      "SyncRequest": {
+        "properties": {
+          "system": {
+            "enum": [
+              "erp",
+              "plm"
+            ],
+            "title": "System",
+            "type": "string"
+          }
+        },
+        "required": [
+          "system"
+        ],
+        "title": "SyncRequest",
+        "type": "object"
+      },
+      "Target": {
+        "properties": {
+          "dp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dp"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "required": {
+            "title": "Required",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "dp",
+          "required"
+        ],
+        "title": "Target",
         "type": "object"
       },
       "TenantCreate": {
@@ -4063,6 +5424,241 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/admin/data-points": {
+      "get": {
+        "operationId": "get_dictionary_api_v1_admin_data_points_get",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataPointDictionary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Data point dictionary",
+        "tags": [
+          "Data points"
+        ]
+      }
+    },
+    "/api/v1/admin/gap-rules": {
+      "get": {
+        "operationId": "list_rules_api_v1_admin_gap_rules_get",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GapRuleOut"
+                  },
+                  "title": "Response List Rules Api V1 Admin Gap Rules Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Gap rule library",
+        "tags": [
+          "Gaps"
+        ]
+      },
+      "post": {
+        "operationId": "create_rule_api_v1_admin_gap_rules_post",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GapRuleCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GapRuleOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Add a gap rule",
+        "tags": [
+          "Gaps"
+        ]
+      }
+    },
+    "/api/v1/admin/gap-rules/{rule_id}": {
+      "patch": {
+        "operationId": "update_rule_api_v1_admin_gap_rules__rule_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rule_id",
+            "required": true,
+            "schema": {
+              "title": "Rule Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GapRulePatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GapRuleOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Edit or switch a gap rule",
+        "tags": [
+          "Gaps"
+        ]
+      }
+    },
     "/api/v1/admin/tenants": {
       "get": {
         "operationId": "list_workspaces_api_v1_admin_tenants_get",
@@ -6574,6 +8170,57 @@
         ]
       }
     },
+    "/api/v1/data-overview": {
+      "get": {
+        "operationId": "data_overview_api_v1_data_overview_get",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataOverview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "How complete the workspace's data is",
+        "tags": [
+          "Gaps"
+        ]
+      }
+    },
     "/api/v1/foundation/batches": {
       "get": {
         "description": "Retrieve source ingestion batches, lineage, and validation summaries.",
@@ -7298,6 +8945,172 @@
         ]
       }
     },
+    "/api/v1/gaps": {
+      "get": {
+        "operationId": "list_gaps_api_v1_gaps_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "open",
+                    "requested",
+                    "resolved"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "severity",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "blocker",
+                    "warning"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Severity"
+            }
+          },
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GapOut"
+                  },
+                  "title": "Response List Gaps Api V1 Gaps Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Gaps in this workspace",
+        "tags": [
+          "Gaps"
+        ]
+      }
+    },
+    "/api/v1/gaps/{gap_id}/resolve": {
+      "post": {
+        "operationId": "resolve_gap_api_v1_gaps__gap_id__resolve_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "gap_id",
+            "required": true,
+            "schema": {
+              "title": "Gap Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GapResolve"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GapOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Fix a gap, ask a supplier or accept it",
+        "tags": [
+          "Gaps"
+        ]
+      }
+    },
     "/api/v1/health": {
       "get": {
         "description": "Returns service availability, version, environment, and current UTC timestamp.",
@@ -7339,6 +9152,260 @@
         "tags": [
           "System Health",
           "System Health"
+        ]
+      }
+    },
+    "/api/v1/imports": {
+      "post": {
+        "operationId": "start_import_api_v1_imports_post",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportDraft"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Start a CSV import",
+        "tags": [
+          "Import"
+        ]
+      }
+    },
+    "/api/v1/imports/sync": {
+      "post": {
+        "operationId": "start_sync_api_v1_imports_sync_post",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportDraft"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Sync from ERP or PLM (simulated)",
+        "tags": [
+          "Import"
+        ]
+      }
+    },
+    "/api/v1/imports/{batch_id}/approve": {
+      "post": {
+        "operationId": "approve_api_v1_imports__batch_id__approve_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "batch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Batch Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStarted"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Approve: import the valid rows in the background",
+        "tags": [
+          "Import"
+        ]
+      }
+    },
+    "/api/v1/imports/{batch_id}/mapping": {
+      "put": {
+        "operationId": "set_mapping_api_v1_imports__batch_id__mapping_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "batch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Batch Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MappingIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportPreview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set the column mapping and preview",
+        "tags": [
+          "Import"
         ]
       }
     },
@@ -7403,6 +9470,197 @@
         "summary": "Get job status",
         "tags": [
           "Jobs"
+        ]
+      }
+    },
+    "/api/v1/products": {
+      "get": {
+        "operationId": "list_products_api_v1_products_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ProductSummary"
+                  },
+                  "title": "Response List Products Api V1 Products Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List products",
+        "tags": [
+          "Products"
+        ]
+      },
+      "post": {
+        "operationId": "create_product_api_v1_products_post",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Add a product by hand",
+        "tags": [
+          "Products"
+        ]
+      }
+    },
+    "/api/v1/products/{sku}": {
+      "get": {
+        "operationId": "get_product_api_v1_products__sku__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sku",
+            "required": true,
+            "schema": {
+              "title": "Sku",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Product with packaging and sales",
+        "tags": [
+          "Products"
         ]
       }
     },
@@ -7985,6 +10243,61 @@
         "summary": "Supported countries",
         "tags": [
           "Client workspaces"
+        ]
+      }
+    },
+    "/api/v1/reference/fields": {
+      "get": {
+        "operationId": "get_fields_api_v1_reference_fields_get",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/FieldInfo"
+                  },
+                  "title": "Response Get Fields Api V1 Reference Fields Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Field catalogue",
+        "tags": [
+          "Data points"
         ]
       }
     },
