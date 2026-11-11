@@ -241,3 +241,28 @@ def test_epr_and_ppwr_results_come_from_the_workspace_data(db_client: TestClient
     regimes = {r["id"]: r for r in db_client.get("/api/v1/modules/regimes", headers=h).json()}
     assert regimes["epr_uk"]["in_scope"]  # workspace A is EPR + UK (set in the scoping test)
     assert not regimes["ppwr_dk"]["in_scope"]
+
+
+def test_fill_estimates_writes_marked_values(db_client: TestClient, ws: dict[str, object]) -> None:
+    h = _auth(ws["oa"], ws["a"])
+    open_gaps = [g for g in db_client.get("/api/v1/gaps", headers=h).json() if g["status"] == "open"]
+    estimable = [g for g in open_gaps if g["estimable"]]
+    assert estimable, "missing weights and recycled content can be estimated"
+    assert all(g["estimate"]["basis"] for g in estimable)
+    assert any(not g["estimable"] for g in open_gaps), "certificates and identifiers need real data"
+
+    weight_gap = next((g for g in estimable if g["field"] == "weight_g"), None)
+    res = db_client.post("/api/v1/gaps/estimate", json={}, headers=h)
+    assert res.status_code == 200, res.text
+    assert res.json()["filled"] == len(estimable)
+    assert not [g for g in db_client.get("/api/v1/gaps", headers=h).json() if g["estimable"] and g["status"] == "open"]
+
+    if weight_gap:
+        product = db_client.get(f"/api/v1/products/{weight_gap['sku']}", headers=h).json()
+        component = next(c for c in product["components"] if c["id"] == weight_gap["component_id"])
+        assert component["weight_source"] == "Estimated"
+        assert str(component["weight_g"]).rstrip("0").rstrip(".") == weight_gap["estimate"]["value"].rstrip("0").rstrip(
+            "."
+        )
+    viewer = _auth(ws["viewer"], ws["a"])
+    assert db_client.post("/api/v1/gaps/estimate", json={}, headers=viewer).status_code == 403

@@ -34,6 +34,19 @@ class RuleCheck(BaseModel):
     values: list[str] | None = None
 
 
+class EstimateRule(BaseModel):
+    """How a gap may be filled without real data; absent = it needs real data."""
+
+    method: Literal["similar_average", "fixed"]
+    value: str | None = Field(default=None, max_length=255)
+
+
+class Estimate(BaseModel):
+    value: str
+    method: Literal["similar_average", "fixed"]
+    basis: str
+
+
 class GapRuleCreate(BaseModel):
     name: str = Field(min_length=1, max_length=255)
     data_point: str = Field(max_length=8)
@@ -42,6 +55,7 @@ class GapRuleCreate(BaseModel):
     severity: Severity
     modules: list[ModuleId]
     countries: list[str] = Field(default_factory=list)
+    estimate: EstimateRule | None = None
 
 
 class GapRuleOut(GapRuleCreate):
@@ -55,6 +69,7 @@ class GapRulePatch(BaseModel):
     severity: Severity | None = None
     modules: list[ModuleId] | None = None
     countries: list[str] | None = None
+    estimate: EstimateRule | None = None
 
 
 class GapOut(BaseModel):
@@ -72,6 +87,8 @@ class GapOut(BaseModel):
     severity: Severity
     modules: list[ModuleId]
     status: GapStatus
+    estimable: bool
+    estimate: Estimate | None
 
 
 class GapResolve(BaseModel):
@@ -122,6 +139,7 @@ def _rule_out(r: GapRule) -> GapRuleOut:
         severity=r.severity,
         modules=list(r.modules),
         countries=list(r.countries),
+        estimate=EstimateRule(**r.estimate) if r.estimate else None,
         active=r.active,
     )
 
@@ -161,6 +179,7 @@ async def create_rule(payload: GapRuleCreate, principal: RuleManager, db: Platfo
         severity=payload.severity,
         modules=payload.modules,
         countries=payload.countries,
+        estimate=payload.estimate.model_dump(exclude_none=True) if payload.estimate else None,
         active=True,
     )
     db.add(rule)
@@ -183,7 +202,9 @@ async def update_rule(rule_id: str, payload: GapRulePatch, principal: RuleManage
         raise ProblemError(404, "Rule not found.")
     before = _rule_out(rule).model_dump()
     for key, value in payload.model_dump(exclude_unset=True).items():
-        if value is not None:
+        if key == "estimate":
+            rule.estimate = {k: v for k, v in value.items() if v is not None} if value else None
+        elif value is not None:
             setattr(rule, key, value)
     await db.flush()
     await record_audit(
@@ -260,6 +281,66 @@ async def resolve_gap(
         after={"value": payload.value, "status": new_status, "note": payload.note},
     )
     return {**gap, "status": new_status, "current_value": (payload.value or gap["current_value"])}
+
+
+class FillEstimates(BaseModel):
+    gap_ids: list[str] | None = Field(default=None, description="Only these gaps; all open estimable gaps if absent")
+
+
+class FillResult(BaseModel):
+    filled: int
+    skipped: int
+
+
+@router.post("/gaps/estimate", response_model=FillResult, summary="Fill estimable gaps with their proposed values")
+async def fill_estimates(
+    payload: FillEstimates,
+    principal: Annotated[Principal, Depends(require_permission(Perm.GAPS_RESOLVE))],
+    db: TenantDB,
+) -> FillResult:
+    products = list((await db.scalars(select(Product))).all())
+    wanted = set(payload.gap_ids) if payload.gap_ids is not None else None
+    targets = [
+        g
+        for g in await quality.gaps(db, products)
+        if g["status"] != "resolved" and g["estimable"] and (wanted is None or g["id"] in wanted)
+    ]
+    by_sku = {p.sku: p for p in products}
+    states = {s.gap_id: s for s in (await db.scalars(select(GapState))).all()}
+    assert principal.tenant_id is not None
+    filled = []
+    for g in targets:
+        product, value = by_sku[g["sku"]], g["estimate"]["value"]
+        if g["component_id"]:
+            component = next(c for c in product.components if c.code == g["component_id"])
+            updates = {g["field"]: value}
+            if g["field"] == "weight_g":
+                updates["weight_source"] = "Estimated"
+            component.fields = catalog.merge(component.fields, updates)
+        elif reference.field_level(g["field"]) == "Passport":
+            product.passport = catalog.merge(product.passport, {g["field"]: value})
+        else:
+            product.fields = catalog.merge(product.fields, {g["field"]: value})
+        state = states.get(g["id"]) or GapState(tenant_id=principal.tenant_id, gap_id=g["id"], status="resolved")
+        state.status, state.note, state.updated_by = (
+            "resolved",
+            f"Estimated: {g['estimate']['basis']}",
+            principal.user_id,
+        )
+        db.add(state)
+        filled.append({"gap": g["id"], "value": value, "basis": g["estimate"]["basis"]})
+    await db.flush()
+    if filled:
+        await record_audit(
+            db,
+            principal=principal,
+            action="gap.estimated",
+            entity_type="gap",
+            entity_id=f"{len(filled)} gaps",
+            after={"filled": filled},
+        )
+    skipped = len(wanted) - len(filled) if wanted is not None else 0
+    return FillResult(filled=len(filled), skipped=max(skipped, 0))
 
 
 # --- Screen 8: data overview ----------------------------------------------------------

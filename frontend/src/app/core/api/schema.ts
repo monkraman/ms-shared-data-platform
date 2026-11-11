@@ -872,6 +872,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/gaps/estimate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Fill estimable gaps with their proposed values */
+        post: operations["fill_estimates_api_v1_gaps_estimate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/gaps/{gap_id}/resolve": {
         parameters: {
             query?: never;
@@ -2113,6 +2130,31 @@ export interface components {
             /** Years */
             years: string[];
         };
+        /** Estimate */
+        Estimate: {
+            /** Basis */
+            basis: string;
+            /**
+             * Method
+             * @enum {string}
+             */
+            method: "similar_average" | "fixed";
+            /** Value */
+            value: string;
+        };
+        /**
+         * EstimateRule
+         * @description How a gap may be filled without real data; absent = it needs real data.
+         */
+        EstimateRule: {
+            /**
+             * Method
+             * @enum {string}
+             */
+            method: "similar_average" | "fixed";
+            /** Value */
+            value?: string | null;
+        };
         /** FieldInfo */
         FieldInfo: {
             /** Allowed */
@@ -2133,6 +2175,21 @@ export interface components {
             /** Value */
             value: string;
         };
+        /** FillEstimates */
+        FillEstimates: {
+            /**
+             * Gap Ids
+             * @description Only these gaps; all open estimable gaps if absent
+             */
+            gap_ids?: string[] | null;
+        };
+        /** FillResult */
+        FillResult: {
+            /** Filled */
+            filled: number;
+            /** Skipped */
+            skipped: number;
+        };
         /** GapOut */
         GapOut: {
             /** Component Id */
@@ -2143,6 +2200,9 @@ export interface components {
             current_value: string;
             /** Data Point */
             data_point: string;
+            /** Estimable */
+            estimable: boolean;
+            estimate: components["schemas"]["Estimate"] | null;
             /** Field */
             field: string;
             /** Field Label */
@@ -2189,6 +2249,7 @@ export interface components {
             countries?: string[];
             /** Data Point */
             data_point: string;
+            estimate?: components["schemas"]["EstimateRule"] | null;
             /** Field */
             field: string;
             /** Modules */
@@ -2210,6 +2271,7 @@ export interface components {
             countries?: string[];
             /** Data Point */
             data_point: string;
+            estimate?: components["schemas"]["EstimateRule"] | null;
             /** Field */
             field: string;
             /** Id */
@@ -2230,6 +2292,7 @@ export interface components {
             active?: boolean | null;
             /** Countries */
             countries?: string[] | null;
+            estimate?: components["schemas"]["EstimateRule"] | null;
             /** Modules */
             modules?: ("EPR" | "PPWR" | "DPP" | "LCA")[] | null;
             /** Name */
@@ -6055,6 +6118,42 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GapOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fill_estimates_api_v1_gaps_estimate_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FillEstimates"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FillResult"];
                 };
             };
             /** @description Validation Error */

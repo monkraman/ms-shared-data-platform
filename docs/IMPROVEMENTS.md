@@ -4,6 +4,7 @@ Things we chose to ship without, so they are not forgotten. Newest first. When o
 
 | Area | Improvement | Why it waits | Where |
 | --- | --- | --- | --- |
+| Gaps | More estimation methods: by product family, by supplier, from similar SKUs' volume; confidence per estimate; undo a fill | First version averages same material and level | `app/quality/estimates.py` |
 | Compliance | Real EPR Denmark and SB 54 rates (placeholders today); a Tariffs screen to edit rates per year (screen 11) | Rates come from the client's PRO and CalRecycle | `app/modules/reference/regimes.json` |
 | Compliance | UK RAM modulation (red/amber/green) and non-household rules | Needs recyclability assessments per component | `app/modules/epr.py` |
 | Compliance | Sales lines per country (today every sales line counts for every regime) | Sales data has no country field yet | `app/modules/epr.py` |

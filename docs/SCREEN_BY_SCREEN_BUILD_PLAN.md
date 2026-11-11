@@ -39,7 +39,7 @@ Status values: Not started · Spec agreed · In build · In review · Done.
 | 4 | Products and packaging (list, detail, BOM tree, manual entry) | Org Admin | 3 | SKU table, manual SKU modal, packaging BOM form | L | In review (backend live; Playwright test and sign-off open) |
 | 5 | Import: upload, map, review, approve | Org Admin | 4 | CSV dropzone, bulk import modal | L | In review (backend live; Playwright test and sign-off open) |
 | 6 | Gap rule library | SuperAdmin | 3 | Rule library page | M | In review (backend live; Playwright test and sign-off open) |
-| 7 | Gap worklist and gap fix | Org Admin | 5, 6 | Quality worklist, vendor declaration, worklist export | L | In review (backend live; Playwright test and sign-off open) |
+| 7 | Gap worklist and gap fix | Org Admin | 5, 6 | Quality worklist, vendor declaration, worklist export | L | In review (backend live; estimable vs needs-data gaps and Fill estimates added) |
 | 8 | Data overview | Org Admin | 7 | Data point map | M | In review (backend live; Playwright test and sign-off open) |
 | 9 | Users and access, and Team | Both | 1 | IAM directory | M | In build (platform admin Users list and Add user on the existing API; Team, roles and disable next) |
 | 10 | Organisation settings (legal entities, countries, source priority) | Org Admin | 2 | Onboarding markets step | S | Not started |
