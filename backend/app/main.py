@@ -1,16 +1,33 @@
 """FastAPI application entry point for Monkspaces Shared Data Platform."""
 
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.router import api_router
 from app.api.v1.health import router as health_router
 from app.core.config import get_settings
+from app.core.db import dispose_engine
+from app.core.errors import register_error_handlers
+from app.core.jobs import wait_for_inline_jobs
+from app.core.request_context import RequestIdMiddleware, configure_logging
+
+import app.models  # noqa: F401 - register every table and job handler
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    yield
+    await wait_for_inline_jobs()
+    await dispose_engine()
 
 
 def create_application() -> FastAPI:
     """Application factory for Monkspaces Shared Data Platform API."""
     settings = get_settings()
+    configure_logging()
 
     openapi_tags = [
         {
@@ -54,6 +71,7 @@ def create_application() -> FastAPI:
             "- **Strict Multi-Tenancy:** Scoped by `X-Tenant-ID` header with consultant workspace isolation.\n"
         ),
         openapi_tags=openapi_tags,
+        lifespan=lifespan,
         docs_url="/docs" if settings.debug or settings.app_env != "production" else None,
         redoc_url="/redoc" if settings.debug or settings.app_env != "production" else None,
     )
@@ -72,7 +90,11 @@ def create_application() -> FastAPI:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+        expose_headers=["X-Request-ID"],
     )
+    # Outermost, so every response and log line carries a request ID.
+    application.add_middleware(RequestIdMiddleware)
+    register_error_handlers(application)
 
     # Mount API routers
     # 1. Root /health endpoint for orchestration (Docker, K8s, Cloud Run)

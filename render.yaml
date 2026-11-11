@@ -9,7 +9,9 @@ services:
     plan: free
     rootDir: backend
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    # Database migrations run first; if they fail, the deploy fails and the previous version keeps serving.
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
     envVars:
       - key: APP_ENV
         value: production
@@ -17,6 +19,8 @@ services:
         value: "false"
       - key: CORS_ORIGINS
         value: '["*"]'
+      - key: JWT_SECRET_KEY
+        generateValue: true # Render generates a random secret once
       - key: DATABASE_URL
         sync: false # Set this in Render Dashboard from your Neon connection string
 

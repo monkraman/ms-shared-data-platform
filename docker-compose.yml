@@ -1,0 +1,64 @@
+# Local stack: API, worker, PostgreSQL, Redis and S3-compatible object storage.
+#   docker compose up --build
+#   docker compose exec api python -m app.seed demo
+# API: http://localhost:8000/docs   MinIO console: http://localhost:9001
+# Local development credentials only; never reuse them anywhere else.
+
+x-backend-env: &backend-env
+  APP_ENV: development
+  DATABASE_URL: postgresql://compliance_app:local_dev_only@postgres:5432/compliance_hub
+  REDIS_URL: redis://redis:6379/0
+  JWT_SECRET_KEY: local-development-key-not-for-real-use
+  S3_ENDPOINT_URL: http://minio:9000
+  S3_BUCKET: compliance-hub-local
+  AWS_ACCESS_KEY_ID: minio_local
+  AWS_SECRET_ACCESS_KEY: minio_local_secret
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      # A non-superuser owner, as in production, so Row-Level Security applies.
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_local_only
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/scripts/docker-init-db.sql:/docker-entrypoint-initdb.d/01-app-role.sql:ro
+    ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+    ports: ["6379:6379"]
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio_local
+      MINIO_ROOT_PASSWORD: minio_local_secret
+    ports: ["9000:9000", "9001:9001"]
+    volumes:
+      - miniodata:/data
+
+  api:
+    build: ./backend
+    environment: *backend-env
+    ports: ["8000:8000"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+
+  worker:
+    build: ./backend
+    command: celery -A app.worker worker --loglevel=info
+    environment: *backend-env
+    depends_on:
+      api: { condition: service_started }
+
+volumes:
+  pgdata:
+  miniodata:
