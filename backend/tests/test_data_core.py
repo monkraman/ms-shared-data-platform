@@ -179,7 +179,7 @@ def test_gap_rules_are_managed_by_platform_admins(db_client: TestClient, ws: dic
 def test_rules_follow_the_workspace_modules_and_countries(db_client: TestClient, ws: dict[str, object]) -> None:
     h, pa = _auth(ws["oa"], ws["a"]), _auth(ws["pa"])
     all_rules = {g["rule_id"] for g in db_client.get("/api/v1/gaps", headers=h).json()}
-    assert "GR-002" in all_rules  # DPP rule while the workspace has no modules set
+    assert "GR-001" in all_rules  # a DPP-only rule applies while the workspace has no modules set
 
     db_client.patch(
         f"/api/v1/admin/tenants/{ws['a']}",
@@ -192,7 +192,7 @@ def test_rules_follow_the_workspace_modules_and_countries(db_client: TestClient,
     )
     epr_only = db_client.get("/api/v1/gaps", headers=h).json()
     assert epr_only and all("EPR" in g["modules"] for g in epr_only)
-    assert "GR-002" not in {g["rule_id"] for g in epr_only}
+    assert "GR-001" not in {g["rule_id"] for g in epr_only}
 
 
 def test_a_data_source_remembers_its_mapping_and_can_auto_approve(db_client: TestClient, ws: dict[str, object]) -> None:

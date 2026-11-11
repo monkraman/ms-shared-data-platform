@@ -18,7 +18,7 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, Response, status
 from pydantic import BaseModel, Field, field_validator
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -315,7 +315,11 @@ async def _member(db: AsyncSession, tenant_id: uuid.UUID, user_id: uuid.UUID) ->
     return m
 
 
-def _member_out(m: Membership, user: User) -> MemberOut:
+async def _member_out(db: AsyncSession, m: Membership, user: User) -> MemberOut:
+    """A member row; counts their other workspaces with a query (no lazy loading)."""
+    others = await db.scalar(
+        select(func.count()).where(Membership.user_id == user.id, Membership.tenant_id != m.tenant_id)
+    )
     return MemberOut(
         id=user.id,
         email=user.email,
@@ -323,7 +327,7 @@ def _member_out(m: Membership, user: User) -> MemberOut:
         status=user.status.value,
         role=m.role.value,
         last_sign_in_at=user.last_sign_in_at,
-        other_workspaces=sum(1 for x in user.memberships if x.tenant_id != m.tenant_id),
+        other_workspaces=others or 0,
     )
 
 
@@ -342,7 +346,7 @@ async def list_team(principal: TeamAdmin) -> list[MemberOut]:
                 select(Membership).where(Membership.tenant_id == tenant_id).options(selectinload(Membership.user))
             )
         ).all()
-        return sorted((_member_out(m, m.user) for m in rows), key=lambda x: x.full_name)
+        return sorted([await _member_out(db, m, m.user) for m in rows], key=lambda x: x.full_name)
 
 
 @router.post("/team", response_model=MemberOut, status_code=status.HTTP_201_CREATED, summary="Add a member")
@@ -371,7 +375,7 @@ async def add_member(payload: MemberCreate, principal: TeamAdmin) -> MemberOut:
             entity_id=user.id,
             after={"email": user.email, "role": payload.role},
         )
-        return _member_out(m, user)
+        return await _member_out(db, m, user)
 
 
 @router.patch("/team/{user_id}", response_model=MemberOut, summary="Change a member's role")
@@ -395,7 +399,7 @@ async def change_role(user_id: uuid.UUID, payload: MemberPatch, principal: TeamA
             before={"role": before},
             after={"role": payload.role},
         )
-        return _member_out(m, m.user)
+        return await _member_out(db, m, m.user)
 
 
 @router.delete("/team/{user_id}", status_code=204, summary="Remove a member from this workspace")
@@ -419,8 +423,10 @@ async def reset_member_password(user_id: uuid.UUID, payload: PasswordIn, princip
     async with tenant_session(tenant_id, platform_access=True) as db:
         m = await _member(db, tenant_id, user_id)
         user = m.user
-        await db.refresh(user, ["memberships"])
-        if user.is_platform_admin or any(x.tenant_id != tenant_id for x in user.memberships):
+        elsewhere = await db.scalar(
+            select(func.count()).where(Membership.user_id == user.id, Membership.tenant_id != tenant_id)
+        )
+        if user.is_platform_admin or elsewhere:
             raise ProblemError(403, "This person also works in other workspaces; ask Monk Spaces to reset it.")
         await _set_password(db, user, payload.password)
         await record_audit(db, principal=principal, action="team.password_set", entity_type="user", entity_id=user_id)
