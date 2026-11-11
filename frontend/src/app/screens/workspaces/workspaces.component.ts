@@ -6,6 +6,8 @@ import { PlatformApi } from '../../core/api/platform-api';
 import { toProblem } from '../../core/api/problem';
 import { load } from '../../core/api/resource';
 import { ToastService } from '../../core/services/toast.service';
+import { Router } from '@angular/router';
+import { SessionService } from '../../core/session/session.service';
 import {
   ChipTone,
   Column,
@@ -119,6 +121,9 @@ import { WorkspaceWizardComponent } from './workspace-wizard.component';
       <ng-container actions>
         @if (selected(); as ws) {
           <button type="button" class="btn btn-secondary" (click)="editing.set(ws)">Edit</button>
+          @if (ws.status !== 'suspended') {
+            <button type="button" class="btn btn-primary" [disabled]="opening()" (click)="open(ws)">Open workspace</button>
+          }
           @if (ws.status === 'suspended') {
             <button type="button" class="btn btn-primary" (click)="setStatus(ws, 'active')">Reactivate</button>
           } @else if (ws.status === 'active') {
@@ -167,6 +172,9 @@ import { WorkspaceWizardComponent } from './workspace-wizard.component';
 export class WorkspacesComponent {
   private readonly api = inject(PlatformApi);
   private readonly toast = inject(ToastService);
+  private readonly session = inject(SessionService);
+  private readonly router = inject(Router);
+  protected readonly opening = signal(false);
 
   protected readonly q = signal('');
   protected readonly status = signal('');
@@ -209,6 +217,19 @@ export class WorkspacesComponent {
       },
       error: (e: unknown) => this.toast.show(toProblem(e).detail, 'error'),
     });
+  }
+
+  /** Platform admins work inside a client's workspace: products, imports and gaps are theirs. */
+  protected async open(ws: Workspace): Promise<void> {
+    this.opening.set(true);
+    try {
+      await this.session.switchWorkspace(ws.id);
+      await this.router.navigate(['/app/products']);
+    } catch (e) {
+      this.toast.show(toProblem(e).detail, 'error');
+    } finally {
+      this.opening.set(false);
+    }
   }
 
   protected updated(ws: Workspace): void {

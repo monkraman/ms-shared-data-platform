@@ -22,12 +22,17 @@ import {
   WorkspaceCreate,
   WorkspacePatch,
   WorkspaceStatus,
+  SyncSystem,
+  GapStatus,
+  Severity,
+  UserCreate,
+  UserRow,
 } from './contracts';
 
 /**
- * One method per endpoint in `contracts.ts` (screens 2–8). Screens call these, never
- * HTTP directly. When an endpoint ships in the backend, replace its `api.call` with the
- * typed `api.get/post/...` and delete its mock route.
+ * One method per endpoint the screens use. Screens call these, never HTTP directly; each
+ * goes through the typed `ApiClient`, so paths, parameters and bodies are checked against
+ * the backend's OpenAPI schema.
  */
 @Injectable({ providedIn: 'root' })
 export class PlatformApi {
@@ -36,7 +41,7 @@ export class PlatformApi {
   // Reference
   countries = (): Observable<Country[]> => this.api.get('/api/v1/reference/countries');
   modules = (): Observable<ModuleInfo[]> => this.api.get('/api/v1/reference/modules');
-  fields = (): Observable<Record<string, FieldInfo>> => this.api.call('GET', '/api/v1/reference/fields');
+  fields = (): Observable<Record<string, FieldInfo>> => this.api.get('/api/v1/reference/fields');
 
   // Screen 2 (backend built)
   workspaces = (query: { q?: string; status?: WorkspaceStatus } = {}): Observable<Workspace[]> =>
@@ -45,35 +50,41 @@ export class PlatformApi {
   updateWorkspace = (id: string, body: WorkspacePatch): Observable<Workspace> =>
     this.api.patch('/api/v1/admin/tenants/{tenant_id}', { path: { tenant_id: id }, body });
 
+  // Screen 9 (users; backend built)
+  users = (): Observable<UserRow[]> => this.api.get('/api/v1/auth/users');
+  createUser = (body: UserCreate): Observable<UserRow> => this.api.post('/api/v1/auth/users', { body });
+
   // Screen 3
-  dataPoints = (): Observable<DataPointDictionary> => this.api.call('GET', '/api/v1/admin/data-points');
+  dataPoints = (): Observable<DataPointDictionary> => this.api.get('/api/v1/admin/data-points');
 
   // Screen 4
-  products = (query: { q?: string } = {}): Observable<ProductSummary[]> =>
-    this.api.call('GET', '/api/v1/products', { query });
-  product = (sku: string): Observable<Product> => this.api.call('GET', '/api/v1/products/{sku}', { path: { sku } });
-  createProduct = (body: ProductCreate): Observable<Product> => this.api.call('POST', '/api/v1/products', { body });
+  products = (query: { q?: string } = {}): Observable<ProductSummary[]> => this.api.get('/api/v1/products', { query });
+  product = (sku: string): Observable<Product> => this.api.get('/api/v1/products/{sku}', { path: { sku } });
+  createProduct = (body: ProductCreate): Observable<Product> => this.api.post('/api/v1/products', { body });
 
   // Screen 5
-  startImport = (body: ImportCreate): Observable<ImportDraft> => this.api.call('POST', '/api/v1/imports', { body });
+  startImport = (body: ImportCreate): Observable<ImportDraft> => this.api.post('/api/v1/imports', { body });
+  /** Simulated ERP or PLM sync: same draft → mapping → approve steps as a file. */
+  syncImport = (system: SyncSystem): Observable<ImportDraft> =>
+    this.api.post('/api/v1/imports/sync', { body: { system } });
   mapImport = (id: string, mapping: Record<string, string | null>): Observable<ImportPreview> =>
-    this.api.call('PUT', '/api/v1/imports/{id}/mapping', { path: { id }, body: { mapping } });
+    this.api.put('/api/v1/imports/{batch_id}/mapping', { path: { batch_id: id }, body: { mapping } });
   approveImport = (id: string): Observable<{ job_id: string }> =>
-    this.api.call('POST', '/api/v1/imports/{id}/approve', { path: { id } });
-  job = (jobId: string): Observable<JobStatus> => this.api.call('GET', '/api/v1/jobs/{job_id}', { path: { job_id: jobId } });
+    this.api.post('/api/v1/imports/{batch_id}/approve', { path: { batch_id: id } });
+  job = (jobId: string): Observable<JobStatus> => this.api.get('/api/v1/jobs/{job_id}', { path: { job_id: jobId } });
 
   // Screen 6
-  gapRules = (): Observable<GapRule[]> => this.api.call('GET', '/api/v1/admin/gap-rules');
-  createGapRule = (body: GapRuleCreate): Observable<GapRule> => this.api.call('POST', '/api/v1/admin/gap-rules', { body });
-  updateGapRule = (id: string, body: Partial<GapRule>): Observable<GapRule> =>
-    this.api.call('PATCH', '/api/v1/admin/gap-rules/{id}', { path: { id }, body });
+  gapRules = (): Observable<GapRule[]> => this.api.get('/api/v1/admin/gap-rules');
+  createGapRule = (body: GapRuleCreate): Observable<GapRule> => this.api.post('/api/v1/admin/gap-rules', { body });
+  updateGapRule = (id: string, body: { active?: boolean }): Observable<GapRule> =>
+    this.api.patch('/api/v1/admin/gap-rules/{rule_id}', { path: { rule_id: id }, body });
 
   // Screen 7
-  gaps = (query: { status?: string; severity?: string } = {}): Observable<Gap[]> =>
-    this.api.call('GET', '/api/v1/gaps', { query });
+  gaps = (query: { status?: GapStatus; severity?: Severity } = {}): Observable<Gap[]> =>
+    this.api.get('/api/v1/gaps', { query });
   resolveGap = (id: string, body: GapResolve): Observable<Gap> =>
-    this.api.call('POST', '/api/v1/gaps/{id}/resolve', { path: { id }, body });
+    this.api.post('/api/v1/gaps/{gap_id}/resolve', { path: { gap_id: id }, body });
 
   // Screen 8
-  dataOverview = (): Observable<DataOverview> => this.api.call('GET', '/api/v1/data-overview');
+  dataOverview = (): Observable<DataOverview> => this.api.get('/api/v1/data-overview');
 }

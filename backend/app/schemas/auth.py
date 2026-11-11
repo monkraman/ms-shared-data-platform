@@ -60,6 +60,7 @@ class UserProfile(BaseModel):
     organisation_slug: Optional[str] = None
     organisation_name: Optional[str] = None
     avatar_initials: str = "U"
+    status: str = "active"
     mfa_enabled: bool = False
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 

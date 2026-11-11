@@ -15,22 +15,41 @@ class Perm:
     PLATFORM_TENANTS_READ = "platform.tenants.read"
     PLATFORM_TENANTS_MANAGE = "platform.tenants.manage"
     PLATFORM_AUDIT_READ = "platform.audit.read"
+    PLATFORM_USERS_MANAGE = "platform.users.manage"
+    PLATFORM_DATAPOINTS_READ = "platform.datapoints.read"  # screen 3
+    PLATFORM_RULES_MANAGE = "platform.rules.manage"  # screen 6
 
     # Tenant permissions
     WORKSPACE_READ = "workspace.read"
     JOBS_READ = "jobs.read"
     AUDIT_READ = "audit.read"
     USERS_MANAGE = "users.manage"
+    PRODUCTS_READ = "products.read"  # screen 4
+    PRODUCTS_MANAGE = "products.manage"
+    IMPORTS_MANAGE = "imports.manage"  # screen 5
+    GAPS_READ = "gaps.read"  # screen 7
+    GAPS_RESOLVE = "gaps.resolve"
+    DATA_READ = "data.read"  # screen 8
 
 
 PLATFORM_ADMIN_PERMISSIONS: frozenset[str] = frozenset(
-    {Perm.PLATFORM_TENANTS_READ, Perm.PLATFORM_TENANTS_MANAGE, Perm.PLATFORM_AUDIT_READ}
+    {
+        Perm.PLATFORM_TENANTS_READ,
+        Perm.PLATFORM_TENANTS_MANAGE,
+        Perm.PLATFORM_AUDIT_READ,
+        Perm.PLATFORM_USERS_MANAGE,
+        Perm.PLATFORM_DATAPOINTS_READ,
+        Perm.PLATFORM_RULES_MANAGE,
+    }
 )
 
+_READ = {Perm.WORKSPACE_READ, Perm.PRODUCTS_READ, Perm.GAPS_READ, Perm.DATA_READ}
+_WORK = _READ | {Perm.JOBS_READ, Perm.PRODUCTS_MANAGE, Perm.IMPORTS_MANAGE, Perm.GAPS_RESOLVE}
+
 TENANT_ROLE_PERMISSIONS: dict[TenantRole, frozenset[str]] = {
-    TenantRole.ORG_ADMIN: frozenset({Perm.WORKSPACE_READ, Perm.JOBS_READ, Perm.AUDIT_READ, Perm.USERS_MANAGE}),
-    TenantRole.ANALYST: frozenset({Perm.WORKSPACE_READ, Perm.JOBS_READ}),
-    TenantRole.VIEWER: frozenset({Perm.WORKSPACE_READ}),
+    TenantRole.ORG_ADMIN: frozenset(_WORK | {Perm.AUDIT_READ, Perm.USERS_MANAGE}),
+    TenantRole.ANALYST: frozenset(_WORK),
+    TenantRole.VIEWER: frozenset(_READ),
 }
 
 ALL_TENANT_PERMISSIONS: frozenset[str] = frozenset().union(*TENANT_ROLE_PERMISSIONS.values())

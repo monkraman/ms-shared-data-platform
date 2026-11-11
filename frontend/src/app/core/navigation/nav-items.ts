@@ -27,6 +27,12 @@ export const NAV: NavGroup[] = [
         icon: 'M2.5 14V3.5h7V14M9.5 6.5h4V14M4.5 6h3M4.5 8.5h3M4.5 11h3M1.5 14h13',
       },
       {
+        label: 'Users',
+        path: '/app/users',
+        permission: 'platform.users.manage',
+        icon: 'M6 7.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM1.5 13.5c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4M10.5 2.7a2.5 2.5 0 0 1 0 4.6M12 9.8c1.5.5 2.5 1.8 2.5 3.7',
+      },
+      {
         label: 'Data points',
         path: '/app/data-points',
         permission: 'platform.datapoints.read',

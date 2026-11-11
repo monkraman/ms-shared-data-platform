@@ -15,7 +15,8 @@ The prototype is being rebuilt **screen by screen** on a secure foundation. See 
 | Foundation (DB, RLS, permissions, audit, jobs, API client, shell) | `backend/app/core`, `frontend/src/app/core` | Done (Step 0) |
 | Screen 1: secure sign-in | `backend/app/platform/sign_in.py`, `api/v1/auth.py`, `frontend/src/app/core/session`, `features/auth` | In review (Playwright test and staging demo open) |
 | Screen 2: client workspaces | `backend/app/api/v1/workspaces.py`, `frontend/src/app/screens/workspaces` | Backend built (Postgres, RLS on legal entities, audit); in review |
-| Screens 3–8 (data points → data overview) | `frontend/src/app/screens/*` | Frontend done on the **mock API**; backend per screen next |
+| Screen 9 (part): users | `frontend/src/app/screens/users`, `GET/POST /api/v1/auth/users` | Platform admins list and add users; org-admin Team view next |
+| Screens 3–8 (data points → data overview) | `backend/app/{catalog,ingestion,quality}`, `frontend/src/app/screens/*` | Backend built on branch `screen/03-05-data`; not yet tested on Postgres or deployed |
 | Prototype pages | `frontend/src/app/features/*`, `backend/app/services/store.py` | Live until each screen replaces them |
 
 ## Repository map
@@ -30,7 +31,7 @@ backend/                     FastAPI, Python 3.12
   seeds/demo/                demo fixtures for `python -m app.seed demo`
   tests/                     pytest; DB tests need TEST_DATABASE_URL (CI provides Postgres)
 frontend/                    Angular 22, standalone components, signals
-  src/app/core/api/          ApiClient (typed from OpenAPI), contracts.ts (planned API), mock/ (mock API)
+  src/app/core/api/          ApiClient (typed from OpenAPI), contracts.ts (names for schema types), platform-api.ts
   src/app/core/session/      SessionService: sign-in, refresh, workspace switch, idle sign-out, permissions
   src/app/core/navigation/   sidebar groups and items, each with a permission
   src/app/screens/           rebuilt screens (2–8), one folder each
@@ -45,7 +46,7 @@ reference-docs-teams/        reference material and data sets (input, not app co
 1. **Improve the existing code; never rebuild from scratch.** Reuse layouts, styles and services and replace the plumbing underneath.
 2. **Tenant safety.** The workspace comes from the signed token only, never a header or browser storage. Tenant tables use Postgres RLS. Every endpoint uses `require_permission("...")`.
 3. **API contract first.** A screen's endpoints are agreed before code. Planned ones live in `frontend/src/app/core/api/contracts.ts`; built ones are in the OpenAPI schema (`npm run api:generate`, checked in CI).
-4. **No data in components.** Screens call `PlatformApi` or `ApiClient`. Demo data lives in fixtures (`core/api/mock/fixtures`, `backend/seeds`).
+4. **No data in components.** Screens call `PlatformApi` or `ApiClient`. Demo data lives in `backend/seeds` and `backend/app/catalog/reference` (used by the simulated ERP/PLM sync).
 5. **UI: simple like Linear or Apple Notes.** Labels and data only. No taglines, helper text or secondary labels; if a screen needs them, fix the layout. Use the platform tokens in `styles.css` (`.platform`) and the shared UI pieces.
 6. **Docs move with the code.** Update this file, `docs/README.md`, the foundation guide and the build plan status in the same change.
 
@@ -57,20 +58,15 @@ reference-docs-teams/        reference material and data sets (input, not app co
 - Production builds call the API on the same origin (`/api`, proxied by `vercel.json`) so the refresh cookie is first-party. Do not set `API_BASE_URL` to the Render URL.
 - Prototype pages read the user through `AuthService`, which now wraps `SessionService`.
 
-## The mock API (screens 3–8)
+## Client data: products, import, gaps (screens 3–8)
 
-Screens 3–8 call real-looking endpoints (`contracts.ts`). Until a screen's backend ships, `core/api/mock/mock-api.interceptor.ts` answers them from an in-browser database seeded from fixtures. Changes persist in localStorage (`ch.mockdb.v1`). It is switched on by `environment.mockApi` (`MOCK_API=false` at build time turns it off).
+Screens 3–8 run on the backend (there is no mock API any more):
 
-To connect a screen to the backend:
-
-1. Build the endpoints in FastAPI with the shapes in `contracts.ts`, with RLS, permissions, audit and tests.
-2. Run `npm run api:generate` in `frontend/`.
-3. In `core/api/platform-api.ts`, switch that screen's methods from `api.call(...)` to the typed `api.get/post(...)`.
-4. Delete its routes in `core/api/mock/mock-routes.ts`. The screen components do not change.
-
-`GET /auth/me` is real: the mock adds the permissions of the screens it still serves (`core/api/mock/session-mock.ts`). Remove a screen's permissions there when its backend adds them to `app/core/permissions.py`.
-
-Fixtures come from `reference-docs-teams/datapoints-epr-ppwr-main/src`; regenerate them with `node scripts/make-mock-fixtures.js` in `frontend/`.
+- **Data points and fields** (`app/catalog`): the dictionary is in the `data_points` table (seeded by migration 0005); the field catalogue and the sample client's products are JSON in `app/catalog/reference/`, generated by `node backend/scripts/make_reference_data.js` from `reference-docs-teams/datapoints-epr-ppwr-main/src`.
+- **Products** are stored as field maps (`{"weight_g": {"dp": "DP09", "value": "26"}}`) on `products`, `product_components` and `product_sales`, all with tenant RLS. Totals and completeness are computed on read (`catalog/service.py`).
+- **Import** (`app/ingestion`): CSV upload and the simulated ERP (SAP S/4HANA) and PLM (Trace One) syncs share one pipeline: draft → mapping (preview with checks) → approve, which runs the `ingestion.import` job. A sync sends only the fields whose data point comes from that system. Only SKU, product name and component are required; other missing values become gaps.
+- **Gaps** (`app/quality`): the rule library (`gap_rules`, platform data) runs over the products on every read (`engine.py`); only people's decisions are stored (`gap_states`, tenant RLS). Fixing a gap with a value writes it into the product.
+- **Platform admins** open a client's workspace from Client workspaces (Open workspace) to see its products, imports and gaps; their token then carries that workspace.
 
 ## Run and test
 

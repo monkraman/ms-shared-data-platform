@@ -18,6 +18,7 @@ export const signInResponse = (role = 'org_admin', token = 'access-1'): SignInRe
     organisation_name: 'Acme Foods',
     avatar_initials: 'AL',
     mfa_enabled: false,
+    status: 'active',
   },
 });
 

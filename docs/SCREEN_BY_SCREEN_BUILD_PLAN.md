@@ -11,7 +11,7 @@ We build one screen at a time, fully finished in backend and frontend, in the or
 
 Each screen is a **vertical slice**: database tables, API, permissions, UI, tests and audit logging, all done together. We do not start the next screen until the current one passes the definition of done. The companion doc, *Compliance Hub — Target Architecture & Improvement Plan*, explains the design behind these choices.
 
-#> **Demo build (Nov 2026):** screens 2–8 have their frontend built against the planned API contracts (`frontend/src/app/core/api/contracts.ts`), served by the mock API until each screen's backend ships. See AGENTS.md, "The mock API".
+> **Build status (11 Nov 2026):** screens 1–2 are live; screens 3–8 have their backend built on branch `screen/03-05-data` (no mock API any more), to be tested and deployed as one batch. See AGENTS.md, "Client data".
 
 ## Rules that prevent rework
 
@@ -35,13 +35,13 @@ Status values: Not started · Spec agreed · In build · In review · Done.
 | 0 | Foundation (not a screen) | Both | — | Schema drafts, test suite | L | In review (sign-in lands with screen 1; EU staging open) |
 | 1 | Sign-in and session | Both | 0 | Sign-in layout and styles | M | In review (Playwright test, staging demo and sign-off open) |
 | 2 | Client workspaces and setup wizard | SuperAdmin | 1 | Workspace cards, onboarding steps 1–2, theme engine | L | In review (backend built; invitation emails wait for the email service) |
-| 3 | Data point dictionary | SuperAdmin | 2 | Data points page, `REGULATORY_DATA_DICTIONARY_SPEC.csv` | M | In build (frontend on mock API) |
-| 4 | Products and packaging (list, detail, BOM tree, manual entry) | Org Admin | 3 | SKU table, manual SKU modal, packaging BOM form | L | In build (frontend on mock API) |
-| 5 | Import: upload, map, review, approve | Org Admin | 4 | CSV dropzone, bulk import modal | L | In build (frontend on mock API) |
-| 6 | Gap rule library | SuperAdmin | 3 | Rule library page | M | In build (frontend on mock API) |
-| 7 | Gap worklist and gap fix | Org Admin | 5, 6 | Quality worklist, vendor declaration, worklist export | L | In build (frontend on mock API) |
-| 8 | Data overview | Org Admin | 7 | Data point map | M | In build (frontend on mock API) |
-| 9 | Users and access, and Team | Both | 1 | IAM directory | M | Not started |
+| 3 | Data point dictionary | SuperAdmin | 2 | Data points page, `REGULATORY_DATA_DICTIONARY_SPEC.csv` | M | In build (backend built, untested; branch screen/03-05-data) |
+| 4 | Products and packaging (list, detail, BOM tree, manual entry) | Org Admin | 3 | SKU table, manual SKU modal, packaging BOM form | L | In build (backend built, untested; branch screen/03-05-data) |
+| 5 | Import: upload, map, review, approve | Org Admin | 4 | CSV dropzone, bulk import modal | L | In build (backend built, untested; branch screen/03-05-data) |
+| 6 | Gap rule library | SuperAdmin | 3 | Rule library page | M | In build (backend built, untested; branch screen/03-05-data) |
+| 7 | Gap worklist and gap fix | Org Admin | 5, 6 | Quality worklist, vendor declaration, worklist export | L | In build (backend built, untested; branch screen/03-05-data) |
+| 8 | Data overview | Org Admin | 7 | Data point map | M | In build (backend built, untested; branch screen/03-05-data) |
+| 9 | Users and access, and Team | Both | 1 | IAM directory | M | In build (platform admin Users list and Add user on the existing API; Team, roles and disable next) |
 | 10 | Organisation settings (legal entities, countries, source priority) | Org Admin | 2 | Onboarding markets step | S | Not started |
 | 11 | Tariffs and rule packs | SuperAdmin | 3 | Tariff library, seeded tariffs | M | Not started |
 | 12 | EPR results: runs, explanations, simulator (module SDK built here) | Org Admin | 7, 10, 11 | Simulator page, EPR engine | L | Not started |
@@ -50,7 +50,7 @@ Status values: Not started · Spec agreed · In build · In review · Done.
 | 15 | Audit log | SuperAdmin | 1 | — | S | Not started |
 | 16 | Ingestion monitor | SuperAdmin | 5 | Batches page | S | Not started |
 | 17 | Module registry and entitlements | SuperAdmin | 12 | Module toggles | S | Not started |
-| 18 | Data sources: API keys and connectors | Org Admin | 5 | Sync endpoints, mock ERP/PLM service | L | Not started |
+| 18 | Data sources: API keys and connectors | Org Admin | 5 | Sync endpoints, mock ERP/PLM service | L | Simulated ERP/PLM sync built into Import (screen 5); real connectors not started |
 | 19 | PPWR results | Org Admin | 12 | PPWR service | M | Not started |
 | 20 | DPP results and public passport | Org Admin | 19 | DPP service | M | Not started |
 | 21 | LCA results | Org Admin | 12 | ISO 14067 engine | M | Not started |
