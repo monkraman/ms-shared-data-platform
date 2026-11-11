@@ -7,6 +7,7 @@ import { PlatformApi } from '../../core/api/platform-api';
 import { Problem, toProblem } from '../../core/api/problem';
 import { PageHeaderComponent, StatusChipComponent } from '../../shared/ui';
 import { parseCsv, toCsv } from './csv';
+import { ImportHandoff } from './import-handoff';
 
 type Step = 'upload' | 'map' | 'review' | 'run';
 
@@ -276,6 +277,13 @@ export class ImportComponent {
 
   constructor() {
     this.destroyRef.onDestroy(() => this.poll?.unsubscribe());
+    // A sync started on Data sources that needs review opens straight on the mapping step.
+    const handed = inject(ImportHandoff).take();
+    if (handed) {
+      this.draft.set(handed);
+      this.mapping.set({ ...handed.suggested_mapping });
+      this.step.set('map');
+    }
   }
 
   protected stepIndex(): number {

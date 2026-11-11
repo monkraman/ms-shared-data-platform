@@ -529,6 +529,23 @@
         "title": "ComponentOut",
         "type": "object"
       },
+      "ConnectRequest": {
+        "properties": {
+          "system": {
+            "enum": [
+              "erp",
+              "plm"
+            ],
+            "title": "System",
+            "type": "string"
+          }
+        },
+        "required": [
+          "system"
+        ],
+        "title": "ConnectRequest",
+        "type": "object"
+      },
       "Country": {
         "properties": {
           "code": {
@@ -1121,6 +1138,105 @@
         "title": "DataQualityIssue",
         "type": "object"
       },
+      "DataSourceOut": {
+        "properties": {
+          "auto_approve": {
+            "title": "Auto Approve",
+            "type": "boolean"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "last_result": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Result"
+          },
+          "last_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "running",
+                  "succeeded",
+                  "failed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Status"
+          },
+          "last_synced_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synced At"
+          },
+          "mapped_columns": {
+            "title": "Mapped Columns",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "syncs": {
+            "title": "Syncs",
+            "type": "integer"
+          },
+          "system": {
+            "enum": [
+              "erp",
+              "plm"
+            ],
+            "title": "System",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "system",
+          "name",
+          "auto_approve",
+          "mapped_columns",
+          "last_synced_at",
+          "last_status",
+          "last_result",
+          "syncs"
+        ],
+        "title": "DataSourceOut",
+        "type": "object"
+      },
+      "DataSourcePatch": {
+        "properties": {
+          "auto_approve": {
+            "title": "Auto Approve",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "auto_approve"
+        ],
+        "title": "DataSourcePatch",
+        "type": "object"
+      },
       "DigitalProductPassport": {
         "properties": {
           "brand": {
@@ -1484,6 +1600,13 @@
           "check": {
             "$ref": "#/components/schemas/RuleCheck"
           },
+          "countries": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Countries",
+            "type": "array"
+          },
           "data_point": {
             "maxLength": 8,
             "title": "Data Point",
@@ -1541,6 +1664,13 @@
           },
           "check": {
             "$ref": "#/components/schemas/RuleCheck"
+          },
+          "countries": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Countries",
+            "type": "array"
           },
           "data_point": {
             "maxLength": 8,
@@ -1609,6 +1739,20 @@
               }
             ],
             "title": "Active"
+          },
+          "countries": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Countries"
           },
           "modules": {
             "anyOf": [
@@ -1868,6 +2012,105 @@
           "targets"
         ],
         "title": "ImportDraft",
+        "type": "object"
+      },
+      "ImportHistoryRow": {
+        "properties": {
+          "created": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "filename": {
+            "title": "Filename",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "imported_products": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Imported Products"
+          },
+          "invalid_rows": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invalid Rows"
+          },
+          "row_count": {
+            "title": "Row Count",
+            "type": "integer"
+          },
+          "source": {
+            "enum": [
+              "csv",
+              "erp",
+              "plm"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "approved",
+              "imported",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "updated": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated"
+          }
+        },
+        "required": [
+          "id",
+          "filename",
+          "source",
+          "status",
+          "row_count",
+          "imported_products",
+          "created",
+          "updated",
+          "invalid_rows",
+          "created_at"
+        ],
+        "title": "ImportHistoryRow",
         "type": "object"
       },
       "ImportIssue": {
@@ -4383,6 +4626,32 @@
           "system"
         ],
         "title": "SyncRequest",
+        "type": "object"
+      },
+      "SyncStarted": {
+        "description": "Either the draft to review on the Import screen, or the running import job.",
+        "properties": {
+          "draft": {
+            "$ref": "#/components/schemas/ImportDraft"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          }
+        },
+        "required": [
+          "draft",
+          "job_id"
+        ],
+        "title": "SyncStarted",
         "type": "object"
       },
       "Target": {
@@ -8221,6 +8490,252 @@
         ]
       }
     },
+    "/api/v1/data-sources": {
+      "get": {
+        "operationId": "list_sources_api_v1_data_sources_get",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DataSourceOut"
+                  },
+                  "title": "Response List Sources Api V1 Data Sources Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Connected systems",
+        "tags": [
+          "Data sources"
+        ]
+      },
+      "post": {
+        "operationId": "connect_api_v1_data_sources_post",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Connect a system",
+        "tags": [
+          "Data sources"
+        ]
+      }
+    },
+    "/api/v1/data-sources/{source_id}": {
+      "patch": {
+        "operationId": "update_source_api_v1_data_sources__source_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "source_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Source Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataSourcePatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Turn auto-approve on or off",
+        "tags": [
+          "Data sources"
+        ]
+      }
+    },
+    "/api/v1/data-sources/{source_id}/sync": {
+      "post": {
+        "operationId": "sync_now_api_v1_data_sources__source_id__sync_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "source_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Source Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncStarted"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Sync now",
+        "tags": [
+          "Data sources"
+        ]
+      }
+    },
     "/api/v1/foundation/batches": {
       "get": {
         "description": "Retrieve source ingestion batches, lineage, and validation summaries.",
@@ -9156,6 +9671,59 @@
       }
     },
     "/api/v1/imports": {
+      "get": {
+        "operationId": "history_api_v1_imports_get",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ImportHistoryRow"
+                  },
+                  "title": "Response History Api V1 Imports Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Import and sync history",
+        "tags": [
+          "Import"
+        ]
+      },
       "post": {
         "operationId": "start_import_api_v1_imports_post",
         "parameters": [

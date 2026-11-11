@@ -7,6 +7,7 @@ Both go through the same steps: draft (columns and rows) → mapping (preview wi
 from __future__ import annotations
 
 import uuid
+from datetime import datetime
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, status
@@ -20,8 +21,8 @@ from app.core.auth import Principal, TenantDB, require_permission
 from app.core.errors import ProblemError
 from app.core.jobs import enqueue
 from app.core.permissions import Perm
-from app.ingestion import service, sync
-from app.ingestion.models import ImportBatch
+from app.ingestion import service, sources
+from app.ingestion.models import DataSource, ImportBatch
 
 router = APIRouter(prefix="/imports", tags=["Import"])
 
@@ -129,7 +130,7 @@ async def start_import(payload: ImportCreate, principal: Importer, db: TenantDB)
         source="csv",
         columns=payload.columns,
         rows=payload.rows,
-        mapping=service.suggest_mapping(payload.columns),
+        mapping=sources.mapping_for(payload.columns, await sources.last_csv_mapping(db, payload.columns)),
         created_by=principal.user_id,
     )
     return await _draft(db, principal, batch)
@@ -139,19 +140,9 @@ async def start_import(payload: ImportCreate, principal: Importer, db: TenantDB)
     "/sync", response_model=ImportDraft, status_code=status.HTTP_201_CREATED, summary="Sync from ERP or PLM (simulated)"
 )
 async def start_sync(payload: SyncRequest, principal: Importer, db: TenantDB) -> ImportDraft:
-    columns, rows, extras = sync.sync_rows(payload.system)
     assert principal.tenant_id is not None
-    batch = ImportBatch(
-        tenant_id=principal.tenant_id,
-        filename=f"{sync.SYSTEM_NAMES[payload.system]} sync",
-        source=payload.system,
-        columns=columns,
-        rows=rows,
-        mapping=service.suggest_mapping(columns),
-        extras=extras,
-        created_by=principal.user_id,
-    )
-    return await _draft(db, principal, batch)
+    source = await sources.get_or_connect(db, principal.tenant_id, payload.system)
+    return await _draft(db, principal, await sources.sync_batch(db, source, principal.user_id))
 
 
 @router.put("/{batch_id}/mapping", response_model=ImportPreview, summary="Set the column mapping and preview")
@@ -175,14 +166,55 @@ async def set_mapping(batch_id: uuid.UUID, payload: MappingIn, _: Importer, db: 
     summary="Approve: import the valid rows in the background",
 )
 async def approve(batch_id: uuid.UUID, principal: Importer, db: TenantDB) -> JobStarted:
-    batch = await _batch(db, batch_id)
+    return JobStarted(job_id=await approve_batch(db, principal, await _batch(db, batch_id)))
+
+
+async def approve_batch(db: TenantDB, principal: Principal, batch: ImportBatch) -> uuid.UUID:
+    """Queue the import job; a source remembers this mapping for its next sync."""
     if batch.status != "draft":
         raise ProblemError(409, "This import has already been approved.")
     if not service.preview(batch, set())["valid_rows"]:
         raise ProblemError(422, "There are no valid rows to import.")
     job = await enqueue(db, principal, "ingestion.import", {"batch_id": str(batch.id)})
     batch.status, batch.job_id = "approved", job.id
+    if batch.data_source_id:
+        source = await db.get(DataSource, batch.data_source_id)
+        if source is not None:
+            source.mapping, source.last_status = dict(batch.mapping), "running"
     await record_audit(
         db, principal=principal, action="import.approved", entity_type="import_batch", entity_id=batch.id
     )
-    return JobStarted(job_id=job.id)
+    return job.id
+
+
+class ImportHistoryRow(BaseModel):
+    id: uuid.UUID
+    filename: str
+    source: Literal["csv", "erp", "plm"]
+    status: Literal["draft", "approved", "imported", "failed"]
+    row_count: int
+    imported_products: int | None
+    created: int | None
+    updated: int | None
+    invalid_rows: int | None
+    created_at: datetime
+
+
+@router.get("", response_model=list[ImportHistoryRow], summary="Import and sync history")
+async def history(_: Importer, db: TenantDB) -> list[ImportHistoryRow]:
+    batches = await db.scalars(select(ImportBatch).order_by(ImportBatch.created_at.desc()).limit(100))
+    return [
+        ImportHistoryRow(
+            id=b.id,
+            filename=b.filename,
+            source=b.source,
+            status=b.status,
+            row_count=len(b.rows),
+            imported_products=(b.result or {}).get("imported_products"),
+            created=(b.result or {}).get("created"),
+            updated=(b.result or {}).get("updated"),
+            invalid_rows=(b.result or {}).get("invalid_rows"),
+            created_at=b.created_at,
+        )
+        for b in batches
+    ]

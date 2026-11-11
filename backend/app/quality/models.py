@@ -26,6 +26,9 @@ class GapRule(Timestamps, Base):
     check: Mapped[dict[str, Any]] = mapped_column(JSONType, nullable=False)
     severity: Mapped[str] = mapped_column(String(16), nullable=False)
     modules: Mapped[list[str]] = mapped_column(ARRAY(String(8)), default=list, nullable=False)
+    # Empty = every country. A workspace sees a rule only if it has one of the rule's
+    # modules and (when set) one of its countries.
+    countries: Mapped[list[str]] = mapped_column(ARRAY(String(2)), default=list, nullable=False)
     active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
 

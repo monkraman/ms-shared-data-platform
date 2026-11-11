@@ -60,6 +60,7 @@ export type ImportDraft = Schemas['ImportDraft'];
 export type ImportIssue = Schemas['ImportIssue'];
 export type ImportPreview = Schemas['ImportPreview'];
 export type SyncSystem = Schemas['SyncRequest']['system'];
+export type ImportHistoryRow = Schemas['ImportHistoryRow'];
 export type JobStatus = Pick<Schemas['JobOut'], 'id' | 'kind' | 'status' | 'progress' | 'result' | 'error'>;
 
 // --- Screen 6: gap rules — built, GET/POST /admin/gap-rules, PATCH /admin/gap-rules/{id} --
@@ -79,3 +80,8 @@ export type GapResolve = Schemas['GapResolve'];
 
 export type DataPointCoverage = Schemas['DataPointCoverage'];
 export type DataOverview = Schemas['DataOverview'];
+
+// --- Screen 18 (first part): data sources — built, GET/POST /data-sources, PATCH, POST …/sync
+
+export type DataSource = Schemas['DataSourceOut'];
+export type SyncStarted = Schemas['SyncStarted'];

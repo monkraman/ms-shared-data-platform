@@ -675,6 +675,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/data-sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Connected systems */
+        get: operations["list_sources_api_v1_data_sources_get"];
+        put?: never;
+        /** Connect a system */
+        post: operations["connect_api_v1_data_sources_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/data-sources/{source_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Turn auto-approve on or off */
+        patch: operations["update_source_api_v1_data_sources__source_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/data-sources/{source_id}/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sync now */
+        post: operations["sync_now_api_v1_data_sources__source_id__sync_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/foundation/batches": {
         parameters: {
             query?: never;
@@ -884,7 +936,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Import and sync history */
+        get: operations["history_api_v1_imports_get"];
         put?: never;
         /** Start a CSV import */
         post: operations["start_import_api_v1_imports_post"];
@@ -1494,6 +1547,14 @@ export interface components {
             /** Weight Source */
             weight_source: string;
         };
+        /** ConnectRequest */
+        ConnectRequest: {
+            /**
+             * System
+             * @enum {string}
+             */
+            system: "erp" | "plm";
+        };
         /** Country */
         Country: {
             /** Code */
@@ -1758,6 +1819,40 @@ export interface components {
             /** Tenant Id */
             tenant_id: string;
         };
+        /** DataSourceOut */
+        DataSourceOut: {
+            /** Auto Approve */
+            auto_approve: boolean;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Last Result */
+            last_result: {
+                [key: string]: unknown;
+            } | null;
+            /** Last Status */
+            last_status: ("running" | "succeeded" | "failed") | null;
+            /** Last Synced At */
+            last_synced_at: string | null;
+            /** Mapped Columns */
+            mapped_columns: number;
+            /** Name */
+            name: string;
+            /** Syncs */
+            syncs: number;
+            /**
+             * System
+             * @enum {string}
+             */
+            system: "erp" | "plm";
+        };
+        /** DataSourcePatch */
+        DataSourcePatch: {
+            /** Auto Approve */
+            auto_approve: boolean;
+        };
         /** DigitalProductPassport */
         DigitalProductPassport: {
             /** Brand */
@@ -1894,6 +1989,8 @@ export interface components {
         /** GapRuleCreate */
         GapRuleCreate: {
             check: components["schemas"]["RuleCheck"];
+            /** Countries */
+            countries?: string[];
             /** Data Point */
             data_point: string;
             /** Field */
@@ -1913,6 +2010,8 @@ export interface components {
             /** Active */
             active: boolean;
             check: components["schemas"]["RuleCheck"];
+            /** Countries */
+            countries?: string[];
             /** Data Point */
             data_point: string;
             /** Field */
@@ -1933,6 +2032,8 @@ export interface components {
         GapRulePatch: {
             /** Active */
             active?: boolean | null;
+            /** Countries */
+            countries?: string[] | null;
             /** Modules */
             modules?: ("EPR" | "PPWR" | "DPP" | "LCA")[] | null;
             /** Name */
@@ -2029,6 +2130,41 @@ export interface components {
             };
             /** Targets */
             targets: components["schemas"]["Target"][];
+        };
+        /** ImportHistoryRow */
+        ImportHistoryRow: {
+            /** Created */
+            created: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Filename */
+            filename: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Imported Products */
+            imported_products: number | null;
+            /** Invalid Rows */
+            invalid_rows: number | null;
+            /** Row Count */
+            row_count: number;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "csv" | "erp" | "plm";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "draft" | "approved" | "imported" | "failed";
+            /** Updated */
+            updated: number | null;
         };
         /** ImportIssue */
         ImportIssue: {
@@ -3284,6 +3420,15 @@ export interface components {
              * @enum {string}
              */
             system: "erp" | "plm";
+        };
+        /**
+         * SyncStarted
+         * @description Either the draft to review on the Import screen, or the running import job.
+         */
+        SyncStarted: {
+            draft: components["schemas"]["ImportDraft"];
+            /** Job Id */
+            job_id: string | null;
         };
         /** Target */
         Target: {
@@ -5173,6 +5318,146 @@ export interface operations {
             };
         };
     };
+    list_sources_api_v1_data_sources_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataSourceOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    connect_api_v1_data_sources_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConnectRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataSourceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_source_api_v1_data_sources__source_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DataSourcePatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataSourceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sync_now_api_v1_data_sources__source_id__sync_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyncStarted"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_ingestion_batches_api_v1_foundation_batches_get: {
         parameters: {
             query?: {
@@ -5590,6 +5875,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    history_api_v1_imports_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportHistoryRow"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

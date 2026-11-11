@@ -9,6 +9,7 @@ Start with [../AGENTS.md](../AGENTS.md) for the repository map and the rules eve
 | [SCREEN_BY_SCREEN_BUILD_PLAN.md](SCREEN_BY_SCREEN_BUILD_PLAN.md) | Screen order, status, definition of done, specs for screens 1–2 |
 | [TARGET_ARCHITECTURE_AND_IMPROVEMENT_PLAN.md](TARGET_ARCHITECTURE_AND_IMPROVEMENT_PLAN.md) | Target architecture: modules, data model, ingestion, quality, tenancy, roadmap |
 | [FOUNDATION_GUIDE.md](FOUNDATION_GUIDE.md) | How a screen uses the foundation (backend and frontend), with checklists |
+| [IMPROVEMENTS.md](IMPROVEMENTS.md) | Improvements we chose to postpone, with where they live |
 
 ## Product and domain
 

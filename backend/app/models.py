@@ -7,7 +7,7 @@ from app.catalog.models import Component, DataPoint, Product, SalesLine
 from app.core.audit import AuditEvent
 from app.core.db import Base
 from app.core.jobs import Job
-from app.ingestion.models import ImportBatch
+from app.ingestion.models import DataSource, ImportBatch
 from app.platform.models import LegalEntity, Membership, RefreshToken, Tenant, User
 from app.quality.models import GapRule, GapState
 
@@ -16,6 +16,7 @@ __all__ = [
     "Base",
     "Component",
     "DataPoint",
+    "DataSource",
     "GapRule",
     "GapState",
     "ImportBatch",
