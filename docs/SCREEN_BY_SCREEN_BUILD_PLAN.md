@@ -11,7 +11,9 @@ We build one screen at a time, fully finished in backend and frontend, in the or
 
 Each screen is a **vertical slice**: database tables, API, permissions, UI, tests and audit logging, all done together. We do not start the next screen until the current one passes the definition of done. The companion doc, *Compliance Hub — Target Architecture & Improvement Plan*, explains the design behind these choices.
 
-### Rules that prevent rework
+#> **Demo build (Nov 2026):** screens 2–8 have their frontend built against the planned API contracts (`frontend/src/app/core/api/contracts.ts`), served by the mock API until each screen's backend ships. See AGENTS.md, "The mock API".
+
+## Rules that prevent rework
 
 1. **Foundation first, once.** Database, migrations, login, tenant isolation and the generated API client exist before any screen. No screen talks to `store.py`.
 2. **Build in data-flow order.** A screen is built only after the screens that create its data. Products come before imports, imports before gaps, gaps before module results.
@@ -31,14 +33,14 @@ Status values: Not started · Spec agreed · In build · In review · Done.
 | # | Screen | Role | Needs | Reuse from today | Size | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 | 0 | Foundation (not a screen) | Both | — | Schema drafts, test suite | L | In review (sign-in lands with screen 1; EU staging open) |
-| 1 | Sign-in and session | Both | 0 | Sign-in layout and styles | M | Not started |
-| 2 | Client workspaces and setup wizard | SuperAdmin | 1 | Workspace cards, onboarding steps 1–2, theme engine | L | Not started |
-| 3 | Data point dictionary | SuperAdmin | 2 | Data points page, `REGULATORY_DATA_DICTIONARY_SPEC.csv` | M | Not started |
-| 4 | Products and packaging (list, detail, BOM tree, manual entry) | Org Admin | 3 | SKU table, manual SKU modal, packaging BOM form | L | Not started |
-| 5 | Import: upload, map, review, approve | Org Admin | 4 | CSV dropzone, bulk import modal | L | Not started |
-| 6 | Gap rule library | SuperAdmin | 3 | Rule library page | M | Not started |
-| 7 | Gap worklist and gap fix | Org Admin | 5, 6 | Quality worklist, vendor declaration, worklist export | L | Not started |
-| 8 | Data overview | Org Admin | 7 | Data point map | M | Not started |
+| 1 | Sign-in and session | Both | 0 | Sign-in layout and styles | M | In build (branch screen/01-sign-in) |
+| 2 | Client workspaces and setup wizard | SuperAdmin | 1 | Workspace cards, onboarding steps 1–2, theme engine | L | In build (frontend on mock API) |
+| 3 | Data point dictionary | SuperAdmin | 2 | Data points page, `REGULATORY_DATA_DICTIONARY_SPEC.csv` | M | In build (frontend on mock API) |
+| 4 | Products and packaging (list, detail, BOM tree, manual entry) | Org Admin | 3 | SKU table, manual SKU modal, packaging BOM form | L | In build (frontend on mock API) |
+| 5 | Import: upload, map, review, approve | Org Admin | 4 | CSV dropzone, bulk import modal | L | In build (frontend on mock API) |
+| 6 | Gap rule library | SuperAdmin | 3 | Rule library page | M | In build (frontend on mock API) |
+| 7 | Gap worklist and gap fix | Org Admin | 5, 6 | Quality worklist, vendor declaration, worklist export | L | In build (frontend on mock API) |
+| 8 | Data overview | Org Admin | 7 | Data point map | M | In build (frontend on mock API) |
 | 9 | Users and access, and Team | Both | 1 | IAM directory | M | Not started |
 | 10 | Organisation settings (legal entities, countries, source priority) | Org Admin | 2 | Onboarding markets step | S | Not started |
 | 11 | Tariffs and rule packs | SuperAdmin | 3 | Tariff library, seeded tariffs | M | Not started |

@@ -14,6 +14,8 @@ export const environment = {
   appName: 'Compliance Hub',
   version: '1.0.0',
   enableDebugTools: false,
+  /** Serve screens 2-8 from the mock API until their backend ships (core/api/mock). */
+  mockApi: ${process.env.MOCK_API !== 'false'},
 };
 `;
 

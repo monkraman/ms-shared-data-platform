@@ -1,0 +1,284 @@
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { Gap, GapResolve, GapStatus } from '../../core/api/contracts';
+import { PlatformApi } from '../../core/api/platform-api';
+import { Problem, toProblem } from '../../core/api/problem';
+import { load } from '../../core/api/resource';
+import { ToastService } from '../../core/services/toast.service';
+import {
+  ChipTone,
+  Column,
+  DataTableComponent,
+  DrawerComponent,
+  EmptyStateComponent,
+  ErrorStateComponent,
+  FormFieldComponent,
+  PageHeaderComponent,
+  StatusChipComponent,
+} from '../../shared/ui';
+import { toCsv } from '../import/csv';
+
+/** Screen 7: the gaps found by the rules, and fixing them one by one. */
+@Component({
+  selector: 'app-gaps',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    FormsModule,
+    RouterLink,
+    PageHeaderComponent,
+    DataTableComponent,
+    StatusChipComponent,
+    DrawerComponent,
+    FormFieldComponent,
+    EmptyStateComponent,
+    ErrorStateComponent,
+  ],
+  template: `
+    <app-page-header title="Gaps">
+      <button type="button" class="btn btn-secondary" (click)="export()" [disabled]="!rows().length">Export</button>
+    </app-page-header>
+
+    <div class="kpis">
+      <div class="kpi dark"><div class="kpi-label">Blockers</div><div class="kpi-value">{{ count('blocker') }}</div></div>
+      <div class="kpi"><div class="kpi-label">Warnings</div><div class="kpi-value">{{ count('warning') }}</div></div>
+      <div class="kpi"><div class="kpi-label">Waiting on suppliers</div><div class="kpi-value">{{ byStatus('requested') }}</div></div>
+      <div class="kpi"><div class="kpi-label">Resolved</div><div class="kpi-value">{{ byStatus('resolved') }}</div></div>
+    </div>
+
+    <div class="toolbar">
+      <input type="search" placeholder="Search SKU or product" aria-label="Search gaps" [ngModel]="q()" (ngModelChange)="q.set($event)" />
+      <select aria-label="Severity" [ngModel]="severity()" (ngModelChange)="severity.set($event)">
+        <option value="">All severities</option>
+        <option value="blocker">Blockers</option>
+        <option value="warning">Warnings</option>
+      </select>
+      <select aria-label="Status" [ngModel]="status()" (ngModelChange)="status.set($event)">
+        <option value="open">Open</option>
+        <option value="requested">Waiting on supplier</option>
+        <option value="resolved">Resolved</option>
+        <option value="">All</option>
+      </select>
+      <select aria-label="Module" [ngModel]="module()" (ngModelChange)="module.set($event)">
+        <option value="">All modules</option>
+        @for (m of ['EPR', 'PPWR', 'DPP']; track m) { <option [value]="m">{{ m }}</option> }
+      </select>
+    </div>
+
+    @if (gaps.error(); as problem) {
+      <app-error-state [problem]="problem" (retry)="gaps.reload()" />
+    } @else if (!gaps.loading() && !rows().length) {
+      <app-empty-state [title]="status() === 'open' ? 'No open gaps' : 'Nothing matches'" />
+    } @else {
+      <app-data-table [columns]="columns" [rows]="rows()" [loading]="gaps.loading()" [clickable]="true"
+                      [trackBy]="byId" (rowClick)="select($event)">
+        <ng-template #cell let-row let-key="key" let-value="value">
+          @switch (key) {
+            @case ('severity') {
+              <app-status-chip [tone]="row.severity === 'blocker' ? 'red' : 'amber'">{{ row.severity === 'blocker' ? 'Blocker' : 'Warning' }}</app-status-chip>
+            }
+            @case ('product') { <b>{{ row.product_name }}</b><div class="mono muted">{{ row.sku }}</div> }
+            @case ('field') { {{ row.field_label }} <span class="mono muted">{{ row.data_point }}</span> }
+            @case ('value') { <span [class.muted]="!row.current_value">{{ row.current_value || 'Empty' }}</span> }
+            @case ('status') { <app-status-chip [tone]="statusTone(row.status)">{{ statusLabel(row.status) }}</app-status-chip> }
+            @default { {{ value }} }
+          }
+        </ng-template>
+      </app-data-table>
+    }
+
+    <app-drawer [open]="!!selected()" [title]="selected()?.rule_name ?? ''" (closed)="selected.set(null)">
+      @if (selected(); as g) {
+        <dl class="facts">
+          <dt>Product</dt>
+          <dd><a [routerLink]="['/app/products', g.sku]">{{ g.product_name }}</a></dd>
+          @if (g.component_name) {
+            <dt>Component</dt>
+            <dd>{{ g.component_name }}</dd>
+          }
+          <dt>Field</dt>
+          <dd>{{ g.field_label }} · <span class="mono">{{ g.data_point }}</span></dd>
+          <dt>Current value</dt>
+          <dd>{{ g.current_value || 'Empty' }}</dd>
+          <dt>Needed for</dt>
+          <dd>{{ g.modules.join(', ') }}</dd>
+          <dt>Status</dt>
+          <dd><app-status-chip [tone]="statusTone(g.status)">{{ statusLabel(g.status) }}</app-status-chip></dd>
+        </dl>
+
+        @if (g.status !== 'resolved') {
+          <div class="section-label">Fix</div>
+          <div class="modes" role="tablist">
+            <button type="button" role="tab" [class.on]="mode() === 'set_value'" (click)="mode.set('set_value')">Enter value</button>
+            <button type="button" role="tab" [class.on]="mode() === 'request_supplier'" (click)="mode.set('request_supplier')">Ask supplier</button>
+            @if (g.severity === 'warning') {
+              <button type="button" role="tab" [class.on]="mode() === 'accept_estimate'" (click)="mode.set('accept_estimate')">Accept</button>
+            }
+          </div>
+          @switch (mode()) {
+            @case ('set_value') {
+              <app-form-field label="New value" for="gap-value" [error]="problem()?.fields['value']">
+                <input id="gap-value" [(ngModel)]="value" />
+              </app-form-field>
+            }
+            @case ('request_supplier') {
+              <app-form-field label="Message" for="gap-note">
+                <textarea id="gap-note" [(ngModel)]="note"></textarea>
+              </app-form-field>
+            }
+          }
+        }
+      }
+      <ng-container actions>
+        @if (selected(); as g) {
+          @if (g.status !== 'resolved') {
+            <button type="button" class="btn btn-primary" [disabled]="saving()" (click)="resolve(g)">
+              {{ mode() === 'set_value' ? 'Save value' : mode() === 'request_supplier' ? 'Send request' : 'Accept as is' }}
+            </button>
+          }
+        }
+      </ng-container>
+    </app-drawer>
+  `,
+  styles: `
+    .modes {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      margin-bottom: 14px;
+      border-radius: 10px;
+      background: var(--bg);
+    }
+    .modes button {
+      border: 0;
+      background: none;
+      padding: 7px 12px;
+      border-radius: 8px;
+      font: inherit;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .modes button.on {
+      background: var(--card);
+      color: var(--ink);
+      box-shadow: var(--shadow-sm);
+    }
+    textarea {
+      min-height: 90px;
+    }
+    a {
+      color: var(--navy-700);
+    }
+  `,
+})
+export class GapsComponent {
+  private readonly api = inject(PlatformApi);
+  private readonly toast = inject(ToastService);
+
+  protected readonly gaps = load(() => this.api.gaps());
+  protected readonly q = signal('');
+  protected readonly severity = signal('');
+  protected readonly status = signal<GapStatus | ''>('open');
+  protected readonly module = signal('');
+  protected readonly selected = signal<Gap | null>(null);
+  protected readonly mode = signal<GapResolve['action']>('set_value');
+  protected readonly saving = signal(false);
+  protected readonly problem = signal<Problem | null>(null);
+  protected value = '';
+  protected note = '';
+
+  private readonly all = computed(() => this.gaps.value() ?? []);
+  protected readonly rows = computed(() => {
+    const q = this.q().toLowerCase();
+    return this.all().filter(
+      (g) =>
+        (!q || g.sku.toLowerCase().includes(q) || g.product_name.toLowerCase().includes(q)) &&
+        (!this.severity() || g.severity === this.severity()) &&
+        (!this.status() || g.status === this.status()) &&
+        (!this.module() || g.modules.includes(this.module() as Gap['modules'][number])),
+    );
+  });
+
+  protected readonly columns: Column<Gap>[] = [
+    { key: 'severity', label: 'Severity' },
+    { key: 'product', label: 'Product' },
+    { key: 'component', label: 'Component', value: (g) => g.component_name ?? '—' },
+    { key: 'field', label: 'Field' },
+    { key: 'value', label: 'Value' },
+    { key: 'rule', label: 'Rule', value: (g) => g.rule_name },
+    { key: 'status', label: 'Status' },
+  ];
+
+  protected readonly byId = (g: Gap) => g.id;
+
+  protected count(severity: Gap['severity']): number {
+    return this.all().filter((g) => g.severity === severity && g.status === 'open').length;
+  }
+
+  protected byStatus(status: GapStatus): number {
+    return this.all().filter((g) => g.status === status).length;
+  }
+
+  protected statusTone(s: GapStatus): ChipTone {
+    return s === 'resolved' ? 'green' : s === 'requested' ? 'blue' : 'neutral';
+  }
+
+  protected statusLabel(s: GapStatus): string {
+    return s === 'requested' ? 'Waiting on supplier' : s === 'resolved' ? 'Resolved' : 'Open';
+  }
+
+  protected select(g: Gap): void {
+    this.selected.set(g);
+    this.mode.set('set_value');
+    this.value = '';
+    this.note = '';
+    this.problem.set(null);
+  }
+
+  protected resolve(g: Gap): void {
+    const action = this.mode();
+    const body: GapResolve =
+      action === 'set_value'
+        ? { action, value: this.value }
+        : action === 'request_supplier'
+          ? { action, note: this.note }
+          : { action };
+    this.saving.set(true);
+    this.problem.set(null);
+    this.api.resolveGap(g.id, body).subscribe({
+      next: (updated) => {
+        this.saving.set(false);
+        this.selected.set(null);
+        this.gaps.reload();
+        this.toast.show(updated.status === 'requested' ? 'Request sent' : 'Gap resolved');
+      },
+      error: (e: unknown) => {
+        this.saving.set(false);
+        this.problem.set(toProblem(e));
+      },
+    });
+  }
+
+  protected export(): void {
+    const header = ['Severity', 'SKU', 'Product', 'Component', 'Data point', 'Field', 'Current value', 'Rule', 'Modules', 'Status'];
+    const lines = this.rows().map((g) => [
+      g.severity,
+      g.sku,
+      g.product_name,
+      g.component_name ?? '',
+      g.data_point,
+      g.field_label,
+      g.current_value,
+      g.rule_name,
+      g.modules.join(' '),
+      this.statusLabel(g.status),
+    ]);
+    const blob = new Blob([toCsv([header, ...lines])], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'gap-worklist.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+}
