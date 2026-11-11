@@ -1118,6 +1118,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/modules/horizon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Upcoming requirements and data readiness */
+        get: operations["get_horizon_api_v1_modules_horizon_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/modules/horizon/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Set the lead time for data collection */
+        put: operations["set_lead_time_api_v1_modules_horizon_settings_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/modules/ppwr/declarations": {
         parameters: {
             query?: never;
@@ -2367,6 +2401,8 @@ export interface components {
         };
         /** GapOut */
         GapOut: {
+            /** Applies From */
+            applies_from: string | null;
             /** Component Id */
             component_id: string | null;
             /** Component Name */
@@ -2386,6 +2422,11 @@ export interface components {
             id: string;
             /** Modules */
             modules: ("EPR" | "PPWR" | "DPP" | "LCA")[];
+            /**
+             * Phase
+             * @enum {string}
+             */
+            phase: "now" | "collecting" | "upcoming";
             /** Product Name */
             product_name: string;
             /** Rule Id */
@@ -2511,6 +2552,23 @@ export interface components {
              * @description Application version
              */
             version: string;
+        };
+        /** Horizon */
+        Horizon: {
+            /** Lead Months */
+            lead_months: number;
+            /** Milestones */
+            milestones: components["schemas"]["Milestone"][];
+            /**
+             * Today
+             * Format: date
+             */
+            today: string;
+        };
+        /** HorizonSettings */
+        HorizonSettings: {
+            /** Lead Months */
+            lead_months: number;
         };
         /** HotspotAnalyticsResponse */
         HotspotAnalyticsResponse: {
@@ -3096,6 +3154,40 @@ export interface components {
             /** Is Platform Admin */
             is_platform_admin: boolean;
         };
+        /** Milestone */
+        Milestone: {
+            /**
+             * Collect From
+             * Format: date
+             */
+            collect_from: string;
+            /** Coverage Pct */
+            coverage_pct: number;
+            /** Data Points */
+            data_points: components["schemas"]["PointReadiness"][];
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Days Until */
+            days_until: number;
+            /** Id */
+            id: string;
+            /** Note */
+            note: string;
+            /** Open Gaps */
+            open_gaps: number;
+            /** Regulation */
+            regulation: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "now" | "collecting" | "upcoming";
+            /** Title */
+            title: string;
+        };
         /** ModuleInfo */
         ModuleInfo: {
             /**
@@ -3300,6 +3392,21 @@ export interface components {
          * @enum {string}
          */
         PackagingLevel: "primary" | "secondary" | "tertiary";
+        /** PointReadiness */
+        PointReadiness: {
+            /** Code */
+            code: string;
+            /** Coverage Pct */
+            coverage_pct: number;
+            /** Filled */
+            filled: number;
+            /** Name */
+            name: string;
+            /** Source */
+            source: string;
+            /** Total */
+            total: number;
+        };
         /** ProductBase */
         ProductBase: {
             /**
@@ -6973,6 +7080,74 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ScenarioResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_horizon_api_v1_modules_horizon_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Horizon"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_lead_time_api_v1_modules_horizon_settings_put: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HorizonSettings"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Horizon"];
                 };
             };
             /** @description Validation Error */

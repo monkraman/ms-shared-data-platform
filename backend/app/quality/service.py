@@ -4,13 +4,15 @@ from __future__ import annotations
 
 import uuid
 from collections import Counter
+from datetime import date
 from typing import Any
 
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.catalog.models import Product
+from app.catalog.models import DataPoint, Product
 from app.core.tenancy import TENANT_SETTING
+from app.modules import horizon
 from app.platform.models import Tenant
 from app.quality.engine import find_gaps
 from app.quality.estimates import propose
@@ -24,13 +26,24 @@ async def gaps(db: AsyncSession, products: list[Product] | None = None) -> list[
     rules = applicable(list((await db.scalars(select(GapRule).order_by(GapRule.id))).all()), await current_tenant(db))
     states = {s.gap_id: s.status for s in (await db.scalars(select(GapState))).all()}
     by_rule = {r.id: r for r in rules}
+    tenant = await current_tenant(db)
+    lead = tenant.horizon_lead_months if tenant else horizon.reference()["default_lead_months"]
+    applies = {d.code: horizon.parse_date(d.applies_from) for d in (await db.scalars(select(DataPoint))).all()}
+    today = date.today()
     components = {c.code: c for p in products for c in p.components}
     out = []
     for g in find_gaps(products, rules):
         estimate = by_rule[g["rule_id"]].estimate
         proposal = propose(estimate, g["field"], components.get(g["component_id"] or ""), products)
         out.append(
-            {**g, "status": states.get(g["id"], "open"), "estimable": proposal is not None, "estimate": proposal}
+            {
+                **g,
+                "status": states.get(g["id"], "open"),
+                "estimable": proposal is not None,
+                "estimate": proposal,
+                "applies_from": applies.get(g["data_point"]),
+                "phase": horizon.phase(applies.get(g["data_point"]), lead, today),
+            }
         )
     return out
 

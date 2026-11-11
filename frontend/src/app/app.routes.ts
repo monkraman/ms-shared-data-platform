@@ -111,6 +111,7 @@ export const routes: Routes = [
       screen('compliance', 'compliance.read', 'Compliance', () => import('./screens/compliance/compliance.component').then((m) => m.ComplianceComponent)),
       screen('compliance/declarations/:sku', 'compliance.read', 'Declaration of Conformity', () => import('./screens/compliance/declaration.component').then((m) => m.DeclarationComponent)),
       screen('insights', 'compliance.read', 'Hotspots and scenarios', () => import('./screens/insights/insights.component').then((m) => m.InsightsComponent)),
+      screen('horizon', 'compliance.read', 'Horizon', () => import('./screens/horizon/horizon.component').then((m) => m.HorizonComponent)),
       screen('actions', 'compliance.read', 'Actions', () => import('./screens/actions/actions.component').then((m) => m.ActionsComponent)),
       screen('data-overview', 'data.read', 'Data overview', () => import('./screens/data-overview/data-overview.component').then((m) => m.DataOverviewComponent)),
 

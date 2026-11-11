@@ -13,6 +13,7 @@ from app.api.v1 import (
     foundation,
     gaps,
     health,
+    horizon,
     imports,
     insights,
     jobs,
@@ -53,6 +54,9 @@ api_router.include_router(compliance.router)
 
 # Screen 14 (first part): hotspots, recommendations, scenarios, action items
 api_router.include_router(insights.router)
+
+# Horizon scanning: upcoming requirements and data readiness
+api_router.include_router(horizon.router)
 
 # Layer 1: Canonical Shared Data Foundation
 api_router.include_router(foundation.router)

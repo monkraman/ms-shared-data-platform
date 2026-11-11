@@ -2252,6 +2252,18 @@
       },
       "GapOut": {
         "properties": {
+          "applies_from": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applies From"
+          },
           "component_id": {
             "anyOf": [
               {
@@ -2321,6 +2333,15 @@
             "title": "Modules",
             "type": "array"
           },
+          "phase": {
+            "enum": [
+              "now",
+              "collecting",
+              "upcoming"
+            ],
+            "title": "Phase",
+            "type": "string"
+          },
           "product_name": {
             "title": "Product Name",
             "type": "string"
@@ -2371,7 +2392,9 @@
           "modules",
           "status",
           "estimable",
-          "estimate"
+          "estimate",
+          "applies_from",
+          "phase"
         ],
         "title": "GapOut",
         "type": "object"
@@ -2710,6 +2733,48 @@
           "timestamp"
         ],
         "title": "HealthCheckResponse",
+        "type": "object"
+      },
+      "Horizon": {
+        "properties": {
+          "lead_months": {
+            "title": "Lead Months",
+            "type": "integer"
+          },
+          "milestones": {
+            "items": {
+              "$ref": "#/components/schemas/Milestone"
+            },
+            "title": "Milestones",
+            "type": "array"
+          },
+          "today": {
+            "format": "date",
+            "title": "Today",
+            "type": "string"
+          }
+        },
+        "required": [
+          "today",
+          "lead_months",
+          "milestones"
+        ],
+        "title": "Horizon",
+        "type": "object"
+      },
+      "HorizonSettings": {
+        "properties": {
+          "lead_months": {
+            "maximum": 24.0,
+            "minimum": 0.0,
+            "title": "Lead Months",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "lead_months"
+        ],
+        "title": "HorizonSettings",
         "type": "object"
       },
       "HotspotAnalyticsResponse": {
@@ -3963,6 +4028,79 @@
         "title": "MeUser",
         "type": "object"
       },
+      "Milestone": {
+        "properties": {
+          "collect_from": {
+            "format": "date",
+            "title": "Collect From",
+            "type": "string"
+          },
+          "coverage_pct": {
+            "title": "Coverage Pct",
+            "type": "integer"
+          },
+          "data_points": {
+            "items": {
+              "$ref": "#/components/schemas/PointReadiness"
+            },
+            "title": "Data Points",
+            "type": "array"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "days_until": {
+            "title": "Days Until",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "open_gaps": {
+            "title": "Open Gaps",
+            "type": "integer"
+          },
+          "regulation": {
+            "title": "Regulation",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "now",
+              "collecting",
+              "upcoming"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "date",
+          "title",
+          "regulation",
+          "note",
+          "status",
+          "collect_from",
+          "days_until",
+          "coverage_pct",
+          "open_gaps",
+          "data_points"
+        ],
+        "title": "Milestone",
+        "type": "object"
+      },
       "ModuleInfo": {
         "properties": {
           "id": {
@@ -4327,6 +4465,44 @@
         ],
         "title": "PackagingLevel",
         "type": "string"
+      },
+      "PointReadiness": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "coverage_pct": {
+            "title": "Coverage Pct",
+            "type": "integer"
+          },
+          "filled": {
+            "title": "Filled",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "source",
+          "filled",
+          "total",
+          "coverage_pct"
+        ],
+        "title": "PointReadiness",
+        "type": "object"
       },
       "ProductBase": {
         "properties": {
@@ -11996,6 +12172,118 @@
         "summary": "What-if fee (not saved)",
         "tags": [
           "Insights"
+        ]
+      }
+    },
+    "/api/v1/modules/horizon": {
+      "get": {
+        "operationId": "get_horizon_api_v1_modules_horizon_get",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Horizon"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Upcoming requirements and data readiness",
+        "tags": [
+          "Horizon scanning"
+        ]
+      }
+    },
+    "/api/v1/modules/horizon/settings": {
+      "put": {
+        "operationId": "set_lead_time_api_v1_modules_horizon_settings_put",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HorizonSettings"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Horizon"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set the lead time for data collection",
+        "tags": [
+          "Horizon scanning"
         ]
       }
     },

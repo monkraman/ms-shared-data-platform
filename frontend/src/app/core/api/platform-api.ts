@@ -23,6 +23,7 @@ import {
   WorkspacePatch,
   WorkspaceStatus,
   SyncSystem,
+  Horizon,
   Insights,
   ScenarioChange,
   ScenarioResult,
@@ -131,4 +132,9 @@ export class PlatformApi {
   createAction = (body: ActionCreate): Observable<ActionItem> => this.api.post('/api/v1/actions', { body });
   updateAction = (id: string, body: ActionPatch): Observable<ActionItem> =>
     this.api.patch('/api/v1/actions/{action_id}', { path: { action_id: id }, body });
+
+  // Horizon scanning
+  horizon = (): Observable<Horizon> => this.api.get('/api/v1/modules/horizon');
+  setLeadTime = (lead_months: number): Observable<Horizon> =>
+    this.api.put('/api/v1/modules/horizon/settings', { body: { lead_months } });
 }

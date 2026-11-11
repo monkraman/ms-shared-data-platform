@@ -301,3 +301,25 @@ def test_insights_scenarios_and_action_items(db_client: TestClient, ws: dict[str
     linked = db_client.get("/api/v1/modules/epr/epr_uk/insights", headers=h).json()["recommendations"]
     assert next(r for r in linked if r["id"] == rec["id"])["action_id"] == again["id"]
     assert db_client.get("/api/v1/actions", headers=b).json() == []
+
+
+def test_horizon_milestones_and_lead_time(db_client: TestClient, ws: dict[str, object]) -> None:
+    h, viewer = _auth(ws["oa"], ws["a"]), _auth(ws["viewer"], ws["a"])
+    res = db_client.get("/api/v1/modules/horizon", headers=viewer)
+    assert res.status_code == 200, res.text
+    body = res.json()
+    assert body["lead_months"] == 3
+    ids = {m["id"] for m in body["milestones"]}
+    assert "uk-drs-2027" in ids  # workspace A is EPR + UK
+    assert "ppwr-labels-2028" not in ids  # no PPWR module, no EU country
+
+    assert (
+        db_client.put("/api/v1/modules/horizon/settings", json={"lead_months": 24}, headers=viewer).status_code == 403
+    )
+    longer = db_client.put("/api/v1/modules/horizon/settings", json={"lead_months": 24}, headers=h).json()
+    drs = next(m for m in longer["milestones"] if m["id"] == "uk-drs-2027")
+    assert drs["status"] in ("collecting", "now") and drs["collect_from"] < drs["date"]
+    assert db_client.put("/api/v1/modules/horizon/settings", json={"lead_months": 99}, headers=h).status_code == 422
+
+    gaps = db_client.get("/api/v1/gaps", headers=h).json()
+    assert gaps and all(g["phase"] in ("now", "collecting", "upcoming") for g in gaps)

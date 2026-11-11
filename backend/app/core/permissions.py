@@ -32,6 +32,7 @@ class Perm:
     DATA_READ = "data.read"  # screen 8
     COMPLIANCE_READ = "compliance.read"  # screen 12: EPR results, PPWR declarations
     ACTIONS_MANAGE = "actions.manage"  # screen 14: action items from recommendations
+    SETTINGS_MANAGE = "settings.manage"  # workspace settings such as the horizon lead time
 
 
 PLATFORM_ADMIN_PERMISSIONS: frozenset[str] = frozenset(
@@ -49,7 +50,7 @@ _READ = {Perm.WORKSPACE_READ, Perm.PRODUCTS_READ, Perm.GAPS_READ, Perm.DATA_READ
 _WORK = _READ | {Perm.JOBS_READ, Perm.PRODUCTS_MANAGE, Perm.IMPORTS_MANAGE, Perm.GAPS_RESOLVE, Perm.ACTIONS_MANAGE}
 
 TENANT_ROLE_PERMISSIONS: dict[TenantRole, frozenset[str]] = {
-    TenantRole.ORG_ADMIN: frozenset(_WORK | {Perm.AUDIT_READ, Perm.USERS_MANAGE}),
+    TenantRole.ORG_ADMIN: frozenset(_WORK | {Perm.AUDIT_READ, Perm.USERS_MANAGE, Perm.SETTINGS_MANAGE}),
     TenantRole.ANALYST: frozenset(_WORK),
     TenantRole.VIEWER: frozenset(_READ),
 }

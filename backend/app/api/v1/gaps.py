@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, Query, status
@@ -89,6 +90,8 @@ class GapOut(BaseModel):
     status: GapStatus
     estimable: bool
     estimate: Estimate | None
+    applies_from: date | None
+    phase: Literal["now", "collecting", "upcoming"]
 
 
 class GapResolve(BaseModel):

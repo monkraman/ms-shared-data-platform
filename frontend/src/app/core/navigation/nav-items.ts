@@ -97,6 +97,12 @@ export const NAV: NavGroup[] = [
         icon: 'M8 14.5c2.8 0 4.5-1.9 4.5-4.3 0-2.7-2.2-3.9-2.6-6.7-1.5 1-2.3 2.4-2.3 3.9-.8-.6-1.3-1.5-1.4-2.6C4.6 6.1 3.5 7.8 3.5 10.2c0 2.4 1.7 4.3 4.5 4.3z',
       },
       {
+        label: 'Horizon',
+        path: '/app/horizon',
+        permission: 'compliance.read',
+        icon: 'M1.5 11.5h13M3.5 11.5a4.5 4.5 0 0 1 9 0M8 2v2M3.4 4.4l1.4 1.4M12.6 4.4l-1.4 1.4',
+      },
+      {
         label: 'Actions',
         path: '/app/actions',
         permission: 'compliance.read',

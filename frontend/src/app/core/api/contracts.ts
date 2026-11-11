@@ -106,3 +106,8 @@ export type ScenarioResult = Schemas['ScenarioResult'];
 export type ActionItem = Schemas['ActionOut'];
 export type ActionCreate = Schemas['ActionCreate'];
 export type ActionPatch = Schemas['ActionPatch'];
+
+// --- Horizon scanning — built, GET /modules/horizon, PUT /modules/horizon/settings ------
+
+export type Horizon = Schemas['Horizon'];
+export type Milestone = Schemas['Milestone'];

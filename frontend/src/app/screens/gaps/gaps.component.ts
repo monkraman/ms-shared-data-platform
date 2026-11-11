@@ -76,6 +76,11 @@ import { toCsv } from '../import/csv';
         <option value="resolved">Resolved</option>
         <option value="">All</option>
       </select>
+      <select aria-label="When due" [ngModel]="due()" (ngModelChange)="due.set($event)">
+        <option value="due">Due now</option>
+        <option value="upcoming">Upcoming</option>
+        <option value="">Any time</option>
+      </select>
       <select aria-label="Module" [ngModel]="module()" (ngModelChange)="module.set($event)">
         <option value="">All modules</option>
         @for (m of ['EPR', 'PPWR', 'DPP']; track m) { <option [value]="m">{{ m }}</option> }
@@ -236,6 +241,8 @@ export class GapsComponent {
   /** Estimable vs needs-data grouping ('' = all). */
   protected readonly group = signal<'' | 'estimable' | 'data'>('');
   protected readonly filling = signal(false);
+  /** Horizon: 'due' = in force or inside the collection lead time; 'upcoming' = later. */
+  protected readonly due = signal<'' | 'due' | 'upcoming'>('due');
   protected readonly canResolve = computed(() => this.session.can('gaps.resolve'));
   protected readonly saving = signal(false);
   protected readonly problem = signal<Problem | null>(null);
@@ -251,7 +258,8 @@ export class GapsComponent {
         (!this.severity() || g.severity === this.severity()) &&
         (!this.status() || g.status === this.status()) &&
         (!this.module() || g.modules.includes(this.module() as Gap['modules'][number])) &&
-        (!this.group() || g.estimable === (this.group() === 'estimable')),
+        (!this.group() || g.estimable === (this.group() === 'estimable')) &&
+        (!this.due() || (this.due() === 'upcoming') === (g.phase === 'upcoming')),
     );
   });
 
@@ -265,6 +273,7 @@ export class GapsComponent {
     { key: 'value', label: 'Value' },
     { key: 'estimate', label: 'Estimate' },
     { key: 'rule', label: 'Rule', value: (g) => g.rule_name },
+    { key: 'due', label: 'Applies', value: (g) => (g.phase === 'now' ? 'Now' : g.phase === 'collecting' ? 'Collecting' : (g.applies_from ?? '').slice(0, 7)) },
     { key: 'status', label: 'Status' },
   ];
 

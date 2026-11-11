@@ -1,0 +1,55 @@
+{
+  "default_lead_months": 3,
+  "milestones": [
+    {
+      "id": "ppwr-2026",
+      "date": "2026-08-12",
+      "title": "PPWR applies",
+      "regulation": "PPWR",
+      "module": "PPWR",
+      "countries": ["EU"],
+      "dp_applies_from": "12 Aug 2026",
+      "note": "Declarations of conformity, technical files and core packaging data for every packaging placed on the EU market."
+    },
+    {
+      "id": "uk-drs-2027",
+      "date": "2027-10-01",
+      "title": "UK deposit return scheme",
+      "regulation": "DRS",
+      "module": "EPR",
+      "countries": ["UK"],
+      "data_points": ["DP26"],
+      "note": "In-scope drinks cans and PET bottles carry a deposit; container volume and scheme status are needed per product."
+    },
+    {
+      "id": "ppwr-labels-2028",
+      "date": "2028-08-12",
+      "title": "PPWR harmonised labelling",
+      "regulation": "PPWR",
+      "module": "PPWR",
+      "countries": ["EU"],
+      "dp_applies_from": "12 Aug 2028",
+      "note": "Harmonised sorting labels and a data carrier on packaging."
+    },
+    {
+      "id": "ppwr-2030",
+      "date": "2030-01-01",
+      "title": "PPWR recyclability grades and recycled content",
+      "regulation": "PPWR",
+      "module": "PPWR",
+      "countries": ["EU"],
+      "dp_applies_from": "2030",
+      "note": "Packaging must reach a recyclability grade, and plastic packaging needs minimum recycled content."
+    },
+    {
+      "id": "sb54-2032",
+      "date": "2032-01-01",
+      "title": "SB 54 targets",
+      "regulation": "SB 54",
+      "module": "EPR",
+      "countries": ["US-CA"],
+      "data_points": ["DP12", "DP13"],
+      "note": "All single-use packaging recyclable or compostable, 65% of plastic packaging recycled, 25% plastic source reduction."
+    }
+  ]
+}

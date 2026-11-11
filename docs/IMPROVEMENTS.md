@@ -4,6 +4,8 @@ Things we chose to ship without, so they are not forgotten. Newest first. When o
 
 | Area | Improvement | Why it waits | Where |
 | --- | --- | --- | --- |
+| Horizon | Milestones maintained on a screen (platform admins) with sources, instead of `horizon.json`; alerts when a requirement enters its collection window | First version is reference data | `app/modules/reference/horizon.json` |
+| Horizon | Upcoming gaps excluded from KPI counts and EPR data-quality figures | Counts include every phase today | `app/quality/service.py` |
 | Insights | Save and name scenarios; compare several; scenario changes that also change PPWR results | First version recalculates EPR only, unsaved | `app/api/v1/insights.py` |
 | Insights | Recommendations from more rules (material switch with rates, down-gauging films, removing secondary packaging) and per-client tuning | Rule set is small on purpose | `app/modules/insights.py` |
 | Actions | Assign owners from the user list, reminders and email when due | Email service not chosen | `screens/actions` |
