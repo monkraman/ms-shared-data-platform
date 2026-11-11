@@ -30,7 +30,7 @@ Status values: Not started · Spec agreed · In build · In review · Done.
 
 | # | Screen | Role | Needs | Reuse from today | Size | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| 0 | Foundation (not a screen) | Both | — | Schema drafts, test suite | L | Not started |
+| 0 | Foundation (not a screen) | Both | — | Schema drafts, test suite | L | In build (backend done) |
 | 1 | Sign-in and session | Both | 0 | Sign-in layout and styles | M | Not started |
 | 2 | Client workspaces and setup wizard | SuperAdmin | 1 | Workspace cards, onboarding steps 1–2, theme engine | L | Not started |
 | 3 | Data point dictionary | SuperAdmin | 2 | Data points page, `REGULATORY_DATA_DICTIONARY_SPEC.csv` | M | Not started |
@@ -96,15 +96,15 @@ Step 0 builds the plumbing every screen reuses, so no screen has to invent its o
 
 ### Backend
 
-- [ ] Remove secrets from code; rotate the Neon password; settings read only from environment variables.
-- [ ] New folder layout (`core`, `platform`, `data`, `ingestion`, `quality`, `modules`); `store.py` is no longer imported by new code.
-- [ ] SQLAlchemy 2.0 async session and Alembic, with a first migration for tenants, users and memberships.
-- [ ] Tenant context per request and Row-Level Security helper, so every new table gets isolation by default.
-- [ ] One `require_permission("...")` dependency used on every endpoint.
-- [ ] Audit event helper and `audit_events` table.
-- [ ] Background job runner skeleton (Celery + Redis) with a job status endpoint.
-- [ ] Seed command (`python -m app.seed demo`) that loads demo data through repositories, not code constants.
-- [ ] Standard error format (problem details) and request ID on every log line.
+- [x] Remove secrets from code; settings read only from environment variables. *(Neon password rotation still to do in the Neon console.)*
+- [x] New folder layout (`core`, `platform`, `data`, `ingestion`, `quality`, `modules`); `store.py` is no longer imported by new code. *(`app/data` is still the prototype's JSON folder; the shared data core moves in with screen 4.)*
+- [x] SQLAlchemy 2.0 async session and Alembic, with a first migration for tenants, users and memberships.
+- [x] Tenant context per request and Row-Level Security helper, so every new table gets isolation by default.
+- [x] One `require_permission("...")` dependency used on every endpoint.
+- [x] Audit event helper and `audit_events` table.
+- [x] Background job runner skeleton (Celery + Redis) with a job status endpoint.
+- [x] Seed command (`python -m app.seed demo`) that loads demo data through repositories, not code constants.
+- [x] Standard error format (problem details) and request ID on every log line.
 
 ### Frontend
 
@@ -116,10 +116,12 @@ Step 0 builds the plumbing every screen reuses, so no screen has to invent its o
 
 ### Delivery
 
-- [ ] Docker Compose for API, worker, Postgres, Redis and object storage.
+- [x] Docker Compose for API, worker, Postgres, Redis and object storage.
 - [ ] GitHub Actions: lint, type check, backend and frontend tests, secret scan, build.
 - [ ] Staging environment in an EU region, deployed from `main`.
-- [ ] Current app tagged and kept on a `demo` branch.
+- [x] Current app tagged (`demo-2026-11-11`) and kept on a `demo` branch.
+
+See [FOUNDATION_GUIDE.md](FOUNDATION_GUIDE.md) for how screens use the foundation.
 
 **Exit criteria:** CI green; staging runs the new stack; a seeded SuperAdmin can sign in and sees an empty shell; a test proves a user of tenant A cannot read tenant B.
 
