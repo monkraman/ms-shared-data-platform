@@ -8,10 +8,12 @@ from app.core.audit import AuditEvent
 from app.core.db import Base
 from app.core.jobs import Job
 from app.ingestion.models import DataSource, ImportBatch
+from app.modules.models import ActionItem
 from app.platform.models import LegalEntity, Membership, RefreshToken, Tenant, User
 from app.quality.models import GapRule, GapState
 
 __all__ = [
+    "ActionItem",
     "AuditEvent",
     "Base",
     "Component",

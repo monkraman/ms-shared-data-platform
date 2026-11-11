@@ -44,7 +44,7 @@ Status values: Not started · Spec agreed · In build · In review · Done.
 | 9 | Users and access, and Team | Both | 1 | IAM directory | M | In build (platform admin Users list and Add user on the existing API; Team, roles and disable next) |
 | 10 | Organisation settings (legal entities, countries, source priority) | Org Admin | 2 | Onboarding markets step | S | Not started |
 | 11 | Tariffs and rule packs | SuperAdmin | 3 | Tariff library, seeded tariffs | M | Not started |
-| 12 | EPR results: runs, explanations, simulator (module SDK built here) | Org Admin | 7, 10, 11 | Simulator page, EPR engine | L | In build (EPR UK, Denmark and SB 54 fees on real data; runs and simulator next) |
+| 12 | EPR results: runs, explanations, simulator (module SDK built here) | Org Admin | 7, 10, 11 | Simulator page, EPR engine | L | In build (EPR UK, Denmark and SB 54 fees, hotspots, recommendations, scenarios and action items on real data) |
 | 13 | Sign-off and exports (Defra RPD CSV first) | Org Admin | 12 | Board pack export | M | In build (PPWR Denmark declaration in Danish and English, print to PDF; RPD CSV next) |
 | 14 | Dashboard | Org Admin | 7, 12 | Dashboard KPI layout | M | Not started |
 | 15 | Audit log | SuperAdmin | 1 | — | S | Not started |

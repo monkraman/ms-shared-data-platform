@@ -23,6 +23,12 @@ import {
   WorkspacePatch,
   WorkspaceStatus,
   SyncSystem,
+  Insights,
+  ScenarioChange,
+  ScenarioResult,
+  ActionItem,
+  ActionCreate,
+  ActionPatch,
   Regime,
   EprResult,
   DeclarationRow,
@@ -115,4 +121,14 @@ export class PlatformApi {
   declarations = (): Observable<DeclarationRow[]> => this.api.get('/api/v1/modules/ppwr/declarations');
   declaration = (sku: string, lang: 'en' | 'da'): Observable<Declaration> =>
     this.api.get('/api/v1/modules/ppwr/declarations/{sku}', { path: { sku }, query: { lang } });
+
+  // Screen 14 (insights, scenarios, actions)
+  insights = (regime: 'epr_uk' | 'epr_dk' | 'sb54_ca', year?: string): Observable<Insights> =>
+    this.api.get('/api/v1/modules/epr/{regime}/insights', { path: { regime }, query: { year } });
+  scenario = (regime: 'epr_uk' | 'epr_dk' | 'sb54_ca', changes: ScenarioChange[], year?: string): Observable<ScenarioResult> =>
+    this.api.post('/api/v1/modules/epr/{regime}/scenario', { path: { regime }, body: { changes, year: year ?? null } });
+  actions = (): Observable<ActionItem[]> => this.api.get('/api/v1/actions');
+  createAction = (body: ActionCreate): Observable<ActionItem> => this.api.post('/api/v1/actions', { body });
+  updateAction = (id: string, body: ActionPatch): Observable<ActionItem> =>
+    this.api.patch('/api/v1/actions/{action_id}', { path: { action_id: id }, body });
 }

@@ -266,3 +266,38 @@ def test_fill_estimates_writes_marked_values(db_client: TestClient, ws: dict[str
         )
     viewer = _auth(ws["viewer"], ws["a"])
     assert db_client.post("/api/v1/gaps/estimate", json={}, headers=viewer).status_code == 403
+
+
+def test_insights_scenarios_and_action_items(db_client: TestClient, ws: dict[str, object]) -> None:
+    h, viewer, b = _auth(ws["oa"], ws["a"]), _auth(ws["viewer"], ws["a"]), _auth(ws["ob"], ws["b"])
+    res = db_client.get("/api/v1/modules/epr/epr_uk/insights", headers=viewer)
+    assert res.status_code == 200, res.text
+    body = res.json()
+    assert body["hotspots"]["components"] and body["hotspots"]["components"][0]["why"]
+    recs = body["recommendations"]
+    assert recs and all(r["action_id"] is None for r in recs)
+
+    top = body["hotspots"]["components"][0]
+    lighter = db_client.post(
+        "/api/v1/modules/epr/epr_uk/scenario",
+        json={"changes": [{"component_id": top["component_id"], "weight_g": "1"}]},
+        headers=viewer,
+    ).json()
+    assert lighter["scenario_fee"] < lighter["baseline_fee"] and lighter["delta"] < 0
+    assert lighter["lines"][0]["component_id"] == top["component_id"]
+
+    rec = recs[0]
+    action = {"title": rec["title"], "recommendation_id": rec["id"], "kind": rec["kind"], "regime": "epr_uk"}
+    assert db_client.post("/api/v1/actions", json=action, headers=viewer).status_code == 403
+    created = db_client.post("/api/v1/actions", json=action, headers=h)
+    assert created.status_code == 201, created.text
+    again = db_client.post("/api/v1/actions", json=action, headers=h).json()
+    assert again["id"] == created.json()["id"], "one action per recommendation"
+
+    done = db_client.patch(
+        f"/api/v1/actions/{again['id']}", json={"status": "done", "owner": "Packaging team"}, headers=h
+    ).json()
+    assert (done["status"], done["owner"]) == ("done", "Packaging team")
+    linked = db_client.get("/api/v1/modules/epr/epr_uk/insights", headers=h).json()["recommendations"]
+    assert next(r for r in linked if r["id"] == rec["id"])["action_id"] == again["id"]
+    assert db_client.get("/api/v1/actions", headers=b).json() == []

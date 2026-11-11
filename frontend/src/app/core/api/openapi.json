@@ -1,6 +1,316 @@
 {
   "components": {
     "schemas": {
+      "ActionCreate": {
+        "properties": {
+          "currency": {
+            "anyOf": [
+              {
+                "maxLength": 3,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "detail": {
+            "default": "",
+            "maxLength": 4000,
+            "title": "Detail",
+            "type": "string"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "impact_label": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Label"
+          },
+          "impact_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Value"
+          },
+          "kind": {
+            "default": "manual",
+            "maxLength": 32,
+            "title": "Kind",
+            "type": "string"
+          },
+          "owner": {
+            "default": "",
+            "maxLength": 255,
+            "title": "Owner",
+            "type": "string"
+          },
+          "recommendation_id": {
+            "anyOf": [
+              {
+                "maxLength": 160,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recommendation Id"
+          },
+          "regime": {
+            "anyOf": [
+              {
+                "maxLength": 16,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Regime"
+          },
+          "sku": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sku"
+          },
+          "title": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "title": "ActionCreate",
+        "type": "object"
+      },
+      "ActionOut": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "impact_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Label"
+          },
+          "impact_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Value"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "owner": {
+            "title": "Owner",
+            "type": "string"
+          },
+          "recommendation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recommendation Id"
+          },
+          "regime": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Regime"
+          },
+          "sku": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sku"
+          },
+          "status": {
+            "enum": [
+              "open",
+              "in_progress",
+              "done"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "detail",
+          "recommendation_id",
+          "kind",
+          "regime",
+          "sku",
+          "impact_value",
+          "impact_label",
+          "currency",
+          "owner",
+          "due_date",
+          "status",
+          "created_at"
+        ],
+        "title": "ActionOut",
+        "type": "object"
+      },
+      "ActionPatch": {
+        "properties": {
+          "due_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "open",
+                  "in_progress",
+                  "done"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "title": "ActionPatch",
+        "type": "object"
+      },
       "AdminInvite": {
         "properties": {
           "email": {
@@ -385,6 +695,59 @@
           "fee_systems"
         ],
         "title": "ComplianceMatrixResponse",
+        "type": "object"
+      },
+      "ComponentHotspot": {
+        "properties": {
+          "component_id": {
+            "title": "Component Id",
+            "type": "string"
+          },
+          "estimated": {
+            "title": "Estimated",
+            "type": "boolean"
+          },
+          "fee": {
+            "title": "Fee",
+            "type": "number"
+          },
+          "material": {
+            "title": "Material",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "product_name": {
+            "title": "Product Name",
+            "type": "string"
+          },
+          "share_pct": {
+            "title": "Share Pct",
+            "type": "number"
+          },
+          "sku": {
+            "title": "Sku",
+            "type": "string"
+          },
+          "why": {
+            "title": "Why",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sku",
+          "product_name",
+          "component_id",
+          "name",
+          "material",
+          "fee",
+          "share_pct",
+          "estimated",
+          "why"
+        ],
+        "title": "ComponentHotspot",
         "type": "object"
       },
       "ComponentIn": {
@@ -2357,7 +2720,7 @@
           },
           "material_breakdown": {
             "items": {
-              "$ref": "#/components/schemas/MaterialHotspot"
+              "$ref": "#/components/schemas/app__schemas__epr__MaterialHotspot"
             },
             "title": "Material Breakdown",
             "type": "array"
@@ -2376,7 +2739,7 @@
           },
           "top_products": {
             "items": {
-              "$ref": "#/components/schemas/ProductHotspot"
+              "$ref": "#/components/schemas/app__schemas__epr__ProductHotspot"
             },
             "title": "Top Products",
             "type": "array"
@@ -2401,6 +2764,43 @@
           "top_products"
         ],
         "title": "HotspotAnalyticsResponse",
+        "type": "object"
+      },
+      "Hotspots": {
+        "properties": {
+          "components": {
+            "items": {
+              "$ref": "#/components/schemas/ComponentHotspot"
+            },
+            "title": "Components",
+            "type": "array"
+          },
+          "materials": {
+            "items": {
+              "$ref": "#/components/schemas/app__api__v1__insights__MaterialHotspot"
+            },
+            "title": "Materials",
+            "type": "array"
+          },
+          "products": {
+            "items": {
+              "$ref": "#/components/schemas/app__api__v1__insights__ProductHotspot"
+            },
+            "title": "Products",
+            "type": "array"
+          },
+          "top3_share_pct": {
+            "title": "Top3 Share Pct",
+            "type": "number"
+          }
+        },
+        "required": [
+          "materials",
+          "products",
+          "components",
+          "top3_share_pct"
+        ],
+        "title": "Hotspots",
         "type": "object"
       },
       "ImportCreate": {
@@ -2730,6 +3130,58 @@
           "source_reference"
         ],
         "title": "IngestionBatch",
+        "type": "object"
+      },
+      "Insights": {
+        "properties": {
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "hotspots": {
+            "$ref": "#/components/schemas/Hotspots"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "recommendations": {
+            "items": {
+              "$ref": "#/components/schemas/Recommendation"
+            },
+            "title": "Recommendations",
+            "type": "array"
+          },
+          "regime": {
+            "title": "Regime",
+            "type": "string"
+          },
+          "total_fee": {
+            "title": "Total Fee",
+            "type": "number"
+          },
+          "year": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year"
+          }
+        },
+        "required": [
+          "regime",
+          "name",
+          "currency",
+          "year",
+          "total_fee",
+          "hotspots",
+          "recommendations"
+        ],
+        "title": "Insights",
         "type": "object"
       },
       "IssueSeverity": {
@@ -3380,39 +3832,6 @@
           "share_pct"
         ],
         "title": "MaterialFee",
-        "type": "object"
-      },
-      "MaterialHotspot": {
-        "properties": {
-          "material": {
-            "title": "Material",
-            "type": "string"
-          },
-          "percentage_of_fee": {
-            "title": "Percentage Of Fee",
-            "type": "number"
-          },
-          "percentage_of_weight": {
-            "title": "Percentage Of Weight",
-            "type": "number"
-          },
-          "total_fee_eur": {
-            "title": "Total Fee Eur",
-            "type": "number"
-          },
-          "total_tonnes": {
-            "title": "Total Tonnes",
-            "type": "number"
-          }
-        },
-        "required": [
-          "material",
-          "total_tonnes",
-          "percentage_of_weight",
-          "total_fee_eur",
-          "percentage_of_fee"
-        ],
-        "title": "MaterialHotspot",
         "type": "object"
       },
       "MeMembership": {
@@ -4105,44 +4524,6 @@
         "title": "ProductFee",
         "type": "object"
       },
-      "ProductHotspot": {
-        "properties": {
-          "fee_per_thousand_units_eur": {
-            "title": "Fee Per Thousand Units Eur",
-            "type": "number"
-          },
-          "name": {
-            "title": "Name",
-            "type": "string"
-          },
-          "packaging_weight_tonnes": {
-            "title": "Packaging Weight Tonnes",
-            "type": "number"
-          },
-          "sku": {
-            "title": "Sku",
-            "type": "string"
-          },
-          "total_fee_eur": {
-            "title": "Total Fee Eur",
-            "type": "number"
-          },
-          "units_sold": {
-            "title": "Units Sold",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "sku",
-          "name",
-          "units_sold",
-          "packaging_weight_tonnes",
-          "total_fee_eur",
-          "fee_per_thousand_units_eur"
-        ],
-        "title": "ProductHotspot",
-        "type": "object"
-      },
       "ProductOut": {
         "properties": {
           "brand": {
@@ -4466,6 +4847,108 @@
         "title": "ProposeCorrectionRequest",
         "type": "object"
       },
+      "Recommendation": {
+        "properties": {
+          "action_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Action Id"
+          },
+          "component_id": {
+            "title": "Component Id",
+            "type": "string"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "effort": {
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "title": "Effort",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "impact_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Label"
+          },
+          "impact_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Value"
+          },
+          "kind": {
+            "enum": [
+              "lightweight",
+              "recyclability",
+              "recycled_content",
+              "measure"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "scenario": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScenarioChange"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sku": {
+            "title": "Sku",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "title",
+          "detail",
+          "impact_value",
+          "impact_label",
+          "effort",
+          "sku",
+          "component_id",
+          "scenario",
+          "action_id"
+        ],
+        "title": "Recommendation",
+        "type": "object"
+      },
       "Regime": {
         "properties": {
           "country": {
@@ -4697,6 +5180,168 @@
           "units_exported"
         ],
         "title": "SalesLineOut",
+        "type": "object"
+      },
+      "ScenarioChange": {
+        "properties": {
+          "component_id": {
+            "maxLength": 80,
+            "title": "Component Id",
+            "type": "string"
+          },
+          "material": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Material"
+          },
+          "weight_g": {
+            "anyOf": [
+              {
+                "maxLength": 16,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight G"
+          }
+        },
+        "required": [
+          "component_id"
+        ],
+        "title": "ScenarioChange",
+        "type": "object"
+      },
+      "ScenarioLine": {
+        "properties": {
+          "after": {
+            "title": "After",
+            "type": "string"
+          },
+          "before": {
+            "title": "Before",
+            "type": "string"
+          },
+          "component_id": {
+            "title": "Component Id",
+            "type": "string"
+          },
+          "fee_after": {
+            "title": "Fee After",
+            "type": "number"
+          },
+          "fee_before": {
+            "title": "Fee Before",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "product_name": {
+            "title": "Product Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "component_id",
+          "name",
+          "product_name",
+          "before",
+          "after",
+          "fee_before",
+          "fee_after"
+        ],
+        "title": "ScenarioLine",
+        "type": "object"
+      },
+      "ScenarioRequest": {
+        "properties": {
+          "changes": {
+            "items": {
+              "$ref": "#/components/schemas/ScenarioChange"
+            },
+            "maxItems": 200,
+            "title": "Changes",
+            "type": "array"
+          },
+          "year": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year"
+          }
+        },
+        "required": [
+          "changes"
+        ],
+        "title": "ScenarioRequest",
+        "type": "object"
+      },
+      "ScenarioResult": {
+        "properties": {
+          "baseline_fee": {
+            "title": "Baseline Fee",
+            "type": "number"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "delta": {
+            "title": "Delta",
+            "type": "number"
+          },
+          "delta_pct": {
+            "title": "Delta Pct",
+            "type": "number"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/ScenarioLine"
+            },
+            "title": "Lines",
+            "type": "array"
+          },
+          "scenario_fee": {
+            "title": "Scenario Fee",
+            "type": "number"
+          },
+          "year": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year"
+          }
+        },
+        "required": [
+          "currency",
+          "year",
+          "baseline_fee",
+          "scenario_fee",
+          "delta",
+          "delta_pct",
+          "lines"
+        ],
+        "title": "ScenarioResult",
         "type": "object"
       },
       "ScenarioSimulationRequest": {
@@ -6252,6 +6897,79 @@
         "title": "Target",
         "type": "object"
       },
+      "app__api__v1__insights__MaterialHotspot": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "fee": {
+            "title": "Fee",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "share_pct": {
+            "title": "Share Pct",
+            "type": "number"
+          },
+          "why": {
+            "title": "Why",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "fee",
+          "share_pct",
+          "why"
+        ],
+        "title": "MaterialHotspot",
+        "type": "object"
+      },
+      "app__api__v1__insights__ProductHotspot": {
+        "properties": {
+          "fee": {
+            "title": "Fee",
+            "type": "number"
+          },
+          "main_material": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Main Material"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "share_pct": {
+            "title": "Share Pct",
+            "type": "number"
+          },
+          "sku": {
+            "title": "Sku",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sku",
+          "name",
+          "fee",
+          "share_pct",
+          "main_material"
+        ],
+        "title": "ProductHotspot",
+        "type": "object"
+      },
       "app__schemas__configuration__TariffRate": {
         "properties": {
           "base_rate_per_tonne": {
@@ -6326,6 +7044,77 @@
         "title": "TariffRate",
         "type": "object"
       },
+      "app__schemas__epr__MaterialHotspot": {
+        "properties": {
+          "material": {
+            "title": "Material",
+            "type": "string"
+          },
+          "percentage_of_fee": {
+            "title": "Percentage Of Fee",
+            "type": "number"
+          },
+          "percentage_of_weight": {
+            "title": "Percentage Of Weight",
+            "type": "number"
+          },
+          "total_fee_eur": {
+            "title": "Total Fee Eur",
+            "type": "number"
+          },
+          "total_tonnes": {
+            "title": "Total Tonnes",
+            "type": "number"
+          }
+        },
+        "required": [
+          "material",
+          "total_tonnes",
+          "percentage_of_weight",
+          "total_fee_eur",
+          "percentage_of_fee"
+        ],
+        "title": "MaterialHotspot",
+        "type": "object"
+      },
+      "app__schemas__epr__ProductHotspot": {
+        "properties": {
+          "fee_per_thousand_units_eur": {
+            "title": "Fee Per Thousand Units Eur",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "packaging_weight_tonnes": {
+            "title": "Packaging Weight Tonnes",
+            "type": "number"
+          },
+          "sku": {
+            "title": "Sku",
+            "type": "string"
+          },
+          "total_fee_eur": {
+            "title": "Total Fee Eur",
+            "type": "number"
+          },
+          "units_sold": {
+            "title": "Units Sold",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sku",
+          "name",
+          "units_sold",
+          "packaging_weight_tonnes",
+          "total_fee_eur",
+          "fee_per_thousand_units_eur"
+        ],
+        "title": "ProductHotspot",
+        "type": "object"
+      },
       "app__schemas__epr__TariffRate": {
         "properties": {
           "base_rate_eur_per_tonne": {
@@ -6377,6 +7166,191 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/actions": {
+      "get": {
+        "operationId": "list_actions_api_v1_actions_get",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ActionOut"
+                  },
+                  "title": "Response List Actions Api V1 Actions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Action items",
+        "tags": [
+          "Insights"
+        ]
+      },
+      "post": {
+        "operationId": "create_action_api_v1_actions_post",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActionCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Add an action item",
+        "tags": [
+          "Insights"
+        ]
+      }
+    },
+    "/api/v1/actions/{action_id}": {
+      "patch": {
+        "operationId": "update_action_api_v1_actions__action_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "action_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Action Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActionPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update owner, due date or status",
+        "tags": [
+          "Insights"
+        ]
+      }
+    },
     "/api/v1/admin/data-points": {
       "get": {
         "operationId": "get_dictionary_api_v1_admin_data_points_get",
@@ -10865,6 +11839,163 @@
         "summary": "EPR fees by material and product",
         "tags": [
           "Compliance"
+        ]
+      }
+    },
+    "/api/v1/modules/epr/{regime}/insights": {
+      "get": {
+        "operationId": "get_insights_api_v1_modules_epr__regime__insights_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "regime",
+            "required": true,
+            "schema": {
+              "enum": [
+                "epr_uk",
+                "epr_dk",
+                "sb54_ca"
+              ],
+              "title": "Regime",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 8,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Year"
+            }
+          },
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Insights"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Hotspots and recommendations",
+        "tags": [
+          "Insights"
+        ]
+      }
+    },
+    "/api/v1/modules/epr/{regime}/scenario": {
+      "post": {
+        "operationId": "run_scenario_api_v1_modules_epr__regime__scenario_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "regime",
+            "required": true,
+            "schema": {
+              "enum": [
+                "epr_uk",
+                "epr_dk",
+                "sb54_ca"
+              ],
+              "title": "Regime",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScenarioRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScenarioResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "What-if fee (not saved)",
+        "tags": [
+          "Insights"
         ]
       }
     },
