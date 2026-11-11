@@ -73,6 +73,14 @@ export class ApiClient {
     return this.request('DELETE', path, options);
   }
 
+  /**
+   * For endpoints in `contracts.ts` that are not in the OpenAPI schema yet (served by the
+   * mock API). Switch to the typed methods above once the backend ships the endpoint.
+   */
+  call<T>(method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE', path: string, options?: { path?: object; query?: object; body?: unknown }): Observable<T> {
+    return this.request<T>(method, path, options as ApiOptions<unknown>);
+  }
+
   private request<T>(method: string, path: string, options?: ApiOptions<unknown>): Observable<T> {
     const opts = (options ?? {}) as { path?: object; query?: object; body?: unknown; context?: HttpContext };
     return this.http.request<T>(method, apiUrl(path, opts.path), {
