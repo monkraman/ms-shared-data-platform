@@ -47,7 +47,7 @@ def body(slug: str, **over: object) -> dict[str, object]:
         "legal_entities": [{"name": "Acme Foods A/S", "country": "DK", "registration_number": "DK-1"}],
         "countries": ["DK", "UK"],
         "modules": ["EPR", "PPWR"],
-        "admin": {"full_name": "Ana Lima", "email": f"Ana.{slug}@Acme.test"},
+        "admin": {"full_name": "Ana Lima", "email": f"Ana.{slug.replace(' ', '-')}@Acme.test"},
         **over,
     }
 
