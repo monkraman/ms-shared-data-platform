@@ -2,10 +2,10 @@
 
 import logging
 import secrets
-from datetime import datetime, timedelta, timezone
-from typing import Optional
-from fastapi import Header, Query, HTTPException, Depends, status
+from datetime import UTC, datetime, timedelta
+
 import jwt
+from fastapi import Depends, Header, HTTPException, Query, status
 from pydantic import BaseModel
 
 from app.core.config import get_settings
@@ -37,30 +37,33 @@ class AuthenticatedUser(BaseModel):
     email: str
     full_name: str
     role: str  # "superadmin" | "org_admin" | "analyst"
-    tenant_id: Optional[str] = None  # None for superadmin
+    tenant_id: str | None = None  # None for superadmin
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     """Generate a signed HS256 JWT access token carrying user identity, role, and tenant context."""
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + (
+    expire = datetime.now(UTC) + (
         expires_delta if expires_delta else timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
     )
-    to_encode.update({"exp": expire, "iat": datetime.now(timezone.utc)})
+    to_encode.update({"exp": expire, "iat": datetime.now(UTC)})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-def decode_access_token(token: str) -> Optional[dict]:
+def decode_access_token(token: str) -> dict | None:
     """Decode and validate signature of an incoming JWT token."""
     try:
+        # Tokens from the platform sign-in carry an audience; prototype tokens do not.
+        if jwt.decode(token, options={"verify_signature": False}).get("aud"):
+            return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM], audience="compliance-hub-api")
         return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     except Exception:
         return None
 
 
 def get_current_user_optional(
-    authorization: Optional[str] = Header(None, description="Bearer <JWT> authorization header"),
-) -> Optional[AuthenticatedUser]:
+    authorization: str | None = Header(None, description="Bearer <JWT> authorization header"),
+) -> AuthenticatedUser | None:
     """Extract authenticated user profile from Authorization header if present."""
     if not authorization or not authorization.startswith("Bearer "):
         return None
@@ -70,7 +73,8 @@ def get_current_user_optional(
     if not payload:
         return None
 
-    email = payload.get("sub")
+    # Platform tokens: "sub" is the user ID and the email is a separate claim.
+    email = payload.get("email") if payload.get("ver") == 2 else payload.get("sub")
     if not email:
         return None
 
@@ -83,7 +87,7 @@ def get_current_user_optional(
 
 
 def get_current_user(
-    current_user: Optional[AuthenticatedUser] = Depends(get_current_user_optional),
+    current_user: AuthenticatedUser | None = Depends(get_current_user_optional),
 ) -> AuthenticatedUser:
     """Require an authenticated user token."""
     if not current_user:
@@ -96,9 +100,9 @@ def get_current_user(
 
 
 def get_current_tenant_id(
-    x_tenant_id: Optional[str] = Header(None, description="Active tenant context header"),
-    tenant_id: Optional[str] = Query(None, description="Optional tenant query override"),
-    current_user: Optional[AuthenticatedUser] = Depends(get_current_user_optional),
+    x_tenant_id: str | None = Header(None, description="Active tenant context header"),
+    tenant_id: str | None = Query(None, description="Optional tenant query override"),
+    current_user: AuthenticatedUser | None = Depends(get_current_user_optional),
 ) -> str:
     """Extract and validate the active tenant context with strict RBAC enforcement.
     
@@ -109,8 +113,7 @@ def get_current_tenant_id(
     2. If user is ORG_ADMIN / ANALYST:
        - Locked strictly to their assigned organization tenant_id!
        - If they try to request another tenant, HTTP 403 Forbidden is raised.
-    3. If unauthenticated (demo / test calls):
-       - Fallback to x_tenant_id or 'khc-europe'.
+    3. Unauthenticated: 401. There is no default tenant.
     """
     requested_tenant = x_tenant_id or tenant_id
 
@@ -135,6 +138,8 @@ def get_current_tenant_id(
             )
         return user_tenant
 
-    # Unauthenticated fallback (for tests / backward compatibility)
-    resolved_tenant = requested_tenant or "khc-europe"
-    return resolved_tenant.strip()
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Sign in to continue.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )

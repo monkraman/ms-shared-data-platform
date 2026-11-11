@@ -1,163 +1,241 @@
-"""Authentication, JWT issuance, and User Directory endpoints for Compliance Hub."""
+"""Sign-in, session and user directory endpoints.
 
-from datetime import datetime, timezone
-import secrets
-from typing import List, Optional
-from uuid import uuid4
-from fastapi import APIRouter, HTTPException, Depends, status
+The paths and response shapes are the prototype's, so the existing sign-in page and IAM
+directory keep working; behind them users live in the database with Argon2 passwords.
 
-from app.schemas.auth import (
-    ActiveSession,
-    AuthTokenResponse,
-    ForgotPasswordRequest,
-    LoginRequest,
-    MagicLinkVerifyRequest,
-    MfaVerifyRequest,
-    UserProfile,
-    UserRole,
-    UserCreateRequest,
-)
-from app.services.store import data_store
-from app.core.security import create_access_token, get_current_user, get_current_user_optional, AuthenticatedUser
+Session: a 15-minute access token in the response body, and an 8-hour refresh token in
+an httpOnly cookie (``ch_refresh``, path ``/api/v1/auth``) for ``POST /auth/refresh``.
+"""
+
+from __future__ import annotations
+
+import uuid
+
+from fastapi import APIRouter, Cookie, Response, status
+from pydantic import BaseModel
+from sqlalchemy import select
+
+from app.core.audit import record_audit
+from app.core.auth import CurrentPrincipal, Principal
+from app.core.config import get_settings
+from app.core.errors import ProblemError
+from app.core.permissions import Perm
+from app.core.tenancy import tenant_session
+from app.platform import repository as repo
+from app.platform import sign_in as auth
+from app.platform.models import Membership, Tenant, TenantRole, TenantStatus, User
+from app.platform.passwords import hash_password
+from app.schemas.auth import AuthTokenResponse, LoginRequest, UserCreateRequest, UserProfile, UserRole
 
 router = APIRouter(prefix="/auth", tags=["Authentication & Identity"])
+
+REFRESH_COOKIE = "ch_refresh"
+COOKIE_PATH = "/api/v1/auth"
+
+
+# --- Session -----------------------------------------------------------------------
+
+
+def _initials(name: str) -> str:
+    parts = name.split()
+    return ("".join(p[0] for p in parts[:1] + parts[1:][-1:]) or "U").upper()
+
+
+def _profile(user: User, tenant: Tenant | None, role: TenantRole | None) -> UserProfile:
+    return UserProfile(
+        id=str(user.id),
+        email=user.email,
+        full_name=user.full_name,
+        role=UserRole(auth.legacy_role(user, role)),
+        organisation_id=tenant.slug if tenant else None,
+        organisation_slug=tenant.slug if tenant else None,
+        organisation_name=tenant.name if tenant else "Compliance Hub Platform",
+        avatar_initials=_initials(user.full_name),
+    )
+
+
+def _session_response(response: Response, session: auth.Session) -> AuthTokenResponse:
+    settings = get_settings()
+    response.set_cookie(
+        REFRESH_COOKIE,
+        session.refresh_token,
+        max_age=auth.REFRESH_HOURS * 3600,
+        path=COOKIE_PATH,
+        httponly=True,
+        secure=settings.app_env not in ("development", "test"),
+        samesite="lax",
+    )
+    profile = _profile(session.user, session.tenant, session.role)
+    return AuthTokenResponse(
+        access_token=session.access_token,
+        expires_in_seconds=settings.access_token_minutes * 60,
+        user=profile,
+        redirect_url="/admin" if profile.role == UserRole.SUPERADMIN else "/dashboard",
+    )
 
 
 @router.post(
     "/sign-in",
     response_model=AuthTokenResponse,
-    summary="Direct Work Email & Password Sign In",
-    description="Authenticates corporate credentials, generates real JWT token with role & tenant context, and returns redirect route.",
+    summary="Sign in with work email and password",
+    responses={401: {"description": "Wrong email or password"}, 429: {"description": "Locked for 15 minutes"}},
 )
-async def sign_in(payload: LoginRequest):
-    email = payload.email.lower().strip()
-    user = data_store.authenticate_user(email, payload.password)
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid corporate credentials. Please check your email and password.",
-        )
-
-    # Real signed JWT containing sub, role, tenant_id, name
-    token_claims = {
-        "sub": user["email"],
-        "name": user["full_name"],
-        "role": user["role"],
-        "tenant_id": user.get("tenant_id"),
-        "org_slug": user.get("tenant_id"),
-        "org_name": user.get("organisation_name"),
-    }
-    token = create_access_token(token_claims)
-
-    user_profile = UserProfile(
-        id=user.get("id", f"usr-{uuid4().hex[:6]}"),
-        email=user["email"],
-        full_name=user["full_name"],
-        role=UserRole(user["role"]),
-        organisation_id=user.get("tenant_id"),
-        organisation_slug=user.get("tenant_id"),
-        organisation_name=user.get("organisation_name") or ("Platform Admin" if user["role"] == "superadmin" else "Client Workspace"),
-        avatar_initials=user.get("avatar_initials", "U"),
-        mfa_enabled=False,
-    )
-
-    redirect_url = "/admin" if user["role"] == "superadmin" else "/dashboard"
-
-    return AuthTokenResponse(
-        access_token=token,
-        token_type="bearer",
-        expires_in_seconds=86400 if payload.remember_me else 28800,
-        user=user_profile,
-        requires_mfa=False,
-        redirect_url=redirect_url,
-    )
+async def sign_in(payload: LoginRequest, response: Response) -> AuthTokenResponse:
+    return _session_response(response, await auth.sign_in(payload.email, payload.password))
 
 
-# GET /auth/me moved to app/api/v1/me.py (new platform session, Step 0).
+@router.post("/refresh", response_model=AuthTokenResponse, summary="Renew the session from the refresh cookie")
+async def refresh(response: Response, ch_refresh: str | None = Cookie(default=None)) -> AuthTokenResponse:
+    return _session_response(response, await auth.refresh(ch_refresh))
 
 
-@router.post(
-    "/users",
-    response_model=UserProfile,
-    status_code=status.HTTP_201_CREATED,
-    summary="Provision a User under an Organisation",
-)
-async def create_user(
-    payload: UserCreateRequest,
-    current_user: Optional[AuthenticatedUser] = Depends(get_current_user_optional),
-):
-    """Allows SuperAdmin or Organisation Admin to provision a new user."""
-    # RBAC: If authenticated as standard client, only admin roles can create users
-    if current_user and current_user.role not in ["superadmin", "org_admin"]:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Forbidden: Only administrators can provision new users.",
-        )
-
-    # If org_admin, can only create users for their own tenant
-    target_tenant = payload.tenant_id
-    if current_user and current_user.role == "org_admin":
-        target_tenant = current_user.tenant_id
-
-    email = payload.email.lower().strip()
-    initials = "".join([part[0].upper() for part in payload.full_name.split()[:2]]) or "U"
-    new_user = {
-        "id": f"usr-{uuid4().hex[:6]}",
-        "email": email,
-        "password": payload.password,
-        "full_name": payload.full_name,
-        "role": payload.role.value,
-        "tenant_id": target_tenant,
-        "organisation_name": payload.organisation_name,
-        "avatar_initials": initials,
-    }
-    data_store.create_user(new_user)
-
-    return UserProfile(
-        id=new_user["id"],
-        email=new_user["email"],
-        full_name=new_user["full_name"],
-        role=UserRole(new_user["role"]),
-        organisation_id=new_user.get("tenant_id"),
-        organisation_slug=new_user.get("tenant_id"),
-        organisation_name=new_user.get("organisation_name"),
-        avatar_initials=new_user["avatar_initials"],
-        mfa_enabled=False,
-    )
+class SwitchTenantRequest(BaseModel):
+    tenant_id: uuid.UUID
 
 
-@router.get(
-    "/users",
-    response_model=List[UserProfile],
-    summary="List Users by Workspace Context",
-)
-async def list_users(current_user: Optional[AuthenticatedUser] = Depends(get_current_user_optional)):
-    """List users scoped to caller's role and workspace."""
-    if current_user and current_user.role == "org_admin":
-        users = data_store.list_users(current_user.tenant_id)
-    else:
-        users = data_store.list_users()
+@router.post("/switch-tenant", response_model=AuthTokenResponse, summary="Switch to another workspace")
+async def switch_tenant(
+    payload: SwitchTenantRequest,
+    principal: CurrentPrincipal,
+    response: Response,
+    ch_refresh: str | None = Cookie(default=None),
+) -> AuthTokenResponse:
+    return _session_response(response, await auth.switch_tenant(principal.user_id, payload.tenant_id, ch_refresh))
 
-    result = []
-    for u in users:
-        result.append(
-            UserProfile(
-                id=u.get("id", f"usr-{uuid4().hex[:6]}"),
-                email=u["email"],
-                full_name=u["full_name"],
-                role=UserRole(u["role"]),
-                organisation_id=u.get("tenant_id"),
-                organisation_slug=u.get("tenant_id"),
-                organisation_name=u.get("organisation_name"),
-                avatar_initials=u.get("avatar_initials", "U"),
-                mfa_enabled=False,
+
+@router.post("/sign-out", status_code=status.HTTP_204_NO_CONTENT, summary="Sign out")
+async def sign_out(response: Response, ch_refresh: str | None = Cookie(default=None)) -> Response:
+    await auth.sign_out(ch_refresh)
+    response.status_code = status.HTTP_204_NO_CONTENT
+    response.delete_cookie(REFRESH_COOKIE, path=COOKIE_PATH)
+    return response
+
+
+class MeUser(BaseModel):
+    id: uuid.UUID
+    email: str
+    full_name: str
+    is_platform_admin: bool
+
+
+class MeTenant(BaseModel):
+    id: uuid.UUID
+    slug: str
+    name: str
+    status: TenantStatus
+
+
+class MeMembership(BaseModel):
+    tenant: MeTenant
+    role: TenantRole
+
+
+class MeResponse(BaseModel):
+    user: MeUser
+    active_tenant: MeTenant | None
+    permissions: list[str]
+    memberships: list[MeMembership]
+
+
+def _tenant(t: Tenant) -> MeTenant:
+    return MeTenant(id=t.id, slug=t.slug, name=t.name, status=t.status)
+
+
+@router.get("/me", response_model=MeResponse, summary="Current session")
+async def get_me(principal: CurrentPrincipal) -> MeResponse:
+    async with tenant_session(None) as db:
+        rows = (
+            await db.scalars(
+                select(Membership).where(Membership.user_id == principal.user_id).order_by(Membership.created_at)
             )
+        ).all()
+        active = await db.get(Tenant, principal.tenant_id) if principal.tenant_id else None
+        return MeResponse(
+            user=MeUser(
+                id=principal.user_id,
+                email=principal.email,
+                full_name=principal.full_name,
+                is_platform_admin=principal.is_platform_admin,
+            ),
+            active_tenant=_tenant(active) if active else None,
+            permissions=sorted(principal.permissions),
+            memberships=[MeMembership(tenant=_tenant(m.tenant), role=m.role) for m in rows],
         )
-    return result
 
 
-@router.post("/sign-out", summary="Sign Out")
-async def sign_out():
-    """Revoke authenticated session."""
-    return {"message": "Successfully signed out."}
+# --- User directory (prototype IAM page; screen 9 replaces it) ----------------------
+
+
+_TENANT_ROLES = {r.value for r in TenantRole}
+
+
+def _directory_scope(principal: Principal) -> uuid.UUID | None:
+    """Platform admins see everyone; org admins only their workspace; others nothing."""
+    if principal.is_platform_admin:
+        return None
+    if principal.tenant_id is None or not principal.has(Perm.USERS_MANAGE):
+        raise ProblemError(403, "You do not have permission to do this.", extra={"permission": Perm.USERS_MANAGE})
+    return principal.tenant_id
+
+
+@router.post("/users", response_model=UserProfile, status_code=status.HTTP_201_CREATED, summary="Add a user")
+async def create_user(payload: UserCreateRequest, principal: CurrentPrincipal) -> UserProfile:
+    own_tenant = _directory_scope(principal)
+    is_admin = payload.role == UserRole.SUPERADMIN
+    if is_admin and not principal.is_platform_admin:
+        raise ProblemError(403, "You do not have permission to do this.")
+
+    async with tenant_session(None, platform_access=True) as db:
+        if await repo.get_user_by_email(db, payload.email):
+            raise ProblemError(
+                409,
+                "A user with this email already exists.",
+                extra={"errors": [{"loc": ["body", "email"], "msg": "Already in use", "type": "conflict"}]},
+            )
+        tenant = None
+        if not is_admin:
+            if own_tenant:
+                tenant = await db.get(Tenant, own_tenant)
+            elif payload.tenant_id:
+                tenant = await repo.get_tenant_by_slug(db, payload.tenant_id)
+            if tenant is None:
+                raise ProblemError(422, "Choose a workspace for this user.")
+        user = await repo.upsert_user(
+            db,
+            email=payload.email,
+            full_name=payload.full_name,
+            is_platform_admin=is_admin,
+            password_hash=hash_password(payload.password),
+        )
+        role = None
+        if tenant:
+            role = TenantRole(payload.role.value) if payload.role.value in _TENANT_ROLES else TenantRole.VIEWER
+            await repo.ensure_membership(db, tenant_id=tenant.id, user_id=user.id, role=role)
+        await record_audit(
+            db,
+            principal=principal,
+            tenant_id=tenant.id if tenant else None,
+            action="user.created",
+            entity_type="user",
+            entity_id=user.id,
+            after={"email": user.email, "role": payload.role.value, "tenant": tenant.slug if tenant else None},
+        )
+        return _profile(user, tenant, role)
+
+
+@router.get("/users", response_model=list[UserProfile], summary="List users")
+async def list_users(principal: CurrentPrincipal) -> list[UserProfile]:
+    own_tenant = _directory_scope(principal)
+    async with tenant_session(None) as db:
+        query = select(User).order_by(User.created_at)
+        if own_tenant:
+            query = query.join(Membership).where(Membership.tenant_id == own_tenant)
+        users = (await db.scalars(query)).all()
+        result = []
+        for user in users:
+            memberships = [m for m in user.memberships if own_tenant is None or m.tenant_id == own_tenant]
+            if not memberships:
+                result.append(_profile(user, None, None))
+            for m in memberships:
+                result.append(_profile(user, m.tenant, m.role))
+        return result

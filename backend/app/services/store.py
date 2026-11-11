@@ -11,6 +11,7 @@ from uuid import uuid4
 import psycopg
 
 from app.core.config import get_settings
+from app.platform.passwords import hash_password
 
 from app.schemas.tenancy import TenantBase, TenantCreate, TenantResponse, TenantTier
 from app.schemas.canonical import (
@@ -1653,7 +1654,7 @@ class DataStore:
                                     full_name = EXCLUDED.full_name;
                             """, (
                                 data.admin_email.lower().strip(),
-                                data.admin_password or "password123",
+                                hash_password(data.admin_password or "password123"),
                                 data.admin_name or f"{data.name} Administrator",
                             ))
                         conn.commit()

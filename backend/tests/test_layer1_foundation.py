@@ -1,11 +1,12 @@
 """Unit and integration tests for Layer 1: Shared Data Foundation."""
 
+from tests.helpers import as_superadmin
 from fastapi.testclient import TestClient
 
 
 def test_list_canonical_products(client: TestClient) -> None:
     """Test retrieving products list for KHC Europe tenant."""
-    response = client.get("/api/v1/foundation/products", headers={"X-Tenant-ID": "khc-europe"})
+    response = client.get("/api/v1/foundation/products", headers=as_superadmin("khc-europe"))
     assert response.status_code == 200
     products = response.json()
     assert len(products) >= 4
@@ -19,7 +20,7 @@ def test_get_product_detail_and_bom(client: TestClient) -> None:
     """Test retrieving product detail and packaging components BOM."""
     response = client.get(
         "/api/v1/foundation/products/KHC-HTK-500G-GL",
-        headers={"X-Tenant-ID": "khc-europe"}
+        headers=as_superadmin("khc-europe")
     )
     assert response.status_code == 200
     product = response.json()
@@ -37,7 +38,7 @@ def test_get_product_detail_and_bom(client: TestClient) -> None:
 
 def test_ingestion_batches_lineage(client: TestClient) -> None:
     """Test retrieving ingestion batches."""
-    response = client.get("/api/v1/foundation/batches", headers={"X-Tenant-ID": "khc-europe"})
+    response = client.get("/api/v1/foundation/batches", headers=as_superadmin("khc-europe"))
     assert response.status_code == 200
     batches = response.json()
     assert len(batches) >= 1
@@ -48,7 +49,7 @@ def test_simulate_traceone_sync(client: TestClient) -> None:
     """Test on-demand delta sync from KHC Trace One PLM."""
     response = client.post(
         "/api/v1/foundation/sync/traceone?spec_id=DEV-8821",
-        headers={"X-Tenant-ID": "khc-europe"}
+        headers=as_superadmin("khc-europe")
     )
     assert response.status_code == 200
     batch = response.json()
@@ -60,7 +61,7 @@ def test_simulate_snowflake_sync(client: TestClient) -> None:
     """Test on-demand ETL pipeline sync from Snowflake Data Cloud."""
     response = client.post(
         "/api/v1/foundation/sync/snowflake?query_id=QRY-SNOW-9921",
-        headers={"X-Tenant-ID": "khc-europe"}
+        headers=as_superadmin("khc-europe")
     )
     assert response.status_code == 200
     batch = response.json()

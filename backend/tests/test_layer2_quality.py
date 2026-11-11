@@ -1,11 +1,12 @@
 """Unit and integration tests for Layer 2: Data Quality & Source-of-Truth Workflow."""
 
+from tests.helpers import as_superadmin
 from fastapi.testclient import TestClient
 
 
 def test_list_quality_issues(client: TestClient) -> None:
     """Test retrieving quality issues queue for KHC Europe."""
-    response = client.get("/api/v1/quality/issues", headers={"X-Tenant-ID": "khc-europe"})
+    response = client.get("/api/v1/quality/issues", headers=as_superadmin("khc-europe"))
     assert response.status_code == 200
     issues = response.json()
     assert len(issues) >= 3
@@ -28,7 +29,7 @@ def test_propose_and_approve_correction_workflow(client: TestClient) -> None:
     response = client.post(
         "/api/v1/quality/propose-correction",
         json=propose_payload,
-        headers={"X-Tenant-ID": "khc-europe"}
+        headers=as_superadmin("khc-europe")
     )
     assert response.status_code == 200
     issue = response.json()
@@ -45,7 +46,7 @@ def test_propose_and_approve_correction_workflow(client: TestClient) -> None:
     appr_res = client.post(
         "/api/v1/quality/approve-correction",
         json=approve_payload,
-        headers={"X-Tenant-ID": "khc-europe"}
+        headers=as_superadmin("khc-europe")
     )
     assert appr_res.status_code == 200
     updated_issue = appr_res.json()
@@ -56,7 +57,7 @@ def test_export_source_system_worklist(client: TestClient) -> None:
     """Test exporting structured source system correction payload for KHC ERP & Trace One."""
     response = client.get(
         "/api/v1/quality/source-worklist/export",
-        headers={"X-Tenant-ID": "khc-europe"}
+        headers=as_superadmin("khc-europe")
     )
     assert response.status_code == 200
     data = response.json()
@@ -74,7 +75,7 @@ def test_mark_issue_resolved_in_source(client: TestClient) -> None:
     """Test marking issue as resolved once KHC source system sync verifies update."""
     response = client.post(
         "/api/v1/quality/issues/DQI-KHC-003/resolve-in-source",
-        headers={"X-Tenant-ID": "khc-europe"}
+        headers=as_superadmin("khc-europe")
     )
     assert response.status_code == 200
     issue = response.json()

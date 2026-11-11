@@ -13,7 +13,7 @@ from datetime import datetime
 from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Integer, String, UniqueConstraint, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.core.db import Base, Timestamps, UUIDPrimaryKey
+from app.core.db import Base, Timestamps, UUIDPrimaryKey, utcnow
 
 
 def _enum(cls: type[enum.Enum], name: str) -> Enum:
@@ -34,9 +34,11 @@ class UserStatus(enum.StrEnum):
 
 
 class TenantRole(enum.StrEnum):
-    """Roles inside one client workspace. More roles arrive with screen 9."""
+    """Roles inside one client workspace (the prototype's roles). Screen 9 refines them."""
 
     ORG_ADMIN = "org_admin"
+    ANALYST = "analyst"
+    VIEWER = "viewer"
 
 
 class Tenant(UUIDPrimaryKey, Timestamps, Base):
@@ -80,3 +82,18 @@ class Membership(UUIDPrimaryKey, Timestamps, Base):
 
     user: Mapped[User] = relationship(back_populates="memberships")
     tenant: Mapped[Tenant] = relationship(lazy="joined")
+
+
+class RefreshToken(UUIDPrimaryKey, Base):
+    """Long-lived sign-in session, sent as an httpOnly cookie; only its SHA-256 hash is stored."""
+
+    __tablename__ = "refresh_tokens"
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    tenant_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, ForeignKey("tenants.id", ondelete="CASCADE"))
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

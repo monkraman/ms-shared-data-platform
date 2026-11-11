@@ -66,7 +66,7 @@ class UserProfile(BaseModel):
 
 class UserCreateRequest(BaseModel):
     email: str = Field(..., description="User corporate email")
-    password: str = Field(default="password123", min_length=6, description="Initial password")
+    password: str = Field(..., min_length=8, description="Initial password")
     full_name: str = Field(..., description="Full name of user")
     role: UserRole = Field(default=UserRole.ORG_ADMIN, description="Role: superadmin, org_admin, analyst")
     tenant_id: Optional[str] = Field(default=None, description="Assigned tenant workspace slug")
