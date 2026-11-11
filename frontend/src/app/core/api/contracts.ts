@@ -95,3 +95,14 @@ export type EprResult = Schemas['EprResult'];
 export type DeclarationRow = Schemas['DeclarationRow'];
 export type Declaration = Schemas['Declaration'];
 export type RequirementStatus = Schemas['Requirement']['status'];
+
+// --- Screen 14 (first part): insights — built, GET /modules/epr/{regime}/insights,
+// POST /modules/epr/{regime}/scenario, GET/POST /actions, PATCH /actions/{id}
+
+export type Insights = Schemas['Insights'];
+export type Recommendation = Schemas['Recommendation'];
+export type ScenarioChange = Schemas['ScenarioChange'];
+export type ScenarioResult = Schemas['ScenarioResult'];
+export type ActionItem = Schemas['ActionOut'];
+export type ActionCreate = Schemas['ActionCreate'];
+export type ActionPatch = Schemas['ActionPatch'];

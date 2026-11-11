@@ -4,6 +4,41 @@
  */
 
 export interface paths {
+    "/api/v1/actions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Action items */
+        get: operations["list_actions_api_v1_actions_get"];
+        put?: never;
+        /** Add an action item */
+        post: operations["create_action_api_v1_actions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/actions/{action_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update owner, due date or status */
+        patch: operations["update_action_api_v1_actions__action_id__patch"];
+        trace?: never;
+    };
     "/api/v1/admin/data-points": {
         parameters: {
             query?: never;
@@ -1049,6 +1084,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/modules/epr/{regime}/insights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Hotspots and recommendations */
+        get: operations["get_insights_api_v1_modules_epr__regime__insights_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/modules/epr/{regime}/scenario": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** What-if fee (not saved) */
+        post: operations["run_scenario_api_v1_modules_epr__regime__scenario_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/modules/ppwr/declarations": {
         parameters: {
             query?: never;
@@ -1398,6 +1467,91 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ActionCreate */
+        ActionCreate: {
+            /** Currency */
+            currency?: string | null;
+            /**
+             * Detail
+             * @default
+             */
+            detail: string;
+            /** Due Date */
+            due_date?: string | null;
+            /** Impact Label */
+            impact_label?: string | null;
+            /** Impact Value */
+            impact_value?: number | null;
+            /**
+             * Kind
+             * @default manual
+             */
+            kind: string;
+            /**
+             * Owner
+             * @default
+             */
+            owner: string;
+            /** Recommendation Id */
+            recommendation_id?: string | null;
+            /** Regime */
+            regime?: string | null;
+            /** Sku */
+            sku?: string | null;
+            /** Title */
+            title: string;
+        };
+        /** ActionOut */
+        ActionOut: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Currency */
+            currency: string | null;
+            /** Detail */
+            detail: string;
+            /** Due Date */
+            due_date: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Impact Label */
+            impact_label: string | null;
+            /** Impact Value */
+            impact_value: number | null;
+            /** Kind */
+            kind: string;
+            /** Owner */
+            owner: string;
+            /** Recommendation Id */
+            recommendation_id: string | null;
+            /** Regime */
+            regime: string | null;
+            /** Sku */
+            sku: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "in_progress" | "done";
+            /** Title */
+            title: string;
+        };
+        /** ActionPatch */
+        ActionPatch: {
+            /** Due Date */
+            due_date?: string | null;
+            /** Owner */
+            owner?: string | null;
+            /** Status */
+            status?: ("open" | "in_progress" | "done") | null;
+            /** Title */
+            title?: string | null;
+        };
         /** AdminInvite */
         AdminInvite: {
             /** Email */
@@ -1576,6 +1730,27 @@ export interface components {
             source_systems_needed: string[];
             /** Total Data Points Required */
             total_data_points_required: number;
+        };
+        /** ComponentHotspot */
+        ComponentHotspot: {
+            /** Component Id */
+            component_id: string;
+            /** Estimated */
+            estimated: boolean;
+            /** Fee */
+            fee: number;
+            /** Material */
+            material: string;
+            /** Name */
+            name: string;
+            /** Product Name */
+            product_name: string;
+            /** Share Pct */
+            share_pct: number;
+            /** Sku */
+            sku: string;
+            /** Why */
+            why: string;
         };
         /** ComponentIn */
         ComponentIn: {
@@ -2342,7 +2517,7 @@ export interface components {
             /** Jurisdiction */
             jurisdiction: string;
             /** Material Breakdown */
-            material_breakdown: components["schemas"]["MaterialHotspot"][];
+            material_breakdown: components["schemas"]["app__schemas__epr__MaterialHotspot"][];
             /** Reporting Year */
             reporting_year: number;
             /** Run Id */
@@ -2350,11 +2525,22 @@ export interface components {
             /** Tenant Id */
             tenant_id: string;
             /** Top Products */
-            top_products: components["schemas"]["ProductHotspot"][];
+            top_products: components["schemas"]["app__schemas__epr__ProductHotspot"][];
             /** Total Fee Eur */
             total_fee_eur: number;
             /** Total Tonnes */
             total_tonnes: number;
+        };
+        /** Hotspots */
+        Hotspots: {
+            /** Components */
+            components: components["schemas"]["ComponentHotspot"][];
+            /** Materials */
+            materials: components["schemas"]["app__api__v1__insights__MaterialHotspot"][];
+            /** Products */
+            products: components["schemas"]["app__api__v1__insights__ProductHotspot"][];
+            /** Top3 Share Pct */
+            top3_share_pct: number;
         };
         /** ImportCreate */
         ImportCreate: {
@@ -2489,6 +2675,22 @@ export interface components {
             status: string;
             /** Tenant Id */
             tenant_id: string;
+        };
+        /** Insights */
+        Insights: {
+            /** Currency */
+            currency: string;
+            hotspots: components["schemas"]["Hotspots"];
+            /** Name */
+            name: string;
+            /** Recommendations */
+            recommendations: components["schemas"]["Recommendation"][];
+            /** Regime */
+            regime: string;
+            /** Total Fee */
+            total_fee: number;
+            /** Year */
+            year: string | null;
         };
         /**
          * IssueSeverity
@@ -2849,19 +3051,6 @@ export interface components {
             /** Tonnes */
             tonnes: number;
         };
-        /** MaterialHotspot */
-        MaterialHotspot: {
-            /** Material */
-            material: string;
-            /** Percentage Of Fee */
-            percentage_of_fee: number;
-            /** Percentage Of Weight */
-            percentage_of_weight: number;
-            /** Total Fee Eur */
-            total_fee_eur: number;
-            /** Total Tonnes */
-            total_tonnes: number;
-        };
         /** MeMembership */
         MeMembership: {
             role: components["schemas"]["TenantRole"];
@@ -3183,21 +3372,6 @@ export interface components {
             /** Tonnes */
             tonnes: number;
         };
-        /** ProductHotspot */
-        ProductHotspot: {
-            /** Fee Per Thousand Units Eur */
-            fee_per_thousand_units_eur: number;
-            /** Name */
-            name: string;
-            /** Packaging Weight Tonnes */
-            packaging_weight_tonnes: number;
-            /** Sku */
-            sku: string;
-            /** Total Fee Eur */
-            total_fee_eur: number;
-            /** Units Sold */
-            units_sold: number;
-        };
         /** ProductOut */
         ProductOut: {
             /** Brand */
@@ -3341,6 +3515,36 @@ export interface components {
              */
             target_source_system: string;
         };
+        /** Recommendation */
+        Recommendation: {
+            /** Action Id */
+            action_id: string | null;
+            /** Component Id */
+            component_id: string;
+            /** Detail */
+            detail: string;
+            /**
+             * Effort
+             * @enum {string}
+             */
+            effort: "low" | "medium" | "high";
+            /** Id */
+            id: string;
+            /** Impact Label */
+            impact_label: string | null;
+            /** Impact Value */
+            impact_value: number | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "lightweight" | "recyclability" | "recycled_content" | "measure";
+            scenario: components["schemas"]["ScenarioChange"] | null;
+            /** Sku */
+            sku: string;
+            /** Title */
+            title: string;
+        };
         /** Regime */
         Regime: {
             /** Country */
@@ -3452,6 +3656,56 @@ export interface components {
             units_exported: number;
             /** Units Placed */
             units_placed: number;
+        };
+        /** ScenarioChange */
+        ScenarioChange: {
+            /** Component Id */
+            component_id: string;
+            /** Material */
+            material?: string | null;
+            /** Weight G */
+            weight_g?: string | null;
+        };
+        /** ScenarioLine */
+        ScenarioLine: {
+            /** After */
+            after: string;
+            /** Before */
+            before: string;
+            /** Component Id */
+            component_id: string;
+            /** Fee After */
+            fee_after: number;
+            /** Fee Before */
+            fee_before: number;
+            /** Name */
+            name: string;
+            /** Product Name */
+            product_name: string;
+        };
+        /** ScenarioRequest */
+        ScenarioRequest: {
+            /** Changes */
+            changes: components["schemas"]["ScenarioChange"][];
+            /** Year */
+            year?: string | null;
+        };
+        /** ScenarioResult */
+        ScenarioResult: {
+            /** Baseline Fee */
+            baseline_fee: number;
+            /** Currency */
+            currency: string;
+            /** Delta */
+            delta: number;
+            /** Delta Pct */
+            delta_pct: number;
+            /** Lines */
+            lines: components["schemas"]["ScenarioLine"][];
+            /** Scenario Fee */
+            scenario_fee: number;
+            /** Year */
+            year: string | null;
         };
         /** ScenarioSimulationRequest */
         ScenarioSimulationRequest: {
@@ -4146,6 +4400,32 @@ export interface components {
             /** Required */
             required: boolean;
         };
+        /** MaterialHotspot */
+        app__api__v1__insights__MaterialHotspot: {
+            /** Code */
+            code: string;
+            /** Fee */
+            fee: number;
+            /** Name */
+            name: string;
+            /** Share Pct */
+            share_pct: number;
+            /** Why */
+            why: string;
+        };
+        /** ProductHotspot */
+        app__api__v1__insights__ProductHotspot: {
+            /** Fee */
+            fee: number;
+            /** Main Material */
+            main_material: string | null;
+            /** Name */
+            name: string;
+            /** Share Pct */
+            share_pct: number;
+            /** Sku */
+            sku: string;
+        };
         /** TariffRate */
         app__schemas__configuration__TariffRate: {
             /**
@@ -4211,6 +4491,34 @@ export interface components {
              */
             unit: string;
         };
+        /** MaterialHotspot */
+        app__schemas__epr__MaterialHotspot: {
+            /** Material */
+            material: string;
+            /** Percentage Of Fee */
+            percentage_of_fee: number;
+            /** Percentage Of Weight */
+            percentage_of_weight: number;
+            /** Total Fee Eur */
+            total_fee_eur: number;
+            /** Total Tonnes */
+            total_tonnes: number;
+        };
+        /** ProductHotspot */
+        app__schemas__epr__ProductHotspot: {
+            /** Fee Per Thousand Units Eur */
+            fee_per_thousand_units_eur: number;
+            /** Name */
+            name: string;
+            /** Packaging Weight Tonnes */
+            packaging_weight_tonnes: number;
+            /** Sku */
+            sku: string;
+            /** Total Fee Eur */
+            total_fee_eur: number;
+            /** Units Sold */
+            units_sold: number;
+        };
         /** TariffRate */
         app__schemas__epr__TariffRate: {
             /**
@@ -4250,6 +4558,112 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    list_actions_api_v1_actions_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActionOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_action_api_v1_actions_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActionCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_action_api_v1_actions__action_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                action_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActionPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_dictionary_api_v1_admin_data_points_get: {
         parameters: {
             query?: never;
@@ -6485,6 +6899,80 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EprResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_insights_api_v1_modules_epr__regime__insights_get: {
+        parameters: {
+            query?: {
+                year?: string | null;
+            };
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                regime: "epr_uk" | "epr_dk" | "sb54_ca";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Insights"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_scenario_api_v1_modules_epr__regime__scenario_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                regime: "epr_uk" | "epr_dk" | "sb54_ca";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScenarioRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioResult"];
                 };
             };
             /** @description Validation Error */

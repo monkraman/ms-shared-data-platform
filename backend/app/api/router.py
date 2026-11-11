@@ -14,6 +14,7 @@ from app.api.v1 import (
     gaps,
     health,
     imports,
+    insights,
     jobs,
     products,
     quality,
@@ -49,6 +50,9 @@ api_router.include_router(data_sources.router)
 
 # Screens 12-13 (first part): EPR results and PPWR declarations on real data
 api_router.include_router(compliance.router)
+
+# Screen 14 (first part): hotspots, recommendations, scenarios, action items
+api_router.include_router(insights.router)
 
 # Layer 1: Canonical Shared Data Foundation
 api_router.include_router(foundation.router)

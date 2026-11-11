@@ -90,6 +90,18 @@ export const NAV: NavGroup[] = [
         permission: 'compliance.read',
         icon: 'M8 1.5 13.5 3.5v4c0 3.3-2.3 5.8-5.5 7-3.2-1.2-5.5-3.7-5.5-7v-4zM5.5 8.5h5M5.5 6h5M5.5 11h3',
       },
+      {
+        label: 'Hotspots and scenarios',
+        path: '/app/insights',
+        permission: 'compliance.read',
+        icon: 'M8 14.5c2.8 0 4.5-1.9 4.5-4.3 0-2.7-2.2-3.9-2.6-6.7-1.5 1-2.3 2.4-2.3 3.9-.8-.6-1.3-1.5-1.4-2.6C4.6 6.1 3.5 7.8 3.5 10.2c0 2.4 1.7 4.3 4.5 4.3z',
+      },
+      {
+        label: 'Actions',
+        path: '/app/actions',
+        permission: 'compliance.read',
+        icon: 'M3 3.5h10v9H3zM5.5 6.5l1.2 1.2 2.3-2.3M5.5 10h5',
+      },
     ],
   },
 ];

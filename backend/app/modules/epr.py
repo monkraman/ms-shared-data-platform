@@ -51,7 +51,15 @@ def years(products: list[Product]) -> list[str]:
     return sorted({_v(s.fields, "period") for p in products for s in p.sales if _v(s.fields, "period")}, reverse=True)
 
 
-def calculate(regime_id: str, products: list[Product], year: str | None) -> dict[str, Any]:
+def calculate(
+    regime_id: str,
+    products: list[Product],
+    year: str | None,
+    overrides: dict[str, dict[str, str]] | None = None,
+) -> dict[str, Any]:
+    """The regime's fees for a year. ``overrides`` (component code → {"weight_g", "material"})
+    replace stored values without saving them: that is how scenarios are calculated."""
+    overrides = overrides or {}
     regime = regimes()[regime_id]
     rates: dict[str, float] = regime["rates"]
     names: dict[str, str] = reference()["materials"]
@@ -62,6 +70,7 @@ def calculate(regime_id: str, products: list[Product], year: str | None) -> dict
     tonnes: dict[str, float] = defaultdict(float)  # all packaging placed, by material
     fee_tonnes: dict[str, float] = defaultdict(float)  # in scope for fees, by material
     by_product: list[dict[str, Any]] = []
+    by_component: list[dict[str, Any]] = []
     missing_weight = estimated = components = without_sales = 0
 
     for p in products:
@@ -72,23 +81,49 @@ def calculate(regime_id: str, products: list[Product], year: str | None) -> dict
         p_materials: dict[str, float] = defaultdict(float)
         for c in p.components:
             components += 1
-            weight = _num(_v(c.fields, "weight_g"))
-            code = material_code(_v(c.fields, "material"))
+            change = overrides.get(c.code, {})
+            weight = _num(change.get("weight_g") or _v(c.fields, "weight_g"))
+            material = change.get("material") or _v(c.fields, "material")
+            code = material_code(material)
             if weight is None or code is None:
                 missing_weight += 1
                 continue
             if _v(c.fields, "weight_source") in ESTIMATED_SOURCES:
                 estimated += 1
             per_unit_g = weight / (_num(_v(c.fields, "units_per_pack")) or 1)
+            c_tonnes = c_fee = c_units = 0.0
             for s in lines:
                 units = max((_num(_v(s.fields, "units_placed")) or 0) - (_num(_v(s.fields, "units_exported")) or 0), 0)
                 t = units * per_unit_g / 1_000_000
                 tonnes[code] += t
                 p_tonnes += t
                 p_materials[code] += t
+                c_tonnes += t
                 if _v(s.fields, "channel") in fee_channels:
                     fee_tonnes[code] += t
                     p_fee += t * rates.get(code, rates["OT"])
+                    c_fee += t * rates.get(code, rates["OT"])
+                    c_units += units
+            by_component.append(
+                {
+                    "sku": p.sku,
+                    "product_name": _v(p.fields, "product_name") or p.sku,
+                    "component_id": c.code,
+                    "name": _v(c.fields, "component_name"),
+                    "level": _v(c.fields, "packaging_level"),
+                    "material": material,
+                    "material_code": code,
+                    "weight_g": weight,
+                    "per_unit_g": per_unit_g,
+                    "fee_units": c_units,
+                    "tonnes": c_tonnes,
+                    "fee": c_fee,
+                    "rate": rates.get(code, rates["OT"]),
+                    "estimated": _v(c.fields, "weight_source") in ESTIMATED_SOURCES,
+                    "recyclability": _v(c.fields, "recyclability_result"),
+                    "recycled_content_pct": _num(_v(c.fields, "recycled_content_pct")),
+                }
+            )
         main = max(p_materials, key=p_materials.get) if p_materials else None
         by_product.append(
             {
@@ -128,6 +163,7 @@ def calculate(regime_id: str, products: list[Product], year: str | None) -> dict
         "products": len(products),
         "by_material": by_material,
         "by_product": sorted(by_product, key=lambda r: -r["fee"]),
+        "by_component": sorted(by_component, key=lambda r: -r["fee"]),
         "data_quality": {
             "components": components,
             "missing_weight_or_material": missing_weight,

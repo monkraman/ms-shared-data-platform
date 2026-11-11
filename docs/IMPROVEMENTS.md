@@ -4,6 +4,9 @@ Things we chose to ship without, so they are not forgotten. Newest first. When o
 
 | Area | Improvement | Why it waits | Where |
 | --- | --- | --- | --- |
+| Insights | Save and name scenarios; compare several; scenario changes that also change PPWR results | First version recalculates EPR only, unsaved | `app/api/v1/insights.py` |
+| Insights | Recommendations from more rules (material switch with rates, down-gauging films, removing secondary packaging) and per-client tuning | Rule set is small on purpose | `app/modules/insights.py` |
+| Actions | Assign owners from the user list, reminders and email when due | Email service not chosen | `screens/actions` |
 | Gaps | More estimation methods: by product family, by supplier, from similar SKUs' volume; confidence per estimate; undo a fill | First version averages same material and level | `app/quality/estimates.py` |
 | Compliance | Real EPR Denmark and SB 54 rates (placeholders today); a Tariffs screen to edit rates per year (screen 11) | Rates come from the client's PRO and CalRecycle | `app/modules/reference/regimes.json` |
 | Compliance | UK RAM modulation (red/amber/green) and non-household rules | Needs recyclability assessments per component | `app/modules/epr.py` |
