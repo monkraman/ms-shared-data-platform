@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { TenantApiService } from '../../core/services/tenant-api.service';
@@ -16,6 +16,7 @@ import { TenantApiService } from '../../core/services/tenant-api.service';
 export class SignInComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
   private readonly tenantService = inject(TenantApiService);
   readonly themeService = inject(ThemeService);
@@ -63,15 +64,18 @@ export class SignInComponent {
 
     const role = await this.authService.login(email, password);
 
-    if (role === 'superadmin') {
-      this.router.navigate(['/admin']);
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (role && returnUrl?.startsWith('/app')) {
+      this.router.navigateByUrl(returnUrl);
+    } else if (role === 'superadmin') {
+      this.router.navigate(['/app/workspaces']);
     } else if (role === 'client') {
       // Set active workspace to client's assigned tenant
       const user = this.authService.currentUser();
       if (user?.organisationSlug) {
         this.tenantService.setActiveTenant(user.organisationSlug);
       }
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/app/products']);
     } else {
       this.errorMessage.set('Invalid work credentials. Please check your email and password.');
     }

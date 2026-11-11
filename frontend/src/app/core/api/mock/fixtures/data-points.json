@@ -1,0 +1,1176 @@
+{
+ "data_points": [
+  {
+   "code": "DP01",
+   "name": "Article / SKU number",
+   "description": "Unique product code that every packaging record links to.",
+   "source": "erp",
+   "system_field": "SAP material master · MARA-MATNR",
+   "outputs": [
+    "evid",
+    "doc",
+    "dpp"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2026"
+  },
+  {
+   "code": "DP02",
+   "name": "GTIN / barcode",
+   "description": "Global trade item number, used to match the product across systems and on the data carrier.",
+   "source": "erp",
+   "system_field": "SAP material master · MARA-EAN11",
+   "outputs": [
+    "doc",
+    "lab",
+    "dpp"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2026"
+  },
+  {
+   "code": "DP03",
+   "name": "Packaging component list",
+   "description": "Every component of the pack: bottle, closure, label, carton, case, film.",
+   "source": "erp",
+   "system_field": "SAP bill of materials · STKO / STPO",
+   "outputs": [
+    "rep",
+    "fee",
+    "doc"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2026"
+  },
+  {
+   "code": "DP04",
+   "name": "Packaging level",
+   "description": "Whether each component is primary, secondary or transit packaging.",
+   "source": "plm",
+   "system_field": "PLM component attribute · level",
+   "outputs": [
+    "rep",
+    "fee"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP05",
+   "name": "Units per pack",
+   "description": "How many sales units share a secondary or transit component.",
+   "source": "erp",
+   "system_field": "SAP BOM quantity · STPO-MENGE",
+   "outputs": [
+    "rep",
+    "fee"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP06",
+   "name": "Component material",
+   "description": "Main material of each component (glass, aluminium, paper/board, plastic, steel, wood, other).",
+   "source": "plm",
+   "system_field": "PLM spec · material class",
+   "outputs": [
+    "rep",
+    "fee",
+    "doc",
+    "lab",
+    "dpp"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2026"
+  },
+  {
+   "code": "DP07",
+   "name": "Polymer type",
+   "description": "Plastic type for plastic components (PET, HDPE, PP, LDPE).",
+   "source": "supplier",
+   "system_field": "Supplier declaration · polymer",
+   "outputs": [
+    "rep",
+    "fee",
+    "lab",
+    "dpp"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2028"
+  },
+  {
+   "code": "DP08",
+   "name": "Multi-material split",
+   "description": "Share of each material in composite components, by weight.",
+   "source": "supplier",
+   "system_field": "Supplier declaration · composition %",
+   "outputs": [
+    "rep",
+    "fee",
+    "doc",
+    "dpp"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2026"
+  },
+  {
+   "code": "DP09",
+   "name": "Component weight (empty)",
+   "description": "Weight of each empty component in grams.",
+   "source": "plm",
+   "system_field": "PLM spec · net weight (g)",
+   "outputs": [
+    "rep",
+    "fee",
+    "doc"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2026"
+  },
+  {
+   "code": "DP10",
+   "name": "Colour and opacity",
+   "description": "Colour and opacity of each component, which affect sorting and recycling.",
+   "source": "supplier",
+   "system_field": "Supplier declaration · colour",
+   "outputs": [
+    "fee",
+    "doc"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "2030"
+  },
+  {
+   "code": "DP11",
+   "name": "Additives, inks and adhesives",
+   "description": "Additives, inks, coatings and adhesives that can disrupt recycling.",
+   "source": "supplier",
+   "system_field": "Supplier declaration · additives",
+   "outputs": [
+    "fee",
+    "doc"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "2030"
+  },
+  {
+   "code": "DP12",
+   "name": "Recyclability result",
+   "description": "Result of the recyclability assessment for each component.",
+   "source": "supplier",
+   "system_field": "Assessment record · result",
+   "outputs": [
+    "fee",
+    "doc",
+    "dpp"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "2030"
+  },
+  {
+   "code": "DP13",
+   "name": "Recycled content %",
+   "description": "Share of recycled material in each component.",
+   "source": "supplier",
+   "system_field": "Supplier declaration · recycled %",
+   "outputs": [
+    "fee",
+    "doc",
+    "dpp"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "2030"
+  },
+  {
+   "code": "DP14",
+   "name": "Recycled content certificate",
+   "description": "Chain-of-custody evidence for the recycled content claimed.",
+   "source": "supplier",
+   "system_field": "Certificate · ISCC PLUS or equivalent",
+   "outputs": [
+    "fee",
+    "doc",
+    "evid",
+    "dpp"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "2030"
+  },
+  {
+   "code": "DP15",
+   "name": "Reusable or single-use",
+   "description": "Whether the packaging is designed to be reused.",
+   "source": "plm",
+   "system_field": "PLM spec · reuse flag",
+   "outputs": [
+    "rep",
+    "fee",
+    "doc",
+    "lab",
+    "dpp"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2026"
+  },
+  {
+   "code": "DP16",
+   "name": "Food-contact packaging",
+   "description": "Whether the component is in contact with the product.",
+   "source": "plm",
+   "system_field": "PLM spec · food contact",
+   "outputs": [
+    "doc"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2026"
+  },
+  {
+   "code": "DP17",
+   "name": "PFAS declaration",
+   "description": "Supplier confirmation that food-contact components meet the PFAS limits.",
+   "source": "supplier",
+   "system_field": "Supplier declaration · PFAS",
+   "outputs": [
+    "doc"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2026"
+  },
+  {
+   "code": "DP18",
+   "name": "Heavy metals",
+   "description": "Combined lead, cadmium, mercury and hexavalent chromium content.",
+   "source": "supplier",
+   "system_field": "Test report · mg/kg",
+   "outputs": [
+    "doc"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2026"
+  },
+  {
+   "code": "DP19",
+   "name": "Substances of concern",
+   "description": "Screening for substances of concern in each component.",
+   "source": "supplier",
+   "system_field": "Supplier declaration · SVHC screening",
+   "outputs": [
+    "doc",
+    "dpp"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2026"
+  },
+  {
+   "code": "DP20",
+   "name": "Minimisation evidence",
+   "description": "Why the pack cannot be lighter or smaller (functional constraints).",
+   "source": "plm",
+   "system_field": "Design record · minimisation assessment",
+   "outputs": [
+    "doc"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2026"
+  },
+  {
+   "code": "DP21",
+   "name": "Empty space ratio",
+   "description": "Empty space in grouped, transport and e-commerce packaging.",
+   "source": "plm",
+   "system_field": "PLM spec · volume data",
+   "outputs": [
+    "doc"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "2030"
+  },
+  {
+   "code": "DP22",
+   "name": "Units placed on the market",
+   "description": "Number of sales units supplied in the country during the period.",
+   "source": "erp",
+   "system_field": "SAP billing · VBRP quantity by country",
+   "outputs": [
+    "rep",
+    "fee"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP23",
+   "name": "Sales channel",
+   "description": "Whether units go to households (retail) or businesses (on-trade).",
+   "source": "erp",
+   "system_field": "SAP customer group · KNVV-KDGRP",
+   "outputs": [
+    "rep",
+    "fee"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP24",
+   "name": "Delivery nation",
+   "description": "England, Scotland, Wales or Northern Ireland.",
+   "source": "erp",
+   "system_field": "SAP delivery · ship-to region",
+   "outputs": [
+    "rep"
+   ],
+   "countries": [
+    "UK"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP25",
+   "name": "Exports out of the country",
+   "description": "Units shipped out of the country, which are removed from the obligation.",
+   "source": "erp",
+   "system_field": "SAP delivery · destination country",
+   "outputs": [
+    "rep",
+    "fee"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP26",
+   "name": "Deposit scheme status",
+   "description": "Whether the drinks container is in a deposit return scheme.",
+   "source": "man",
+   "system_field": "Manual · scheme flag",
+   "outputs": [
+    "rep",
+    "fee"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP27",
+   "name": "Import country of origin",
+   "description": "Country the packaged product was imported from.",
+   "source": "erp",
+   "system_field": "SAP purchasing · vendor country",
+   "outputs": [
+    "rep"
+   ],
+   "countries": [
+    "UK"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP28",
+   "name": "Producer role",
+   "description": "Brand owner, packer/filler or importer for each product.",
+   "source": "man",
+   "system_field": "Manual · legal entity and role",
+   "outputs": [
+    "rep",
+    "doc",
+    "dpp"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2026"
+  },
+  {
+   "code": "DP29",
+   "name": "EPR registration number",
+   "description": "The producer's registration number in the national register.",
+   "source": "man",
+   "system_field": "Manual · registration record",
+   "outputs": [
+    "rep",
+    "lab"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2028"
+  },
+  {
+   "code": "DP30",
+   "name": "Compliance scheme membership",
+   "description": "The scheme or PRO the producer belongs to in the country.",
+   "source": "man",
+   "system_field": "Manual · contract record",
+   "outputs": [
+    "rep",
+    "fee"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP31",
+   "name": "Authorised representative",
+   "description": "EU representative for EPR where the producer is not established in the country.",
+   "source": "man",
+   "system_field": "Manual · appointment record",
+   "outputs": [
+    "rep",
+    "doc"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2026"
+  },
+  {
+   "code": "DP32",
+   "name": "Organisation size and thresholds",
+   "description": "Turnover and tonnage that decide which obligations apply.",
+   "source": "man",
+   "system_field": "Finance · turnover and tonnage",
+   "outputs": [
+    "rep",
+    "fee"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP33",
+   "name": "Reporting period",
+   "description": "The period the report covers.",
+   "source": "man",
+   "system_field": "Manual · period",
+   "outputs": [
+    "rep"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP34",
+   "name": "Declaration of Completeness",
+   "description": "Annual declaration audited by an approved expert, if thresholds are exceeded.",
+   "source": "man",
+   "system_field": "Manual · auditor report",
+   "outputs": [
+    "rep"
+   ],
+   "countries": [
+    "DE"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP35",
+   "name": "Triman logo and Info-tri",
+   "description": "French sorting logo and sorting instructions on the pack.",
+   "source": "plm",
+   "system_field": "Artwork · label elements",
+   "outputs": [
+    "lab"
+   ],
+   "countries": [
+    "FR"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP36",
+   "name": "Environmental label codes",
+   "description": "Material identification codes and sorting information on the pack.",
+   "source": "plm",
+   "system_field": "Artwork · label elements",
+   "outputs": [
+    "lab"
+   ],
+   "countries": [
+    "IT"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP37",
+   "name": "CONAI plastic band",
+   "description": "Contribution band for plastic packaging, based on sortability and recyclability.",
+   "source": "man",
+   "system_field": "Manual · CONAI classification",
+   "outputs": [
+    "fee"
+   ],
+   "countries": [
+    "IT"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP38",
+   "name": "Non-recycled plastic weight",
+   "description": "Weight of non-recycled plastic, used for the Spanish plastic tax.",
+   "source": "supplier",
+   "system_field": "Supplier declaration · virgin plastic (kg)",
+   "outputs": [
+    "fee",
+    "evid"
+   ],
+   "countries": [
+    "ES"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP39",
+   "name": "Harmonised material label",
+   "description": "EU label showing material composition and sorting.",
+   "source": "plm",
+   "system_field": "Artwork · label elements",
+   "outputs": [
+    "lab"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2028"
+  },
+  {
+   "code": "DP40",
+   "name": "QR code / data carrier",
+   "description": "Digital information linked from the pack.",
+   "source": "plm",
+   "system_field": "Artwork · data carrier content",
+   "outputs": [
+    "lab",
+    "doc",
+    "dpp"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2028"
+  },
+  {
+   "code": "DP41",
+   "name": "DoC reference and version",
+   "description": "Reference of the Declaration of Conformity for the packaging.",
+   "source": "man",
+   "system_field": "DoC record · reference",
+   "outputs": [
+    "doc",
+    "dpp"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2026"
+  },
+  {
+   "code": "DP42",
+   "name": "Technical file references",
+   "description": "Test reports, certificates and assessments behind the DoC.",
+   "source": "supplier",
+   "system_field": "Technical file · references",
+   "outputs": [
+    "doc"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2026"
+  },
+  {
+   "code": "DP43",
+   "name": "Supplier per component",
+   "description": "The supplier of each packaging component.",
+   "source": "erp",
+   "system_field": "SAP purchasing info record · EINA-LIFNR",
+   "outputs": [
+    "evid",
+    "doc",
+    "dpp"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2026"
+  },
+  {
+   "code": "DP44",
+   "name": "Weight source and sampling",
+   "description": "Whether each weight was measured, supplier-provided or estimated, with sampling records.",
+   "source": "plm",
+   "system_field": "PLM / lab record · weight source",
+   "outputs": [
+    "evid"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP45",
+   "name": "Sign-off owner",
+   "description": "Named person who approves each submission.",
+   "source": "man",
+   "system_field": "Manual · approver",
+   "outputs": [
+    "rep",
+    "evid"
+   ],
+   "countries": [
+    "UK",
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP46",
+   "name": "Unique product identifier",
+   "description": "Unique ID that links the product to its passport, for example a GS1 Digital Link built from the GTIN with batch or serial number.",
+   "source": "erp",
+   "system_field": "SAP material and batch · MARA-MATNR / MCH1-CHARG",
+   "outputs": [
+    "dpp"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP47",
+   "name": "Economic operator identifier",
+   "description": "Unique ID of the company placing the product on the EU market (for example EORI or GLN).",
+   "source": "man",
+   "system_field": "Manual · operator ID record",
+   "outputs": [
+    "dpp"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP48",
+   "name": "Facility identifier",
+   "description": "Unique ID of the site where the product is filled and packed (for example GLN).",
+   "source": "erp",
+   "system_field": "SAP plant · T001W-WERKS",
+   "outputs": [
+    "dpp"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP49",
+   "name": "Passport level",
+   "description": "Whether one passport covers a model, a batch or each single item.",
+   "source": "man",
+   "system_field": "Manual · passport level",
+   "outputs": [
+    "dpp"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP50",
+   "name": "Carbon footprint",
+   "description": "Carbon footprint per unit, if the delegated act asks for it.",
+   "source": "supplier",
+   "system_field": "LCA study · kg CO2e per unit",
+   "outputs": [
+    "dpp"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP51",
+   "name": "End-of-life information",
+   "description": "Instructions for reuse, collection and recycling shown to the consumer.",
+   "source": "plm",
+   "system_field": "Artwork / content · end-of-life text",
+   "outputs": [
+    "dpp"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP52",
+   "name": "Commodity code",
+   "description": "Customs code (HS / CN) of the product.",
+   "source": "erp",
+   "system_field": "SAP material · MARC-STAWN",
+   "outputs": [
+    "dpp"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP53",
+   "name": "Passport hosting and access",
+   "description": "Who hosts the passport data, the backup copy, and which information is public or restricted.",
+   "source": "man",
+   "system_field": "Manual · hosting and access record",
+   "outputs": [
+    "dpp"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP54",
+   "name": "DPP registry entry",
+   "description": "Registration of the product identifier in the EU passport registry.",
+   "source": "man",
+   "system_field": "Manual · registry record",
+   "outputs": [
+    "dpp"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": null
+  },
+  {
+   "code": "DP55",
+   "name": "DoC manufacturer and signatory",
+   "description": "The manufacturer responsible for the Declaration of Conformity (usually the brand owner) and the person authorised to sign it for them.",
+   "source": "man",
+   "system_field": "DoC record · manufacturer, signatory and role",
+   "outputs": [
+    "doc"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2026"
+  },
+  {
+   "code": "DP56",
+   "name": "Document retention period",
+   "description": "How long the DoC and technical file must be kept: 5 years after single-use packaging was last placed on the market, 10 years for reusable packaging.",
+   "source": "man",
+   "system_field": "DoC record · retention until",
+   "outputs": [
+    "doc",
+    "evid"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "applies_from": "12 Aug 2026"
+  }
+ ],
+ "sources": {
+  "erp": "ERP · SAP S/4HANA",
+  "supplier": "Supplier",
+  "plm": "PLM · packaging specs",
+  "man": "Manual · client team"
+ },
+ "outputs": {
+  "rep": {
+   "name": "National EPR report",
+   "regulation": "EPR"
+  },
+  "fee": {
+   "name": "EPR fee / eco-modulation",
+   "regulation": "EPR"
+  },
+  "doc": {
+   "name": "PPWR DoC and technical file",
+   "regulation": "PPWR"
+  },
+  "lab": {
+   "name": "PPWR labelling",
+   "regulation": "PPWR"
+  },
+  "evid": {
+   "name": "Evidence and audit file",
+   "regulation": "EPR"
+  },
+  "dpp": {
+   "name": "Digital Product Passport",
+   "regulation": "DPP"
+  }
+ },
+ "countries": [
+  {
+   "code": "UK",
+   "name": "United Kingdom",
+   "eu": false
+  },
+  {
+   "code": "DE",
+   "name": "Germany",
+   "eu": true
+  },
+  {
+   "code": "FR",
+   "name": "France",
+   "eu": true
+  },
+  {
+   "code": "ES",
+   "name": "Spain",
+   "eu": true
+  },
+  {
+   "code": "IT",
+   "name": "Italy",
+   "eu": true
+  },
+  {
+   "code": "DK",
+   "name": "Denmark",
+   "eu": true
+  },
+  {
+   "code": "NL",
+   "name": "Netherlands",
+   "eu": true
+  }
+ ]
+}

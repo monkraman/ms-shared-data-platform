@@ -1,29 +1,38 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
-import { NAV_ITEMS } from '../../core/navigation/nav-items';
+import { NAV } from '../../core/navigation/nav-items';
+import { AuthService } from '../../core/services/auth.service';
 import { SessionService } from '../../core/session/session.service';
 import { ToastOutletComponent } from '../../shared/ui';
 
-/** Layout for platform screens: sidebar (workspace, navigation, user) and the page. */
+/** Layout for platform screens: grouped sidebar, top bar with product search, and the page. */
 @Component({
   selector: 'app-shell',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterOutlet, RouterLink, RouterLinkActive, ToastOutletComponent],
+  host: { class: 'platform' },
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.css',
 })
 export class AppShellComponent {
   protected readonly session = inject(SessionService);
+  private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
   protected readonly menuOpen = signal(false);
-  protected readonly nav = computed(() => NAV_ITEMS.filter((item) => this.session.can(item.permission)));
-  protected readonly initials = computed(() => initialsOf(this.session.me()?.user.full_name ?? ''));
+  protected readonly nav = computed(() =>
+    NAV.map((g) => ({ ...g, items: g.items.filter((i) => this.session.can(i.permission)) })).filter(
+      (g) => g.items.length,
+    ),
+  );
+  protected readonly name = computed(() => this.session.me()?.user.full_name ?? '');
+  protected readonly initials = computed(() => initialsOf(this.name()));
+  protected readonly role = computed(() => (this.session.me()?.user.is_platform_admin ? 'Platform admin' : 'Org admin'));
+  protected readonly canSearch = computed(() => this.session.can('products.read'));
 
   constructor() {
-    // Close the mobile menu after navigating.
     this.router.events
       .pipe(
         filter((e) => e instanceof NavigationEnd),
@@ -32,8 +41,12 @@ export class AppShellComponent {
       .subscribe(() => this.menuOpen.set(false));
   }
 
+  protected search(q: string): void {
+    void this.router.navigate(['/app/products'], { queryParams: q.trim() ? { q: q.trim() } : {} });
+  }
+
   protected signOut(): void {
-    this.session.clear();
+    this.auth.logout();
     void this.router.navigate(['/sign-in']);
   }
 }

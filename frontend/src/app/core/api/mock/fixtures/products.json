@@ -1,0 +1,3621 @@
+{
+ "company": "HienzLookAlike Foods ApS",
+ "market": "DK",
+ "products": [
+  {
+   "sku": "HLA-KET-460",
+   "fields": {
+    "product_name": {
+     "dp": null,
+     "value": "Classic Tomato Ketchup 460g squeezy"
+    },
+    "brand": {
+     "dp": null,
+     "value": "HLA Classic"
+    },
+    "gtin": {
+     "dp": "DP02",
+     "value": "5790001000011"
+    },
+    "container_volume_ml": {
+     "dp": "DP26",
+     "value": "460"
+    },
+    "reusable": {
+     "dp": "DP15",
+     "value": "No"
+    },
+    "minimisation_assessment_ref": {
+     "dp": "DP20",
+     "value": "MIN-KET-460-v1"
+    },
+    "empty_space_ratio_pct": {
+     "dp": "DP21",
+     "value": "14"
+    },
+    "doc_reference": {
+     "dp": "DP41",
+     "value": "DOC-HLA-KET-460"
+    },
+    "doc_version": {
+     "dp": "DP41",
+     "value": "v1"
+    },
+    "technical_file_refs": {
+     "dp": "DP42",
+     "value": "TR-PP-001;PFAS-CP-001;RA-KET-460"
+    },
+    "doc_manufacturer": {
+     "dp": "DP55",
+     "value": "HienzLookAlike Foods ApS"
+    },
+    "doc_signatory": {
+     "dp": "DP55",
+     "value": "Line Andersen, Head of Packaging Compliance"
+    },
+    "doc_issue_date": {
+     "dp": "DP55",
+     "value": "2026-08-10"
+    },
+    "retention_until": {
+     "dp": "DP56",
+     "value": "2031-12-31"
+    },
+    "harmonised_label_status": {
+     "dp": "DP39",
+     "value": "Planned"
+    },
+    "data_carrier_url": {
+     "dp": "DP40",
+     "value": "https://id.example.com/01/05790001000011"
+    },
+    "drs_status": {
+     "dp": "DP26",
+     "value": "Not in scheme"
+    }
+   },
+   "components": [
+    {
+     "id": "HLA-KET-460-01",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Squeezy bottle (multilayer)"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Plastic"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "PP"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "PP 95; EVOH 5"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "26"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Measured"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Clear"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "EVOH barrier layer"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Limited"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "0"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "n/a"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "Yes"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "PFAS-BT-001"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "2"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-BT-001"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-PLAST-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-KET-460-02",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Flip-top cap"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Plastic"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "PP"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "5"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Supplier"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Red"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "0"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "n/a"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "Yes"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "PFAS-CP-001"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "1"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-CP-001"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-CLOS-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-KET-460-03",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Wrap-around label"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Plastic"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "PP"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "1.2"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Spec"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Printed"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "Solvent ink"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "0"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "n/a"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "No"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "3"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-LB-010"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-LABEL-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-KET-460-04",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "12-bottle shelf tray"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Transit"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "12"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Paper/board"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "180"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Measured"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Brown"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "85"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "FSC-2026-101"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "No"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "2"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-TR-001"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-BOARD-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-KET-460-05",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Tray shrink film"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Transit"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "12"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Plastic"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "LDPE"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "25"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Supplier"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Clear"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "30"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "CERT-PE-2026-11"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "No"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "1"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-SF-001"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-FILM-01"
+      }
+     }
+    }
+   ],
+   "sales": [
+    {
+     "id": "HLA-KET-460-S1",
+     "fields": {
+      "period": {
+       "dp": "DP33",
+       "value": "2026"
+      },
+      "channel": {
+       "dp": "DP23",
+       "value": "Household"
+      },
+      "units_placed": {
+       "dp": "DP22",
+       "value": "1850000"
+      },
+      "units_exported": {
+       "dp": "DP25",
+       "value": "120000"
+      }
+     }
+    },
+    {
+     "id": "HLA-KET-460-S2",
+     "fields": {
+      "period": {
+       "dp": "DP33",
+       "value": "2026"
+      },
+      "channel": {
+       "dp": "DP23",
+       "value": "Non-household"
+      },
+      "units_placed": {
+       "dp": "DP22",
+       "value": "240000"
+      },
+      "units_exported": {
+       "dp": "DP25",
+       "value": "0"
+      }
+     }
+    }
+   ],
+   "passport": {
+    "unique_product_id": {
+     "dp": "DP46",
+     "value": "https://id.example.com/01/05790001000011/10/L2611"
+    },
+    "passport_level": {
+     "dp": "DP49",
+     "value": "Batch"
+    },
+    "facility_id": {
+     "dp": "DP48",
+     "value": "5790000000025"
+    },
+    "commodity_code": {
+     "dp": "DP52",
+     "value": "21032000"
+    },
+    "carbon_footprint_kgco2e": {
+     "dp": "DP50",
+     "value": "0.62"
+    },
+    "end_of_life_info": {
+     "dp": "DP51",
+     "value": "Empty, then put in plastic collection."
+    },
+    "passport_host": {
+     "dp": "DP53",
+     "value": "Not decided"
+    },
+    "public_fields": {
+     "dp": "DP53",
+     "value": "Material, recycled content, end-of-life"
+    },
+    "registry_id": {
+     "dp": "DP54",
+     "value": ""
+    }
+   }
+  },
+  {
+   "sku": "HLA-KET-700",
+   "fields": {
+    "product_name": {
+     "dp": null,
+     "value": "Classic Tomato Ketchup 700g squeezy"
+    },
+    "brand": {
+     "dp": null,
+     "value": "HLA Classic"
+    },
+    "gtin": {
+     "dp": "DP02",
+     "value": "5790001000080"
+    },
+    "container_volume_ml": {
+     "dp": "DP26",
+     "value": "700"
+    },
+    "reusable": {
+     "dp": "DP15",
+     "value": "No"
+    },
+    "minimisation_assessment_ref": {
+     "dp": "DP20",
+     "value": "MIN-KET-700-v1"
+    },
+    "empty_space_ratio_pct": {
+     "dp": "DP21",
+     "value": "13"
+    },
+    "doc_reference": {
+     "dp": "DP41",
+     "value": "DOC-HLA-KET-460"
+    },
+    "doc_version": {
+     "dp": "DP41",
+     "value": "v1"
+    },
+    "technical_file_refs": {
+     "dp": "DP42",
+     "value": "TR-PP-001;PFAS-CP-001;RA-KET-460"
+    },
+    "doc_manufacturer": {
+     "dp": "DP55",
+     "value": "HienzLookAlike Foods ApS"
+    },
+    "doc_signatory": {
+     "dp": "DP55",
+     "value": "Line Andersen, Head of Packaging Compliance"
+    },
+    "doc_issue_date": {
+     "dp": "DP55",
+     "value": "2026-08-10"
+    },
+    "retention_until": {
+     "dp": "DP56",
+     "value": "2031-12-31"
+    },
+    "harmonised_label_status": {
+     "dp": "DP39",
+     "value": "Planned"
+    },
+    "data_carrier_url": {
+     "dp": "DP40",
+     "value": "https://id.example.com/01/05790001000080"
+    },
+    "drs_status": {
+     "dp": "DP26",
+     "value": "Not in scheme"
+    }
+   },
+   "components": [
+    {
+     "id": "HLA-KET-700-01",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Squeezy bottle (multilayer)"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Plastic"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "PP"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "PP 95; EVOH 5"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "34"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Measured"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Clear"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "EVOH barrier layer"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Limited"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "0"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "n/a"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "Yes"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "PFAS-BT-001"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "2"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-BT-001"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-PLAST-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-KET-700-02",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Flip-top cap"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Plastic"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "PP"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "5"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Supplier"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Red"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "0"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "n/a"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "Yes"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "PFAS-CP-001"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "1"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-CP-001"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-CLOS-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-KET-700-03",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Wrap-around label"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Plastic"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "PP"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "1.6"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Spec"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Printed"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "Solvent ink"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "0"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "n/a"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "No"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "3"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-LB-010"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-LABEL-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-KET-700-04",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "12-bottle shelf tray"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Transit"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "12"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Paper/board"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "210"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Measured"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Brown"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "85"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "FSC-2026-101"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "No"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "2"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-TR-001"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-BOARD-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-KET-700-05",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Tray shrink film"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Transit"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "12"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Plastic"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "LDPE"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "28"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Supplier"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Clear"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "30"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "CERT-PE-2026-11"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "No"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "1"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-SF-001"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-FILM-01"
+      }
+     }
+    }
+   ],
+   "sales": [
+    {
+     "id": "HLA-KET-700-S1",
+     "fields": {
+      "period": {
+       "dp": "DP33",
+       "value": "2026"
+      },
+      "channel": {
+       "dp": "DP23",
+       "value": "Household"
+      },
+      "units_placed": {
+       "dp": "DP22",
+       "value": "640000"
+      },
+      "units_exported": {
+       "dp": "DP25",
+       "value": "0"
+      }
+     }
+    }
+   ],
+   "passport": {
+    "unique_product_id": {
+     "dp": "DP46",
+     "value": "https://id.example.com/01/05790001000080/10/L2611"
+    },
+    "passport_level": {
+     "dp": "DP49",
+     "value": "Batch"
+    },
+    "facility_id": {
+     "dp": "DP48",
+     "value": "5790000000025"
+    },
+    "commodity_code": {
+     "dp": "DP52",
+     "value": "21032000"
+    },
+    "carbon_footprint_kgco2e": {
+     "dp": "DP50",
+     "value": "0.84"
+    },
+    "end_of_life_info": {
+     "dp": "DP51",
+     "value": "Empty, then put in plastic collection."
+    },
+    "passport_host": {
+     "dp": "DP53",
+     "value": "Not decided"
+    },
+    "public_fields": {
+     "dp": "DP53",
+     "value": "Material, recycled content, end-of-life"
+    },
+    "registry_id": {
+     "dp": "DP54",
+     "value": ""
+    }
+   }
+  },
+  {
+   "sku": "HLA-KET-570",
+   "fields": {
+    "product_name": {
+     "dp": null,
+     "value": "Classic Tomato Ketchup 570g glass"
+    },
+    "brand": {
+     "dp": null,
+     "value": "HLA Classic"
+    },
+    "gtin": {
+     "dp": "DP02",
+     "value": "5790001000028"
+    },
+    "container_volume_ml": {
+     "dp": "DP26",
+     "value": "570"
+    },
+    "reusable": {
+     "dp": "DP15",
+     "value": "No"
+    },
+    "minimisation_assessment_ref": {
+     "dp": "DP20",
+     "value": "MIN-KET-570-v1"
+    },
+    "empty_space_ratio_pct": {
+     "dp": "DP21",
+     "value": "12"
+    },
+    "doc_reference": {
+     "dp": "DP41",
+     "value": "DOC-HLA-KET-570"
+    },
+    "doc_version": {
+     "dp": "DP41",
+     "value": "v1"
+    },
+    "technical_file_refs": {
+     "dp": "DP42",
+     "value": "TR-GL-010;PFAS-CP-002"
+    },
+    "doc_manufacturer": {
+     "dp": "DP55",
+     "value": "HienzLookAlike Foods ApS"
+    },
+    "doc_signatory": {
+     "dp": "DP55",
+     "value": "Line Andersen, Head of Packaging Compliance"
+    },
+    "doc_issue_date": {
+     "dp": "DP55",
+     "value": "2026-08-10"
+    },
+    "retention_until": {
+     "dp": "DP56",
+     "value": "2029-12-31"
+    },
+    "harmonised_label_status": {
+     "dp": "DP39",
+     "value": "Planned"
+    },
+    "data_carrier_url": {
+     "dp": "DP40",
+     "value": "https://id.example.com/01/05790001000028"
+    },
+    "drs_status": {
+     "dp": "DP26",
+     "value": "Not in scheme"
+    }
+   },
+   "components": [
+    {
+     "id": "HLA-KET-570-01",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Glass bottle"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Glass"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "300"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Measured"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Clear"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "45"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "CERT-GL-2026-11"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "Yes"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "14"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-GL-010"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-GLASS-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-KET-570-02",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Steel twist cap with liner"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Steel"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "Steel 90; Plastic 10"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "4"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Supplier"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Red"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "Plastisol liner"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "0"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "n/a"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "Yes"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "PFAS-CP-002"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "6"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-CP-002"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-CLOS-02"
+      }
+     }
+    },
+    {
+     "id": "HLA-KET-570-03",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Paper label"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Paper/board"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "2"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Spec"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Printed"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "Water-based glue"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "0"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "n/a"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "No"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "4"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-LB-011"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-LABEL-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-KET-570-04",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "6-bottle case"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Transit"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "0"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Paper/board"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "220"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Measured"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Brown"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "85"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "FSC-2026-101"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "No"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "2"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-TR-001"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-BOARD-01"
+      }
+     }
+    }
+   ],
+   "sales": [
+    {
+     "id": "HLA-KET-570-S1",
+     "fields": {
+      "period": {
+       "dp": "DP33",
+       "value": "2026"
+      },
+      "channel": {
+       "dp": "DP23",
+       "value": "Household"
+      },
+      "units_placed": {
+       "dp": "DP22",
+       "value": "410000"
+      },
+      "units_exported": {
+       "dp": "DP25",
+       "value": "0"
+      }
+     }
+    }
+   ],
+   "passport": {
+    "unique_product_id": {
+     "dp": "DP46",
+     "value": "https://id.example.com/01/05790001000028/10/L2611"
+    },
+    "passport_level": {
+     "dp": "DP49",
+     "value": "Batch"
+    },
+    "facility_id": {
+     "dp": "DP48",
+     "value": "5790000000025"
+    },
+    "commodity_code": {
+     "dp": "DP52",
+     "value": "21032000"
+    },
+    "carbon_footprint_kgco2e": {
+     "dp": "DP50",
+     "value": "0.71"
+    },
+    "end_of_life_info": {
+     "dp": "DP51",
+     "value": "Empty and put the jar or bottle in glass collection; lid to metal."
+    },
+    "passport_host": {
+     "dp": "DP53",
+     "value": "Not decided"
+    },
+    "public_fields": {
+     "dp": "DP53",
+     "value": "Material, recycled content, end-of-life"
+    },
+    "registry_id": {
+     "dp": "DP54",
+     "value": ""
+    }
+   }
+  },
+  {
+   "sku": "HLA-BEAN-415",
+   "fields": {
+    "product_name": {
+     "dp": null,
+     "value": "Baked Beans in Tomato Sauce 415g"
+    },
+    "brand": {
+     "dp": null,
+     "value": "HLA Classic"
+    },
+    "gtin": {
+     "dp": "DP02",
+     "value": "5790001000039"
+    },
+    "container_volume_ml": {
+     "dp": "DP26",
+     "value": "415"
+    },
+    "reusable": {
+     "dp": "DP15",
+     "value": "No"
+    },
+    "minimisation_assessment_ref": {
+     "dp": "DP20",
+     "value": "MIN-BEAN-415-v1"
+    },
+    "empty_space_ratio_pct": {
+     "dp": "DP21",
+     "value": "8"
+    },
+    "doc_reference": {
+     "dp": "DP41",
+     "value": "DOC-HLA-CAN-01"
+    },
+    "doc_version": {
+     "dp": "DP41",
+     "value": "v1"
+    },
+    "technical_file_refs": {
+     "dp": "DP42",
+     "value": "TR-ST-001;PFAS-CN-010"
+    },
+    "doc_manufacturer": {
+     "dp": "DP55",
+     "value": "HienzLookAlike Foods ApS"
+    },
+    "doc_signatory": {
+     "dp": "DP55",
+     "value": "Line Andersen, Head of Packaging Compliance"
+    },
+    "doc_issue_date": {
+     "dp": "DP55",
+     "value": "2026-08-10"
+    },
+    "retention_until": {
+     "dp": "DP56",
+     "value": "2031-12-31"
+    },
+    "harmonised_label_status": {
+     "dp": "DP39",
+     "value": "Not started"
+    },
+    "data_carrier_url": {
+     "dp": "DP40",
+     "value": ""
+    },
+    "drs_status": {
+     "dp": "DP26",
+     "value": "Not in scheme"
+    }
+   },
+   "components": [
+    {
+     "id": "HLA-BEAN-415-01",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Steel food can with end"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Steel"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "48"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Measured"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Tinplate"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "Internal lacquer (BPA-NI)"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "25"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "CERT-ST-2026-01"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "Yes"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "PFAS-CN-010"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "9"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-CN-010"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-CAN-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-BEAN-415-02",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Paper label"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Paper/board"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "3"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Spec"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Printed"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "0"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "n/a"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "No"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "4"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-LB-011"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-LABEL-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-BEAN-415-03",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "4-pack shrink film"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Secondary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "4"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Plastic"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "LDPE"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "8"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Measured"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Clear"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "0"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "n/a"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "No"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "1"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-SF-001"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-FILM-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-BEAN-415-04",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "24-can tray"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Transit"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "24"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Paper/board"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "150"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Measured"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Brown"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "85"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "FSC-2026-101"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "No"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "2"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-TR-001"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-BOARD-01"
+      }
+     }
+    }
+   ],
+   "sales": [
+    {
+     "id": "HLA-BEAN-415-S1",
+     "fields": {
+      "period": {
+       "dp": "DP33",
+       "value": "2026"
+      },
+      "channel": {
+       "dp": "DP23",
+       "value": "Household"
+      },
+      "units_placed": {
+       "dp": "DP22",
+       "value": "2300000"
+      },
+      "units_exported": {
+       "dp": "DP25",
+       "value": "0"
+      }
+     }
+    },
+    {
+     "id": "HLA-BEAN-415-S2",
+     "fields": {
+      "period": {
+       "dp": "DP33",
+       "value": "2026"
+      },
+      "channel": {
+       "dp": "DP23",
+       "value": ""
+      },
+      "units_placed": {
+       "dp": "DP22",
+       "value": "90000"
+      },
+      "units_exported": {
+       "dp": "DP25",
+       "value": "0"
+      }
+     }
+    }
+   ],
+   "passport": {
+    "unique_product_id": {
+     "dp": "DP46",
+     "value": "https://id.example.com/01/05790001000039/10/L2611"
+    },
+    "passport_level": {
+     "dp": "DP49",
+     "value": "Batch"
+    },
+    "facility_id": {
+     "dp": "DP48",
+     "value": "5790000000025"
+    },
+    "commodity_code": {
+     "dp": "DP52",
+     "value": "20055100"
+    },
+    "carbon_footprint_kgco2e": {
+     "dp": "DP50",
+     "value": "0.55"
+    },
+    "end_of_life_info": {
+     "dp": "DP51",
+     "value": "Empty and put the can in metal collection."
+    },
+    "passport_host": {
+     "dp": "DP53",
+     "value": "Not decided"
+    },
+    "public_fields": {
+     "dp": "DP53",
+     "value": "Material, recycled content, end-of-life"
+    },
+    "registry_id": {
+     "dp": "DP54",
+     "value": ""
+    }
+   }
+  },
+  {
+   "sku": "HLA-SOUP-400",
+   "fields": {
+    "product_name": {
+     "dp": null,
+     "value": "Cream of Tomato Soup 400g"
+    },
+    "brand": {
+     "dp": null,
+     "value": "HLA Classic"
+    },
+    "gtin": {
+     "dp": "DP02",
+     "value": "5790001000042"
+    },
+    "container_volume_ml": {
+     "dp": "DP26",
+     "value": "400"
+    },
+    "reusable": {
+     "dp": "DP15",
+     "value": "No"
+    },
+    "minimisation_assessment_ref": {
+     "dp": "DP20",
+     "value": "MIN-SOUP-400-v1"
+    },
+    "empty_space_ratio_pct": {
+     "dp": "DP21",
+     "value": "10"
+    },
+    "doc_reference": {
+     "dp": "DP41",
+     "value": "DOC-HLA-CAN-01"
+    },
+    "doc_version": {
+     "dp": "DP41",
+     "value": "v1"
+    },
+    "technical_file_refs": {
+     "dp": "DP42",
+     "value": "TR-ST-002"
+    },
+    "doc_manufacturer": {
+     "dp": "DP55",
+     "value": "HienzLookAlike Foods ApS"
+    },
+    "doc_signatory": {
+     "dp": "DP55",
+     "value": "Line Andersen, Head of Packaging Compliance"
+    },
+    "doc_issue_date": {
+     "dp": "DP55",
+     "value": "2026-08-10"
+    },
+    "retention_until": {
+     "dp": "DP56",
+     "value": "2031-12-31"
+    },
+    "harmonised_label_status": {
+     "dp": "DP39",
+     "value": "Not started"
+    },
+    "data_carrier_url": {
+     "dp": "DP40",
+     "value": "https://id.example.com/01/05790001000042"
+    },
+    "drs_status": {
+     "dp": "DP26",
+     "value": "Not in scheme"
+    }
+   },
+   "components": [
+    {
+     "id": "HLA-SOUP-400-01",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Steel food can, easy-open end"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Steel"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "46"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Measured"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Tinplate"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "Internal lacquer (BPA-NI)"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "25"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "CERT-ST-2026-01"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "Yes"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "PFAS-CN-011"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "8"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-CN-011"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-CAN-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-SOUP-400-02",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Paper label"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Paper/board"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": ""
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Spec"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Printed"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "0"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "n/a"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "No"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "4"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-LB-011"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-LABEL-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-SOUP-400-03",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "12-can tray"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Transit"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "12"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Paper/board"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "110"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Measured"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Brown"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "85"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "FSC-2026-101"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "No"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "2"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-TR-001"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-BOARD-01"
+      }
+     }
+    }
+   ],
+   "sales": [
+    {
+     "id": "HLA-SOUP-400-S1",
+     "fields": {
+      "period": {
+       "dp": "DP33",
+       "value": "2026"
+      },
+      "channel": {
+       "dp": "DP23",
+       "value": "Household"
+      },
+      "units_placed": {
+       "dp": "DP22",
+       "value": "960000"
+      },
+      "units_exported": {
+       "dp": "DP25",
+       "value": "0"
+      }
+     }
+    }
+   ],
+   "passport": {
+    "unique_product_id": {
+     "dp": "DP46",
+     "value": "https://id.example.com/01/05790001000042/10/L2611"
+    },
+    "passport_level": {
+     "dp": "DP49",
+     "value": "Batch"
+    },
+    "facility_id": {
+     "dp": "DP48",
+     "value": "5790000000025"
+    },
+    "commodity_code": {
+     "dp": "DP52",
+     "value": "21041000"
+    },
+    "carbon_footprint_kgco2e": {
+     "dp": "DP50",
+     "value": "0.58"
+    },
+    "end_of_life_info": {
+     "dp": "DP51",
+     "value": "Empty and put the can in metal collection."
+    },
+    "passport_host": {
+     "dp": "DP53",
+     "value": "Not decided"
+    },
+    "public_fields": {
+     "dp": "DP53",
+     "value": "Material, recycled content, end-of-life"
+    },
+    "registry_id": {
+     "dp": "DP54",
+     "value": ""
+    }
+   }
+  },
+  {
+   "sku": "HLA-MAYO-400",
+   "fields": {
+    "product_name": {
+     "dp": null,
+     "value": "Real Mayonnaise 400ml jar"
+    },
+    "brand": {
+     "dp": null,
+     "value": "HLA Classic"
+    },
+    "gtin": {
+     "dp": "DP02",
+     "value": "5790001000059"
+    },
+    "container_volume_ml": {
+     "dp": "DP26",
+     "value": "400"
+    },
+    "reusable": {
+     "dp": "DP15",
+     "value": "No"
+    },
+    "minimisation_assessment_ref": {
+     "dp": "DP20",
+     "value": "MIN-MAYO-400-v1"
+    },
+    "empty_space_ratio_pct": {
+     "dp": "DP21",
+     "value": "16"
+    },
+    "doc_reference": {
+     "dp": "DP41",
+     "value": "DOC-HLA-MAYO-400"
+    },
+    "doc_version": {
+     "dp": "DP41",
+     "value": "v1"
+    },
+    "technical_file_refs": {
+     "dp": "DP42",
+     "value": "TR-PET-001;PFAS-LD-003"
+    },
+    "doc_manufacturer": {
+     "dp": "DP55",
+     "value": "HienzLookAlike Foods ApS"
+    },
+    "doc_signatory": {
+     "dp": "DP55",
+     "value": ""
+    },
+    "doc_issue_date": {
+     "dp": "DP55",
+     "value": "2026-08-10"
+    },
+    "retention_until": {
+     "dp": "DP56",
+     "value": "2031-12-31"
+    },
+    "harmonised_label_status": {
+     "dp": "DP39",
+     "value": "Planned"
+    },
+    "data_carrier_url": {
+     "dp": "DP40",
+     "value": "https://id.example.com/01/05790001000059"
+    },
+    "drs_status": {
+     "dp": "DP26",
+     "value": "Not in scheme"
+    }
+   },
+   "components": [
+    {
+     "id": "HLA-MAYO-400-01",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "PET jar"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Plastic"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "PET"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "30"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Measured"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Clear"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "50"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": ""
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "Yes"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "PFAS-JR-001"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "1"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-JR-001"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-PLAST-02"
+      }
+     }
+    },
+    {
+     "id": "HLA-MAYO-400-02",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Screw lid with seal"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Plastic"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "PP"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "8"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Supplier"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "White"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "Induction seal (alu/PE)"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Limited"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "0"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "n/a"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "Yes"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "PFAS-LD-003"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "1"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-LD-003"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-CLOS-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-MAYO-400-03",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Paper label"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Paper/board"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "2"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Spec"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Printed"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "0"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "n/a"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "No"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "4"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-LB-011"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-LABEL-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-MAYO-400-04",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "12-jar tray"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Transit"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "12"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Paper/board"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "160"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Measured"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Brown"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "85"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "FSC-2026-101"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "No"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "2"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-TR-001"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-BOARD-01"
+      }
+     }
+    }
+   ],
+   "sales": [
+    {
+     "id": "HLA-MAYO-400-S1",
+     "fields": {
+      "period": {
+       "dp": "DP33",
+       "value": "2026"
+      },
+      "channel": {
+       "dp": "DP23",
+       "value": "Household"
+      },
+      "units_placed": {
+       "dp": "DP22",
+       "value": "780000"
+      },
+      "units_exported": {
+       "dp": "DP25",
+       "value": "0"
+      }
+     }
+    },
+    {
+     "id": "HLA-MAYO-400-S2",
+     "fields": {
+      "period": {
+       "dp": "DP33",
+       "value": "2026"
+      },
+      "channel": {
+       "dp": "DP23",
+       "value": "Non-household"
+      },
+      "units_placed": {
+       "dp": "DP22",
+       "value": "60000"
+      },
+      "units_exported": {
+       "dp": "DP25",
+       "value": "75000"
+      }
+     }
+    }
+   ],
+   "passport": {
+    "unique_product_id": {
+     "dp": "DP46",
+     "value": "https://id.example.com/01/05790001000059/10/L2611"
+    },
+    "passport_level": {
+     "dp": "DP49",
+     "value": "Batch"
+    },
+    "facility_id": {
+     "dp": "DP48",
+     "value": "5790000000025"
+    },
+    "commodity_code": {
+     "dp": "DP52",
+     "value": "21039090"
+    },
+    "carbon_footprint_kgco2e": {
+     "dp": "DP50",
+     "value": "0.95"
+    },
+    "end_of_life_info": {
+     "dp": "DP51",
+     "value": "Empty, then put in plastic collection."
+    },
+    "passport_host": {
+     "dp": "DP53",
+     "value": "Not decided"
+    },
+    "public_fields": {
+     "dp": "DP53",
+     "value": "Material, recycled content, end-of-life"
+    },
+    "registry_id": {
+     "dp": "DP54",
+     "value": ""
+    }
+   }
+  },
+  {
+   "sku": "HLA-BABY-190",
+   "fields": {
+    "product_name": {
+     "dp": null,
+     "value": "Little Sprouts Veggie Purée 190g jar"
+    },
+    "brand": {
+     "dp": null,
+     "value": "Little Sprouts"
+    },
+    "gtin": {
+     "dp": "DP02",
+     "value": "5790001000066"
+    },
+    "container_volume_ml": {
+     "dp": "DP26",
+     "value": "190"
+    },
+    "reusable": {
+     "dp": "DP15",
+     "value": "No"
+    },
+    "minimisation_assessment_ref": {
+     "dp": "DP20",
+     "value": "MIN-BABY-190-v1"
+    },
+    "empty_space_ratio_pct": {
+     "dp": "DP21",
+     "value": "18"
+    },
+    "doc_reference": {
+     "dp": "DP41",
+     "value": "DOC-HLA-BABY-190"
+    },
+    "doc_version": {
+     "dp": "DP41",
+     "value": "v1"
+    },
+    "technical_file_refs": {
+     "dp": "DP42",
+     "value": "TR-GL-011"
+    },
+    "doc_manufacturer": {
+     "dp": "DP55",
+     "value": "HienzLookAlike Foods ApS"
+    },
+    "doc_signatory": {
+     "dp": "DP55",
+     "value": "Line Andersen, Head of Packaging Compliance"
+    },
+    "doc_issue_date": {
+     "dp": "DP55",
+     "value": "2026-08-10"
+    },
+    "retention_until": {
+     "dp": "DP56",
+     "value": "2031-12-31"
+    },
+    "harmonised_label_status": {
+     "dp": "DP39",
+     "value": "Planned"
+    },
+    "data_carrier_url": {
+     "dp": "DP40",
+     "value": "https://id.example.com/01/05790001000066"
+    },
+    "drs_status": {
+     "dp": "DP26",
+     "value": "Not in scheme"
+    }
+   },
+   "components": [
+    {
+     "id": "HLA-BABY-190-01",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Glass jar"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Glass"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "120"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Estimate"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Clear"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "40"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "CERT-GL-2026-11"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "Yes"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "13"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-GL-011"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-GLASS-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-BABY-190-02",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Steel lug lid with seal"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Steel"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "Steel 88; Plastic 12"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "6"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Supplier"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Green"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "Plastisol seal"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "0"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "n/a"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "Yes"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": ""
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "5"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-LD-010"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-CLOS-02"
+      }
+     }
+    },
+    {
+     "id": "HLA-BABY-190-03",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Paper label"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Paper/board"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "1.5"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Spec"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Printed"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "0"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "n/a"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "No"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "4"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-LB-011"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-LABEL-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-BABY-190-04",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "12-jar tray"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Transit"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "12"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Paper/board"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "120"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Measured"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Brown"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "85"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "FSC-2026-101"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "No"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "2"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-TR-001"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-BOARD-01"
+      }
+     }
+    }
+   ],
+   "sales": [
+    {
+     "id": "HLA-BABY-190-S1",
+     "fields": {
+      "period": {
+       "dp": "DP33",
+       "value": "2026"
+      },
+      "channel": {
+       "dp": "DP23",
+       "value": "Household"
+      },
+      "units_placed": {
+       "dp": "DP22",
+       "value": "520000"
+      },
+      "units_exported": {
+       "dp": "DP25",
+       "value": "0"
+      }
+     }
+    }
+   ],
+   "passport": {
+    "unique_product_id": {
+     "dp": "DP46",
+     "value": "https://id.example.com/01/05790001000066/10/L2611"
+    },
+    "passport_level": {
+     "dp": "DP49",
+     "value": "Batch"
+    },
+    "facility_id": {
+     "dp": "DP48",
+     "value": "5790000000025"
+    },
+    "commodity_code": {
+     "dp": "DP52",
+     "value": "20051000"
+    },
+    "carbon_footprint_kgco2e": {
+     "dp": "DP50",
+     "value": "0.31"
+    },
+    "end_of_life_info": {
+     "dp": "DP51",
+     "value": "Empty and put the jar or bottle in glass collection; lid to metal."
+    },
+    "passport_host": {
+     "dp": "DP53",
+     "value": "Not decided"
+    },
+    "public_fields": {
+     "dp": "DP53",
+     "value": "Material, recycled content, end-of-life"
+    },
+    "registry_id": {
+     "dp": "DP54",
+     "value": ""
+    }
+   }
+  },
+  {
+   "sku": "HLA-PORT-10",
+   "fields": {
+    "product_name": {
+     "dp": null,
+     "value": "Ketchup portion sachet 10ml (food service)"
+    },
+    "brand": {
+     "dp": null,
+     "value": "HLA Foodservice"
+    },
+    "gtin": {
+     "dp": "DP02",
+     "value": "5790001000073"
+    },
+    "container_volume_ml": {
+     "dp": "DP26",
+     "value": "10"
+    },
+    "reusable": {
+     "dp": "DP15",
+     "value": "No"
+    },
+    "minimisation_assessment_ref": {
+     "dp": "DP20",
+     "value": "MIN-PORT-10-v1"
+    },
+    "empty_space_ratio_pct": {
+     "dp": "DP21",
+     "value": "35"
+    },
+    "doc_reference": {
+     "dp": "DP41",
+     "value": ""
+    },
+    "doc_version": {
+     "dp": "DP41",
+     "value": ""
+    },
+    "technical_file_refs": {
+     "dp": "DP42",
+     "value": ""
+    },
+    "doc_manufacturer": {
+     "dp": "DP55",
+     "value": ""
+    },
+    "doc_signatory": {
+     "dp": "DP55",
+     "value": ""
+    },
+    "doc_issue_date": {
+     "dp": "DP55",
+     "value": ""
+    },
+    "retention_until": {
+     "dp": "DP56",
+     "value": ""
+    },
+    "harmonised_label_status": {
+     "dp": "DP39",
+     "value": "Not started"
+    },
+    "data_carrier_url": {
+     "dp": "DP40",
+     "value": "https://id.example.com/01/05790001000073"
+    },
+    "drs_status": {
+     "dp": "DP26",
+     "value": "Not in scheme"
+    }
+   },
+   "components": [
+    {
+     "id": "HLA-PORT-10-01",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "Portion sachet (laminate)"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Primary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "1"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Plastic"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "PET"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "PET 45; Aluminium 25; PE 25"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "1.1"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Supplier"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Printed"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "Aluminium foil layer"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Poor"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "0"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "n/a"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "Yes"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "PFAS-SC-001"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "2"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-SC-001"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-FLEX-01"
+      }
+     }
+    },
+    {
+     "id": "HLA-PORT-10-02",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "200-sachet dispenser carton"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Secondary"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "200"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": ""
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "210"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Measured"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Printed"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "70"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "FSC-2026-102"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "No"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "2"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-DC-001"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-BOARD-02"
+      }
+     }
+    },
+    {
+     "id": "HLA-PORT-10-03",
+     "fields": {
+      "component_name": {
+       "dp": "DP03",
+       "value": "4-carton shipper"
+      },
+      "packaging_level": {
+       "dp": "DP04",
+       "value": "Transit"
+      },
+      "units_per_pack": {
+       "dp": "DP05",
+       "value": "800"
+      },
+      "material": {
+       "dp": "DP06",
+       "value": "Paper/board"
+      },
+      "polymer": {
+       "dp": "DP07",
+       "value": "n/a"
+      },
+      "material_split": {
+       "dp": "DP08",
+       "value": "n/a"
+      },
+      "weight_g": {
+       "dp": "DP09",
+       "value": "400"
+      },
+      "weight_source": {
+       "dp": "DP44",
+       "value": "Measured"
+      },
+      "colour": {
+       "dp": "DP10",
+       "value": "Brown"
+      },
+      "additives": {
+       "dp": "DP11",
+       "value": "None"
+      },
+      "recyclability_result": {
+       "dp": "DP12",
+       "value": "Good"
+      },
+      "recycled_content_pct": {
+       "dp": "DP13",
+       "value": "85"
+      },
+      "recycled_content_cert": {
+       "dp": "DP14",
+       "value": "FSC-2026-101"
+      },
+      "food_contact": {
+       "dp": "DP16",
+       "value": "No"
+      },
+      "pfas_declaration_ref": {
+       "dp": "DP17",
+       "value": "n/a"
+      },
+      "heavy_metals_mgkg": {
+       "dp": "DP18",
+       "value": "2"
+      },
+      "soc_declaration_ref": {
+       "dp": "DP19",
+       "value": "SOC-TR-001"
+      },
+      "supplier_id": {
+       "dp": "DP43",
+       "value": "SUP-BOARD-01"
+      }
+     }
+    }
+   ],
+   "sales": [
+    {
+     "id": "HLA-PORT-10-S1",
+     "fields": {
+      "period": {
+       "dp": "DP33",
+       "value": "2026"
+      },
+      "channel": {
+       "dp": "DP23",
+       "value": "Non-household"
+      },
+      "units_placed": {
+       "dp": "DP22",
+       "value": "6400000"
+      },
+      "units_exported": {
+       "dp": "DP25",
+       "value": "0"
+      }
+     }
+    }
+   ],
+   "passport": {
+    "unique_product_id": {
+     "dp": "DP46",
+     "value": "https://id.example.com/01/05790001000073/10/L2611"
+    },
+    "passport_level": {
+     "dp": "DP49",
+     "value": "Batch"
+    },
+    "facility_id": {
+     "dp": "DP48",
+     "value": "5790000000025"
+    },
+    "commodity_code": {
+     "dp": "DP52",
+     "value": "21032000"
+    },
+    "carbon_footprint_kgco2e": {
+     "dp": "DP50",
+     "value": ""
+    },
+    "end_of_life_info": {
+     "dp": "DP51",
+     "value": "Empty, then put in plastic collection."
+    },
+    "passport_host": {
+     "dp": "DP53",
+     "value": "Not decided"
+    },
+    "public_fields": {
+     "dp": "DP53",
+     "value": "Material, recycled content, end-of-life"
+    },
+    "registry_id": {
+     "dp": "DP54",
+     "value": ""
+    }
+   }
+  }
+ ]
+}

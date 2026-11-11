@@ -1,0 +1,555 @@
+{
+ "company_id": {
+  "label": "Company ID",
+  "dp": null,
+  "level": "Company",
+  "type": "Text",
+  "allowed": null
+ },
+ "legal_name": {
+  "label": "Legal name",
+  "dp": "DP28",
+  "level": "Company",
+  "type": "Text",
+  "allowed": null
+ },
+ "trading_name": {
+  "label": "Trading name",
+  "dp": null,
+  "level": "Company",
+  "type": "Text",
+  "allowed": null
+ },
+ "company_number": {
+  "label": "Company registration number",
+  "dp": null,
+  "level": "Company",
+  "type": "Text",
+  "allowed": null
+ },
+ "vat_number": {
+  "label": "VAT number",
+  "dp": null,
+  "level": "Company",
+  "type": "Text",
+  "allowed": null
+ },
+ "country_of_establishment": {
+  "label": "Country of establishment",
+  "dp": "DP31",
+  "level": "Company",
+  "type": "Code",
+  "allowed": "UK, DE, FR, ES, IT, DK, NL, other"
+ },
+ "registered_address": {
+  "label": "Registered address",
+  "dp": null,
+  "level": "Company",
+  "type": "Text",
+  "allowed": null
+ },
+ "parent_company_id": {
+  "label": "Parent company",
+  "dp": "DP32",
+  "level": "Company",
+  "type": "Text",
+  "allowed": null
+ },
+ "contact_name": {
+  "label": "Main contact name",
+  "dp": null,
+  "level": "Company",
+  "type": "Text",
+  "allowed": null
+ },
+ "contact_email": {
+  "label": "Main contact email",
+  "dp": null,
+  "level": "Company",
+  "type": "Email",
+  "allowed": null
+ },
+ "contact_phone": {
+  "label": "Main contact phone",
+  "dp": null,
+  "level": "Company",
+  "type": "Text",
+  "allowed": null
+ },
+ "economic_operator_id": {
+  "label": "Economic operator identifier",
+  "dp": "DP47",
+  "level": "Company",
+  "type": "Text",
+  "allowed": null
+ },
+ "reporting_markets": {
+  "label": "Reporting markets",
+  "dp": null,
+  "level": "Company",
+  "type": "List",
+  "allowed": "UK, DE, FR, ES, IT, DK, NL"
+ },
+ "annual_turnover": {
+  "label": "Annual turnover",
+  "dp": "DP32",
+  "level": "Company",
+  "type": "Number",
+  "allowed": null
+ },
+ "turnover_currency": {
+  "label": "Turnover currency",
+  "dp": "DP32",
+  "level": "Company",
+  "type": "Code",
+  "allowed": "DKK, EUR, GBP"
+ },
+ "packaging_tonnage_prev_year": {
+  "label": "Packaging tonnage (previous year)",
+  "dp": "DP32",
+  "level": "Company",
+  "type": "Number",
+  "allowed": null
+ },
+ "organisation_size": {
+  "label": "Organisation size (UK)",
+  "dp": "DP32",
+  "level": "Company",
+  "type": "Code",
+  "allowed": "Large, Small, Not obligated"
+ },
+ "market_code": {
+  "label": "Market",
+  "dp": null,
+  "level": "Market",
+  "type": "Code",
+  "allowed": "UK, DE, FR, ES, IT, DK, NL"
+ },
+ "producer_role": {
+  "label": "Producer role",
+  "dp": "DP28",
+  "level": "Market",
+  "type": "Code",
+  "allowed": "Brand owner, Packer/filler, Importer, Distributor"
+ },
+ "epr_registration_number": {
+  "label": "EPR registration number",
+  "dp": "DP29",
+  "level": "Market",
+  "type": "Text",
+  "allowed": null
+ },
+ "compliance_scheme": {
+  "label": "Compliance scheme / PRO",
+  "dp": "DP30",
+  "level": "Market",
+  "type": "Text",
+  "allowed": null
+ },
+ "authorised_rep_name": {
+  "label": "Authorised representative",
+  "dp": "DP31",
+  "level": "Market",
+  "type": "Text",
+  "allowed": null
+ },
+ "reporting_frequency": {
+  "label": "Reporting frequency",
+  "dp": "DP33",
+  "level": "Market",
+  "type": "Code",
+  "allowed": "Half-yearly, Yearly, Quarterly, Monthly"
+ },
+ "completeness_declaration_required": {
+  "label": "Declaration of Completeness needed (DE)",
+  "dp": "DP34",
+  "level": "Market",
+  "type": "Yes/No",
+  "allowed": "Yes, No"
+ },
+ "sign_off_owner": {
+  "label": "Sign-off owner",
+  "dp": "DP45",
+  "level": "Market",
+  "type": "Text",
+  "allowed": null
+ },
+ "product_name": {
+  "label": "Product name",
+  "dp": null,
+  "level": "Product",
+  "type": "Text",
+  "allowed": null
+ },
+ "brand": {
+  "label": "Brand",
+  "dp": null,
+  "level": "Product",
+  "type": "Text",
+  "allowed": null
+ },
+ "gtin": {
+  "label": "GTIN / barcode",
+  "dp": "DP02",
+  "level": "Product",
+  "type": "Text",
+  "allowed": null
+ },
+ "container_volume_ml": {
+  "label": "Container volume",
+  "dp": "DP26",
+  "level": "Product",
+  "type": "Number",
+  "allowed": null
+ },
+ "reusable": {
+  "label": "Reusable packaging",
+  "dp": "DP15",
+  "level": "Product",
+  "type": "Yes/No",
+  "allowed": "Yes, No"
+ },
+ "minimisation_assessment_ref": {
+  "label": "Minimisation assessment reference",
+  "dp": "DP20",
+  "level": "Product",
+  "type": "Text",
+  "allowed": null
+ },
+ "empty_space_ratio_pct": {
+  "label": "Empty space ratio",
+  "dp": "DP21",
+  "level": "Product",
+  "type": "Number",
+  "allowed": "0–100"
+ },
+ "doc_reference": {
+  "label": "DoC reference",
+  "dp": "DP41",
+  "level": "Product",
+  "type": "Text",
+  "allowed": null
+ },
+ "doc_version": {
+  "label": "DoC version",
+  "dp": "DP41",
+  "level": "Product",
+  "type": "Text",
+  "allowed": null
+ },
+ "technical_file_refs": {
+  "label": "Technical file references",
+  "dp": "DP42",
+  "level": "Product",
+  "type": "List",
+  "allowed": null
+ },
+ "doc_manufacturer": {
+  "label": "DoC manufacturer",
+  "dp": "DP55",
+  "level": "Product",
+  "type": "Text",
+  "allowed": null
+ },
+ "doc_signatory": {
+  "label": "DoC signatory",
+  "dp": "DP55",
+  "level": "Product",
+  "type": "Text",
+  "allowed": null
+ },
+ "doc_issue_date": {
+  "label": "DoC issue date",
+  "dp": "DP55",
+  "level": "Product",
+  "type": "Date",
+  "allowed": null
+ },
+ "retention_until": {
+  "label": "Keep DoC and file until",
+  "dp": "DP56",
+  "level": "Product",
+  "type": "Date",
+  "allowed": null
+ },
+ "harmonised_label_status": {
+  "label": "Harmonised EU label",
+  "dp": "DP39",
+  "level": "Product",
+  "type": "Code",
+  "allowed": "On pack, Planned, Not started"
+ },
+ "data_carrier_url": {
+  "label": "QR code / data carrier link",
+  "dp": "DP40",
+  "level": "Product",
+  "type": "URL",
+  "allowed": null
+ },
+ "triman_on_pack": {
+  "label": "Triman and Info-tri on pack (FR)",
+  "dp": "DP35",
+  "level": "Product",
+  "type": "Yes/No",
+  "allowed": "Yes, No"
+ },
+ "it_environmental_label": {
+  "label": "Environmental label (IT)",
+  "dp": "DP36",
+  "level": "Product",
+  "type": "Code",
+  "allowed": "On pack, Digital, Missing"
+ },
+ "unique_product_id": {
+  "label": "Unique product identifier",
+  "dp": "DP46",
+  "level": "Passport",
+  "type": "URL",
+  "allowed": null
+ },
+ "passport_level": {
+  "label": "Passport level",
+  "dp": "DP49",
+  "level": "Passport",
+  "type": "Code",
+  "allowed": "Model, Batch, Item"
+ },
+ "facility_id": {
+  "label": "Facility identifier",
+  "dp": "DP48",
+  "level": "Passport",
+  "type": "Text",
+  "allowed": null
+ },
+ "commodity_code": {
+  "label": "Commodity code",
+  "dp": "DP52",
+  "level": "Passport",
+  "type": "Text",
+  "allowed": null
+ },
+ "carbon_footprint_kgco2e": {
+  "label": "Carbon footprint",
+  "dp": "DP50",
+  "level": "Passport",
+  "type": "Number",
+  "allowed": null
+ },
+ "end_of_life_info": {
+  "label": "End-of-life information",
+  "dp": "DP51",
+  "level": "Passport",
+  "type": "Text",
+  "allowed": null
+ },
+ "passport_host": {
+  "label": "Passport host",
+  "dp": "DP53",
+  "level": "Passport",
+  "type": "Text",
+  "allowed": null
+ },
+ "public_fields": {
+  "label": "Public information",
+  "dp": "DP53",
+  "level": "Passport",
+  "type": "Text",
+  "allowed": null
+ },
+ "registry_id": {
+  "label": "EU registry entry",
+  "dp": "DP54",
+  "level": "Passport",
+  "type": "Text",
+  "allowed": null
+ },
+ "drs_status": {
+  "label": "Deposit scheme status",
+  "dp": "DP26",
+  "level": "Product",
+  "type": "Code",
+  "allowed": "In scheme, Not in scheme"
+ },
+ "component_name": {
+  "label": "Component name",
+  "dp": "DP03",
+  "level": "Component",
+  "type": "Text",
+  "allowed": null
+ },
+ "packaging_level": {
+  "label": "Packaging level",
+  "dp": "DP04",
+  "level": "Component",
+  "type": "Code",
+  "allowed": "Primary, Secondary, Transit"
+ },
+ "units_per_pack": {
+  "label": "Units per pack",
+  "dp": "DP05",
+  "level": "Component",
+  "type": "Number",
+  "allowed": null
+ },
+ "material": {
+  "label": "Material",
+  "dp": "DP06",
+  "level": "Component",
+  "type": "Code",
+  "allowed": "Glass, Aluminium, Steel, Paper/board, Plastic, Wood, Fibre composite, Other"
+ },
+ "polymer": {
+  "label": "Polymer",
+  "dp": "DP07",
+  "level": "Component",
+  "type": "Code",
+  "allowed": "PET, HDPE, PP, LDPE, PS, PVC, Other"
+ },
+ "material_split": {
+  "label": "Material split",
+  "dp": "DP08",
+  "level": "Component",
+  "type": "Text",
+  "allowed": null
+ },
+ "weight_g": {
+  "label": "Empty weight",
+  "dp": "DP09",
+  "level": "Component",
+  "type": "Number",
+  "allowed": null
+ },
+ "weight_source": {
+  "label": "Weight source",
+  "dp": "DP44",
+  "level": "Component",
+  "type": "Code",
+  "allowed": "Measured, Supplier, Spec, Estimate"
+ },
+ "colour": {
+  "label": "Colour and opacity",
+  "dp": "DP10",
+  "level": "Component",
+  "type": "Text",
+  "allowed": null
+ },
+ "additives": {
+  "label": "Additives, inks and adhesives",
+  "dp": "DP11",
+  "level": "Component",
+  "type": "Text",
+  "allowed": null
+ },
+ "recyclability_result": {
+  "label": "Recyclability result",
+  "dp": "DP12",
+  "level": "Component",
+  "type": "Text",
+  "allowed": "UK: Red, Amber, Green; PPWR: A–E"
+ },
+ "recycled_content_pct": {
+  "label": "Recycled content",
+  "dp": "DP13",
+  "level": "Component",
+  "type": "Number",
+  "allowed": "0–100"
+ },
+ "recycled_content_cert": {
+  "label": "Recycled content certificate",
+  "dp": "DP14",
+  "level": "Component",
+  "type": "Text",
+  "allowed": null
+ },
+ "food_contact": {
+  "label": "Food contact",
+  "dp": "DP16",
+  "level": "Component",
+  "type": "Yes/No",
+  "allowed": "Yes, No"
+ },
+ "pfas_declaration_ref": {
+  "label": "PFAS declaration",
+  "dp": "DP17",
+  "level": "Component",
+  "type": "Text",
+  "allowed": null
+ },
+ "heavy_metals_mgkg": {
+  "label": "Heavy metals",
+  "dp": "DP18",
+  "level": "Component",
+  "type": "Number",
+  "allowed": null
+ },
+ "soc_declaration_ref": {
+  "label": "Substances of concern declaration",
+  "dp": "DP19",
+  "level": "Component",
+  "type": "Text",
+  "allowed": null
+ },
+ "conai_band": {
+  "label": "CONAI plastic band (IT)",
+  "dp": "DP37",
+  "level": "Component",
+  "type": "Code",
+  "allowed": "A1, A2, B1, B2, C"
+ },
+ "non_recycled_plastic_g": {
+  "label": "Non-recycled plastic (ES)",
+  "dp": "DP38",
+  "level": "Component",
+  "type": "Number",
+  "allowed": null
+ },
+ "supplier_id": {
+  "label": "Supplier",
+  "dp": "DP43",
+  "level": "Component",
+  "type": "Text",
+  "allowed": null
+ },
+ "period": {
+  "label": "Reporting period",
+  "dp": "DP33",
+  "level": "Sales",
+  "type": "Text",
+  "allowed": null
+ },
+ "channel": {
+  "label": "Sales channel",
+  "dp": "DP23",
+  "level": "Sales",
+  "type": "Code",
+  "allowed": "Household, Non-household"
+ },
+ "units_placed": {
+  "label": "Units placed on the market",
+  "dp": "DP22",
+  "level": "Sales",
+  "type": "Number",
+  "allowed": null
+ },
+ "units_exported": {
+  "label": "Units exported",
+  "dp": "DP25",
+  "level": "Sales",
+  "type": "Number",
+  "allowed": null
+ },
+ "uk_nation": {
+  "label": "UK nation",
+  "dp": "DP24",
+  "level": "Sales",
+  "type": "Code",
+  "allowed": "England, Scotland, Wales, Northern Ireland"
+ },
+ "import_origin_country": {
+  "label": "Imported from",
+  "dp": "DP27",
+  "level": "Sales",
+  "type": "Code",
+  "allowed": null
+ }
+}

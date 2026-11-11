@@ -2,6 +2,7 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, Observable, map } from 'rxjs';
 import { APP_CONFIG } from '../config/client-theme.config';
+import { SessionService } from '../session/session.service';
 
 export type UserRole = 'superadmin' | 'org_admin' | 'analyst' | 'viewer' | 'supplier_contact';
 
@@ -36,6 +37,7 @@ export interface AuthResponse {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly session = inject(SessionService);
   private readonly baseUrl = APP_CONFIG.apiBaseUrl;
   private readonly TOKEN_KEY = 'compliance_hub_jwt_token';
   private readonly USER_KEY = 'compliance_hub_auth_user';
@@ -101,6 +103,8 @@ export class AuthService {
 
       this._currentUser.set(authUser);
       this._isAuthenticating.set(false);
+      // Platform screens read the session from SessionService (screen 1 replaces this sign-in).
+      this.session.setToken(res.access_token);
 
       return authUser.role === 'superadmin' ? 'superadmin' : 'client';
     } catch (err: any) {
@@ -117,6 +121,7 @@ export class AuthService {
       // Ignore
     }
     this._currentUser.set(null);
+    this.session.clear();
   }
 
   private getAuthHeaders(): any {
