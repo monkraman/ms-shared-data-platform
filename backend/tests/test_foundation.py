@@ -52,6 +52,8 @@ def test_permissions_by_role() -> None:
     platform_only = permissions_for(is_platform_admin=True, tenant_role=None, has_tenant=False)
     assert platform_only == PLATFORM_ADMIN_PERMISSIONS
     assert permissions_for(is_platform_admin=False, tenant_role=None, has_tenant=True) == frozenset()
+    epr_only = permissions_for(is_platform_admin=False, tenant_role=TenantRole.VIEWER, has_tenant=True, modules=["EPR"])
+    assert "module.epr" in epr_only and "module.ppwr" not in epr_only
 
 
 # --- PostgreSQL with RLS -----------------------------------------------------------

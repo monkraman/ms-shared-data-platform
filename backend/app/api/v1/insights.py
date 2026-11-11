@@ -28,6 +28,7 @@ from app.modules.models import ActionItem
 router = APIRouter(tags=["Insights"])
 
 Reader = Annotated[Principal, Depends(require_permission(Perm.COMPLIANCE_READ))]
+EprModule = Annotated[Principal, Depends(require_permission(Perm.MODULE_EPR))]
 Actor = Annotated[Principal, Depends(require_permission(Perm.ACTIONS_MANAGE))]
 EprRegime = Literal["epr_uk", "epr_dk", "sb54_ca"]
 ActionStatus = Literal["open", "in_progress", "done"]
@@ -168,7 +169,7 @@ def _action_out(a: ActionItem) -> ActionOut:
 
 @router.get("/modules/epr/{regime}/insights", response_model=Insights, summary="Hotspots and recommendations")
 async def get_insights(
-    regime: EprRegime, _: Reader, db: TenantDB, year: Annotated[str | None, Query(max_length=8)] = None
+    regime: EprRegime, _: EprModule, db: TenantDB, year: Annotated[str | None, Query(max_length=8)] = None
 ) -> dict[str, Any]:
     products = await catalog.all_products(db)
     result = epr.calculate(regime, products, year)
@@ -189,7 +190,7 @@ async def get_insights(
 
 
 @router.post("/modules/epr/{regime}/scenario", response_model=ScenarioResult, summary="What-if fee (not saved)")
-async def run_scenario(regime: EprRegime, payload: ScenarioRequest, _: Reader, db: TenantDB) -> ScenarioResult:
+async def run_scenario(regime: EprRegime, payload: ScenarioRequest, _: EprModule, db: TenantDB) -> ScenarioResult:
     products = await catalog.all_products(db)
     overrides = {
         c.component_id: {k: v for k, v in (("weight_g", c.weight_g), ("material", c.material)) if v}

@@ -41,7 +41,7 @@ Status values: Not started · Spec agreed · In build · In review · Done.
 | 6 | Gap rule library | SuperAdmin | 3 | Rule library page | M | In review (backend live; Playwright test and sign-off open) |
 | 7 | Gap worklist and gap fix | Org Admin | 5, 6 | Quality worklist, vendor declaration, worklist export | L | In review (backend live; estimable vs needs-data gaps and Fill estimates added) |
 | 8 | Data overview | Org Admin | 7 | Data point map | M | In review (backend live; Playwright test and sign-off open) |
-| 9 | Users and access, and Team | Both | 1 | IAM directory | M | In build (platform admin Users list and Add user on the existing API; Team, roles and disable next) |
+| 9 | Users and access, and Team | Both | 1 | IAM directory | M | In review (users, consultants, roles, disable, temporary passwords, team; emails wait for the email service) |
 | 10 | Organisation settings (legal entities, countries, source priority) | Org Admin | 2 | Onboarding markets step | S | Not started |
 | 11 | Tariffs and rule packs | SuperAdmin | 3 | Tariff library, seeded tariffs | M | Not started |
 | 12 | EPR results: runs, explanations, simulator (module SDK built here) | Org Admin | 7, 10, 11 | Simulator page, EPR engine | L | In build (EPR UK, Denmark and SB 54 fees, hotspots, recommendations, scenarios and action items on real data) |
@@ -49,7 +49,7 @@ Status values: Not started · Spec agreed · In build · In review · Done.
 | 14 | Dashboard | Org Admin | 7, 12 | Dashboard KPI layout | M | Not started |
 | 15 | Audit log | SuperAdmin | 1 | — | S | Not started |
 | 16 | Ingestion monitor | SuperAdmin | 5 | Batches page | S | Not started |
-| 17 | Module registry and entitlements | SuperAdmin | 12 | Module toggles | S | Not started |
+| 17 | Module registry and entitlements | SuperAdmin | 12 | Module toggles | S | In build (workspace modules gate screens and APIs as module.<id> permissions) |
 | 18 | Data sources: API keys and connectors | Org Admin | 5 | Sync endpoints, mock ERP/PLM service | L | In build (connect, saved mapping, auto-approve and history done on simulated systems; schedules and real connectors next) |
 | 19 | PPWR results | Org Admin | 12 | PPWR service | M | Not started |
 | 20 | DPP results and public passport | Org Admin | 19 | DPP service | M | Not started |

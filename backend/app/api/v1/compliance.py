@@ -25,6 +25,8 @@ from app.platform.repository import current_tenant
 router = APIRouter(prefix="/modules", tags=["Compliance"])
 
 Reader = Annotated[Principal, Depends(require_permission(Perm.COMPLIANCE_READ))]
+EprModule = Annotated[Principal, Depends(require_permission(Perm.MODULE_EPR))]
+PpwrModule = Annotated[Principal, Depends(require_permission(Perm.MODULE_PPWR))]
 EprRegime = Literal["epr_uk", "epr_dk", "sb54_ca"]
 Status = Literal["ok", "warning", "missing"]
 
@@ -158,13 +160,13 @@ async def list_regimes(_: Reader, db: TenantDB) -> list[Regime]:
 
 @router.get("/epr/{regime}", response_model=EprResult, summary="EPR fees by material and product")
 async def epr_result(
-    regime: EprRegime, _: Reader, db: TenantDB, year: Annotated[str | None, Query(max_length=8)] = None
+    regime: EprRegime, _: EprModule, db: TenantDB, year: Annotated[str | None, Query(max_length=8)] = None
 ) -> dict[str, Any]:
     return epr.calculate(regime, await catalog.all_products(db), year)
 
 
 @router.get("/ppwr/declarations", response_model=list[DeclarationRow], summary="Declaration readiness per product")
-async def list_declarations(_: Reader, db: TenantDB) -> list[dict[str, Any]]:
+async def list_declarations(_: PpwrModule, db: TenantDB) -> list[dict[str, Any]]:
     return [ppwr_doc.readiness(p) for p in await catalog.all_products(db)]
 
 

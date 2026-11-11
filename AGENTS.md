@@ -15,7 +15,7 @@ The platform is built **screen by screen** on a secure foundation (the old proto
 | Foundation (DB, RLS, permissions, audit, jobs, API client, shell) | `backend/app/core`, `frontend/src/app/core` | Done (Step 0) |
 | Screen 1: secure sign-in | `backend/app/platform/sign_in.py`, `api/v1/auth.py`, `frontend/src/app/core/session`, `features/auth` | In review (Playwright test and staging demo open) |
 | Screen 2: client workspaces | `backend/app/api/v1/workspaces.py`, `frontend/src/app/screens/workspaces` | Backend built (Postgres, RLS on legal entities, audit); in review |
-| Screen 9 (part): users | `frontend/src/app/screens/users`, `GET/POST /api/v1/auth/users` | Platform admins list and add users; org-admin Team view next |
+| Screen 9: users and team | `backend/app/api/v1/users.py`, `frontend/src/app/screens/{users,team}` | Platform admins manage every user (workspaces, roles, consultants, disable, temporary passwords); org admins manage their team |
 | Screens 3–8 (data points → data overview) | `backend/app/{catalog,ingestion,quality}`, `frontend/src/app/screens/*` | Backend built, CI-tested and live on `main` |
 | Screens 12–13 (part): compliance | `backend/app/modules`, `api/v1/compliance.py`, `frontend/src/app/screens/compliance` | EPR UK / Denmark / SB 54 fees and PPWR Denmark Declarations of Conformity (Danish and English) on real data |
 | Screen 14 (part): hotspots, scenarios, actions | `backend/app/modules/insights.py`, `api/v1/insights.py`, `frontend/src/app/screens/{insights,actions}` | Fee hotspots with their why, rule-based recommendations, what-if scenarios, action items |
@@ -60,6 +60,19 @@ reference-docs-teams/        reference material and data sets (input, not app co
 - On a 401, `session.interceptor.ts` refreshes once and retries; if that fails the user signs in again and returns to the same page. After 30 minutes without input the session ends.
 - Switching workspace (`POST /auth/switch-tenant`) issues a new token; the workspace is never sent as a header .
 - Production builds call the API on the same origin (`/api`, proxied by `vercel.json`) so the refresh cookie is first-party. Do not set `API_BASE_URL` to the Render URL.
+
+## What each client can configure (SaaS)
+
+Per workspace, without code changes:
+
+- **Identity:** name, logo, brand colour (the app shell shows them), legal entities, countries.
+- **Modules (plug-ins):** EPR, PPWR, DPP, LCA. Each module the workspace has becomes a `module.<id>` permission for its members (`app/core/permissions.py`); module screens and endpoints require it, so switching a module off removes it for that client at once. A workspace with no modules set gets all of them.
+- **People:** members and roles (org admin, analyst, viewer; Monk Spaces consultants are assigned by platform admins and see only their assigned workspaces).
+- **Data sources:** which systems are connected, their saved column mappings, auto-approve.
+- **Gap rules** apply by the workspace's modules and countries; the rule library itself is platform-wide.
+- **Horizon:** how many months ahead data collection starts.
+
+Not yet per client (see [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md)): its own gap rules, EPR rates, field catalogue and terminology.
 
 ## Client data: products, import, gaps (screens 3–8)
 

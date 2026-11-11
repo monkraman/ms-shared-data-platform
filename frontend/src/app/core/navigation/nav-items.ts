@@ -1,7 +1,8 @@
 /**
- * Sidebar navigation for platform screens, in groups. Each screen adds its entry when it
- * ships; an item shows only when the user has its permission (from `GET /api/v1/auth/me`),
- * and a group shows only when it has visible items.
+ * Sidebar navigation for platform screens, in groups. An item shows only when the user has
+ * its permission (from `GET /api/v1/auth/me`), and a group only when it has visible items.
+ * Module features use `module.<id>` permissions, which come from the workspace's modules,
+ * so switching a module off in Client workspaces removes its screens for that client.
  */
 export interface NavItem {
   label: string;
@@ -93,7 +94,7 @@ export const NAV: NavGroup[] = [
       {
         label: 'Hotspots and scenarios',
         path: '/app/insights',
-        permission: 'compliance.read',
+        permission: 'module.epr',
         icon: 'M8 14.5c2.8 0 4.5-1.9 4.5-4.3 0-2.7-2.2-3.9-2.6-6.7-1.5 1-2.3 2.4-2.3 3.9-.8-.6-1.3-1.5-1.4-2.6C4.6 6.1 3.5 7.8 3.5 10.2c0 2.4 1.7 4.3 4.5 4.3z',
       },
       {

@@ -97,6 +97,7 @@ async def load_principal(user_id: uuid.UUID, tenant_id: uuid.UUID | None) -> Pri
             raise _unauthorised("Your account is not active.")
 
         role = None
+        modules: list[str] = []
         if tenant_id is not None:
             tenant = await session.get(Tenant, tenant_id)
             if tenant is None:
@@ -109,6 +110,7 @@ async def load_principal(user_id: uuid.UUID, tenant_id: uuid.UUID | None) -> Pri
             if membership is None and not user.is_platform_admin:
                 raise ProblemError(403, "You do not have access to this workspace.")
             role = membership.role if membership else None
+            modules = list(tenant.modules)
 
         return Principal(
             user_id=user.id,
@@ -117,7 +119,10 @@ async def load_principal(user_id: uuid.UUID, tenant_id: uuid.UUID | None) -> Pri
             is_platform_admin=user.is_platform_admin,
             tenant_id=tenant_id,
             permissions=permissions_for(
-                is_platform_admin=user.is_platform_admin, tenant_role=role, has_tenant=tenant_id is not None
+                is_platform_admin=user.is_platform_admin,
+                tenant_role=role,
+                has_tenant=tenant_id is not None,
+                modules=modules,
             ),
         )
 

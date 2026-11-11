@@ -4,6 +4,9 @@ Things we chose to ship without, so they are not forgotten. Newest first. When o
 
 | Area | Improvement | Why it waits | Where |
 | --- | --- | --- | --- |
+| SaaS | Per-client gap rules and EPR rates (on top of the platform library), per-client field catalogue and labels | Platform-wide today | `app/quality`, `app/modules/reference` |
+| Users | Invitation and password-reset emails; users change their own password; SSO/MFA | Email service and identity provider not chosen | `app/api/v1/users.py` |
+| Modules | DPP and LCA screens on real data (the modules can be switched on, but have no screens yet) | Next in the plan | `app/modules` |
 | Horizon | Milestones maintained on a screen (platform admins) with sources, instead of `horizon.json`; alerts when a requirement enters its collection window | First version is reference data | `app/modules/reference/horizon.json` |
 | Horizon | Upcoming gaps excluded from KPI counts and EPR data-quality figures | Counts include every phase today | `app/quality/service.py` |
 | Insights | Save and name scenarios; compare several; scenario changes that also change PPWR results | First version recalculates EPR only, unsaved | `app/api/v1/insights.py` |
@@ -27,5 +30,4 @@ Things we chose to ship without, so they are not forgotten. Newest first. When o
 | Data points | Field catalogue in the database, so new fields need no deploy | Fields are a JSON file today | `app/catalog/reference.py` |
 | Data points | Dictionary updates after the first load need a migration | Seeded once by migration 0005 | `migrations/versions/*_0005_*` |
 | Gaps | Store computed gaps when product counts grow (computed on every read today) | Fine for hundreds of products | `app/quality/service.py` |
-| Users | Invitation emails; org-admin Team view; disable a user | Email service not chosen | screen 9 |
 | Quality | Playwright end-to-end tests; EU staging | Batched with the next test round | build plan |

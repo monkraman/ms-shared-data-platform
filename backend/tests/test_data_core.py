@@ -231,6 +231,15 @@ def test_epr_and_ppwr_results_come_from_the_workspace_data(db_client: TestClient
     assert body["total_fee"] > 0 and body["by_material"] and body["by_product"]
     assert db_client.get("/api/v1/modules/epr/epr_uk", headers=b).json()["total_fee"] == 0
 
+    # Workspace A has only EPR: PPWR is a module it has not switched on.
+    assert db_client.get("/api/v1/modules/ppwr/declarations", headers=h).status_code == 403
+    regimes = {r["id"]: r for r in db_client.get("/api/v1/modules/regimes", headers=h).json()}
+    assert regimes["epr_uk"]["in_scope"] and not regimes["ppwr_dk"]["in_scope"]
+    db_client.patch(
+        f"/api/v1/admin/tenants/{ws['a']}",
+        json={"modules": ["EPR", "PPWR"], "countries": ["UK", "DK"]},
+        headers=_auth(ws["pa"]),
+    )
     rows = db_client.get("/api/v1/modules/ppwr/declarations", headers=h).json()
     assert any(r["sku"] == "HLA-KET-460" for r in rows)
     doc = db_client.get("/api/v1/modules/ppwr/declarations/HLA-KET-460", params={"lang": "da"}, headers=h).json()
@@ -238,9 +247,11 @@ def test_epr_and_ppwr_results_come_from_the_workspace_data(db_client: TestClient
     assert doc["components"] and {r["key"] for r in doc["requirements"]} >= {"substances", "recyclability"}
     assert db_client.get("/api/v1/modules/ppwr/declarations/HLA-KET-460", headers=b).status_code == 404
 
-    regimes = {r["id"]: r for r in db_client.get("/api/v1/modules/regimes", headers=h).json()}
-    assert regimes["epr_uk"]["in_scope"]  # workspace A is EPR + UK (set in the scoping test)
-    assert not regimes["ppwr_dk"]["in_scope"]
+    assert db_client.get("/api/v1/modules/regimes", headers=h).json()
+    # Back to EPR + UK for the tests that follow.
+    db_client.patch(
+        f"/api/v1/admin/tenants/{ws['a']}", json={"modules": ["EPR"], "countries": ["UK"]}, headers=_auth(ws["pa"])
+    )
 
 
 def test_fill_estimates_writes_marked_values(db_client: TestClient, ws: dict[str, object]) -> None:
