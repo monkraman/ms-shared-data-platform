@@ -18,7 +18,7 @@ import app.ingestion.jobs  # noqa: F401  (registers the import job handler)
 from app.catalog.models import Product
 from app.core.audit import record_audit
 from app.core.auth import Principal, TenantDB, require_permission
-from app.core.errors import ProblemError
+from app.core.errors import ProblemError, invalid_field
 from app.core.jobs import enqueue
 from app.core.permissions import Perm
 from app.ingestion import service, sources
@@ -82,12 +82,6 @@ class JobStarted(BaseModel):
 Importer = Annotated[Principal, Depends(require_permission(Perm.IMPORTS_MANAGE))]
 
 
-def _invalid(field: str, msg: str) -> ProblemError:
-    return ProblemError(
-        422, "The request has invalid fields.", extra={"errors": [{"loc": ["body", field], "msg": msg}]}
-    )
-
-
 async def _draft(db: TenantDB, principal: Principal, batch: ImportBatch) -> ImportDraft:
     db.add(batch)
     await db.flush()
@@ -120,9 +114,9 @@ async def _batch(db: TenantDB, batch_id: uuid.UUID) -> ImportBatch:
 @router.post("", response_model=ImportDraft, status_code=status.HTTP_201_CREATED, summary="Start a CSV import")
 async def start_import(payload: ImportCreate, principal: Importer, db: TenantDB) -> ImportDraft:
     if not payload.columns or not payload.rows:
-        raise _invalid("file", "The file has no rows")
+        raise invalid_field("file", "The file has no rows")
     if len(set(payload.columns)) != len(payload.columns):
-        raise _invalid("file", "Column names must be different")
+        raise invalid_field("file", "Column names must be different")
     assert principal.tenant_id is not None
     batch = ImportBatch(
         tenant_id=principal.tenant_id,
@@ -153,7 +147,7 @@ async def set_mapping(batch_id: uuid.UUID, payload: MappingIn, _: Importer, db: 
     keys = {t["key"] for t in service.targets()}
     unknown = [v for v in payload.mapping.values() if v and v not in keys]
     if unknown:
-        raise _invalid("mapping", f"Unknown field: {unknown[0]}")
+        raise invalid_field("mapping", f"Unknown field: {unknown[0]}")
     batch.mapping = {col: payload.mapping.get(col) for col in batch.columns}
     existing = set((await db.scalars(select(Product.sku))).all())
     return service.preview(batch, existing)

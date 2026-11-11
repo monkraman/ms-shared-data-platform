@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.tenancy import TENANT_SETTING
 from app.platform.models import Membership, Tenant, TenantRole, TenantStatus, User, UserStatus
 
 
@@ -62,3 +63,9 @@ async def ensure_membership(
         membership.role = role
     await session.flush()
     return membership
+
+
+async def current_tenant(session: AsyncSession) -> Tenant | None:
+    """The workspace this session is bound to (its RLS setting), if any."""
+    raw = await session.scalar(text(f"SELECT current_setting('{TENANT_SETTING}', true)"))
+    return await session.get(Tenant, uuid.UUID(raw)) if raw else None

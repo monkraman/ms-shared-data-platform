@@ -32,7 +32,6 @@ Start with [../AGENTS.md](../AGENTS.md) for the repository map and the rules eve
 | [SECURITY_AND_TENANCY.md](SECURITY_AND_TENANCY.md) | Security and tenancy |
 | [TEST_STRATEGY.md](TEST_STRATEGY.md) | Testing approach |
 | [DECISIONS.md](DECISIONS.md) | Decision log |
-| [AI_CODING_GUIDE.md](AI_CODING_GUIDE.md) | Earlier AI coding notes (AGENTS.md is the current entry point) |
 
 ## Code-level references
 

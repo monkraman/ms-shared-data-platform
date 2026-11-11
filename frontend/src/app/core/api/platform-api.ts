@@ -23,6 +23,7 @@ import {
   WorkspacePatch,
   WorkspaceStatus,
   SyncSystem,
+  Horizon,
   Insights,
   ScenarioChange,
   ScenarioResult,
@@ -40,6 +41,10 @@ import {
   Severity,
   UserCreate,
   UserRow,
+  UserPatch,
+  MembershipIn,
+  Member,
+  MemberCreate,
 } from './contracts';
 
 /**
@@ -63,9 +68,22 @@ export class PlatformApi {
   updateWorkspace = (id: string, body: WorkspacePatch): Observable<Workspace> =>
     this.api.patch('/api/v1/admin/tenants/{tenant_id}', { path: { tenant_id: id }, body });
 
-  // Screen 9 (users; backend built)
-  users = (): Observable<UserRow[]> => this.api.get('/api/v1/auth/users');
-  createUser = (body: UserCreate): Observable<UserRow> => this.api.post('/api/v1/auth/users', { body });
+  // Screen 9 (users and access)
+  users = (): Observable<UserRow[]> => this.api.get('/api/v1/admin/users');
+  createUser = (body: UserCreate): Observable<UserRow> => this.api.post('/api/v1/admin/users', { body });
+  updateUser = (id: string, body: UserPatch): Observable<UserRow> =>
+    this.api.patch('/api/v1/admin/users/{user_id}', { path: { user_id: id }, body });
+  setMemberships = (id: string, body: MembershipIn[]): Observable<UserRow> =>
+    this.api.put('/api/v1/admin/users/{user_id}/memberships', { path: { user_id: id }, body });
+  setPassword = (id: string, password: string): Observable<unknown> =>
+    this.api.post('/api/v1/admin/users/{user_id}/password', { path: { user_id: id }, body: { password } });
+  team = (): Observable<Member[]> => this.api.get('/api/v1/team');
+  addMember = (body: MemberCreate): Observable<Member> => this.api.post('/api/v1/team', { body });
+  changeRole = (id: string, role: MemberCreate['role']): Observable<Member> =>
+    this.api.patch('/api/v1/team/{user_id}', { path: { user_id: id }, body: { role } });
+  removeMember = (id: string): Observable<unknown> => this.api.delete('/api/v1/team/{user_id}', { path: { user_id: id } });
+  resetMemberPassword = (id: string, password: string): Observable<unknown> =>
+    this.api.post('/api/v1/team/{user_id}/password', { path: { user_id: id }, body: { password } });
 
   // Screen 3
   dataPoints = (): Observable<DataPointDictionary> => this.api.get('/api/v1/admin/data-points');
@@ -131,4 +149,9 @@ export class PlatformApi {
   createAction = (body: ActionCreate): Observable<ActionItem> => this.api.post('/api/v1/actions', { body });
   updateAction = (id: string, body: ActionPatch): Observable<ActionItem> =>
     this.api.patch('/api/v1/actions/{action_id}', { path: { action_id: id }, body });
+
+  // Horizon scanning
+  horizon = (): Observable<Horizon> => this.api.get('/api/v1/modules/horizon');
+  setLeadTime = (lead_months: number): Observable<Horizon> =>
+    this.api.put('/api/v1/modules/horizon/settings', { body: { lead_months } });
 }

@@ -14,19 +14,19 @@ from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
-from sqlalchemy import select
 
 from app.catalog import service as catalog
-from app.catalog.models import Product
 from app.core.auth import Principal, TenantDB, require_permission
 from app.core.errors import ProblemError
 from app.core.permissions import Perm
 from app.modules import epr, ppwr_doc
-from app.quality.service import current_tenant
+from app.platform.repository import current_tenant
 
 router = APIRouter(prefix="/modules", tags=["Compliance"])
 
 Reader = Annotated[Principal, Depends(require_permission(Perm.COMPLIANCE_READ))]
+EprModule = Annotated[Principal, Depends(require_permission(Perm.MODULE_EPR))]
+PpwrModule = Annotated[Principal, Depends(require_permission(Perm.MODULE_PPWR))]
 EprRegime = Literal["epr_uk", "epr_dk", "sb54_ca"]
 Status = Literal["ok", "warning", "missing"]
 
@@ -135,10 +135,6 @@ class Declaration(BaseModel):
     missing_fields: list[str]
 
 
-async def _products(db: TenantDB) -> list[Product]:
-    return list((await db.scalars(select(Product).order_by(Product.sku))).all())
-
-
 @router.get("/regimes", response_model=list[Regime], summary="Regimes this workspace covers")
 async def list_regimes(_: Reader, db: TenantDB) -> list[Regime]:
     tenant = await current_tenant(db)
@@ -164,14 +160,14 @@ async def list_regimes(_: Reader, db: TenantDB) -> list[Regime]:
 
 @router.get("/epr/{regime}", response_model=EprResult, summary="EPR fees by material and product")
 async def epr_result(
-    regime: EprRegime, _: Reader, db: TenantDB, year: Annotated[str | None, Query(max_length=8)] = None
+    regime: EprRegime, _: EprModule, db: TenantDB, year: Annotated[str | None, Query(max_length=8)] = None
 ) -> dict[str, Any]:
-    return epr.calculate(regime, await _products(db), year)
+    return epr.calculate(regime, await catalog.all_products(db), year)
 
 
 @router.get("/ppwr/declarations", response_model=list[DeclarationRow], summary="Declaration readiness per product")
-async def list_declarations(_: Reader, db: TenantDB) -> list[dict[str, Any]]:
-    return [ppwr_doc.readiness(p) for p in await _products(db)]
+async def list_declarations(_: PpwrModule, db: TenantDB) -> list[dict[str, Any]]:
+    return [ppwr_doc.readiness(p) for p in await catalog.all_products(db)]
 
 
 @router.get(

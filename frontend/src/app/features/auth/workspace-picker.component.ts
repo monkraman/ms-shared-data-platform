@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Membership, SessionService, errorMessage } from '../../core/session/session.service';
-import { TenantApiService } from '../../core/services/tenant-api.service';
 
 /** After sign-in, for users in more than one workspace: pick where to work. */
 @Component({
@@ -90,7 +89,6 @@ import { TenantApiService } from '../../core/services/tenant-api.service';
 export class WorkspacePickerComponent {
   protected readonly session = inject(SessionService);
   private readonly router = inject(Router);
-  private readonly tenantService = inject(TenantApiService);
 
   protected readonly busy = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -100,7 +98,6 @@ export class WorkspacePickerComponent {
     this.busy.set(true);
     try {
       if (m.tenant.id !== this.session.activeTenantId()) await this.session.switchWorkspace(m.tenant.id);
-      this.tenantService.setActiveTenant(m.tenant.slug);
       await this.router.navigateByUrl(this.session.home());
     } catch (e) {
       this.error.set(errorMessage(e));

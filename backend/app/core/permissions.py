@@ -32,6 +32,20 @@ class Perm:
     DATA_READ = "data.read"  # screen 8
     COMPLIANCE_READ = "compliance.read"  # screen 12: EPR results, PPWR declarations
     ACTIONS_MANAGE = "actions.manage"  # screen 14: action items from recommendations
+    SETTINGS_MANAGE = "settings.manage"  # workspace settings such as the horizon lead time
+
+    # Modules a workspace subscribes to (its "plug-ins"); every member of the workspace gets them.
+    MODULE_EPR = "module.epr"
+    MODULE_PPWR = "module.ppwr"
+    MODULE_DPP = "module.dpp"
+    MODULE_LCA = "module.lca"
+
+
+MODULES = ("EPR", "PPWR", "DPP", "LCA")
+
+
+def module_permission(module: str) -> str:
+    return f"module.{module.lower()}"
 
 
 PLATFORM_ADMIN_PERMISSIONS: frozenset[str] = frozenset(
@@ -49,7 +63,9 @@ _READ = {Perm.WORKSPACE_READ, Perm.PRODUCTS_READ, Perm.GAPS_READ, Perm.DATA_READ
 _WORK = _READ | {Perm.JOBS_READ, Perm.PRODUCTS_MANAGE, Perm.IMPORTS_MANAGE, Perm.GAPS_RESOLVE, Perm.ACTIONS_MANAGE}
 
 TENANT_ROLE_PERMISSIONS: dict[TenantRole, frozenset[str]] = {
-    TenantRole.ORG_ADMIN: frozenset(_WORK | {Perm.AUDIT_READ, Perm.USERS_MANAGE}),
+    TenantRole.ORG_ADMIN: frozenset(_WORK | {Perm.AUDIT_READ, Perm.USERS_MANAGE, Perm.SETTINGS_MANAGE}),
+    # Consultants do the client's compliance work; the client's org admin manages its team.
+    TenantRole.CONSULTANT: frozenset(_WORK | {Perm.AUDIT_READ, Perm.SETTINGS_MANAGE}),
     TenantRole.ANALYST: frozenset(_WORK),
     TenantRole.VIEWER: frozenset(_READ),
 }
@@ -57,7 +73,15 @@ TENANT_ROLE_PERMISSIONS: dict[TenantRole, frozenset[str]] = {
 ALL_TENANT_PERMISSIONS: frozenset[str] = frozenset().union(*TENANT_ROLE_PERMISSIONS.values())
 
 
-def permissions_for(*, is_platform_admin: bool, tenant_role: TenantRole | None, has_tenant: bool) -> frozenset[str]:
+def permissions_for(
+    *,
+    is_platform_admin: bool,
+    tenant_role: TenantRole | None,
+    has_tenant: bool,
+    modules: tuple[str, ...] | list[str] = (),
+) -> frozenset[str]:
+    """What a user may do in a workspace: their role's permissions plus the workspace's modules
+    (all modules when the workspace has none set, as before modules were chosen)."""
     perms: set[str] = set()
     if is_platform_admin:
         perms |= PLATFORM_ADMIN_PERMISSIONS
@@ -66,4 +90,6 @@ def permissions_for(*, is_platform_admin: bool, tenant_role: TenantRole | None, 
             perms |= ALL_TENANT_PERMISSIONS
     if tenant_role is not None:
         perms |= TENANT_ROLE_PERMISSIONS.get(tenant_role, frozenset())
+    if has_tenant and perms:
+        perms |= {module_permission(m) for m in (modules or MODULES)}
     return frozenset(perms)

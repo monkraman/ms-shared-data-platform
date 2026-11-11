@@ -8,3 +8,4 @@ export { FormFieldComponent } from './form-field.component';
 export { PageHeaderComponent } from './page-header.component';
 export { type ChipTone, StatusChipComponent } from './status-chip.component';
 export { ToastOutletComponent } from './toast-outlet.component';
+export * from './initials';

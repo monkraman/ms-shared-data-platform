@@ -1,7 +1,8 @@
 /**
- * Sidebar navigation for platform screens, in groups. Each screen adds its entry when it
- * ships; an item shows only when the user has its permission (from `GET /api/v1/auth/me`),
- * and a group shows only when it has visible items.
+ * Sidebar navigation for platform screens, in groups. An item shows only when the user has
+ * its permission (from `GET /api/v1/auth/me`), and a group only when it has visible items.
+ * Module features use `module.<id>` permissions, which come from the workspace's modules,
+ * so switching a module off in Client workspaces removes its screens for that client.
  */
 export interface NavItem {
   label: string;
@@ -93,14 +94,31 @@ export const NAV: NavGroup[] = [
       {
         label: 'Hotspots and scenarios',
         path: '/app/insights',
-        permission: 'compliance.read',
+        permission: 'module.epr',
         icon: 'M8 14.5c2.8 0 4.5-1.9 4.5-4.3 0-2.7-2.2-3.9-2.6-6.7-1.5 1-2.3 2.4-2.3 3.9-.8-.6-1.3-1.5-1.4-2.6C4.6 6.1 3.5 7.8 3.5 10.2c0 2.4 1.7 4.3 4.5 4.3z',
+      },
+      {
+        label: 'Horizon',
+        path: '/app/horizon',
+        permission: 'compliance.read',
+        icon: 'M1.5 11.5h13M3.5 11.5a4.5 4.5 0 0 1 9 0M8 2v2M3.4 4.4l1.4 1.4M12.6 4.4l-1.4 1.4',
       },
       {
         label: 'Actions',
         path: '/app/actions',
         permission: 'compliance.read',
         icon: 'M3 3.5h10v9H3zM5.5 6.5l1.2 1.2 2.3-2.3M5.5 10h5',
+      },
+    ],
+  },
+  {
+    label: 'Workspace',
+    items: [
+      {
+        label: 'Team',
+        path: '/app/team',
+        permission: 'users.manage',
+        icon: 'M6 7.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM1.5 13.5c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4M10.5 2.7a2.5 2.5 0 0 1 0 4.6M12 9.8c1.5.5 2.5 1.8 2.5 3.7',
       },
     ],
   },

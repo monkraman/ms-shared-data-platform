@@ -53,7 +53,7 @@ import { toCsv } from '../import/csv';
       <div class="kpi"><div class="kpi-label">Resolved</div><div class="kpi-value">{{ byStatus('resolved') }}</div></div>
     </div>
 
-    <div class="modes groups" role="tablist" aria-label="Gap groups">
+    <div class="segmented" role="tablist" aria-label="Gap groups">
       <button type="button" role="tab" [class.on]="group() === ''" (click)="group.set('')">All</button>
       <button type="button" role="tab" [class.on]="group() === 'estimable'" (click)="group.set('estimable')">
         Can be estimated <span class="count">{{ groupCount(true) }}</span>
@@ -75,6 +75,11 @@ import { toCsv } from '../import/csv';
         <option value="requested">Waiting on supplier</option>
         <option value="resolved">Resolved</option>
         <option value="">All</option>
+      </select>
+      <select aria-label="When due" [ngModel]="due()" (ngModelChange)="due.set($event)">
+        <option value="due">Due now</option>
+        <option value="upcoming">Upcoming</option>
+        <option value="">Any time</option>
       </select>
       <select aria-label="Module" [ngModel]="module()" (ngModelChange)="module.set($event)">
         <option value="">All modules</option>
@@ -134,7 +139,7 @@ import { toCsv } from '../import/csv';
 
         @if (g.status !== 'resolved') {
           <div class="section-label">Fix</div>
-          <div class="modes" role="tablist">
+          <div class="segmented" role="tablist">
             @if (g.estimate) {
               <button type="button" role="tab" [class.on]="mode() === 'use_estimate'" (click)="mode.set('use_estimate')">Use estimate</button>
             }
@@ -170,43 +175,8 @@ import { toCsv } from '../import/csv';
     </app-drawer>
   `,
   styles: `
-    .modes {
-      display: inline-flex;
-      gap: 4px;
-      padding: 4px;
-      margin-bottom: 14px;
-      border-radius: 10px;
-      background: var(--bg);
-    }
-    .modes button {
-      border: 0;
-      background: none;
-      padding: 7px 12px;
-      border-radius: 8px;
-      font: inherit;
-      font-weight: 600;
-      color: var(--muted);
-      cursor: pointer;
-    }
-    .modes button.on {
-      background: var(--card);
-      color: var(--ink);
-      box-shadow: var(--shadow-sm);
-    }
     textarea {
       min-height: 90px;
-    }
-    .groups {
-      margin-bottom: 12px;
-      background: var(--card);
-      border: 1px solid var(--border);
-    }
-    .groups .count {
-      margin-left: 6px;
-      padding: 1px 7px;
-      border-radius: 999px;
-      background: var(--bg);
-      font-size: 12px;
     }
     .estimate {
       display: flex;
@@ -236,6 +206,8 @@ export class GapsComponent {
   /** Estimable vs needs-data grouping ('' = all). */
   protected readonly group = signal<'' | 'estimable' | 'data'>('');
   protected readonly filling = signal(false);
+  /** Horizon: 'due' = in force or inside the collection lead time; 'upcoming' = later. */
+  protected readonly due = signal<'' | 'due' | 'upcoming'>('due');
   protected readonly canResolve = computed(() => this.session.can('gaps.resolve'));
   protected readonly saving = signal(false);
   protected readonly problem = signal<Problem | null>(null);
@@ -251,7 +223,8 @@ export class GapsComponent {
         (!this.severity() || g.severity === this.severity()) &&
         (!this.status() || g.status === this.status()) &&
         (!this.module() || g.modules.includes(this.module() as Gap['modules'][number])) &&
-        (!this.group() || g.estimable === (this.group() === 'estimable')),
+        (!this.group() || g.estimable === (this.group() === 'estimable')) &&
+        (!this.due() || (this.due() === 'upcoming') === (g.phase === 'upcoming')),
     );
   });
 
@@ -265,6 +238,7 @@ export class GapsComponent {
     { key: 'value', label: 'Value' },
     { key: 'estimate', label: 'Estimate' },
     { key: 'rule', label: 'Rule', value: (g) => g.rule_name },
+    { key: 'due', label: 'Applies', value: (g) => (g.phase === 'now' ? 'Now' : g.phase === 'collecting' ? 'Collecting' : (g.applies_from ?? '').slice(0, 7)) },
     { key: 'status', label: 'Status' },
   ];
 

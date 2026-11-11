@@ -53,15 +53,11 @@ def create_platform_token(
     tenant_id: uuid.UUID | None,
     *,
     minutes: int | None = None,
-    legacy_claims: dict[str, str | None] | None = None,
 ) -> str:
-    """Signed access token. ``legacy_claims`` (email, role, tenant slug) let the
-    prototype's endpoints read the same token until each screen replaces them; new
-    endpoints ignore them and re-check the user in the database."""
+    """Signed access token; every request re-checks the user and workspace in the database."""
     now = datetime.now(UTC)
     lifetime = timedelta(minutes=minutes or get_settings().access_token_minutes)
     claims = {
-        **(legacy_claims or {}),
         "sub": str(user_id),
         "tid": str(tenant_id) if tenant_id else None,
         "ver": TOKEN_VERSION,
@@ -101,6 +97,7 @@ async def load_principal(user_id: uuid.UUID, tenant_id: uuid.UUID | None) -> Pri
             raise _unauthorised("Your account is not active.")
 
         role = None
+        modules: list[str] = []
         if tenant_id is not None:
             tenant = await session.get(Tenant, tenant_id)
             if tenant is None:
@@ -113,6 +110,7 @@ async def load_principal(user_id: uuid.UUID, tenant_id: uuid.UUID | None) -> Pri
             if membership is None and not user.is_platform_admin:
                 raise ProblemError(403, "You do not have access to this workspace.")
             role = membership.role if membership else None
+            modules = list(tenant.modules)
 
         return Principal(
             user_id=user.id,
@@ -121,7 +119,10 @@ async def load_principal(user_id: uuid.UUID, tenant_id: uuid.UUID | None) -> Pri
             is_platform_admin=user.is_platform_admin,
             tenant_id=tenant_id,
             permissions=permissions_for(
-                is_platform_admin=user.is_platform_admin, tenant_role=role, has_tenant=tenant_id is not None
+                is_platform_admin=user.is_platform_admin,
+                tenant_role=role,
+                has_tenant=tenant_id is not None,
+                modules=modules,
             ),
         )
 

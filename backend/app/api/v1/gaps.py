@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, Query, status
@@ -10,10 +11,10 @@ from sqlalchemy import func, select
 
 from app.catalog import reference
 from app.catalog import service as catalog
-from app.catalog.models import DataPoint, Product
+from app.catalog.models import DataPoint
 from app.core.audit import record_audit
 from app.core.auth import PlatformDB, Principal, TenantDB, require_permission
-from app.core.errors import ProblemError
+from app.core.errors import ProblemError, invalid_field
 from app.core.permissions import Perm
 from app.platform.reference import COUNTRY_CODES, ModuleId
 from app.quality import service as quality
@@ -89,6 +90,8 @@ class GapOut(BaseModel):
     status: GapStatus
     estimable: bool
     estimate: Estimate | None
+    applies_from: date | None
+    phase: Literal["now", "collecting", "upcoming"]
 
 
 class GapResolve(BaseModel):
@@ -123,12 +126,6 @@ class DataOverview(BaseModel):
     data_points: list[DataPointCoverage]
 
 
-def _invalid(field: str, msg: str) -> ProblemError:
-    return ProblemError(
-        422, "The request has invalid fields.", extra={"errors": [{"loc": ["body", field], "msg": msg}]}
-    )
-
-
 def _rule_out(r: GapRule) -> GapRuleOut:
     return GapRuleOut(
         id=r.id,
@@ -159,15 +156,15 @@ async def list_rules(_: RuleManager, db: PlatformDB) -> list[GapRuleOut]:
 )
 async def create_rule(payload: GapRuleCreate, principal: RuleManager, db: PlatformDB) -> GapRuleOut:
     if payload.field not in reference.fields():
-        raise _invalid("field", "Choose a field")
+        raise invalid_field("field", "Choose a field")
     if await db.get(DataPoint, payload.data_point) is None:
-        raise _invalid("data_point", "Choose a data point")
+        raise invalid_field("data_point", "Choose a data point")
     if payload.check.kind == "in" and not payload.check.values:
-        raise _invalid("check", "List the values that count as a gap")
+        raise invalid_field("check", "List the values that count as a gap")
     if not payload.modules:
-        raise _invalid("modules", "Choose at least one module")
+        raise invalid_field("modules", "Choose at least one module")
     if any(c not in COUNTRY_CODES for c in payload.countries):
-        raise _invalid("countries", "Choose a supported country")
+        raise invalid_field("countries", "Choose a supported country")
     last = await db.scalar(select(func.max(GapRule.id)))
     next_number = int(last.split("-")[1]) + 1 if last else 1
     rule = GapRule(
@@ -250,7 +247,7 @@ async def resolve_gap(
     if payload.action == "set_value":
         value = (payload.value or "").strip()
         if not value:
-            raise _invalid("value", "Enter a value")
+            raise invalid_field("value", "Enter a value")
         product = await catalog.get_by_sku(db, gap["sku"])
         assert product is not None
         if gap["component_id"]:
@@ -298,7 +295,7 @@ async def fill_estimates(
     principal: Annotated[Principal, Depends(require_permission(Perm.GAPS_RESOLVE))],
     db: TenantDB,
 ) -> FillResult:
-    products = list((await db.scalars(select(Product))).all())
+    products = await catalog.all_products(db)
     wanted = set(payload.gap_ids) if payload.gap_ids is not None else None
     targets = [
         g
@@ -350,7 +347,7 @@ async def fill_estimates(
 async def data_overview(
     _: Annotated[Principal, Depends(require_permission(Perm.DATA_READ))], db: TenantDB
 ) -> DataOverview:
-    products = list((await db.scalars(select(Product))).all())
+    products = await catalog.all_products(db)
     points = list((await db.scalars(select(DataPoint).order_by(DataPoint.code))).all())
 
     values: list[tuple[str, str, bool]] = []  # (dp, value, estimated)

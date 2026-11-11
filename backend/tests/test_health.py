@@ -36,28 +36,3 @@ def test_cors_headers_on_health(client: TestClient) -> None:
     )
     assert response.status_code == 200
     assert response.headers.get("access-control-allow-origin") == origin
-
-
-def test_create_and_list_tenants(client: TestClient) -> None:
-    """Verify creating a tenant workspace via Onboarding API and retrieving it."""
-    payload = {
-        "id": "nestle-nordic",
-        "name": "Nordic FMCG Solutions",
-        "sector": "food_beverage",
-        "organisation_size": "L",
-        "primary_currency": "EUR",
-        "active_jurisdictions": ["SE_FTI_2025", "DK_DPA_2025"],
-    }
-    create_res = client.post("/api/v1/tenants", json=payload)
-    assert create_res.status_code == 201
-    created_data = create_res.json()
-    assert created_data["id"] == "nestle-nordic"
-    assert created_data["name"] == "Nordic FMCG Solutions"
-
-    # Verify in list
-    list_res = client.get("/api/v1/tenants")
-    assert list_res.status_code == 200
-    tenants = list_res.json()
-    slugs = [t["id"] for t in tenants]
-    assert "nestle-nordic" in slugs
-

@@ -78,10 +78,8 @@ def test_prototype_user_moves_to_database_on_first_sign_in(api: TestClient) -> N
 
     assert db_client_hash_is_argon2(api.portal.call(stored_hash))
 
-    # The same token works on the new API and on the prototype's endpoints.
     me = api.get("/api/v1/auth/me", headers=bearer(res)).json()
     assert me["active_tenant"]["slug"] == "khc-europe"
-    assert api.get("/api/v1/foundation/products", headers=bearer(res)).status_code == 200
 
     # From now on the database decides.
     assert sign_in(api, "compliance.officer@kraftheinz.com", "wrong-password").status_code == 401
@@ -145,34 +143,11 @@ def test_switch_between_own_workspaces_only(api: TestClient, people: dict[str, s
     assert denied.status_code == 403
 
 
-def test_prototype_endpoints_need_a_session(api: TestClient, people: dict[str, str]) -> None:
-    assert api.get("/api/v1/foundation/products").status_code == 401
+def test_client_data_needs_a_session_and_ignores_tenant_headers(api: TestClient, people: dict[str, str]) -> None:
+    assert api.get("/api/v1/products").status_code == 401
 
     res = sign_in(api, people["email"], PASSWORD)
-    other = api.get("/api/v1/foundation/products", headers={**bearer(res), "X-Tenant-ID": "khc-europe"})
-    assert other.status_code == 403
-
-
-def test_user_directory(api: TestClient, people: dict[str, str]) -> None:
-    payload = {
-        "email": f"new-{uuid.uuid4().hex[:6]}@x.test",
-        "full_name": "New Person",
-        "role": "analyst",
-        "password": "long-enough-1",
-    }
-    assert api.post("/api/v1/auth/users", json=payload).status_code == 401
-
-    res = sign_in(api, people["email"], PASSWORD)
-    created = api.post("/api/v1/auth/users", json={**payload, "tenant_id": "khc-europe"}, headers=bearer(res))
-    assert created.status_code == 201, created.text
-    # Org admins add people to their own workspace, whatever the request says.
-    assert created.json()["organisation_slug"] == people["one_slug"]
-    assert sign_in(api, payload["email"], "long-enough-1").status_code == 200
-
-    short = api.post(
-        "/api/v1/auth/users", json={**payload, "email": "s@x.test", "password": "short"}, headers=bearer(res)
-    )
-    assert short.status_code == 422
-
-    listed = api.get("/api/v1/auth/users", headers=bearer(res)).json()
-    assert {u["organisation_slug"] for u in listed} == {people["one_slug"]}
+    # The workspace comes from the token only; a header naming another workspace changes nothing.
+    other = api.get("/api/v1/products", headers={**bearer(res), "X-Tenant-ID": people["other"]})
+    assert other.status_code == 200
+    assert other.json() == api.get("/api/v1/products", headers=bearer(res)).json()

@@ -7,7 +7,6 @@ export const signInResponse = (role = 'org_admin', token = 'access-1'): SignInRe
   token_type: 'bearer',
   expires_in_seconds: 900,
   redirect_url: '/dashboard',
-  requires_mfa: false,
   user: {
     id: 'u1',
     email: 'ana@acme.test',

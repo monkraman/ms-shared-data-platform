@@ -179,7 +179,7 @@ def test_gap_rules_are_managed_by_platform_admins(db_client: TestClient, ws: dic
 def test_rules_follow_the_workspace_modules_and_countries(db_client: TestClient, ws: dict[str, object]) -> None:
     h, pa = _auth(ws["oa"], ws["a"]), _auth(ws["pa"])
     all_rules = {g["rule_id"] for g in db_client.get("/api/v1/gaps", headers=h).json()}
-    assert "GR-002" in all_rules  # DPP rule while the workspace has no modules set
+    assert "GR-001" in all_rules  # a DPP-only rule applies while the workspace has no modules set
 
     db_client.patch(
         f"/api/v1/admin/tenants/{ws['a']}",
@@ -192,7 +192,7 @@ def test_rules_follow_the_workspace_modules_and_countries(db_client: TestClient,
     )
     epr_only = db_client.get("/api/v1/gaps", headers=h).json()
     assert epr_only and all("EPR" in g["modules"] for g in epr_only)
-    assert "GR-002" not in {g["rule_id"] for g in epr_only}
+    assert "GR-001" not in {g["rule_id"] for g in epr_only}
 
 
 def test_a_data_source_remembers_its_mapping_and_can_auto_approve(db_client: TestClient, ws: dict[str, object]) -> None:
@@ -231,6 +231,15 @@ def test_epr_and_ppwr_results_come_from_the_workspace_data(db_client: TestClient
     assert body["total_fee"] > 0 and body["by_material"] and body["by_product"]
     assert db_client.get("/api/v1/modules/epr/epr_uk", headers=b).json()["total_fee"] == 0
 
+    # Workspace A has only EPR: PPWR is a module it has not switched on.
+    assert db_client.get("/api/v1/modules/ppwr/declarations", headers=h).status_code == 403
+    regimes = {r["id"]: r for r in db_client.get("/api/v1/modules/regimes", headers=h).json()}
+    assert regimes["epr_uk"]["in_scope"] and not regimes["ppwr_dk"]["in_scope"]
+    db_client.patch(
+        f"/api/v1/admin/tenants/{ws['a']}",
+        json={"modules": ["EPR", "PPWR"], "countries": ["UK", "DK"]},
+        headers=_auth(ws["pa"]),
+    )
     rows = db_client.get("/api/v1/modules/ppwr/declarations", headers=h).json()
     assert any(r["sku"] == "HLA-KET-460" for r in rows)
     doc = db_client.get("/api/v1/modules/ppwr/declarations/HLA-KET-460", params={"lang": "da"}, headers=h).json()
@@ -238,9 +247,11 @@ def test_epr_and_ppwr_results_come_from_the_workspace_data(db_client: TestClient
     assert doc["components"] and {r["key"] for r in doc["requirements"]} >= {"substances", "recyclability"}
     assert db_client.get("/api/v1/modules/ppwr/declarations/HLA-KET-460", headers=b).status_code == 404
 
-    regimes = {r["id"]: r for r in db_client.get("/api/v1/modules/regimes", headers=h).json()}
-    assert regimes["epr_uk"]["in_scope"]  # workspace A is EPR + UK (set in the scoping test)
-    assert not regimes["ppwr_dk"]["in_scope"]
+    assert db_client.get("/api/v1/modules/regimes", headers=h).json()
+    # Back to EPR + UK for the tests that follow.
+    db_client.patch(
+        f"/api/v1/admin/tenants/{ws['a']}", json={"modules": ["EPR"], "countries": ["UK"]}, headers=_auth(ws["pa"])
+    )
 
 
 def test_fill_estimates_writes_marked_values(db_client: TestClient, ws: dict[str, object]) -> None:
@@ -301,3 +312,25 @@ def test_insights_scenarios_and_action_items(db_client: TestClient, ws: dict[str
     linked = db_client.get("/api/v1/modules/epr/epr_uk/insights", headers=h).json()["recommendations"]
     assert next(r for r in linked if r["id"] == rec["id"])["action_id"] == again["id"]
     assert db_client.get("/api/v1/actions", headers=b).json() == []
+
+
+def test_horizon_milestones_and_lead_time(db_client: TestClient, ws: dict[str, object]) -> None:
+    h, viewer = _auth(ws["oa"], ws["a"]), _auth(ws["viewer"], ws["a"])
+    res = db_client.get("/api/v1/modules/horizon", headers=viewer)
+    assert res.status_code == 200, res.text
+    body = res.json()
+    assert body["lead_months"] == 3
+    ids = {m["id"] for m in body["milestones"]}
+    assert "uk-drs-2027" in ids  # workspace A is EPR + UK
+    assert "ppwr-labels-2028" not in ids  # no PPWR module, no EU country
+
+    assert (
+        db_client.put("/api/v1/modules/horizon/settings", json={"lead_months": 24}, headers=viewer).status_code == 403
+    )
+    longer = db_client.put("/api/v1/modules/horizon/settings", json={"lead_months": 24}, headers=h).json()
+    drs = next(m for m in longer["milestones"] if m["id"] == "uk-drs-2027")
+    assert drs["status"] in ("collecting", "now") and drs["collect_from"] < drs["date"]
+    assert db_client.put("/api/v1/modules/horizon/settings", json={"lead_months": 99}, headers=h).status_code == 422
+
+    gaps = db_client.get("/api/v1/gaps", headers=h).json()
+    assert gaps and all(g["phase"] in ("now", "collecting", "upcoming") for g in gaps)

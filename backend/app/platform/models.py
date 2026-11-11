@@ -35,9 +35,11 @@ class UserStatus(enum.StrEnum):
 
 
 class TenantRole(enum.StrEnum):
-    """Roles inside one client workspace (the prototype's roles). Screen 9 refines them."""
+    """Roles inside one client workspace."""
 
     ORG_ADMIN = "org_admin"
+    # Monk Spaces staff working in the client workspaces they are assigned to.
+    CONSULTANT = "consultant"
     ANALYST = "analyst"
     VIEWER = "viewer"
 
@@ -56,6 +58,8 @@ class Tenant(UUIDPrimaryKey, Timestamps, Base):
     logo_url: Mapped[str | None] = mapped_column(Text)
     countries: Mapped[list[str]] = mapped_column(ARRAY(String(2)), default=list, nullable=False)
     modules: Mapped[list[str]] = mapped_column(ARRAY(String(8)), default=list, nullable=False)
+    # Data collection for a requirement starts this many months before it applies.
+    horizon_lead_months: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
 
     legal_entities: Mapped[list[LegalEntity]] = relationship(
         lazy="selectin", cascade="all, delete-orphan", order_by="LegalEntity.created_at"
@@ -88,6 +92,7 @@ class User(UUIDPrimaryKey, Timestamps, Base):
     )
     failed_login_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     locked_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_sign_in_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     memberships: Mapped[list[Membership]] = relationship(back_populates="user", lazy="selectin")
 

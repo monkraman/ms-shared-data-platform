@@ -22,7 +22,7 @@ from app.core.auth import create_platform_token
 from app.core.db import utcnow
 from app.core.errors import ProblemError
 from app.core.tenancy import tenant_session
-from app.platform import legacy_import
+from app.platform import bootstrap
 from app.platform.models import Membership, RefreshToken, Tenant, TenantRole, TenantStatus, User, UserStatus
 from app.platform.passwords import hash_password, verify_password
 
@@ -62,7 +62,7 @@ async def sign_in(email: str, password: str) -> Session:
     async with tenant_session(None, platform_access=True) as db:
         user = await db.scalar(select(User).where(User.email == email))
         if user is None:
-            user = await legacy_import.import_user(db, email, password)
+            user = await bootstrap.import_user(db, email)
 
         now = utcnow()
         if user is None:
@@ -84,7 +84,7 @@ async def sign_in(email: str, password: str) -> Session:
         elif user.status != UserStatus.ACTIVE:
             failure = ProblemError(403, "Your account is not active.")
         else:
-            user.failed_login_count, user.locked_until = 0, None
+            user.failed_login_count, user.locked_until, user.last_sign_in_at = 0, None, now
             session = await _issue(db, user, _default_membership(user))
             await record_audit(
                 db,
@@ -184,17 +184,7 @@ async def _issue(
             expires_at=expires_at or utcnow() + timedelta(hours=REFRESH_HOURS),
         )
     )
-    access = create_platform_token(
-        user.id,
-        tenant.id if tenant else None,
-        legacy_claims={
-            "email": user.email,
-            "name": user.full_name,
-            "role": legacy_role(user, role),
-            "tenant_id": tenant.slug if tenant else None,
-            "org_name": tenant.name if tenant else None,
-        },
-    )
+    access = create_platform_token(user.id, tenant.id if tenant else None)
     return Session(user=user, tenant=tenant, role=role, access_token=access, refresh_token=raw)
 
 

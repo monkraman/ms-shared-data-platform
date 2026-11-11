@@ -12,35 +12,25 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.catalog import reference
-from app.catalog.models import Component, FieldMap, Product, SalesLine
-
-
-def _num(value: str | None) -> float | None:
-    try:
-        return float(value) if value not in (None, "") else None
-    except ValueError:
-        return None
-
-
-def _value(fields: FieldMap, key: str) -> str:
-    return str((fields.get(key) or {}).get("value", ""))
+from app.catalog.fields import FieldMap, number, value
+from app.catalog.models import Component, Product, SalesLine
 
 
 def component_out(c: Component) -> dict[str, Any]:
     f = c.fields
-    units = _num(_value(f, "units_per_pack"))
+    units = number(value(f, "units_per_pack"))
     return {
         "id": c.code,
-        "name": _value(f, "component_name"),
-        "level": _value(f, "packaging_level"),
+        "name": value(f, "component_name"),
+        "level": value(f, "packaging_level"),
         "units_per_pack": units if units else 1,
-        "material": _value(f, "material"),
-        "polymer": _value(f, "polymer"),
-        "weight_g": _num(_value(f, "weight_g")),
-        "weight_source": _value(f, "weight_source"),
-        "recycled_content_pct": _num(_value(f, "recycled_content_pct")),
-        "recyclability": _value(f, "recyclability_result"),
-        "supplier_id": _value(f, "supplier_id"),
+        "material": value(f, "material"),
+        "polymer": value(f, "polymer"),
+        "weight_g": number(value(f, "weight_g")),
+        "weight_source": value(f, "weight_source"),
+        "recycled_content_pct": number(value(f, "recycled_content_pct")),
+        "recyclability": value(f, "recyclability_result"),
+        "supplier_id": value(f, "supplier_id"),
         "fields": f,
     }
 
@@ -49,10 +39,10 @@ def sales_out(s: SalesLine) -> dict[str, Any]:
     f = s.fields
     return {
         "id": s.code,
-        "period": _value(f, "period"),
-        "channel": _value(f, "channel"),
-        "units_placed": _num(_value(f, "units_placed")) or 0,
-        "units_exported": _num(_value(f, "units_exported")) or 0,
+        "period": value(f, "period"),
+        "channel": value(f, "channel"),
+        "units_placed": number(value(f, "units_placed")) or 0,
+        "units_exported": number(value(f, "units_exported")) or 0,
     }
 
 
@@ -68,9 +58,9 @@ def summary(p: Product, open_gaps: int = 0) -> dict[str, Any]:
     filled = sum(1 for v in values if str(v.get("value", "")).strip())
     return {
         "sku": p.sku,
-        "name": _value(p.fields, "product_name") or p.sku,
-        "brand": _value(p.fields, "brand"),
-        "gtin": _value(p.fields, "gtin"),
+        "name": value(p.fields, "product_name") or p.sku,
+        "brand": value(p.fields, "brand"),
+        "gtin": value(p.fields, "gtin"),
         "component_count": len(components),
         "packaging_g_per_unit": round(per_unit, 1),
         "materials": list(dict.fromkeys(c["material"] for c in components if c["material"])),
@@ -89,16 +79,16 @@ def detail(p: Product, open_gaps: int = 0) -> dict[str, Any]:
     }
 
 
-def fv(key: str, value: Any) -> dict[str, Any]:
+def fv(key: str, raw: Any) -> dict[str, Any]:
     """One stored value, tagged with its data point from the field catalogue."""
-    return {"dp": reference.field_dp(key), "value": "" if value is None else str(value)}
+    return {"dp": reference.field_dp(key), "value": "" if raw is None else str(raw)}
 
 
 def merge(current: FieldMap, incoming: dict[str, Any], *, keep_blank: bool = True) -> FieldMap:
     """New map with incoming values; a blank incoming value never wipes a stored one."""
     out = dict(current)
-    for key, value in incoming.items():
-        text = "" if value is None else str(value).strip()
+    for key, raw in incoming.items():
+        text = "" if raw is None else str(raw).strip()
         if text or (keep_blank and key not in out):
             out[key] = fv(key, text)
     return out
@@ -136,7 +126,7 @@ async def upsert(
         code = str(row.pop("component_id", "") or "").strip()
         name = str(row.get("component_name", "") or "").strip()
         match = next((c for c in product.components if code and c.code == code), None) or next(
-            (c for c in product.components if name and _value(c.fields, "component_name") == name), None
+            (c for c in product.components if name and value(c.fields, "component_name") == name), None
         )
         if match is None:
             position = len(product.components) + 1
@@ -154,3 +144,8 @@ async def upsert(
 
     await db.flush()
     return product, created
+
+
+async def all_products(db: AsyncSession) -> list[Product]:
+    """Every product of the session's workspace (RLS), by SKU."""
+    return list((await db.scalars(select(Product).order_by(Product.sku))).all())

@@ -60,13 +60,7 @@ jobs:
           ruff check $NEW_CODE
           ruff format --check $NEW_CODE
         env:
-          NEW_CODE: >-
-            app/core/auth.py app/core/audit.py app/core/config.py app/core/db.py app/core/errors.py
-            app/core/jobs.py app/core/permissions.py app/core/request_context.py app/core/tenancy.py
-            app/platform app/api/v1/jobs.py app/api/v1/health.py app/seed.py app/worker.py app/models.py
-            app/api/v1/auth.py app/api/v1/workspaces.py migrations tests/test_foundation.py tests/test_sign_in.py
-            tests/test_workspaces.py tests/test_data_core.py tests/conftest.py app/catalog app/ingestion app/quality
-            app/api/v1/data_points.py app/api/v1/products.py app/api/v1/imports.py app/api/v1/gaps.py
+          NEW_CODE: app tests migrations
       - name: Tests (including PostgreSQL RLS and tenant isolation)
         run: python -m pytest -q -rs --junitxml=junit.xml
       - name: Report failing tests as annotations
