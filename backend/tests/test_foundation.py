@@ -203,3 +203,19 @@ def test_validation_errors_use_problem_details(db_client: TestClient, world: dic
     body = res.json()
     assert body["title"] == "Validation failed"
     assert body["errors"][0]["loc"] == ["path", "job_id"]
+
+
+def test_me_returns_session_from_token(db_client: TestClient, world: dict[str, uuid.UUID]) -> None:
+    res = db_client.get("/api/v1/auth/me", headers=_auth(world["ua"], world["a"]))
+    assert res.status_code == 200, res.text
+    body = res.json()
+    assert body["active_tenant"]["id"] == str(world["a"])
+    assert Perm.JOBS_READ in body["permissions"]
+    assert [m["tenant"]["id"] for m in body["memberships"]] == [str(world["a"])]
+    assert not body["user"]["is_platform_admin"]
+
+
+def test_me_for_platform_admin_without_workspace(db_client: TestClient, world: dict[str, uuid.UUID]) -> None:
+    body = db_client.get("/api/v1/auth/me", headers=_auth(world["sa"], None)).json()
+    assert body["active_tenant"] is None
+    assert set(body["permissions"]) == PLATFORM_ADMIN_PERMISSIONS

@@ -74,27 +74,7 @@ async def sign_in(payload: LoginRequest):
     )
 
 
-@router.get(
-    "/me",
-    response_model=UserProfile,
-    summary="Current Authenticated User Context",
-)
-async def get_current_profile(current_user: AuthenticatedUser = Depends(get_current_user)):
-    user = data_store.get_user(current_user.email)
-    if not user:
-        raise HTTPException(status_code=404, detail="User record not found.")
-
-    return UserProfile(
-        id=user.get("id", f"usr-{uuid4().hex[:6]}"),
-        email=user["email"],
-        full_name=user["full_name"],
-        role=UserRole(user["role"]),
-        organisation_id=user.get("tenant_id"),
-        organisation_slug=user.get("tenant_id"),
-        organisation_name=user.get("organisation_name"),
-        avatar_initials=user.get("avatar_initials", "U"),
-        mfa_enabled=False,
-    )
+# GET /auth/me moved to app/api/v1/me.py (new platform session, Step 0).
 
 
 @router.post(

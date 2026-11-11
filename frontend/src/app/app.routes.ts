@@ -8,6 +8,7 @@ import { SimulatorComponent } from './features/simulator/simulator.component';
 import { OnboardingComponent } from './features/onboarding/onboarding.component';
 import { AdminComponent } from './features/admin/admin.component';
 import { superAdminGuard, clientGuard } from './core/guards/auth.guard';
+import { sessionGuard } from './core/guards/session.guard';
 
 export const routes: Routes = [
   // Default → sign-in
@@ -33,6 +34,21 @@ export const routes: Routes = [
   { path: 'products', component: ProductsComponent, canActivate: [clientGuard], title: 'Pack Record BOM — Compliance Hub' },
   { path: 'quality', component: QualityComponent, canActivate: [clientGuard], title: 'Data Quality Worklist — Compliance Hub' },
   { path: 'simulator', component: SimulatorComponent, canActivate: [clientGuard], title: 'EPR Fee Simulator — Compliance Hub' },
+
+  // Platform screens (Step 0 onwards): session from the API, navigation from permissions.
+  {
+    path: 'app',
+    canActivate: [sessionGuard],
+    loadComponent: () => import('./features/shell/app-shell.component').then((m) => m.AppShellComponent),
+    children: [
+      { path: '', loadComponent: () => import('./features/shell/home.component').then((m) => m.HomeComponent), title: 'Compliance Hub' },
+    ],
+  },
+  {
+    path: 'no-permission',
+    loadComponent: () => import('./features/shell/no-permission.component').then((m) => m.NoPermissionComponent),
+    title: 'No access � Compliance Hub',
+  },
 
   { path: '**', redirectTo: 'sign-in' },
 ];

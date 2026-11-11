@@ -34,6 +34,24 @@ Tests: `python -m pytest`. Database tests need `TEST_DATABASE_URL` (a Postgres U
 | Audit | `record_audit(...)` |
 | Seed data | JSON in `seeds/demo/`, loaded by `app/seed.py` through repositories |
 
+## Frontend
+
+Platform screens live under `/app` in the new shell (`features/shell`); prototype pages keep their old layout until their screen is rebuilt.
+
+| Need | Use |
+| --- | --- |
+| Call the API | `inject(ApiClient).get('/api/v1/...', { path, query, body })`, typed from `core/api/schema.ts` |
+| After backend changes | `npm run api:generate` (CI fails if the committed client is out of date) |
+| Errors | `toProblem(err)` → `detail` for the page, `fields[name]` next to form fields |
+| Who is signed in | `inject(SessionService)`: `me()`, `can('perm')`, `workspaceName()` |
+| Navigation | Add an entry to `core/navigation/nav-items.ts` with its permission |
+| Route access | `canActivate: [permissionGuard], data: { permission: '...' }` under the `/app` route |
+| UI pieces | `shared/ui`: page header, data table, form field, status chip, empty state, error state, toast outlet; buttons are `btn btn-primary|btn-secondary|btn-ghost` |
+
+401 sends the user to sign in (and back afterwards); a 403 on a page load shows the no-permission page. The platform interceptor never sends a tenant: the workspace comes from the token.
+
+Design rules: labels and data only, with no taglines, helper text or secondary labels. If a screen needs them to make sense, change the layout. Use one primary action per view, and existing tokens from `styles.css`.
+
 ## Security notes
 
 - Every transaction runs `SET LOCAL ROLE compliance_rls` (migration 0002), a role that cannot bypass RLS, so isolation holds even though Neon's login role has BYPASSRLS. The migration user needs CREATEROLE. Never connect as a Postgres superuser: a superuser can switch roles freely and skips RLS anyway.
