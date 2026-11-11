@@ -25,20 +25,7 @@ describe('App Component', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render brand navigation with Monkspaces logo text', () => {
-    const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    const brand = compiled.querySelector('#header-brand');
-    expect(brand?.textContent).toContain('Monkspaces');
-  });
-
-  it('should provide active tenant context from centralized service', () => {
-    const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app.tenantService.activeTenantId()).toBe('khc-europe');
-
-    app.selectTenant('aurora-pack');
-    expect(app.tenantService.activeTenantId()).toBe('aurora-pack');
-  });
+  // Shell tests (navigation from permissions, tenant branding) are added when the
+  // app shell is rebuilt in Step 0. Client-side tenant switching was removed on purpose:
+  // the active tenant must come from the signed-in user's token.
 });

@@ -31,6 +31,10 @@ class Settings(BaseSettings):
         default_factory=lambda: ["http://localhost:4200", "http://127.0.0.1:4200"],
         description="Allowed CORS origins for the frontend",
     )
+    jwt_secret_key: str | None = Field(
+        default=None,
+        description="HS256 signing key for access tokens. Required when APP_ENV=production.",
+    )
     database_url: str = Field(
         default="postgresql+asyncpg://monkspaces_user:CHANGE_ME@localhost:5432/monkspaces_db",
         description="PostgreSQL connection string",

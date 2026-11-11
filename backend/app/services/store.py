@@ -10,6 +10,8 @@ from typing import Dict, List, Optional
 from uuid import uuid4
 import psycopg
 
+from app.core.config import get_settings
+
 from app.schemas.tenancy import TenantBase, TenantCreate, TenantResponse, TenantTier
 from app.schemas.canonical import (
     PPWREnrichmentData,
@@ -324,7 +326,9 @@ class DataStore:
 
     def _get_pg_conn(self):
         """Establish direct connection to PostgreSQL database."""
-        raw_url = os.environ.get("DATABASE_URL") or "postgresql://neondb_owner:npg_uzClgGiQ7b1E@ep-muddy-bird-b47a9kq9-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require"
+        raw_url = os.environ.get("DATABASE_URL") or get_settings().database_url
+        if not raw_url or "CHANGE_ME" in raw_url:
+            raise RuntimeError("DATABASE_URL is not configured; PostgreSQL sync is disabled.")
         clean_url = raw_url.replace("&channel_binding=require", "").replace("channel_binding=require", "").replace("postgresql+asyncpg://", "postgresql://")
         if "?" in clean_url:
             clean_url += "&connect_timeout=8"
