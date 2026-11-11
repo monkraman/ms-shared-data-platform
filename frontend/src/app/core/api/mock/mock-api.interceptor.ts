@@ -1,7 +1,8 @@
 import { HttpErrorResponse, HttpHeaders, HttpInterceptorFn, HttpResponse } from '@angular/common/http';
-import { delay, of, throwError } from 'rxjs';
+import { delay, map, of, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { MockError, matchRoute } from './mock-routes';
+import { withMockPermissions } from './session-mock';
 
 /**
  * Answers the planned endpoints of screens not yet built in the backend (see
@@ -10,6 +11,12 @@ import { MockError, matchRoute } from './mock-routes';
  */
 export const mockApiInterceptor: HttpInterceptorFn = (req, next) => {
   if (!environment.mockApi) return next(req);
+  if (req.method === 'GET' && new URL(req.url, 'http://x').pathname === '/api/v1/auth/me') {
+    // Real session, plus the permissions of the screens still served from here.
+    return next(req).pipe(
+      map((e) => (e instanceof HttpResponse && e.body ? e.clone({ body: withMockPermissions(e.body as never) }) : e)),
+    );
+  }
   const match = matchRoute(req.method, req.urlWithParams);
   if (!match) return next(req);
 

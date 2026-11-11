@@ -13,7 +13,7 @@ The prototype is being rebuilt **screen by screen** on a secure foundation. See 
 | Part | Where | State |
 | --- | --- | --- |
 | Foundation (DB, RLS, permissions, audit, jobs, API client, shell) | `backend/app/core`, `frontend/src/app/core` | Done (Step 0) |
-| Screen 1: secure sign-in | branch `screen/01-sign-in` | In build; the prototype sign-in is live meanwhile |
+| Screen 1: secure sign-in | `backend/app/platform/sign_in.py`, `api/v1/auth.py`, `frontend/src/app/core/session`, `features/auth` | In review (Playwright test and staging demo open) |
 | Screens 2–8 (workspaces → data overview) | `frontend/src/app/screens/*` | Frontend done on the **mock API**; backend per screen next |
 | Prototype pages | `frontend/src/app/features/*`, `backend/app/services/store.py` | Live until each screen replaces them |
 
@@ -30,7 +30,7 @@ backend/                     FastAPI, Python 3.12
   tests/                     pytest; DB tests need TEST_DATABASE_URL (CI provides Postgres)
 frontend/                    Angular 22, standalone components, signals
   src/app/core/api/          ApiClient (typed from OpenAPI), contracts.ts (planned API), mock/ (mock API)
-  src/app/core/session/      SessionService: token, current user, permissions
+  src/app/core/session/      SessionService: sign-in, refresh, workspace switch, idle sign-out, permissions
   src/app/core/navigation/   sidebar groups and items, each with a permission
   src/app/screens/           rebuilt screens (2–8), one folder each
   src/app/shared/ui/         shared components: table, drawer, dialog, form field, chips, states
@@ -48,6 +48,14 @@ reference-docs-teams/        reference material and data sets (input, not app co
 5. **UI: simple like Linear or Apple Notes.** Labels and data only. No taglines, helper text or secondary labels; if a screen needs them, fix the layout. Use the platform tokens in `styles.css` (`.platform`) and the shared UI pieces.
 6. **Docs move with the code.** Update this file, `docs/README.md`, the foundation guide and the build plan status in the same change.
 
+## Sign-in and session (screen 1)
+
+- `POST /api/v1/auth/sign-in` returns a 15-minute access token and sets an 8-hour httpOnly refresh cookie (`ch_refresh`). The frontend keeps the access token in sessionStorage only, never localStorage.
+- On a 401, `session.interceptor.ts` refreshes once and retries; if that fails the user signs in again and returns to the same page. After 30 minutes without input the session ends.
+- Switching workspace (`POST /auth/switch-tenant`) issues a new token; the workspace is never sent as a header (except by platform admins on prototype admin pages).
+- Production builds call the API on the same origin (`/api`, proxied by `vercel.json`) so the refresh cookie is first-party. Do not set `API_BASE_URL` to the Render URL.
+- Prototype pages read the user through `AuthService`, which now wraps `SessionService`.
+
 ## The mock API (screens 2–8)
 
 Screens 2–8 call real-looking endpoints (`contracts.ts`). Until a screen's backend ships, `core/api/mock/mock-api.interceptor.ts` answers them from an in-browser database seeded from fixtures. Changes persist in localStorage (`ch.mockdb.v1`). It is switched on by `environment.mockApi` (`MOCK_API=false` at build time turns it off).
@@ -58,6 +66,8 @@ To connect a screen to the backend:
 2. Run `npm run api:generate` in `frontend/`.
 3. In `core/api/platform-api.ts`, switch that screen's methods from `api.call(...)` to the typed `api.get/post(...)`.
 4. Delete its routes in `core/api/mock/mock-routes.ts`. The screen components do not change.
+
+`GET /auth/me` is real: the mock adds the permissions of the screens it still serves (`core/api/mock/session-mock.ts`). Remove a screen's permissions there when its backend adds them to `app/core/permissions.py`.
 
 Fixtures come from `reference-docs-teams/datapoints-epr-ppwr-main/src`; regenerate them with `node scripts/make-mock-fixtures.js` in `frontend/`.
 
@@ -77,7 +87,7 @@ npm run test:ci
 npm run build                        # production build (runs scripts/set-env.js)
 ```
 
-Sign in with a demo user from `backend/app/services/store.py` (prototype sign-in). Platform admins land on Client workspaces, org admins on Products.
+Sign in with a demo user from `backend/app/services/store.py`: on first sign-in the user is copied into the database with an Argon2 hash (`app/platform/legacy_import.py`). Platform admins land on Client workspaces, org admins on Products; users in several workspaces choose one first.
 
 ## Deploys
 

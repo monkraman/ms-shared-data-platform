@@ -29,12 +29,11 @@ export class TenantApiService {
 
   private getInitialTenantId(): string {
     try {
-      const userRaw = localStorage.getItem('compliance_hub_auth_user');
-      if (userRaw) {
-        const u = JSON.parse(userRaw);
-        if (u.organisationSlug) {
-          return u.organisationSlug;
-        }
+      // The signed-in profile (SessionService) names the user's own workspace.
+      const profileRaw = sessionStorage.getItem('ch.profile');
+      const slug = profileRaw ? JSON.parse(profileRaw)?.organisation_slug : null;
+      if (slug) {
+        return slug;
       }
       const saved = localStorage.getItem('compliance_hub_active_tenant');
       if (saved) {

@@ -21,6 +21,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Renew the session from the refresh cookie */
+        post: operations["refresh_api_v1_auth_refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/sign-in": {
         parameters: {
             query?: never;
@@ -30,10 +47,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /**
-         * Direct Work Email & Password Sign In
-         * @description Authenticates corporate credentials, generates real JWT token with role & tenant context, and returns redirect route.
-         */
+        /** Sign in with work email and password */
         post: operations["sign_in_api_v1_auth_sign_in_post"];
         delete?: never;
         options?: never;
@@ -50,11 +64,25 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /**
-         * Sign Out
-         * @description Revoke authenticated session.
-         */
+        /** Sign out */
         post: operations["sign_out_api_v1_auth_sign_out_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/switch-tenant": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Switch to another workspace */
+        post: operations["switch_tenant_api_v1_auth_switch_tenant_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -68,16 +96,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /**
-         * List Users by Workspace Context
-         * @description List users scoped to caller's role and workspace.
-         */
+        /** List users */
         get: operations["list_users_api_v1_auth_users_get"];
         put?: never;
-        /**
-         * Provision a User under an Organisation
-         * @description Allows SuperAdmin or Organisation Admin to provision a new user.
-         */
+        /** Add a user */
         post: operations["create_user_api_v1_auth_users_post"];
         delete?: never;
         options?: never;
@@ -2453,6 +2475,14 @@ export interface components {
             /** Total Tickets */
             total_tickets: number;
         };
+        /** SwitchTenantRequest */
+        SwitchTenantRequest: {
+            /**
+             * Tenant Id
+             * Format: uuid
+             */
+            tenant_id: string;
+        };
         /** TenantCreate */
         TenantCreate: {
             /**
@@ -2596,10 +2626,10 @@ export interface components {
         };
         /**
          * TenantRole
-         * @description Roles inside one client workspace. More roles arrive with screen 9.
+         * @description Roles inside one client workspace (the prototype's roles). Screen 9 refines them.
          * @enum {string}
          */
-        TenantRole: "org_admin";
+        TenantRole: "org_admin" | "analyst" | "viewer";
         /**
          * TenantStatus
          * @enum {string}
@@ -2660,7 +2690,6 @@ export interface components {
             /**
              * Password
              * @description Initial password
-             * @default password123
              */
             password: string;
             /**
@@ -2882,6 +2911,37 @@ export interface operations {
             };
         };
     };
+    refresh_api_v1_auth_refresh_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                ch_refresh?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthTokenResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     sign_in_api_v1_auth_sign_in_post: {
         parameters: {
             query?: never;
@@ -2892,6 +2952,87 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["LoginRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthTokenResponse"];
+                };
+            };
+            /** @description Wrong email or password */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Locked for 15 minutes */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    sign_out_api_v1_auth_sign_out_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                ch_refresh?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    switch_tenant_api_v1_auth_switch_tenant_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: {
+                ch_refresh?: string | null;
+            };
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SwitchTenantRequest"];
             };
         };
         responses: {
@@ -2915,31 +3056,11 @@ export interface operations {
             };
         };
     };
-    sign_out_api_v1_auth_sign_out_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
     list_users_api_v1_auth_users_get: {
         parameters: {
             query?: never;
             header?: {
-                /** @description Bearer <JWT> authorization header */
+                /** @description Bearer <access token> */
                 authorization?: string | null;
             };
             path?: never;
@@ -2971,7 +3092,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Bearer <JWT> authorization header */
+                /** @description Bearer <access token> */
                 authorization?: string | null;
             };
             path?: never;

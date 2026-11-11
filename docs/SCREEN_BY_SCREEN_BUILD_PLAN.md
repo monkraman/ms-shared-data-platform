@@ -33,7 +33,7 @@ Status values: Not started · Spec agreed · In build · In review · Done.
 | # | Screen | Role | Needs | Reuse from today | Size | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 | 0 | Foundation (not a screen) | Both | — | Schema drafts, test suite | L | In review (sign-in lands with screen 1; EU staging open) |
-| 1 | Sign-in and session | Both | 0 | Sign-in layout and styles | M | In build (branch screen/01-sign-in) |
+| 1 | Sign-in and session | Both | 0 | Sign-in layout and styles | M | In review (Playwright test, staging demo and sign-off open) |
 | 2 | Client workspaces and setup wizard | SuperAdmin | 1 | Workspace cards, onboarding steps 1–2, theme engine | L | In build (frontend on mock API) |
 | 3 | Data point dictionary | SuperAdmin | 2 | Data points page, `REGULATORY_DATA_DICTIONARY_SPEC.csv` | M | In build (frontend on mock API) |
 | 4 | Products and packaging (list, detail, BOM tree, manual entry) | Org Admin | 3 | SKU table, manual SKU modal, packaging BOM form | L | In build (frontend on mock API) |
@@ -246,7 +246,7 @@ A short weekly check-in covers the screen in build, the next spec, and any found
 
 These four choices affect Step 0 and Screen 1; deciding them now avoids building something twice.
 
-- [ ] **Login provider:** Auth0, Microsoft Entra External ID or Keycloak, or interim local login first. Needed before Screen 1.
+- [x] **Login provider:** interim local login (Argon2) shipped with Screen 1; an OIDC provider can replace it later behind the same endpoints. Needed before Screen 1.
 - [ ] **Hosting for staging and production:** stay on Render and Neon for now (moving to an EU region), or move to AWS or Azure now. Needed during Step 0.
 - [ ] **Email service for invitations:** for example Amazon SES or Postmark. Needed before Screen 2.
 - [ ] **Who builds:** confirm whether one person builds both backend and frontend with AI help, or a pair. This changes the timeline, not the order.

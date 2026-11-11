@@ -1,8 +1,8 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom, Observable, map } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { APP_CONFIG } from '../config/client-theme.config';
-import { SessionService } from '../session/session.service';
+import { Profile, SessionService } from '../session/session.service';
 
 export type UserRole = 'superadmin' | 'org_admin' | 'analyst' | 'viewer' | 'supplier_contact';
 
@@ -17,131 +17,46 @@ export interface AuthUser {
   avatarInitials: string;
 }
 
-export interface AuthResponse {
-  access_token: string;
-  token_type: string;
-  expires_in_seconds: number;
-  user: {
-    id: string;
-    email: string;
-    full_name: string;
-    role: UserRole;
-    organisation_id?: string | null;
-    organisation_slug?: string | null;
-    organisation_name?: string | null;
-    avatar_initials: string;
-  };
-  redirect_url: string;
+interface UserRow {
+  id: string;
+  email: string;
+  full_name: string;
+  role: UserRole;
+  organisation_id?: string | null;
+  organisation_slug?: string | null;
+  organisation_name?: string | null;
+  avatar_initials?: string | null;
 }
 
+/**
+ * The signed-in user for the PROTOTYPE pages (`features/*`), read from SessionService.
+ * Sign-in, tokens and sign-out live in SessionService; nothing is kept in localStorage.
+ * Screen 9 (Users and access) replaces the user directory calls below.
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly session = inject(SessionService);
   private readonly baseUrl = APP_CONFIG.apiBaseUrl;
-  private readonly TOKEN_KEY = 'compliance_hub_jwt_token';
-  private readonly USER_KEY = 'compliance_hub_auth_user';
 
-  private readonly _currentUser = signal<AuthUser | null>(this.getInitialUser());
-  private readonly _isAuthenticating = signal<boolean>(false);
-
-  readonly currentUser = this._currentUser.asReadonly();
-  readonly isAuthenticated = computed(() => this._currentUser() !== null);
-  readonly isAuthenticating = this._isAuthenticating.asReadonly();
-  readonly isSuperAdmin = computed(() => this._currentUser()?.role === 'superadmin');
-  readonly currentOrgSlug = computed(() => this._currentUser()?.organisationSlug ?? '');
-
-  private getInitialUser(): AuthUser | null {
-    try {
-      const raw = localStorage.getItem(this.USER_KEY);
-      if (raw) {
-        return JSON.parse(raw);
-      }
-    } catch {
-      // Ignore parse errors
-    }
-    return null;
-  }
+  readonly currentUser = computed(() => toUser(this.session.profile()));
+  readonly isAuthenticated = computed(() => this.currentUser() !== null);
+  readonly isSuperAdmin = computed(() => this.currentUser()?.role === 'superadmin');
+  readonly currentOrgSlug = computed(() => this.currentUser()?.organisationSlug ?? '');
 
   getToken(): string | null {
-    try {
-      return localStorage.getItem(this.TOKEN_KEY);
-    } catch {
-      return null;
-    }
+    return this.session.token();
   }
 
-  /**
-   * Direct corporate sign-in via backend JWT authentication.
-   * Returns: 'superadmin' | 'client' | null (on failure)
-   */
-  async login(email: string, password: string): Promise<'superadmin' | 'client' | null> {
-    this._isAuthenticating.set(true);
-    try {
-      const payload = { email: email.trim(), password, remember_me: true };
-      const res = await firstValueFrom(
-        this.http.post<AuthResponse>(`${this.baseUrl}/api/v1/auth/sign-in`, payload)
-      );
-
-      const authUser: AuthUser = {
-        id: res.user.id,
-        email: res.user.email,
-        fullName: res.user.full_name,
-        role: res.user.role,
-        organisationId: res.user.organisation_id,
-        organisationSlug: res.user.organisation_slug,
-        organisationName: res.user.organisation_name,
-        avatarInitials: res.user.avatar_initials || 'U',
-      };
-
-      try {
-        localStorage.setItem(this.TOKEN_KEY, res.access_token);
-        localStorage.setItem(this.USER_KEY, JSON.stringify(authUser));
-      } catch {
-        // LocalStorage sandbox fallback
-      }
-
-      this._currentUser.set(authUser);
-      this._isAuthenticating.set(false);
-      // Platform screens read the session from SessionService (screen 1 replaces this sign-in).
-      this.session.setToken(res.access_token);
-
-      return authUser.role === 'superadmin' ? 'superadmin' : 'client';
-    } catch (err: any) {
-      this._isAuthenticating.set(false);
-      return null;
-    }
-  }
-
+  /** Ends the session; callers then go to the sign-in page. */
   logout(): void {
-    try {
-      localStorage.removeItem(this.TOKEN_KEY);
-      localStorage.removeItem(this.USER_KEY);
-    } catch {
-      // Ignore
-    }
-    this._currentUser.set(null);
-    this.session.clear();
-  }
-
-  private getAuthHeaders(): any {
-    const token = this.getToken();
-    return token ? { Authorization: `Bearer ${token}` } : {};
+    void this.session.signOut();
   }
 
   getUsers(): Observable<AuthUser[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/api/v1/auth/users`, { headers: this.getAuthHeaders() }).pipe(
-      map(users => users.map(u => ({
-        id: u.id,
-        email: u.email,
-        fullName: u.full_name,
-        role: u.role,
-        organisationId: u.organisation_id,
-        organisationSlug: u.organisation_slug,
-        organisationName: u.organisation_name,
-        avatarInitials: u.avatar_initials || 'U',
-      })))
-    );
+    return this.http
+      .get<UserRow[]>(`${this.baseUrl}/api/v1/auth/users`)
+      .pipe(map((users) => users.map((u) => toUser(u)!)));
   }
 
   provisionUser(payload: {
@@ -158,19 +73,22 @@ export class AuthService {
       role: payload.role,
       tenant_id: payload.tenantId,
       organisation_name: payload.organisationName,
-      password: payload.password || 'password123',
+      password: payload.password,
     };
-    return this.http.post<any>(`${this.baseUrl}/api/v1/auth/users`, body, { headers: this.getAuthHeaders() }).pipe(
-      map(u => ({
-        id: u.id,
-        email: u.email,
-        fullName: u.full_name,
-        role: u.role,
-        organisationId: u.organisation_id,
-        organisationSlug: u.organisation_slug,
-        organisationName: u.organisation_name,
-        avatarInitials: u.avatar_initials || 'U',
-      }))
-    );
+    return this.http.post<UserRow>(`${this.baseUrl}/api/v1/auth/users`, body).pipe(map((u) => toUser(u)!));
   }
+}
+
+function toUser(u: Profile | UserRow | null): AuthUser | null {
+  if (!u) return null;
+  return {
+    id: u.id,
+    email: u.email,
+    fullName: u.full_name,
+    role: u.role as UserRole,
+    organisationId: u.organisation_id,
+    organisationSlug: u.organisation_slug,
+    organisationName: u.organisation_name,
+    avatarInitials: u.avatar_initials || 'U',
+  };
 }

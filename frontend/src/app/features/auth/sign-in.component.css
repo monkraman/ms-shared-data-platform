@@ -119,6 +119,17 @@
   font-weight: 500;
 }
 
+.alert-info {
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.field-error {
+  font-size: 12px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
 /* ─── Form ─── */
 .auth-form {
   display: flex;

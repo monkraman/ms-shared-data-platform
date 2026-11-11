@@ -36,5 +36,6 @@ Start with [../AGENTS.md](../AGENTS.md) for the repository map and the rules eve
 ## Code-level references
 
 - API contracts for screens 2–8: `frontend/src/app/core/api/contracts.ts`
+- Sign-in and session: `backend/app/platform/sign_in.py`, `frontend/src/app/core/session/` (see AGENTS.md, "Sign-in and session")
 - Mock API: `frontend/src/app/core/api/mock/` (see AGENTS.md, "The mock API")
 - Permissions: `backend/app/core/permissions.py`; frontend navigation permissions: `frontend/src/app/core/navigation/nav-items.ts`

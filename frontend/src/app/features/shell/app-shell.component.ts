@@ -3,7 +3,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { NAV } from '../../core/navigation/nav-items';
-import { AuthService } from '../../core/services/auth.service';
 import { SessionService } from '../../core/session/session.service';
 import { ToastOutletComponent } from '../../shared/ui';
 
@@ -18,7 +17,6 @@ import { ToastOutletComponent } from '../../shared/ui';
 })
 export class AppShellComponent {
   protected readonly session = inject(SessionService);
-  private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
   protected readonly menuOpen = signal(false);
@@ -30,6 +28,7 @@ export class AppShellComponent {
   protected readonly name = computed(() => this.session.me()?.user.full_name ?? '');
   protected readonly initials = computed(() => initialsOf(this.name()));
   protected readonly role = computed(() => (this.session.me()?.user.is_platform_admin ? 'Platform admin' : 'Org admin'));
+  protected readonly canSwitch = computed(() => this.session.memberships().length > 1);
   protected readonly canSearch = computed(() => this.session.can('products.read'));
 
   constructor() {
@@ -45,9 +44,9 @@ export class AppShellComponent {
     void this.router.navigate(['/app/products'], { queryParams: q.trim() ? { q: q.trim() } : {} });
   }
 
-  protected signOut(): void {
-    this.auth.logout();
-    void this.router.navigate(['/sign-in']);
+  protected async signOut(): Promise<void> {
+    await this.session.signOut();
+    await this.router.navigate(['/sign-in'], { queryParams: { reason: 'signed-out' } });
   }
 }
 

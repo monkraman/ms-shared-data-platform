@@ -17,7 +17,6 @@ import {
 } from '../contracts';
 import { findGaps } from './gap-engine';
 import { DICTIONARY, FIELDS, MODULES, db, save, toProduct, withTotals } from './mock-db';
-import { mockMe } from './session-mock';
 
 /** Thrown by handlers; becomes a problem-details error response like the real API's. */
 export class MockError {
@@ -59,14 +58,6 @@ export function matchRoute(method: string, url: string): { route: Route; params:
 
 const notFound = (what: string) => new MockError(404, `${what} not found.`);
 const invalid = (field: string, msg: string) => new MockError(422, 'The request has invalid fields.', [{ loc: ['body', field], msg }]);
-
-// --- Session (until screen 1 ships) ---------------------------------------------------
-
-on('GET', '/api/v1/auth/me', () => {
-  const me = mockMe();
-  if (!me) throw new MockError(401, 'Sign in to continue.');
-  return me;
-});
 
 // --- Reference ----------------------------------------------------------------------
 

@@ -2908,6 +2908,20 @@
         "title": "SourceWorklistExportResponse",
         "type": "object"
       },
+      "SwitchTenantRequest": {
+        "properties": {
+          "tenant_id": {
+            "format": "uuid",
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_id"
+        ],
+        "title": "SwitchTenantRequest",
+        "type": "object"
+      },
       "TenantCreate": {
         "properties": {
           "active_jurisdictions": {
@@ -3170,9 +3184,11 @@
         "type": "object"
       },
       "TenantRole": {
-        "description": "Roles inside one client workspace. More roles arrive with screen 9.",
+        "description": "Roles inside one client workspace (the prototype's roles). Screen 9 refines them.",
         "enum": [
-          "org_admin"
+          "org_admin",
+          "analyst",
+          "viewer"
         ],
         "title": "TenantRole",
         "type": "string"
@@ -3301,9 +3317,8 @@
             "title": "Organisation Name"
           },
           "password": {
-            "default": "password123",
             "description": "Initial password",
-            "minLength": 6,
+            "minLength": 8,
             "title": "Password",
             "type": "string"
           },
@@ -3327,6 +3342,7 @@
         },
         "required": [
           "email",
+          "password",
           "full_name"
         ],
         "title": "UserCreateRequest",
@@ -3661,19 +3677,192 @@
         },
         "summary": "Current session",
         "tags": [
-          "Session"
+          "Authentication & Identity"
+        ]
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "operationId": "refresh_api_v1_auth_refresh_post",
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "ch_refresh",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ch Refresh"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthTokenResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Renew the session from the refresh cookie",
+        "tags": [
+          "Authentication & Identity"
         ]
       }
     },
     "/api/v1/auth/sign-in": {
       "post": {
-        "description": "Authenticates corporate credentials, generates real JWT token with role & tenant context, and returns redirect route.",
         "operationId": "sign_in_api_v1_auth_sign_in_post",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthTokenResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Wrong email or password"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "429": {
+            "description": "Locked for 15 minutes"
+          }
+        },
+        "summary": "Sign in with work email and password",
+        "tags": [
+          "Authentication & Identity"
+        ]
+      }
+    },
+    "/api/v1/auth/sign-out": {
+      "post": {
+        "operationId": "sign_out_api_v1_auth_sign_out_post",
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "ch_refresh",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ch Refresh"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Sign out",
+        "tags": [
+          "Authentication & Identity"
+        ]
+      }
+    },
+    "/api/v1/auth/switch-tenant": {
+      "post": {
+        "operationId": "switch_tenant_api_v1_auth_switch_tenant_post",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "cookie",
+            "name": "ch_refresh",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ch Refresh"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwitchTenantRequest"
               }
             }
           },
@@ -3701,27 +3890,7 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Direct Work Email & Password Sign In",
-        "tags": [
-          "Authentication & Identity"
-        ]
-      }
-    },
-    "/api/v1/auth/sign-out": {
-      "post": {
-        "description": "Revoke authenticated session.",
-        "operationId": "sign_out_api_v1_auth_sign_out_post",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "Sign Out",
+        "summary": "Switch to another workspace",
         "tags": [
           "Authentication & Identity"
         ]
@@ -3729,11 +3898,10 @@
     },
     "/api/v1/auth/users": {
       "get": {
-        "description": "List users scoped to caller's role and workspace.",
         "operationId": "list_users_api_v1_auth_users_get",
         "parameters": [
           {
-            "description": "Bearer <JWT> authorization header",
+            "description": "Bearer <access token>",
             "in": "header",
             "name": "authorization",
             "required": false,
@@ -3746,7 +3914,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Bearer <JWT> authorization header",
+              "description": "Bearer <access token>",
               "title": "Authorization"
             }
           }
@@ -3777,17 +3945,16 @@
             "description": "Validation Error"
           }
         },
-        "summary": "List Users by Workspace Context",
+        "summary": "List users",
         "tags": [
           "Authentication & Identity"
         ]
       },
       "post": {
-        "description": "Allows SuperAdmin or Organisation Admin to provision a new user.",
         "operationId": "create_user_api_v1_auth_users_post",
         "parameters": [
           {
-            "description": "Bearer <JWT> authorization header",
+            "description": "Bearer <access token>",
             "in": "header",
             "name": "authorization",
             "required": false,
@@ -3800,7 +3967,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Bearer <JWT> authorization header",
+              "description": "Bearer <access token>",
               "title": "Authorization"
             }
           }
@@ -3837,7 +4004,7 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Provision a User under an Organisation",
+        "summary": "Add a user",
         "tags": [
           "Authentication & Identity"
         ]
