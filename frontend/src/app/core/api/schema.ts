@@ -2857,6 +2857,11 @@ export interface components {
             /** Organisation Slug */
             organisation_slug?: string | null;
             role: components["schemas"]["UserRole"];
+            /**
+             * Status
+             * @default active
+             */
+            status: string;
         };
         /**
          * UserRole

@@ -23,7 +23,7 @@ from app.core.permissions import Perm
 from app.core.tenancy import tenant_session
 from app.platform import repository as repo
 from app.platform import sign_in as auth
-from app.platform.models import Membership, Tenant, TenantRole, TenantStatus, User
+from app.platform.models import Membership, Tenant, TenantRole, TenantStatus, User, UserStatus
 from app.platform.passwords import hash_password
 from app.schemas.auth import AuthTokenResponse, LoginRequest, UserCreateRequest, UserProfile, UserRole
 
@@ -51,6 +51,7 @@ def _profile(user: User, tenant: Tenant | None, role: TenantRole | None) -> User
         organisation_slug=tenant.slug if tenant else None,
         organisation_name=tenant.name if tenant else "Compliance Hub Platform",
         avatar_initials=_initials(user.full_name),
+        status=user.status.value,
     )
 
 
@@ -188,7 +189,10 @@ async def create_user(payload: UserCreateRequest, principal: CurrentPrincipal) -
         raise ProblemError(403, "You do not have permission to do this.")
 
     async with tenant_session(None, platform_access=True) as db:
-        if await repo.get_user_by_email(db, payload.email):
+        existing = await repo.get_user_by_email(db, payload.email)
+        # Platform admins activate an invited user (for example a workspace's first org admin)
+        # with this password until invitation emails exist; anyone else already has an account.
+        if existing and (existing.status != UserStatus.INVITED or not principal.is_platform_admin):
             raise ProblemError(
                 409,
                 "A user with this email already exists.",
@@ -208,6 +212,7 @@ async def create_user(payload: UserCreateRequest, principal: CurrentPrincipal) -
             full_name=payload.full_name,
             is_platform_admin=is_admin,
             password_hash=hash_password(payload.password),
+            status=UserStatus.ACTIVE,
         )
         role = None
         if tenant:
@@ -217,7 +222,7 @@ async def create_user(payload: UserCreateRequest, principal: CurrentPrincipal) -
             db,
             principal=principal,
             tenant_id=tenant.id if tenant else None,
-            action="user.created",
+            action="user.activated" if existing else "user.created",
             entity_type="user",
             entity_id=user.id,
             after={"email": user.email, "role": payload.role.value, "tenant": tenant.slug if tenant else None},

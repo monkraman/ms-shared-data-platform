@@ -22,6 +22,8 @@ import {
   WorkspaceCreate,
   WorkspacePatch,
   WorkspaceStatus,
+  UserCreate,
+  UserRow,
 } from './contracts';
 
 /**
@@ -44,6 +46,10 @@ export class PlatformApi {
   createWorkspace = (body: WorkspaceCreate): Observable<Workspace> => this.api.post('/api/v1/admin/tenants', { body });
   updateWorkspace = (id: string, body: WorkspacePatch): Observable<Workspace> =>
     this.api.patch('/api/v1/admin/tenants/{tenant_id}', { path: { tenant_id: id }, body });
+
+  // Screen 9 (users; backend built)
+  users = (): Observable<UserRow[]> => this.api.get('/api/v1/auth/users');
+  createUser = (body: UserCreate): Observable<UserRow> => this.api.post('/api/v1/auth/users', { body });
 
   // Screen 3
   dataPoints = (): Observable<DataPointDictionary> => this.api.call('GET', '/api/v1/admin/data-points');

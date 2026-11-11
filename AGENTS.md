@@ -15,6 +15,7 @@ The prototype is being rebuilt **screen by screen** on a secure foundation. See 
 | Foundation (DB, RLS, permissions, audit, jobs, API client, shell) | `backend/app/core`, `frontend/src/app/core` | Done (Step 0) |
 | Screen 1: secure sign-in | `backend/app/platform/sign_in.py`, `api/v1/auth.py`, `frontend/src/app/core/session`, `features/auth` | In review (Playwright test and staging demo open) |
 | Screen 2: client workspaces | `backend/app/api/v1/workspaces.py`, `frontend/src/app/screens/workspaces` | Backend built (Postgres, RLS on legal entities, audit); in review |
+| Screen 9 (part): users | `frontend/src/app/screens/users`, `GET/POST /api/v1/auth/users` | Platform admins list and add users; org-admin Team view next |
 | Screens 3–8 (data points → data overview) | `frontend/src/app/screens/*` | Frontend done on the **mock API**; backend per screen next |
 | Prototype pages | `frontend/src/app/features/*`, `backend/app/services/store.py` | Live until each screen replaces them |
 

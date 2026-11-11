@@ -41,7 +41,7 @@ Status values: Not started · Spec agreed · In build · In review · Done.
 | 6 | Gap rule library | SuperAdmin | 3 | Rule library page | M | In build (frontend on mock API) |
 | 7 | Gap worklist and gap fix | Org Admin | 5, 6 | Quality worklist, vendor declaration, worklist export | L | In build (frontend on mock API) |
 | 8 | Data overview | Org Admin | 7 | Data point map | M | In build (frontend on mock API) |
-| 9 | Users and access, and Team | Both | 1 | IAM directory | M | Not started |
+| 9 | Users and access, and Team | Both | 1 | IAM directory | M | In build (platform admin Users list and Add user on the existing API; Team, roles and disable next) |
 | 10 | Organisation settings (legal entities, countries, source priority) | Org Admin | 2 | Onboarding markets step | S | Not started |
 | 11 | Tariffs and rule packs | SuperAdmin | 3 | Tariff library, seeded tariffs | M | Not started |
 | 12 | EPR results: runs, explanations, simulator (module SDK built here) | Org Admin | 7, 10, 11 | Simulator page, EPR engine | L | Not started |

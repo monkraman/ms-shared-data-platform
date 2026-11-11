@@ -40,6 +40,12 @@ export type LegalEntity = Schemas['LegalEntityIn'];
 export type WorkspaceCreate = Schemas['WorkspaceCreate'];
 export type WorkspacePatch = Schemas['WorkspacePatch'];
 
+// --- Screen 9 (first part): users — built, GET/POST /api/v1/auth/users -----------------
+
+export type UserRow = Schemas['UserProfile'];
+export type UserRole = UserRow['role'];
+export type UserCreate = Schemas['UserCreateRequest'];
+
 // --- Screen 3: data point dictionary (SuperAdmin) ---------------------------------
 // GET /api/v1/admin/data-points → DataPointDictionary
 

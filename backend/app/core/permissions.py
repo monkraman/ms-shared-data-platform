@@ -15,6 +15,7 @@ class Perm:
     PLATFORM_TENANTS_READ = "platform.tenants.read"
     PLATFORM_TENANTS_MANAGE = "platform.tenants.manage"
     PLATFORM_AUDIT_READ = "platform.audit.read"
+    PLATFORM_USERS_MANAGE = "platform.users.manage"
 
     # Tenant permissions
     WORKSPACE_READ = "workspace.read"
@@ -24,7 +25,7 @@ class Perm:
 
 
 PLATFORM_ADMIN_PERMISSIONS: frozenset[str] = frozenset(
-    {Perm.PLATFORM_TENANTS_READ, Perm.PLATFORM_TENANTS_MANAGE, Perm.PLATFORM_AUDIT_READ}
+    {Perm.PLATFORM_TENANTS_READ, Perm.PLATFORM_TENANTS_MANAGE, Perm.PLATFORM_AUDIT_READ, Perm.PLATFORM_USERS_MANAGE}
 )
 
 TENANT_ROLE_PERMISSIONS: dict[TenantRole, frozenset[str]] = {
