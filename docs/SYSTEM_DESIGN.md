@@ -4,7 +4,7 @@ How the platform is built, how client data flows through it, how it is stored, c
 
 **Keep it current.** This document describes the code on `main`. Any change to storage, the import or sync pipeline, validation, gaps, compliance calculations, permissions or deployment updates this file in the same commit (rule 6 in [AGENTS.md](../AGENTS.md)). The "Last reviewed" line and the change log at the end say when.
 
-Last reviewed: 12 Nov 2026 (demo accounts shown on the sign-in page).
+Last reviewed: 12 Nov 2026 (RLS role restored by migration 0011; readiness checks it).
 
 ---
 
@@ -296,7 +296,7 @@ Platform-wide today: the gap rule library, EPR rates, the field catalogue and wo
 - **Audit log:** sign-ins, workspace and user changes, imports, edits, corrections, gap decisions and settings are written to `audit_events` with who, what, before and after, in the same transaction as the change.
 - **Errors:** every error is an RFC 7807 problem response; field errors carry `loc` so the screen shows them next to the field. Every log line carries a request ID.
 - **Background jobs:** started only after the transaction commits; status and result in `jobs`, polled by the screen.
-- **Migrations:** Alembic, applied automatically on deploy (`alembic upgrade head`). A failing migration fails the deploy and the previous version keeps serving. Current head: `0010_users`.
+- **Migrations:** Alembic, applied automatically on deploy (`alembic upgrade head`). A failing migration fails the deploy and the previous version keeps serving. Current head: `0011_ensure_rls_role`. Roles are not part of a database dump: a restored or new database needs `alembic upgrade head` (0002 and 0011 create `compliance_rls`) before the API can serve; `/api/v1/health/ready` returns 503 "migrations not applied" until then. The service's start command must include `alembic upgrade head`.
 - **Tests:** CI creates a fresh Postgres database, runs every migration and the API tests, including tenant-isolation tests on each client endpoint. The frontend has component tests; the typed API client must match the backend (CI fails on drift).
 - **Demo data:** `seeds/bootstrap_users.json` (Argon2 hashes only) creates the demo accounts on first sign-in; the simulated syncs fill a workspace with the sample client's products.
 
@@ -329,5 +329,6 @@ Platform-wide today: the gap rule library, EPR rates, the field catalogue and wo
 
 | Date | Change |
 | --- | --- |
+| 12 Nov 2026 | Migration 0011 recreates the `compliance_rls` role on databases that lack it; readiness checks the role. |
 | 12 Nov 2026 | Demo accounts on the sign-in page behind `DEMO_SIGN_IN` (known limits). |
 | 12 Nov 2026 | First version: architecture, tenancy, storage and lineage, import and re-sync rules, validation, gaps, compliance, configuration, operations. |

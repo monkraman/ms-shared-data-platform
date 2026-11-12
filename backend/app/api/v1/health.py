@@ -9,6 +9,7 @@ from sqlalchemy import text
 
 from app.core.config import get_settings
 from app.core.db import get_engine
+from app.core.tenancy import RLS_ROLE
 
 router = APIRouter(tags=["System Health"])
 
@@ -44,14 +45,18 @@ async def check_health() -> HealthCheckResponse:
 @router.get(
     "/health/ready",
     summary="Readiness check",
-    description="Checks the database connection. Returns 503 when the database is unreachable.",
+    description="Checks the database connection and the RLS role every request switches to. "
+    "Returns 503 when either is missing.",
 )
 async def check_ready() -> JSONResponse:
     if not get_settings().database_configured:
         return JSONResponse({"status": "unready", "database": "not configured"}, status_code=503)
     try:
         async with get_engine().connect() as conn:
-            await conn.execute(text("SELECT 1"))
+            role = await conn.scalar(text("SELECT 1 FROM pg_roles WHERE rolname = :r"), {"r": RLS_ROLE})
     except Exception:  # noqa: BLE001 - any failure means not ready
         return JSONResponse({"status": "unready", "database": "unreachable"}, status_code=503)
+    if role is None:
+        # A restored or new database without migrations: run `alembic upgrade head`.
+        return JSONResponse({"status": "unready", "database": "migrations not applied"}, status_code=503)
     return JSONResponse({"status": "ready", "database": "ok"})
