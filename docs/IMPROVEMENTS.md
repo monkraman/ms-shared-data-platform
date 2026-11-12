@@ -4,6 +4,8 @@ Things we chose to ship without, so they are not forgotten. Newest first. When o
 
 | Area | Improvement | Why it waits | Where |
 | --- | --- | --- | --- |
+| Validation | Send corrections to the source system through its connector (today: export per source system) | Needs real connectors | `app/api/v1/validation.py` |
+| Products | Edit sales lines; undo an edit from history | First version edits product, passport and components | `app/api/v1/products.py` |
 | SaaS | Per-client gap rules and EPR rates (on top of the platform library), per-client field catalogue and labels | Platform-wide today | `app/quality`, `app/modules/reference` |
 | Users | Invitation and password-reset emails; users change their own password; SSO/MFA | Email service and identity provider not chosen | `app/api/v1/users.py` |
 | Modules | DPP and LCA screens on real data (the modules can be switched on, but have no screens yet) | Next in the plan | `app/modules` |
@@ -26,7 +28,6 @@ Things we chose to ship without, so they are not forgotten. Newest first. When o
 | Import | Undo an import | Needs product versions | `app/catalog` |
 | Gap rules | Country picker on the Gap rules screen (the API takes `countries`; the screen sends none) | Screen change only | `screens/gap-rules` |
 | Gap rules | More rule types from the screen: number range, allowed values, "required when field X is Y" (certificate and PFAS checks are coded kinds today) | Needs a small rule language and editor | `app/quality/engine.py` |
-| Gap rules | Check every field's type and allowed values from the field catalogue (Number, Code, Email) | Same rule language | `app/catalog/reference/fields.json` |
 | Data points | Field catalogue in the database, so new fields need no deploy | Fields are a JSON file today | `app/catalog/reference.py` |
 | Data points | Dictionary updates after the first load need a migration | Seeded once by migration 0005 | `migrations/versions/*_0005_*` |
 | Gaps | Store computed gaps when product counts grow (computed on every read today) | Fine for hundreds of products | `app/quality/service.py` |

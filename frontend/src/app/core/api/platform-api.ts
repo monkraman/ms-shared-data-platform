@@ -23,6 +23,8 @@ import {
   WorkspacePatch,
   WorkspaceStatus,
   SyncSystem,
+  ProductHistory,
+  ValidationIssue,
   Horizon,
   Insights,
   ScenarioChange,
@@ -92,6 +94,21 @@ export class PlatformApi {
   products = (query: { q?: string } = {}): Observable<ProductSummary[]> => this.api.get('/api/v1/products', { query });
   product = (sku: string): Observable<Product> => this.api.get('/api/v1/products/{sku}', { path: { sku } });
   createProduct = (body: ProductCreate): Observable<Product> => this.api.post('/api/v1/products', { body });
+  editProduct = (sku: string, values: Record<string, string | null>): Observable<Product> =>
+    this.api.patch('/api/v1/products/{sku}', { path: { sku }, body: { values } });
+  editComponent = (sku: string, code: string, values: Record<string, string | null>): Observable<Product> =>
+    this.api.patch('/api/v1/products/{sku}/components/{code}', { path: { sku, code }, body: { values } });
+  addComponent = (sku: string, values: Record<string, string | null>): Observable<Product> =>
+    this.api.post('/api/v1/products/{sku}/components', { path: { sku }, body: { values } });
+  removeComponent = (sku: string, code: string): Observable<Product> =>
+    this.api.delete('/api/v1/products/{sku}/components/{code}', { path: { sku, code } });
+  productHistory = (sku: string): Observable<ProductHistory[]> =>
+    this.api.get('/api/v1/products/{sku}/history', { path: { sku } });
+
+  // Data validation
+  validation = (): Observable<ValidationIssue[]> => this.api.get('/api/v1/validation');
+  applyCorrections = (ids?: string[]): Observable<{ applied: number; skipped: number }> =>
+    this.api.post('/api/v1/validation/apply', { body: { ids: ids ?? null } });
 
   // Screen 5
   startImport = (body: ImportCreate): Observable<ImportDraft> => this.api.post('/api/v1/imports', { body });

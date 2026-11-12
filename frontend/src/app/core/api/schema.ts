@@ -695,6 +695,59 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /** Edit product and passport values */
+        patch: operations["edit_product_api_v1_products__sku__patch"];
+        trace?: never;
+    };
+    "/api/v1/products/{sku}/components": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a component */
+        post: operations["add_component_api_v1_products__sku__components_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{sku}/components/{code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a component */
+        delete: operations["remove_component_api_v1_products__sku__components__code__delete"];
+        options?: never;
+        head?: never;
+        /** Edit a packaging component */
+        patch: operations["edit_component_api_v1_products__sku__components__code__patch"];
+        trace?: never;
+    };
+    "/api/v1/products/{sku}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Who changed what, newest first */
+        get: operations["product_history_api_v1_products__sku__history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
         patch?: never;
         trace?: never;
     };
@@ -796,6 +849,40 @@ export interface paths {
         put?: never;
         /** Set a member's temporary password */
         post: operations["reset_member_password_api_v1_team__user_id__password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/validation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Invalid values with suggested corrections */
+        get: operations["list_issues_api_v1_validation_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/validation/apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Apply suggested corrections */
+        post: operations["apply_suggestions_api_v1_validation_apply_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -938,6 +1025,21 @@ export interface components {
             /** Full Name */
             full_name: string;
         };
+        /** ApplyIn */
+        ApplyIn: {
+            /**
+             * Ids
+             * @description Only these issues; all with a suggestion if absent
+             */
+            ids?: string[] | null;
+        };
+        /** ApplyResult */
+        ApplyResult: {
+            /** Applied */
+            applied: number;
+            /** Skipped */
+            skipped: number;
+        };
         /** AuthTokenResponse */
         AuthTokenResponse: {
             /** Access Token */
@@ -958,6 +1060,19 @@ export interface components {
              */
             token_type: string;
             user: components["schemas"]["UserProfile"];
+        };
+        /** Change */
+        Change: {
+            /** After */
+            after: string;
+            /** Before */
+            before: string;
+            /** Component */
+            component: string | null;
+            /** Field */
+            field: string;
+            /** Label */
+            label: string;
         };
         /** ComponentHotspot */
         ComponentHotspot: {
@@ -1339,6 +1454,8 @@ export interface components {
         FieldValue: {
             /** Dp */
             dp: string | null;
+            /** Source */
+            source?: string | null;
             /** Value */
             value: string;
         };
@@ -1511,6 +1628,20 @@ export interface components {
              */
             version: string;
         };
+        /** HistoryEntry */
+        HistoryEntry: {
+            /** Action */
+            action: string;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** By */
+            by: string | null;
+            /** Changes */
+            changes: components["schemas"]["Change"][];
+        };
         /** Horizon */
         Horizon: {
             /** Lead Months */
@@ -1634,6 +1765,8 @@ export interface components {
             updated_products: number;
             /** Valid Rows */
             valid_rows: number;
+            /** Warnings */
+            warnings: components["schemas"]["ImportIssue"][];
         };
         /** Insights */
         Insights: {
@@ -1650,6 +1783,35 @@ export interface components {
             total_fee: number;
             /** Year */
             year: string | null;
+        };
+        /** Issue */
+        Issue: {
+            /** Component Id */
+            component_id: string | null;
+            /** Component Name */
+            component_name: string | null;
+            /** Data Point */
+            data_point: string | null;
+            /** Field */
+            field: string;
+            /** Field Label */
+            field_label: string;
+            /** Id */
+            id: string;
+            /** Message */
+            message: string;
+            /** Product Name */
+            product_name: string;
+            /** Sku */
+            sku: string;
+            /** Source */
+            source: string | null;
+            /** Source Name */
+            source_name: string;
+            /** Suggestion */
+            suggestion: string | null;
+            /** Value */
+            value: string;
         };
         /** JobOut */
         JobOut: {
@@ -2358,6 +2520,16 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /**
+         * ValuesIn
+         * @description Field key -> new value; an empty value clears the field.
+         */
+        ValuesIn: {
+            /** Values */
+            values: {
+                [key: string]: string | null;
+            };
         };
         /** Workspace */
         Workspace: {
@@ -4128,6 +4300,190 @@ export interface operations {
             };
         };
     };
+    edit_product_api_v1_products__sku__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                sku: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ValuesIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_component_api_v1_products__sku__components_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                sku: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ValuesIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_component_api_v1_products__sku__components__code__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                sku: string;
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    edit_component_api_v1_products__sku__components__code__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                sku: string;
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ValuesIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    product_history_api_v1_products__sku__history_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path: {
+                sku: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HistoryEntry"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_countries_api_v1_reference_countries_get: {
         parameters: {
             query?: never;
@@ -4388,6 +4744,74 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_issues_api_v1_validation_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Issue"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    apply_suggestions_api_v1_validation_apply_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplyResult"];
+                };
             };
             /** @description Validation Error */
             422: {

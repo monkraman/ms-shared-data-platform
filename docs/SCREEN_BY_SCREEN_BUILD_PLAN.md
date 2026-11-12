@@ -36,7 +36,7 @@ Status values: Not started · Spec agreed · In build · In review · Done.
 | 1 | Sign-in and session | Both | 0 | Sign-in layout and styles | M | In review (Playwright test, staging demo and sign-off open) |
 | 2 | Client workspaces and setup wizard | SuperAdmin | 1 | Workspace cards, onboarding steps 1–2, theme engine | L | In review (backend built; invitation emails wait for the email service) |
 | 3 | Data point dictionary | SuperAdmin | 2 | Data points page, `REGULATORY_DATA_DICTIONARY_SPEC.csv` | M | In review (backend live; Playwright test and sign-off open) |
-| 4 | Products and packaging (list, detail, BOM tree, manual entry) | Org Admin | 3 | SKU table, manual SKU modal, packaging BOM form | L | In review (backend live; Playwright test and sign-off open) |
+| 4 | Products and packaging (list, detail, BOM tree, manual entry) | Org Admin | 3 | SKU table, manual SKU modal, packaging BOM form | L | In review (editing, lineage, history and validation added) |
 | 5 | Import: upload, map, review, approve | Org Admin | 4 | CSV dropzone, bulk import modal | L | In review (backend live; Playwright test and sign-off open) |
 | 6 | Gap rule library | SuperAdmin | 3 | Rule library page | M | In review (backend live; Playwright test and sign-off open) |
 | 7 | Gap worklist and gap fix | Org Admin | 5, 6 | Quality worklist, vendor declaration, worklist export | L | In review (backend live; estimable vs needs-data gaps and Fill estimates added) |

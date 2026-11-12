@@ -39,6 +39,11 @@ def ws(db_client: TestClient) -> dict[str, object]:
     return db_client.portal.call(build)
 
 
+def errors(res) -> dict[str, str]:
+    """Field → message from a 422 problem response."""
+    return {e["loc"][-1]: e["msg"] for e in res.json().get("errors", [])}
+
+
 def _approve(client: TestClient, headers: dict[str, str], draft: dict[str, object]) -> dict[str, object]:
     preview = client.put(
         f"/api/v1/imports/{draft['id']}/mapping", json={"mapping": draft["suggested_mapping"]}, headers=headers
@@ -271,7 +276,7 @@ def test_fill_estimates_writes_marked_values(db_client: TestClient, ws: dict[str
     if weight_gap:
         product = db_client.get(f"/api/v1/products/{weight_gap['sku']}", headers=h).json()
         component = next(c for c in product["components"] if c["id"] == weight_gap["component_id"])
-        assert component["weight_source"] == "Estimated"
+        assert component["weight_source"] == "Estimate"
         assert str(component["weight_g"]).rstrip("0").rstrip(".") == weight_gap["estimate"]["value"].rstrip("0").rstrip(
             "."
         )
@@ -334,3 +339,62 @@ def test_horizon_milestones_and_lead_time(db_client: TestClient, ws: dict[str, o
 
     gaps = db_client.get("/api/v1/gaps", headers=h).json()
     assert gaps and all(g["phase"] in ("now", "collecting", "upcoming") for g in gaps)
+
+
+def test_edit_product_and_components_with_validation_and_history(db_client: TestClient, ws: dict[str, object]) -> None:
+    h, viewer = _auth(ws["oa"], ws["a"]), _auth(ws["viewer"], ws["a"])
+    bad = db_client.patch("/api/v1/products/CSV-1", json={"values": {"gtin": "123"}}, headers=h)
+    assert bad.status_code == 422 and errors(bad) == {"gtin": "A GTIN has 8, 12, 13 or 14 digits"}
+    ok = db_client.patch(
+        "/api/v1/products/CSV-1", json={"values": {"gtin": "5790001000011", "brand": "HLA"}}, headers=h
+    )
+    assert ok.status_code == 200, ok.text
+    assert ok.json()["gtin"] == "5790001000011" and ok.json()["fields"]["gtin"]["source"] == "manual"
+
+    grams = db_client.patch(
+        "/api/v1/products/CSV-1/components/CSV-1-01", json={"values": {"weight_g": "26 g"}}, headers=h
+    )
+    assert errors(grams) == {"weight_g": "Write the number only, without units or commas. Did you mean 26?"}
+    db_client.patch("/api/v1/products/CSV-1/components/CSV-1-01", json={"values": {"weight_g": "24"}}, headers=h)
+
+    added = db_client.post(
+        "/api/v1/products/CSV-1/components",
+        json={"values": {"component_name": "Sleeve", "packaging_level": "Secondary", "material": "Paper/board"}},
+        headers=h,
+    )
+    assert added.status_code == 201, added.text
+    sleeve = next(c for c in added.json()["components"] if c["name"] == "Sleeve")
+    removed = db_client.delete(f"/api/v1/products/CSV-1/components/{sleeve['id']}", headers=h).json()
+    assert all(c["name"] != "Sleeve" for c in removed["components"])
+
+    history = db_client.get("/api/v1/products/CSV-1/history", headers=viewer).json()
+    changed = [(c["field"], c["after"]) for e in history for c in e["changes"]]
+    assert ("weight_g", "24") in changed and ("gtin", "5790001000011") in changed
+    assert db_client.patch("/api/v1/products/CSV-1", json={"values": {"brand": "X"}}, headers=viewer).status_code == 403
+    nope = db_client.patch("/api/v1/products/CSV-1", json={"values": {"weight_g": "1"}}, headers=h)
+    assert errors(nope) == {"weight_g": "Not a field you can edit here"}
+
+
+def test_validation_flags_suggests_and_corrects(db_client: TestClient, ws: dict[str, object]) -> None:
+    h = _auth(ws["oa"], ws["a"])
+    draft = db_client.post("/api/v1/imports/sync", json={"system": "plm"}, headers=h).json()
+    preview = db_client.put(
+        f"/api/v1/imports/{draft['id']}/mapping", json={"mapping": draft["suggested_mapping"]}, headers=h
+    ).json()
+    assert preview["invalid_rows"] == 0 and preview["warnings"], "messy values import with warnings"
+    db_client.post(f"/api/v1/imports/{draft['id']}/approve", headers=h)
+    db_client.portal.call(wait_for_inline_jobs)
+
+    issues = db_client.get("/api/v1/validation", headers=h).json()
+    material = next(i for i in issues if i["field"] == "material" and i["value"] == "plastic")
+    assert material["suggestion"] == "Plastic" and material["source"] == "plm"
+    res = db_client.post("/api/v1/validation/apply", json={"ids": [material["id"]]}, headers=h)
+    assert res.json()["applied"] == 1
+    product = db_client.get(f"/api/v1/products/{material['sku']}", headers=h).json()
+    comp = next(c for c in product["components"] if c["id"] == material["component_id"])
+    assert comp["fields"]["material"] == {
+        "dp": comp["fields"]["material"]["dp"],
+        "value": "Plastic",
+        "source": "correction",
+    }
+    assert all(i["id"] != material["id"] for i in db_client.get("/api/v1/validation", headers=h).json())
