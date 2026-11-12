@@ -109,7 +109,7 @@ npm run test:ci
 npm run build                        # production build (runs scripts/set-env.js)
 ```
 
-Demo accounts are listed with Argon2 hashes in `backend/seeds/bootstrap_users.json` and created on their first sign-in (`app/platform/bootstrap.py`); `python -m app.seed demo` loads full demo workspaces. Platform admins land on Client workspaces, org admins on Products; users in several workspaces choose one first.
+Demo accounts are listed with Argon2 hashes in `backend/seeds/bootstrap_users.json` and created on their first sign-in (`app/platform/bootstrap.py`); `python -m app.seed demo` loads full demo workspaces. To give a workspace products, sync SAP and Trace One on Data sources, then import `backend/seeds/demo/vendor-declarations.csv` and `compliance-register.csv` on Import (vendor data and the client's own entries, with a few values left out so gaps show; rebuilt by `python backend/scripts/make_demo_csvs.py`). Platform admins land on Client workspaces, org admins on Products; users in several workspaces choose one first.
 
 ## Deploys
 

@@ -1,0 +1,33 @@
+sku,product_name,component_id,component_name,technical_file_refs,carbon_footprint_kgco2e,polymer,material_split,colour,additives,recyclability_result,recycled_content_pct,recycled_content_cert,pfas_declaration_ref,heavy_metals_mgkg,soc_declaration_ref
+HLA-KET-460,Classic Tomato Ketchup 460g squeezy,HLA-KET-460-01,Squeezy bottle (multilayer),TR-PP-001;PFAS-CP-001;RA-KET-460,0.62,PP,PP 95; EVOH 5,Clear,EVOH barrier layer,Limited,0,n/a,PFAS-BT-001,2,SOC-BT-001
+HLA-KET-460,Classic Tomato Ketchup 460g squeezy,HLA-KET-460-02,Flip-top cap,TR-PP-001;PFAS-CP-001;RA-KET-460,0.62,PP,n/a,Red,None,Good,0,n/a,PFAS-CP-001,1,SOC-CP-001
+HLA-KET-460,Classic Tomato Ketchup 460g squeezy,HLA-KET-460-03,Wrap-around label,TR-PP-001;PFAS-CP-001;RA-KET-460,0.62,PP,n/a,Printed,Solvent ink,Good,0,n/a,n/a,3,SOC-LB-010
+HLA-KET-460,Classic Tomato Ketchup 460g squeezy,HLA-KET-460-04,12-bottle shelf tray,TR-PP-001;PFAS-CP-001;RA-KET-460,0.62,n/a,n/a,Brown,None,Good,85,FSC-2026-101,n/a,2,SOC-TR-001
+HLA-KET-460,Classic Tomato Ketchup 460g squeezy,HLA-KET-460-05,Tray shrink film,TR-PP-001;PFAS-CP-001;RA-KET-460,0.62,LDPE,n/a,Clear,None,Good,30,CERT-PE-2026-11,n/a,1,SOC-SF-001
+HLA-KET-700,Classic Tomato Ketchup 700g squeezy,HLA-KET-700-01,Squeezy bottle (multilayer),TR-PP-001;PFAS-CP-001;RA-KET-460,0.84,PP,PP 95; EVOH 5,Clear,EVOH barrier layer,Limited,,n/a,,2,SOC-BT-001
+HLA-KET-700,Classic Tomato Ketchup 700g squeezy,HLA-KET-700-02,Flip-top cap,TR-PP-001;PFAS-CP-001;RA-KET-460,0.84,PP,n/a,Red,None,Good,0,n/a,PFAS-CP-001,1,SOC-CP-001
+HLA-KET-700,Classic Tomato Ketchup 700g squeezy,HLA-KET-700-03,Wrap-around label,TR-PP-001;PFAS-CP-001;RA-KET-460,0.84,PP,n/a,Printed,Solvent ink,Good,0,n/a,n/a,3,SOC-LB-010
+HLA-KET-700,Classic Tomato Ketchup 700g squeezy,HLA-KET-700-04,12-bottle shelf tray,TR-PP-001;PFAS-CP-001;RA-KET-460,0.84,n/a,n/a,Brown,None,Good,85,FSC-2026-101,n/a,2,SOC-TR-001
+HLA-KET-700,Classic Tomato Ketchup 700g squeezy,HLA-KET-700-05,Tray shrink film,TR-PP-001;PFAS-CP-001;RA-KET-460,0.84,LDPE,n/a,Clear,None,Good,30,CERT-PE-2026-11,n/a,1,SOC-SF-001
+HLA-KET-570,Classic Tomato Ketchup 570g glass,HLA-KET-570-01,Glass bottle,TR-GL-010;PFAS-CP-002,0.71,n/a,n/a,Clear,None,Good,45,CERT-GL-2026-11,n/a,14,SOC-GL-010
+HLA-KET-570,Classic Tomato Ketchup 570g glass,HLA-KET-570-02,Steel twist cap with liner,TR-GL-010;PFAS-CP-002,0.71,n/a,Steel 90; Plastic 10,Red,Plastisol liner,Good,0,n/a,PFAS-CP-002,6,SOC-CP-002
+HLA-KET-570,Classic Tomato Ketchup 570g glass,HLA-KET-570-03,Paper label,TR-GL-010;PFAS-CP-002,0.71,n/a,n/a,Printed,Water-based glue,Good,0,n/a,n/a,4,SOC-LB-011
+HLA-KET-570,Classic Tomato Ketchup 570g glass,HLA-KET-570-04,6-bottle case,TR-GL-010;PFAS-CP-002,0.71,n/a,n/a,Brown,None,Good,85,FSC-2026-101,n/a,2,SOC-TR-001
+HLA-BEAN-415,Baked Beans in Tomato Sauce 415g,HLA-BEAN-415-01,Steel food can with end,TR-ST-001;PFAS-CN-010,0.55,n/a,n/a,Tinplate,Internal lacquer (BPA-NI),Good,25,CERT-ST-2026-01,PFAS-CN-010,9,SOC-CN-010
+HLA-BEAN-415,Baked Beans in Tomato Sauce 415g,HLA-BEAN-415-02,Paper label,TR-ST-001;PFAS-CN-010,0.55,n/a,n/a,Printed,None,Good,0,n/a,n/a,4,SOC-LB-011
+HLA-BEAN-415,Baked Beans in Tomato Sauce 415g,HLA-BEAN-415-03,4-pack shrink film,TR-ST-001;PFAS-CN-010,0.55,LDPE,n/a,Clear,None,Good,0,n/a,n/a,1,SOC-SF-001
+HLA-BEAN-415,Baked Beans in Tomato Sauce 415g,HLA-BEAN-415-04,24-can tray,TR-ST-001;PFAS-CN-010,0.55,n/a,n/a,Brown,None,Good,85,FSC-2026-101,n/a,2,SOC-TR-001
+HLA-SOUP-400,Cream of Tomato Soup 400g,HLA-SOUP-400-01,"Steel food can, easy-open end",TR-ST-002,0.58,n/a,n/a,Tinplate,Internal lacquer (BPA-NI),Good,25,CERT-ST-2026-01,PFAS-CN-011,8,SOC-CN-011
+HLA-SOUP-400,Cream of Tomato Soup 400g,HLA-SOUP-400-02,Paper label,TR-ST-002,0.58,n/a,n/a,Printed,None,Good,0,n/a,n/a,4,SOC-LB-011
+HLA-SOUP-400,Cream of Tomato Soup 400g,HLA-SOUP-400-03,12-can tray,TR-ST-002,0.58,n/a,n/a,Brown,None,Good,85,FSC-2026-101,n/a,2,SOC-TR-001
+HLA-MAYO-400,Real Mayonnaise 400ml jar,HLA-MAYO-400-01,PET jar,TR-PET-001;PFAS-LD-003,0.95,PET,n/a,Clear,None,Good,50,,PFAS-JR-001,1,SOC-JR-001
+HLA-MAYO-400,Real Mayonnaise 400ml jar,HLA-MAYO-400-02,Screw lid with seal,TR-PET-001;PFAS-LD-003,0.95,PP,n/a,White,Induction seal (alu/PE),Limited,0,n/a,PFAS-LD-003,1,SOC-LD-003
+HLA-MAYO-400,Real Mayonnaise 400ml jar,HLA-MAYO-400-03,Paper label,TR-PET-001;PFAS-LD-003,0.95,n/a,n/a,Printed,None,Good,0,n/a,n/a,4,SOC-LB-011
+HLA-MAYO-400,Real Mayonnaise 400ml jar,HLA-MAYO-400-04,12-jar tray,TR-PET-001;PFAS-LD-003,0.95,n/a,n/a,Brown,None,Good,85,FSC-2026-101,n/a,2,SOC-TR-001
+HLA-BABY-190,Little Sprouts Veggie Purée 190g jar,HLA-BABY-190-01,Glass jar,TR-GL-011,0.31,n/a,n/a,Clear,None,Good,40,CERT-GL-2026-11,n/a,13,SOC-GL-011
+HLA-BABY-190,Little Sprouts Veggie Purée 190g jar,HLA-BABY-190-02,Steel lug lid with seal,TR-GL-011,0.31,n/a,Steel 88; Plastic 12,Green,Plastisol seal,,0,n/a,,5,SOC-LD-010
+HLA-BABY-190,Little Sprouts Veggie Purée 190g jar,HLA-BABY-190-03,Paper label,TR-GL-011,0.31,n/a,n/a,Printed,None,Good,0,n/a,n/a,4,SOC-LB-011
+HLA-BABY-190,Little Sprouts Veggie Purée 190g jar,HLA-BABY-190-04,12-jar tray,TR-GL-011,0.31,n/a,n/a,Brown,None,Good,85,FSC-2026-101,n/a,2,SOC-TR-001
+HLA-PORT-10,Ketchup portion sachet 10ml (food service),HLA-PORT-10-01,Portion sachet (laminate),,,PET,PET 45; Aluminium 25; PE 25,Printed,Aluminium foil layer,Poor,0,n/a,PFAS-SC-001,2,SOC-SC-001
+HLA-PORT-10,Ketchup portion sachet 10ml (food service),HLA-PORT-10-02,200-sachet dispenser carton,,,n/a,n/a,Printed,None,Good,70,FSC-2026-102,n/a,2,SOC-DC-001
+HLA-PORT-10,Ketchup portion sachet 10ml (food service),HLA-PORT-10-03,4-carton shipper,,,n/a,n/a,Brown,None,Good,85,FSC-2026-101,n/a,2,SOC-TR-001
