@@ -42,3 +42,6 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Copied from reference-docs-teams by scripts/copy-datapoints.js
+/public/datapoints/

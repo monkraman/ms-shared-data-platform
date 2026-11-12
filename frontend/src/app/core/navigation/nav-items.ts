@@ -40,6 +40,12 @@ export const NAV: NavGroup[] = [
         icon: 'M3 2.5h10v11H3zM5.5 5.5h5M5.5 8h5M5.5 10.5h3',
       },
       {
+        label: 'Data explorer',
+        path: '/app/data-explorer',
+        permission: 'platform.datapoints.read',
+        icon: 'M2 3.5h4v3H2zM10 2h4v3h-4zM10 11h4v3h-4zM6 5h2v7.5h2M8 3.5h2',
+      },
+      {
         label: 'Gap rules',
         path: '/app/gap-rules',
         permission: 'platform.rules.manage',

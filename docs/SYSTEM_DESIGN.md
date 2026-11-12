@@ -4,7 +4,7 @@ How the platform is built, how client data flows through it, how it is stored, c
 
 **Keep it current.** This document describes the code on `main`. Any change to storage, the import or sync pipeline, validation, gaps, compliance calculations, permissions or deployment updates this file in the same commit (rule 6 in [AGENTS.md](../AGENTS.md)). The "Last reviewed" line and the change log at the end say when.
 
-Last reviewed: 12 Nov 2026 (demo accounts shown on the sign-in page).
+Last reviewed: 12 Nov 2026 (data explorer for platform admins).
 
 ---
 
@@ -164,7 +164,7 @@ Product, passport, component and sales values are stored as **field maps** (JSON
 - `source` is the value's **lineage**: `csv`, `erp`, `plm`, `manual` (a person), `estimate` (filled by an estimation rule) or `correction` (a validation suggestion applied). An empty `""` means "asked for but missing" and drives gaps.
 - **Nothing is computed and stored.** Totals, completeness, gaps, fees and readiness are calculated on read from these values, so they can never disagree with the data.
 
-The field catalogue (`app/catalog/reference/fields.json`) defines every field: label, data point, level (Product, Passport, Component, Sales…), type (Number, Code, Yes/No, Date, URL, Text) and allowed values or range. It is generated from the team's data set (`reference-docs-teams/datapoints-epr-ppwr-main`) by `backend/scripts/make_reference_data.js`.
+The field catalogue (`app/catalog/reference/fields.json`) defines every field: label, data point, level (Product, Passport, Component, Sales…), type (Number, Code, Yes/No, Date, URL, Text) and allowed values or range. It is generated from the team's data set (`reference-docs-teams/datapoints-epr-ppwr-main`) by `backend/scripts/make_reference_data.js`. The same folder is published unchanged at `/datapoints/` (copied into `frontend/public` by `frontend/scripts/copy-datapoints.js` on build and start) and shown to platform admins as **Data explorer** (flowchart, table and checklist of the data points by country and regulation). It is static reference content: it reads no client data and is public to anyone with the URL.
 
 ---
 
@@ -329,5 +329,6 @@ Platform-wide today: the gap rule library, EPR rates, the field catalogue and wo
 
 | Date | Change |
 | --- | --- |
+| 12 Nov 2026 | Data explorer: the team's data point explorer served as-is at `/datapoints/`, shown to platform admins. |
 | 12 Nov 2026 | Demo accounts on the sign-in page behind `DEMO_SIGN_IN` (known limits). |
 | 12 Nov 2026 | First version: architecture, tenancy, storage and lineage, import and re-sync rules, validation, gaps, compliance, configuration, operations. |
