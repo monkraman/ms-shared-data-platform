@@ -1,6 +1,7 @@
 """Alembic environment: async SQLAlchemy with psycopg 3, URL from app settings."""
 
 import asyncio
+import sys
 
 from alembic import context
 from sqlalchemy.ext.asyncio import create_async_engine
@@ -55,4 +56,6 @@ async def run_migrations_online() -> None:
 if context.is_offline_mode():
     run_migrations_offline()
 else:
-    asyncio.run(run_migrations_online())
+    # psycopg's async mode cannot use Windows' default (Proactor) event loop.
+    loop_factory = asyncio.SelectorEventLoop if sys.platform == "win32" else None
+    asyncio.run(run_migrations_online(), loop_factory=loop_factory)
