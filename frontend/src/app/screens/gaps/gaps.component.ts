@@ -36,7 +36,7 @@ import { toCsv } from '../import/csv';
     ErrorStateComponent,
   ],
   template: `
-    <app-page-header title="Gaps">
+    <app-page-header title="Data gaps">
       <button type="button" class="btn btn-secondary" (click)="export()" [disabled]="!rows().length">Export</button>
       @if (canResolve() && estimableOpen().length) {
         <button type="button" class="btn btn-primary" [disabled]="filling()" (click)="fillAll()">

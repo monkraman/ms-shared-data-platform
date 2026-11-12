@@ -37,7 +37,7 @@ backend/                     FastAPI, Python 3.12
 frontend/                    Angular 22, standalone components, signals
   src/app/core/api/          ApiClient (typed from OpenAPI), contracts.ts (names for schema types), platform-api.ts
   src/app/core/session/      SessionService: sign-in, refresh, workspace switch, idle sign-out, permissions
-  src/app/core/navigation/   sidebar groups and items, each with a permission
+  src/app/core/navigation/   sidebar groups and items, each with a permission (or a list: any of them)
   src/app/screens/           rebuilt screens (2–8), one folder each
   src/app/shared/ui/         shared components: table, drawer, dialog, form field, chips, states
   src/app/features/          sign-in, workspace picker and the app shell
@@ -62,6 +62,18 @@ reference-docs-teams/        reference material and data sets (input, not app co
 - Switching workspace (`POST /auth/switch-tenant`) issues a new token; the workspace is never sent as a header .
 - **Demo accounts on the sign-in page (temporary):** while `environment.demoSignIn` is on, the page shows the platform admin and the Kraft Heinz org admin with their email and password; a click signs in. Anyone with the link can then sign in, so set `DEMO_SIGN_IN=false` in Vercel and rebuild before real client data, and change those passwords.
 - Production builds call the API on the same origin (`/api`, proxied by `vercel.json`) so the refresh cookie is first-party. Do not set `API_BASE_URL` to the Render URL.
+
+## Navigation (names follow the client-approved mockup)
+
+The sidebar (`core/navigation/nav-items.ts`) shows only what the user's permissions and the workspace's modules allow:
+
+- **Platform** (Monk Spaces): Client workspaces, Users, Data points, Data explorer, Gap rules.
+- **Overview:** Setup (`/app/setup`: tabs Data connections and People).
+- **Data:** Data collection (`/app/data`: tabs Overview and Import), Data gaps, Data validation, SKU library (`/app/products`).
+- **Comply:** Compliance.
+- **Insights:** Hotspots (`/app/insights`), Scenarios (`/app/scenarios`, the same component with `data.view`; the scenario in progress is shared through `ScenarioDraft`), Horizon scanning, Actions.
+
+A page made of existing screens uses `TabbedPageComponent` (`shared/ui`) via `tabbedPage()` in `app.routes.ts`; earlier addresses (`/app/team`, `/app/data-sources`, `/app/import`, `/app/data-overview`) redirect. Home is added with the dashboard.
 
 ## What each client can configure (SaaS)
 

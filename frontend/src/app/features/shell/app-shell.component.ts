@@ -23,10 +23,13 @@ export class AppShellComponent {
 
   protected readonly menuOpen = signal(false);
   protected readonly nav = computed(() =>
-    NAV.map((g) => ({ ...g, items: g.items.filter((i) => this.session.can(i.permission)) })).filter(
+    NAV.map((g) => ({ ...g, items: g.items.filter((i) => this.allowed(i.permission)) })).filter(
       (g) => g.items.length,
     ),
   );
+  private allowed(permission: string | string[] | undefined): boolean {
+    return Array.isArray(permission) ? permission.some((p) => this.session.can(p)) : this.session.can(permission);
+  }
   /** The active workspace's branding (logo, colour) from the session. */
   protected readonly tenant = computed(() => this.session.me()?.active_tenant ?? null);
   protected readonly name = computed(() => this.session.me()?.user.full_name ?? '');

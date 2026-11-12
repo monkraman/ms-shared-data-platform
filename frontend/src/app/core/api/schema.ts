@@ -430,7 +430,7 @@ export interface paths {
         };
         /**
          * Readiness check
-         * @description Checks the database connection. Returns 503 when the database is unreachable.
+         * @description Checks the database connection and the RLS role every request switches to. Returns 503 when either is missing.
          */
         get: operations["check_ready_api_v1_health_ready_get"];
         put?: never;
@@ -918,7 +918,7 @@ export interface paths {
         };
         /**
          * Readiness check
-         * @description Checks the database connection. Returns 503 when the database is unreachable.
+         * @description Checks the database connection and the RLS role every request switches to. Returns 503 when either is missing.
          */
         get: operations["check_ready_health_ready_get"];
         put?: never;

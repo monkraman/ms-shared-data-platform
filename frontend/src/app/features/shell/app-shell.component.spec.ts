@@ -39,14 +39,21 @@ describe('AppShellComponent', () => {
     expect(el.querySelector('.brand .workspace')?.textContent?.trim()).toBe('Acme Foods');
     expect(el.querySelector('.user .name')?.textContent?.trim()).toBe('Ana Lima');
     expect(groups(el)).toEqual(['Data']);
-    expect(links(el)).toEqual(['Products', 'Validation', 'Gaps']);
+    expect(links(el)).toEqual(['Data gaps', 'Data validation', 'SKU library']);
   });
 
   it('shows the platform group to platform admins', () => {
     session.me.set(me(['platform.tenants.read', 'products.read'], true));
     const el = render();
     expect(groups(el)).toEqual(['Platform', 'Data']);
-    expect(links(el)).toEqual(['Client workspaces', 'Products', 'Validation']);
+    expect(links(el)).toEqual(['Client workspaces', 'Data validation', 'SKU library']);
+  });
+
+  it('shows an item that needs one of several permissions when the user has any of them', () => {
+    session.me.set(me(['users.manage']));
+    const el = render();
+    expect(groups(el)).toEqual(['Overview']);
+    expect(links(el)).toEqual(['Setup']);
   });
 
   it('signs out', async () => {

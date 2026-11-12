@@ -16,7 +16,7 @@ import { toCsv } from '../import/csv';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, RouterLink, PageHeaderComponent, DataTableComponent, StatusChipComponent, EmptyStateComponent, ErrorStateComponent],
   template: `
-    <app-page-header title="Validation">
+    <app-page-header title="Data validation">
       <button type="button" class="btn btn-secondary" [disabled]="!rows().length" (click)="exportForSources()">Export for source systems</button>
       @if (canFix() && fixable().length) {
         <button type="button" class="btn btn-primary" [disabled]="busy()" (click)="apply(fixable())">Apply {{ fixable().length }} corrections</button>

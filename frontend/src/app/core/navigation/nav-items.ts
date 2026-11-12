@@ -9,7 +9,8 @@ export interface NavItem {
   path: string;
   /** SVG path data for a 16px, 1.5-stroke icon. */
   icon: string;
-  permission?: string;
+  /** Shown when the user has this permission, or any of them when it is a list. */
+  permission?: string | string[];
 }
 
 export interface NavGroup {
@@ -54,63 +55,73 @@ export const NAV: NavGroup[] = [
     ],
   },
   {
-    label: 'Data',
+    label: 'Overview',
     items: [
       {
-        label: 'Products',
-        path: '/app/products',
-        permission: 'products.read',
-        icon: 'M8 1.5 14 4.5v7L8 14.5 2 11.5v-7zM2 4.5l6 3 6-3M8 7.5v7',
-      },
-      {
-        label: 'Import',
-        path: '/app/import',
-        permission: 'imports.manage',
-        icon: 'M8 10.5V2.5M5 5.5l3-3 3 3M2.5 10.5v3h11v-3',
-      },
-      {
-        label: 'Data sources',
-        path: '/app/data-sources',
-        permission: 'imports.manage',
-        icon: 'M8 2.5c3 0 5.5.9 5.5 2s-2.5 2-5.5 2-5.5-.9-5.5-2 2.5-2 5.5-2zM2.5 4.5v7c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2v-7M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2',
-      },
-      {
-        label: 'Validation',
-        path: '/app/validation',
-        permission: 'products.read',
-        icon: 'M3 8.5l3 3 7-7M2.5 13.5h11',
-      },
-      {
-        label: 'Gaps',
-        path: '/app/gaps',
-        permission: 'gaps.read',
-        icon: 'M8 2 14.5 13.5h-13zM8 6.5v3M8 11.5v.01',
-      },
-      {
-        label: 'Data overview',
-        path: '/app/data-overview',
-        permission: 'data.read',
-        icon: 'M2.5 13.5h11M4.5 11V7M8 11V4M11.5 11V8.5',
+        label: 'Setup',
+        path: '/app/setup',
+        permission: ['imports.manage', 'users.manage'],
+        icon: 'M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4',
       },
     ],
   },
   {
-    label: 'Compliance',
+    label: 'Data',
     items: [
       {
-        label: 'EPR and PPWR',
+        label: 'Data collection',
+        path: '/app/data',
+        permission: ['data.read', 'imports.manage'],
+        icon: 'M8 2.5c3 0 5.5.9 5.5 2s-2.5 2-5.5 2-5.5-.9-5.5-2 2.5-2 5.5-2zM2.5 4.5v7c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2v-7M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2',
+      },
+      {
+        label: 'Data gaps',
+        path: '/app/gaps',
+        permission: 'gaps.read',
+        icon: 'M7 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM10 10l3.5 3.5',
+      },
+      {
+        label: 'Data validation',
+        path: '/app/validation',
+        permission: 'products.read',
+        icon: 'M8 1.5 13.5 3.5v4c0 3.3-2.3 5.8-5.5 7-3.2-1.2-5.5-3.7-5.5-7v-4zM5.8 8l1.6 1.6 3.1-3.1',
+      },
+      {
+        label: 'SKU library',
+        path: '/app/products',
+        permission: 'products.read',
+        icon: 'M8 1.5 14 4.5v7L8 14.5 2 11.5v-7zM2 4.5l6 3 6-3M8 7.5v7',
+      },
+    ],
+  },
+  {
+    label: 'Comply',
+    items: [
+      {
+        label: 'Compliance',
         path: '/app/compliance',
         permission: 'compliance.read',
-        icon: 'M8 1.5 13.5 3.5v4c0 3.3-2.3 5.8-5.5 7-3.2-1.2-5.5-3.7-5.5-7v-4zM5.5 8.5h5M5.5 6h5M5.5 11h3',
+        icon: 'M4 1.5h5.5l3 3v10H4zM9.5 1.5v3h3M6 8h5M6 10.5h5',
       },
+    ],
+  },
+  {
+    label: 'Insights',
+    items: [
       {
-        label: 'Hotspots and scenarios',
+        label: 'Hotspots',
         path: '/app/insights',
         permission: 'module.epr',
-        icon: 'M8 14.5c2.8 0 4.5-1.9 4.5-4.3 0-2.7-2.2-3.9-2.6-6.7-1.5 1-2.3 2.4-2.3 3.9-.8-.6-1.3-1.5-1.4-2.6C4.6 6.1 3.5 7.8 3.5 10.2c0 2.4 1.7 4.3 4.5 4.3z',
+        icon: 'M2.5 13.5h11M4.5 11V7M8 11V4M11.5 11V8.5',
       },
       {
-        label: 'Horizon',
+        label: 'Scenarios',
+        path: '/app/scenarios',
+        permission: 'module.epr',
+        icon: 'M8 1.5 14.5 8 8 14.5 1.5 8z',
+      },
+      {
+        label: 'Horizon scanning',
         path: '/app/horizon',
         permission: 'compliance.read',
         icon: 'M1.5 11.5h13M3.5 11.5a4.5 4.5 0 0 1 9 0M8 2v2M3.4 4.4l1.4 1.4M12.6 4.4l-1.4 1.4',
@@ -120,17 +131,6 @@ export const NAV: NavGroup[] = [
         path: '/app/actions',
         permission: 'compliance.read',
         icon: 'M3 3.5h10v9H3zM5.5 6.5l1.2 1.2 2.3-2.3M5.5 10h5',
-      },
-    ],
-  },
-  {
-    label: 'Workspace',
-    items: [
-      {
-        label: 'Team',
-        path: '/app/team',
-        permission: 'users.manage',
-        icon: 'M6 7.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM1.5 13.5c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4M10.5 2.7a2.5 2.5 0 0 1 0 4.6M12 9.8c1.5.5 2.5 1.8 2.5 3.7',
       },
     ],
   },

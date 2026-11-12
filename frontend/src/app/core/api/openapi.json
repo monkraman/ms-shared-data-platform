@@ -7114,7 +7114,7 @@
     },
     "/api/v1/health/ready": {
       "get": {
-        "description": "Checks the database connection. Returns 503 when the database is unreachable.",
+        "description": "Checks the database connection and the RLS role every request switches to. Returns 503 when either is missing.",
         "operationId": "check_ready_api_v1_health_ready_get",
         "responses": {
           "200": {
@@ -9185,7 +9185,7 @@
     },
     "/health/ready": {
       "get": {
-        "description": "Checks the database connection. Returns 503 when the database is unreachable.",
+        "description": "Checks the database connection and the RLS role every request switches to. Returns 503 when either is missing.",
         "operationId": "check_ready_health_ready_get",
         "responses": {
           "200": {
