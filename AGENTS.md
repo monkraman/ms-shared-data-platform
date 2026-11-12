@@ -52,7 +52,7 @@ reference-docs-teams/        reference material and data sets (input, not app co
 3. **API contract first.** A screen's endpoints are agreed before code. Planned ones live in `frontend/src/app/core/api/contracts.ts`; built ones are in the OpenAPI schema (`npm run api:generate`, checked in CI).
 4. **No data in components.** Screens call `PlatformApi` or `ApiClient`. Demo data lives in `backend/seeds` and `backend/app/catalog/reference` (used by the simulated ERP/PLM sync).
 5. **UI: simple like Linear or Apple Notes.** Labels and data only. No taglines, helper text or secondary labels; if a screen needs them, fix the layout. Use the platform tokens in `styles.css` (`.platform`) and the shared UI pieces.
-6. **Docs move with the code.** Update this file, `docs/README.md`, the foundation guide and the build plan status in the same change.
+6. **Docs move with the code.** Update this file, `docs/README.md`, the foundation guide, the build plan status and [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md) (the HLD: storage, import and re-sync rules, validation, gaps, compliance) in the same change.
 
 ## Sign-in and session (screen 1)
 
@@ -115,6 +115,7 @@ Demo accounts are listed with Argon2 hashes in `backend/seeds/bootstrap_users.js
 
 ## More
 
+- [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md): **system design (HLD)** — architecture, how data is stored, imported, re-synced, validated and used
 - [docs/README.md](docs/README.md): index of all documentation
 - [docs/FOUNDATION_GUIDE.md](docs/FOUNDATION_GUIDE.md): how a screen uses the foundation, step by step
 - [docs/TARGET_ARCHITECTURE_AND_IMPROVEMENT_PLAN.md](docs/TARGET_ARCHITECTURE_AND_IMPROVEMENT_PLAN.md): the target design
