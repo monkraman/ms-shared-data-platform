@@ -8,5 +8,7 @@ export const environment = {
   appName: 'Compliance Hub',
   version: '1.0.0',
   enableDebugTools: true,
+  /** One-click demo accounts on the sign-in page. */
+  demoSignIn: true,
 };
 

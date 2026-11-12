@@ -4,6 +4,7 @@ Things we chose to ship without, so they are not forgotten. Newest first. When o
 
 | Area | Improvement | Why it waits | Where |
 | --- | --- | --- | --- |
+| Security | Hide the demo accounts on the sign-in page (`DEMO_SIGN_IN=false` in Vercel) and change their passwords | Shown on purpose for demos | `features/auth/sign-in.component.ts` |
 | Validation | Send corrections to the source system through its connector (today: export per source system) | Needs real connectors | `app/api/v1/validation.py` |
 | Products | Edit sales lines; undo an edit from history | First version edits product, passport and components | `app/api/v1/products.py` |
 | SaaS | Per-client gap rules and EPR rates (on top of the platform library), per-client field catalogue and labels | Platform-wide today | `app/quality`, `app/modules/reference` |

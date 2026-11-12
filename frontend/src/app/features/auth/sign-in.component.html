@@ -73,12 +73,13 @@
     </form>
 
     @if (presets.length) {
-      <div class="auth-presets">
-        <div class="preset-buttons">
-          @for (p of presets; track p.email) {
-            <button type="button" class="preset-btn" (click)="applyPreset(p.email)">{{ p.label }}</button>
-          }
-        </div>
+      <div class="auth-presets" aria-label="Demo accounts">
+        @for (p of presets; track p.email) {
+          <button type="button" class="demo-account" [disabled]="authenticating()" (click)="signInAs(p.email)">
+            <b>{{ p.label }}</b>
+            <span class="cred"><span>{{ p.email }}</span><span>{{ demoPassword }}</span></span>
+          </button>
+        }
       </div>
     }
   </main>

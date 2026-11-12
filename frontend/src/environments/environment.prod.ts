@@ -5,4 +5,6 @@ export const environment = {
   appName: 'Compliance Hub',
   version: '1.0.0',
   enableDebugTools: false,
+  /** One-click demo accounts on the sign-in page. Set DEMO_SIGN_IN=false before real client data. */
+  demoSignIn: true,
 };
