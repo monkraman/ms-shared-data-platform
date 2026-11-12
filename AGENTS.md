@@ -42,7 +42,8 @@ frontend/                    Angular 22, standalone components, signals
   src/app/shared/ui/         shared components: table, drawer, dialog, form field, chips, states
   src/app/features/          sign-in, workspace picker and the app shell
 docs/                        plans, architecture, foundation guide (index: docs/README.md)
-reference-docs-teams/        reference material and data sets (input, not app code)
+reference-docs-teams/        reference material and data sets (input, not app code); datapoints-epr-ppwr-main
+                             is also published as-is at /datapoints/ (platform admin "Data explorer")
 ```
 
 ## Rules every change follows

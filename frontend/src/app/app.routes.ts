@@ -25,6 +25,7 @@ export const routes: Routes = [
       { path: '', pathMatch: 'full', canActivate: [landingGuard], loadComponent: () => import('./features/shell/home.component').then((m) => m.HomeComponent), title: 'Compliance Hub' },
       screen('workspaces', 'platform.tenants.read', 'Client workspaces', () => import('./screens/workspaces/workspaces.component').then((m) => m.WorkspacesComponent)),
       screen('data-points', 'platform.datapoints.read', 'Data points', () => import('./screens/data-points/data-points.component').then((m) => m.DataPointsComponent)),
+      screen('data-explorer', 'platform.datapoints.read', 'Data explorer', () => import('./screens/data-explorer/data-explorer.component').then((m) => m.DataExplorerComponent)),
       screen('gap-rules', 'platform.rules.manage', 'Gap rules', () => import('./screens/gap-rules/gap-rules.component').then((m) => m.GapRulesComponent)),
       screen('team', 'users.manage', 'Team', () => import('./screens/team/team.component').then((m) => m.TeamComponent)),
       screen('users', 'platform.users.manage', 'Users', () => import('./screens/users/users.component').then((m) => m.UsersComponent)),
