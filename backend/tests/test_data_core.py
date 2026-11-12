@@ -250,6 +250,15 @@ def test_epr_and_ppwr_results_come_from_the_workspace_data(db_client: TestClient
     doc = db_client.get("/api/v1/modules/ppwr/declarations/HLA-KET-460", params={"lang": "da"}, headers=h).json()
     assert doc["text"]["title"] == "EU-overensstemmelseserklæring"
     assert doc["components"] and {r["key"] for r in doc["requirements"]} >= {"substances", "recyclability"}
+
+    # SKU library: fee per regime the workspace covers, RAM rating, PPWR grade, markets, status.
+    skus = {r["sku"]: r for r in db_client.get("/api/v1/products", headers=viewer).json()}
+    sachet = skus["HLA-PORT-10"]
+    assert {f["regime"] for f in sachet["fees"]} == {"epr_uk", "epr_dk"}
+    assert sachet["markets"] == ["DK", "UK"] and sachet["markets_assumed"] and sachet["ppwr_in_scope"]
+    assert sachet["ram"] == "Red" and sachet["grade"] == "E" and sachet["status"] == "at_risk"
+    detail = db_client.get("/api/v1/products/HLA-KET-460", headers=viewer).json()
+    assert detail["grade"] == "C" and detail["components"][0]["assessment"]["ram"] == "Amber"
     assert db_client.get("/api/v1/modules/ppwr/declarations/HLA-KET-460", headers=b).status_code == 404
 
     assert db_client.get("/api/v1/modules/regimes", headers=h).json()

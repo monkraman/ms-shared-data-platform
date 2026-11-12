@@ -443,6 +443,72 @@
         "title": "Change",
         "type": "object"
       },
+      "ComponentAssessment": {
+        "properties": {
+          "grade": {
+            "anyOf": [
+              {
+                "enum": [
+                  "A",
+                  "B",
+                  "C",
+                  "D",
+                  "E"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade"
+          },
+          "grade_reason": {
+            "title": "Grade Reason",
+            "type": "string"
+          },
+          "ram": {
+            "anyOf": [
+              {
+                "enum": [
+                  "Red",
+                  "Amber",
+                  "Green"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ram"
+          },
+          "ram_reason": {
+            "title": "Ram Reason",
+            "type": "string"
+          },
+          "recyclable_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recyclable Pct"
+          }
+        },
+        "required": [
+          "ram",
+          "ram_reason",
+          "grade",
+          "recyclable_pct",
+          "grade_reason"
+        ],
+        "title": "ComponentAssessment",
+        "type": "object"
+      },
       "ComponentHotspot": {
         "properties": {
           "component_id": {
@@ -555,6 +621,9 @@
       },
       "ComponentOut": {
         "properties": {
+          "assessment": {
+            "$ref": "#/components/schemas/ComponentAssessment"
+          },
           "fields": {
             "additionalProperties": {
               "$ref": "#/components/schemas/FieldValue"
@@ -633,7 +702,8 @@
           "recycled_content_pct",
           "recyclability",
           "supplier_id",
-          "fields"
+          "fields",
+          "assessment"
         ],
         "title": "ComponentOut",
         "type": "object"
@@ -1307,6 +1377,21 @@
             "title": "Fee Tonnes",
             "type": "number"
           },
+          "modulated": {
+            "title": "Modulated",
+            "type": "boolean"
+          },
+          "modulation_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modulation Note"
+          },
           "name": {
             "title": "Name",
             "type": "string"
@@ -1374,6 +1459,8 @@
           "rates_status",
           "rates_note",
           "fee_channels",
+          "modulated",
+          "modulation_note",
           "total_fee",
           "total_tonnes",
           "fee_tonnes",
@@ -3510,6 +3597,13 @@
             "title": "Components",
             "type": "array"
           },
+          "fees": {
+            "items": {
+              "$ref": "#/components/schemas/SkuFee"
+            },
+            "title": "Fees",
+            "type": "array"
+          },
           "fields": {
             "additionalProperties": {
               "$ref": "#/components/schemas/FieldValue"
@@ -3517,9 +3611,42 @@
             "title": "Fields",
             "type": "object"
           },
+          "grade": {
+            "anyOf": [
+              {
+                "enum": [
+                  "A",
+                  "B",
+                  "C",
+                  "D",
+                  "E"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade"
+          },
+          "grade_reason": {
+            "title": "Grade Reason",
+            "type": "string"
+          },
           "gtin": {
             "title": "Gtin",
             "type": "string"
+          },
+          "markets": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Markets",
+            "type": "array"
+          },
+          "markets_assumed": {
+            "title": "Markets Assumed",
+            "type": "boolean"
           },
           "materials": {
             "items": {
@@ -3547,6 +3674,51 @@
             "title": "Passport",
             "type": "object"
           },
+          "ppwr_in_scope": {
+            "title": "Ppwr In Scope",
+            "type": "boolean"
+          },
+          "ram": {
+            "anyOf": [
+              {
+                "enum": [
+                  "Red",
+                  "Amber",
+                  "Green"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ram"
+          },
+          "ram_counts": {
+            "$ref": "#/components/schemas/RamCounts"
+          },
+          "recyclable_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recyclable Pct"
+          },
+          "recycled_content": {
+            "items": {
+              "$ref": "#/components/schemas/RecycledUnit"
+            },
+            "title": "Recycled Content",
+            "type": "array"
+          },
+          "recycled_target_misses": {
+            "title": "Recycled Target Misses",
+            "type": "integer"
+          },
           "sales": {
             "items": {
               "$ref": "#/components/schemas/SalesLineOut"
@@ -3557,6 +3729,22 @@
           "sku": {
             "title": "Sku",
             "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "issue",
+              "at_risk"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "status_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Status Reasons",
+            "type": "array"
           }
         },
         "required": [
@@ -3569,6 +3757,19 @@
           "materials",
           "completeness_pct",
           "open_gaps",
+          "markets",
+          "markets_assumed",
+          "ppwr_in_scope",
+          "fees",
+          "ram",
+          "ram_counts",
+          "grade",
+          "recyclable_pct",
+          "grade_reason",
+          "recycled_content",
+          "recycled_target_misses",
+          "status",
+          "status_reasons",
           "fields",
           "passport",
           "components",
@@ -3591,9 +3792,49 @@
             "title": "Component Count",
             "type": "integer"
           },
+          "fees": {
+            "items": {
+              "$ref": "#/components/schemas/SkuFee"
+            },
+            "title": "Fees",
+            "type": "array"
+          },
+          "grade": {
+            "anyOf": [
+              {
+                "enum": [
+                  "A",
+                  "B",
+                  "C",
+                  "D",
+                  "E"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade"
+          },
+          "grade_reason": {
+            "title": "Grade Reason",
+            "type": "string"
+          },
           "gtin": {
             "title": "Gtin",
             "type": "string"
+          },
+          "markets": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Markets",
+            "type": "array"
+          },
+          "markets_assumed": {
+            "title": "Markets Assumed",
+            "type": "boolean"
           },
           "materials": {
             "items": {
@@ -3614,9 +3855,70 @@
             "title": "Packaging G Per Unit",
             "type": "number"
           },
+          "ppwr_in_scope": {
+            "title": "Ppwr In Scope",
+            "type": "boolean"
+          },
+          "ram": {
+            "anyOf": [
+              {
+                "enum": [
+                  "Red",
+                  "Amber",
+                  "Green"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ram"
+          },
+          "ram_counts": {
+            "$ref": "#/components/schemas/RamCounts"
+          },
+          "recyclable_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recyclable Pct"
+          },
+          "recycled_content": {
+            "items": {
+              "$ref": "#/components/schemas/RecycledUnit"
+            },
+            "title": "Recycled Content",
+            "type": "array"
+          },
+          "recycled_target_misses": {
+            "title": "Recycled Target Misses",
+            "type": "integer"
+          },
           "sku": {
             "title": "Sku",
             "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "issue",
+              "at_risk"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "status_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Status Reasons",
+            "type": "array"
           }
         },
         "required": [
@@ -3628,9 +3930,45 @@
           "packaging_g_per_unit",
           "materials",
           "completeness_pct",
-          "open_gaps"
+          "open_gaps",
+          "markets",
+          "markets_assumed",
+          "ppwr_in_scope",
+          "fees",
+          "ram",
+          "ram_counts",
+          "grade",
+          "recyclable_pct",
+          "grade_reason",
+          "recycled_content",
+          "recycled_target_misses",
+          "status",
+          "status_reasons"
         ],
         "title": "ProductSummary",
+        "type": "object"
+      },
+      "RamCounts": {
+        "properties": {
+          "Amber": {
+            "title": "Amber",
+            "type": "integer"
+          },
+          "Green": {
+            "title": "Green",
+            "type": "integer"
+          },
+          "Red": {
+            "title": "Red",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "Green",
+          "Amber",
+          "Red"
+        ],
+        "title": "RamCounts",
         "type": "object"
       },
       "Recommendation": {
@@ -3733,6 +4071,63 @@
           "action_id"
         ],
         "title": "Recommendation",
+        "type": "object"
+      },
+      "RecycledUnit": {
+        "properties": {
+          "basis": {
+            "title": "Basis",
+            "type": "string"
+          },
+          "exempt": {
+            "title": "Exempt",
+            "type": "boolean"
+          },
+          "level": {
+            "title": "Level",
+            "type": "string"
+          },
+          "met": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Met"
+          },
+          "plastic_g": {
+            "title": "Plastic G",
+            "type": "number"
+          },
+          "recycled_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recycled Pct"
+          },
+          "target_pct": {
+            "title": "Target Pct",
+            "type": "number"
+          }
+        },
+        "required": [
+          "level",
+          "plastic_g",
+          "recycled_pct",
+          "target_pct",
+          "basis",
+          "exempt",
+          "met"
+        ],
+        "title": "RecycledUnit",
         "type": "object"
       },
       "Regime": {
@@ -3871,6 +4266,10 @@
             "title": "Id",
             "type": "string"
           },
+          "market": {
+            "title": "Market",
+            "type": "string"
+          },
           "period": {
             "title": "Period",
             "type": "string"
@@ -3888,6 +4287,7 @@
           "id",
           "period",
           "channel",
+          "market",
           "units_placed",
           "units_exported"
         ],
@@ -4054,6 +4454,51 @@
           "lines"
         ],
         "title": "ScenarioResult",
+        "type": "object"
+      },
+      "SkuFee": {
+        "properties": {
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "fee": {
+            "title": "Fee",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "regime": {
+            "title": "Regime",
+            "type": "string"
+          },
+          "tonnes": {
+            "title": "Tonnes",
+            "type": "number"
+          },
+          "year": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year"
+          }
+        },
+        "required": [
+          "regime",
+          "name",
+          "currency",
+          "year",
+          "fee",
+          "tonnes"
+        ],
+        "title": "SkuFee",
         "type": "object"
       },
       "SourceCoverage": {

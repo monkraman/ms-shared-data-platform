@@ -17,8 +17,9 @@ Things we chose to ship without, so they are not forgotten. Newest first. When o
 | Actions | Assign owners from the user list, reminders and email when due | Email service not chosen | `screens/actions` |
 | Gaps | More estimation methods: by product family, by supplier, from similar SKUs' volume; confidence per estimate; undo a fill | First version averages same material and level | `app/quality/estimates.py` |
 | Compliance | Real EPR Denmark and SB 54 rates (placeholders today); a Tariffs screen to edit rates per year (screen 11) | Rates come from the client's PRO and CalRecycle | `app/modules/reference/regimes.json` |
-| Compliance | UK RAM modulation (red/amber/green) and non-household rules | Needs recyclability assessments per component | `app/modules/epr.py` |
-| Compliance | Sales lines per country (today every sales line counts for every regime) | Sales data has no country field yet | `app/modules/epr.py` |
+| Compliance | Published UK modulated fees for 2026/27 (indicative factors today) and non-household rules; full RAM and PPWR design-for-recycling assessments instead of the simplified rules | Needs the published fee schedule and assessment data per component | `app/modules/reference/regimes.json`, `app/modules/assessment.py` |
+| Compliance | Market on the sample sales lines and in CSV imports of sales (the field exists; the sample data has none, so lines count for every regime) | Sample data comes from the team's data set | `app/catalog/reference/sample-products.json` |
+| Compliance | One reporting currency for fees across regimes (shown per currency today) | Needs exchange rates per period | `app/modules/skus.py` |
 | Compliance | Email a declaration from the platform with the PDF attached, and a share link (Email opens the user's mail program today) | Email service not chosen | `screens/compliance/declaration.component.ts` |
 | Compliance | Native-speaker and legal review of the Danish declaration text; PPWR article references | Needs a reviewer | `app/modules/ppwr_doc.py` |
 | Compliance | Defra RPD CSV export from the EPR UK result (screen 13) | Next in the plan | `reference-docs-teams/packaging_data_example_file_2025_LP_submission_v4.csv` |

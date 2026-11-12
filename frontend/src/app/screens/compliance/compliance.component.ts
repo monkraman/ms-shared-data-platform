@@ -71,6 +71,9 @@ const REQUIREMENT_LABELS: Record<(typeof REQUIREMENTS)[number], string> = {
       @if (r.rates_status === 'placeholder') {
         <div class="notice" role="note"><b>Placeholder rates</b> {{ r.rates_note }}</div>
       }
+      @if (r.modulation_note) {
+        <div class="notice" role="note"><b>Modulated by rating</b> {{ r.modulation_note }}</div>
+      }
       <div class="kpis">
         <div class="kpi dark">
           <div class="kpi-label">{{ r.name }} fee {{ r.year }}</div>

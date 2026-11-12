@@ -37,7 +37,13 @@
       "fee_channels": ["Household"],
       "rates_status": "published",
       "rates_note": "2025/26 base fees per tonne of household packaging, before RAM modulation. Check against the current PackUK schedule before filing.",
-      "rates": {"AL": 266, "FC": 461, "GL": 192, "PC": 196, "PL": 423, "ST": 259, "WD": 280, "OT": 259}
+      "rates": {"AL": 266, "FC": 461, "GL": 192, "PC": 196, "PL": 423, "ST": 259, "WD": 280, "OT": 259},
+      "modulation": {
+        "from_year": 2026,
+        "status": "indicative",
+        "note": "From 2026/27 the base fee is modulated by the RAM rating. Indicative factors: Red 1.2, Amber 1.0, Green 0.9. Replace with the published modulated fees before filing.",
+        "factors": {"Red": 1.2, "Amber": 1.0, "Green": 0.9}
+      }
     },
     "epr_dk": {
       "name": "EPR Denmark",
@@ -48,7 +54,13 @@
       "fee_channels": ["Household", "Non-household"],
       "rates_status": "placeholder",
       "rates_note": "Placeholder rates per tonne. Replace with the fees of the client's producer responsibility organisation.",
-      "rates": {"AL": 1800, "FC": 2600, "GL": 900, "PC": 1200, "PL": 3500, "ST": 1500, "WD": 900, "OT": 1500}
+      "rates": {"AL": 1800, "FC": 2600, "GL": 900, "PC": 1200, "PL": 3500, "ST": 1500, "WD": 900, "OT": 1500},
+      "modulation": {
+        "from_year": 2025,
+        "status": "placeholder",
+        "note": "Eco-modulation by recyclability: Green −20%, Red +35%. Placeholder factors until the producer responsibility organisation's are entered.",
+        "factors": {"Red": 1.35, "Amber": 1.0, "Green": 0.8}
+      }
     },
     "sb54_ca": {
       "name": "SB 54 California",

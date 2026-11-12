@@ -41,6 +41,7 @@ def sales_out(s: SalesLine) -> dict[str, Any]:
         "id": s.code,
         "period": value(f, "period"),
         "channel": value(f, "channel"),
+        "market": value(f, "market"),
         "units_placed": number(value(f, "units_placed")) or 0,
         "units_exported": number(value(f, "units_exported")) or 0,
     }

@@ -1,4 +1,4 @@
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
@@ -9,8 +9,9 @@ import { Problem, toProblem } from '../../core/api/problem';
 import { load } from '../../core/api/resource';
 import { ToastService } from '../../core/services/toast.service';
 import { SessionService } from '../../core/session/session.service';
-import { ChipTone, DrawerComponent, EmptyStateComponent, ErrorStateComponent, StatusChipComponent } from '../../shared/ui';
+import { DrawerComponent, EmptyStateComponent, ErrorStateComponent, StatusChipComponent } from '../../shared/ui';
 import { FieldEditorComponent } from './field-editor.component';
+import { RAM_TONE, STATUS_LABEL, STATUS_TONE, gradeTone } from './products.component';
 
 type Editing = { kind: 'product' } | { kind: 'component'; code: string | null };
 
@@ -26,7 +27,7 @@ const LEVELS = ['Primary', 'Secondary', 'Transit'];
 @Component({
   selector: 'app-product-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, DecimalPipe, DatePipe, StatusChipComponent, ErrorStateComponent, EmptyStateComponent, DrawerComponent, FieldEditorComponent],
+  imports: [RouterLink, CurrencyPipe, DecimalPipe, DatePipe, StatusChipComponent, ErrorStateComponent, EmptyStateComponent, DrawerComponent, FieldEditorComponent],
   template: `
     <nav class="crumbs" aria-label="Breadcrumb"><a routerLink="/app/products">Products</a><span>/</span><span>{{ sku() }}</span></nav>
 
@@ -42,6 +43,7 @@ const LEVELS = ['Primary', 'Secondary', 'Transit'];
             <div class="meta"><span class="mono">{{ p.sku }}</span><span>{{ p.brand }}</span><span class="mono">{{ p.gtin }}</span></div>
           </div>
           <div class="actions">
+            <app-status-chip [tone]="statusTone[p.status]" [attr.title]="p.status_reasons.join('; ')">{{ statusLabel[p.status] }}</app-status-chip>
             @if (p.open_gaps) {
               <a class="btn btn-secondary" routerLink="/app/gaps">{{ p.open_gaps }} open gaps</a>
             }
@@ -53,10 +55,22 @@ const LEVELS = ['Primary', 'Secondary', 'Transit'];
 
         <div class="kpis">
           <div class="kpi dark"><div class="kpi-label">Packaging per unit</div><div class="kpi-value">{{ p.packaging_g_per_unit | number: '1.0-1' }} g</div></div>
-          <div class="kpi"><div class="kpi-label">Components</div><div class="kpi-value">{{ p.component_count }}</div></div>
+          @for (f of p.fees; track f.regime) {
+            <div class="kpi"><div class="kpi-label">{{ f.name }} {{ f.year }}</div><div class="kpi-value">{{ f.fee | currency: f.currency : 'symbol' : '1.0-0' }}</div></div>
+          }
+          <div class="kpi"><div class="kpi-label">RAM</div><div class="kpi-value">{{ p.ram ?? '—' }}</div></div>
+          <div class="kpi" [attr.title]="p.grade_reason">
+            <div class="kpi-label">PPWR grade</div>
+            <div class="kpi-value">{{ p.grade ?? '—' }}@if (p.recyclable_pct !== null) {<small> {{ p.recyclable_pct }}%</small>}</div>
+          </div>
           <div class="kpi"><div class="kpi-label">Data complete</div><div class="kpi-value">{{ p.completeness_pct }}%</div></div>
-          <div class="kpi"><div class="kpi-label">Units placed</div><div class="kpi-value">{{ unitsPlaced(p) | number }}</div></div>
         </div>
+
+        @if (p.status_reasons.length) {
+          <div class="reasons">
+            @for (r of p.status_reasons; track r) { <app-status-chip [tone]="statusTone[p.status]">{{ r }}</app-status-chip> }
+          </div>
+        }
 
         <section class="card">
           <div class="card-head">
@@ -76,7 +90,12 @@ const LEVELS = ['Primary', 'Secondary', 'Transit'];
                     <span class="chips">
                       <app-status-chip>{{ c.material }}</app-status-chip>
                       @if (c.polymer && c.polymer !== 'n/a') { <app-status-chip>{{ c.polymer }}</app-status-chip> }
-                      @if (c.recyclability) { <app-status-chip [tone]="recTone(c.recyclability)">{{ c.recyclability }}</app-status-chip> }
+                      @if (c.assessment.ram; as ram) {
+                        <app-status-chip [tone]="ramTone[ram]" [attr.title]="c.assessment.ram_reason">RAM {{ ram }}</app-status-chip>
+                      }
+                      @if (c.assessment.grade; as g) {
+                        <app-status-chip [tone]="gradeTone(g)" [attr.title]="c.assessment.grade_reason">PPWR {{ g }}</app-status-chip>
+                      }
                     </span>
                   </div>
                   <div class="comp-nums">
@@ -95,9 +114,25 @@ const LEVELS = ['Primary', 'Secondary', 'Transit'];
           <section class="card">
             <h2 class="card-title">Placed on market</h2>
             @for (s of p.sales; track s.id) {
-              <div class="row"><span>{{ s.period }} · {{ s.channel }}</span><b>{{ s.units_placed | number }}</b></div>
+              <div class="row"><span>{{ s.period }} · {{ s.market || 'All markets' }} · {{ s.channel }}</span><b>{{ s.units_placed | number }}</b></div>
             } @empty {
               <app-empty-state title="No sales data" />
+            }
+          </section>
+          <section class="card">
+            <h2 class="card-title">Recycled plastic, 2030</h2>
+            @for (u of p.recycled_content; track u.level) {
+              <div class="row" [attr.title]="u.basis">
+                <span>{{ u.level }}</span>
+                <span class="chips">
+                  <span>{{ u.recycled_pct ?? '—' }}% / {{ u.target_pct }}%</span>
+                  <app-status-chip [tone]="u.met === null ? 'neutral' : u.met ? 'green' : 'red'">
+                    {{ u.exempt ? 'Exempt' : u.met === null ? 'Unknown' : u.met ? 'Met' : 'Below' }}
+                  </app-status-chip>
+                </span>
+              </div>
+            } @empty {
+              <app-empty-state title="No plastic packaging" />
             }
           </section>
           <section class="card">
@@ -246,9 +281,15 @@ const LEVELS = ['Primary', 'Secondary', 'Transit'];
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
     }
+    .reasons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: -4px 0 14px;
+    }
     .two {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
       gap: 14px;
       margin-top: 14px;
     }
@@ -288,6 +329,10 @@ export class ProductDetailComponent {
 
   /** Route parameter `:sku`. */
   readonly sku = input.required<string>();
+  protected readonly statusLabel = STATUS_LABEL;
+  protected readonly statusTone = STATUS_TONE;
+  protected readonly ramTone = RAM_TONE;
+  protected readonly gradeTone = gradeTone;
   protected readonly catalogue = load(() => this.api.fields());
   protected readonly editing = signal<Editing | null>(null);
   protected readonly errors = signal<Record<string, string>>({});
@@ -326,9 +371,6 @@ export class ProductDetailComponent {
       .filter((l) => l.items.length);
   }
 
-  protected unitsPlaced(p: Product): number {
-    return p.sales.reduce((s, x) => s + x.units_placed, 0);
-  }
 
   protected entries(rec: Record<string, FieldValue>): [string, FieldValue][] {
     return Object.entries(rec);
@@ -338,9 +380,6 @@ export class ProductDetailComponent {
     return this.catalogue.value()?.[key]?.label ?? key;
   }
 
-  protected recTone(r: string): ChipTone {
-    return r === 'Good' ? 'green' : r === 'Limited' ? 'amber' : 'red';
-  }
 
   /** Catalogue keys of the level being edited, stored ones first. */
   protected editKeys(): string[] {

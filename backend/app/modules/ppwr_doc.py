@@ -12,6 +12,7 @@ from typing import Any, Literal
 
 from app.catalog.fields import number, value
 from app.catalog.models import Product
+from app.modules import assessment
 
 Lang = Literal["en", "da"]
 
@@ -115,33 +116,37 @@ def requirements(p: Product, t: dict[str, str]) -> list[dict[str, Any]]:
                 s_status = "missing"
             else:
                 subst.append(f"{name}: PFAS {ref}")
-    # Recyclability per component.
-    rec, r_status = [], "ok"
-    for c in comps:
-        result = value(c.fields, "recyclability_result")
-        if not result:
-            r_status = "missing"
-        elif result in ("Poor", "Not recyclable"):
-            r_status = "warning" if r_status == "ok" else r_status
-        elif result == "Limited" and r_status == "ok":
-            r_status = "warning"
-        if result:
-            rec.append(f"{value(c.fields, 'component_name')}: {result}")
-    # Recycled content in plastic components, with a certificate when claimed.
+    # Recyclability: the PPWR grade of the packaging unit (same rules as the SKU library).
+    per_component = {c.code: assessment.component(c.fields) for c in comps}
+    unit = assessment.packaging_unit(p, per_component)
+    if unit["grade"] is None:
+        r_status = "missing"
+    elif unit["grade"] in assessment.rules()["ppwr_grade"]["fails_2030"]:
+        r_status = "warning"
+    else:
+        r_status = "ok"
+    rec = [f"{unit['grade'] or '—'}: {unit['grade_reason']}"] + [
+        f"{value(c.fields, 'component_name')}: {per_component[c.code]['grade'] or '—'}" for c in comps
+    ]
+    # Recycled content: each packaging unit's plastic against its 2030 target, with a
+    # certificate when recycled content is claimed.
     rc, rc_status = [], "ok"
-    plastics = [c for c in comps if value(c.fields, "material").lower() == "plastic"]
-    for c in plastics:
+    for u in assessment.recycled_content(p):
+        if u["met"] is None:
+            rc_status = "missing"
+        elif u["met"] is False and rc_status == "ok":
+            rc_status = "warning"
+        shown = "—" if u["recycled_pct"] is None else f"{u['recycled_pct']:g}%"
+        rc.append(f"{u['level']}: {shown} / {u['target_pct']:g}%")
+    for c in comps:
         pct = number(value(c.fields, "recycled_content_pct"))
         cert = value(c.fields, "recycled_content_cert")
-        if pct is None:
+        if value(c.fields, "material").lower() == "plastic" and pct and cert in ("", "n/a"):
             rc_status = "missing"
-        else:
-            rc.append(
-                f"{value(c.fields, 'component_name')}: {pct:g}%" + (f" ({cert})" if cert not in ("", "n/a") else "")
-            )
-            if pct > 0 and cert in ("", "n/a"):
-                rc_status = "missing"
-    if not plastics:
+            rc.append(f"{value(c.fields, 'component_name')}: certificate missing")
+        elif pct and cert not in ("", "n/a"):
+            rc.append(f"{value(c.fields, 'component_name')}: {cert}")
+    if not rc:
         rc = ["—"]
     # Minimisation.
     mini_ref, ratio = value(fields, "minimisation_assessment_ref"), value(fields, "empty_space_ratio_pct")

@@ -1,0 +1,30 @@
+{
+  "ram": {
+    "status": "indicative",
+    "note": "Simplified from the UK Recyclability Assessment Methodology (PackUK). A rating stated in the recyclability result always wins; unassessed packaging is Red, as under RAM.",
+    "red_colours": ["black", "carbon black", "dark black"],
+    "red_polymers": ["PVC", "PS"],
+    "red_results": ["Poor", "Not recyclable", "Red"],
+    "amber_results": ["Limited", "Amber"],
+    "green_results": ["Good", "Green"],
+    "red_below_main_share": 80,
+    "amber_below_main_share": 95
+  },
+  "ppwr_grade": {
+    "status": "indicative",
+    "note": "Design-for-recycling grades from the recyclable share of the packaging unit (Regulation (EU) 2025/40, Article 6): A from 95%, B from 80%, C from 70%. Below C fails from 2030. The D and E split and the caps per result are indicative until the delegated acts are adopted.",
+    "thresholds": [["A", 95], ["B", 80], ["C", 70], ["D", 50], ["E", 0]],
+    "fails_2030": ["D", "E"],
+    "cap_by_result": {"Good": 100, "Green": 100, "Limited": 75, "Amber": 75, "Poor": 40, "Not recyclable": 0, "Red": 40},
+    "cap_black_plastic": 60,
+    "cap_red_polymer": 40
+  },
+  "recycled_content": {
+    "status": "published",
+    "note": "Minimum recycled content in plastic packaging from 2030 (Regulation (EU) 2025/40, Article 7), per packaging unit; units whose plastic is under 5% of their weight are exempt.",
+    "contact_sensitive_pet": 30,
+    "contact_sensitive_other": 10,
+    "other": 35,
+    "exempt_below_plastic_share": 5
+  }
+}

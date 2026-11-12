@@ -4,7 +4,7 @@ How the platform is built, how client data flows through it, how it is stored, c
 
 **Keep it current.** This document describes the code on `main`. Any change to storage, the import or sync pipeline, validation, gaps, compliance calculations, permissions or deployment updates this file in the same commit (rule 6 in [AGENTS.md](../AGENTS.md)). The "Last reviewed" line and the change log at the end say when.
 
-Last reviewed: 12 Nov 2026 (demo accounts shown on the sign-in page).
+Last reviewed: 12 Nov 2026 (per-SKU rules: fees, RAM rating, PPWR grade, recycled content, markets).
 
 ---
 
@@ -269,8 +269,14 @@ A **gap** is a value a rule says is missing or not good enough.
 
 All results are calculated on read from the stored values (`app/modules`).
 
-- **EPR fees** (`epr.py`): for each sales line in the year, units on the market = placed − exported; each component adds units × weight per unit ÷ units per pack to its material's tonnage; tonnage × the regime's rate gives the fee, for the channels the regime charges (UK: household packaging). Components without a weight or material are reported as data issues, never guessed. Rates live in `reference/regimes.json`: UK uses the published 2025/26 base fees; EPR Denmark and SB 54 use labelled placeholders until real rates are supplied.
-- **PPWR declaration** (`ppwr_doc.py`): built per product in Danish or English from its fields; checks substances (PFAS in food contact, heavy metals), recyclability, recycled content in plastics, minimisation and labelling, showing the evidence for each; "ready" or "draft" with what is missing. Printed to PDF from the browser.
+- **EPR fees** (`epr.py`): for each sales line in the year sold in the regime's country (the sales line's `market`; a line without one counts for every regime), units on the market = placed − exported; each component adds units × weight per unit ÷ units per pack to its material's tonnage; tonnage × the regime's rate gives the fee, for the channels the regime charges (UK: household packaging). Components without a weight or material are reported as data issues, never guessed. Rates live in `reference/regimes.json`: UK uses the published 2025/26 base fees; EPR Denmark and SB 54 use labelled placeholders until real rates are supplied. From a regime's `modulation.from_year` the rate is multiplied by the component's rating factor (UK 2026/27: Red 1.2, Amber 1.0, Green 0.9, indicative; Denmark: Green −20%, Red +35%, placeholder); the screen says so.
+- **Per-SKU rules** (`assessment.py`, rules in `reference/assessment.json`, combined per SKU by `skus.py`), shown in the SKU library and on each product:
+  - *UK RAM rating* per component: a rating stated in the recyclability result wins; otherwise Red for carbon-black plastic, PVC or PS, a main material under 80% of the component (from the material split), a poor result or no assessment (unassessed packaging is Red under RAM); Amber for a limited result or a main material under 95%; Green for a good result. The SKU shows its worst rating.
+  - *PPWR recyclability grade*: per component, the main material's share capped by the result (good 100, limited 75, poor 40), black plastic (60) and PVC/PS (40); per packaging unit, the weight-weighted share of the primary components. A from 95%, B 80%, C 70%, D 50%, else E; D and E fail from 2030. A grade stated in the result wins. Thresholds below C are indicative until the delegated acts.
+  - *Recycled content*: per packaging unit (the components of one packaging level), the plastic part's weight-weighted recycled share against the 2030 target: 30% contact-sensitive mainly PET, 10% other contact-sensitive, 35% the rest; plastic under 5% of the unit's weight is exempt.
+  - *Markets*: the countries of the SKU's sales lines (lines without a market add every workspace country). *Fee per regime*: from the same engine, for each EPR regime the workspace covers, in its own currency.
+  - *Status*: at risk (sold in the EU with PPWR on, and a grade that fails 2030 or recycled content below target), issue (open gaps or a component without material), otherwise OK; each with its reasons.
+- **PPWR declaration** (`ppwr_doc.py`): built per product in Danish or English from its fields; checks substances (PFAS in food contact, heavy metals), recyclability (the PPWR grade above), recycled content (the per-unit targets above, with certificates), minimisation and labelling, showing the evidence for each; "ready" or "draft" with what is missing. Printed to PDF from the browser.
 - **Hotspots and recommendations** (`insights.py`): the components, products and materials carrying the fee, each with its arithmetic; rule-based recommendations (lightweight against similar components, measure estimated weights, recyclability redesign, recycled content) with their impact. Recommendations become **action items**.
 - **Scenarios:** the same EPR calculation with changed weights or materials, not saved.
 - **Horizon:** milestones from the dictionary dates (PPWR 12 Aug 2026, labelling 12 Aug 2028, recyclability and recycled content 2030, UK DRS Oct 2027, SB 54 2032), when data collection starts, and how ready the workspace's data is.
@@ -316,8 +322,9 @@ Platform-wide today: the gap rule library, EPR rates, the field catalogue and wo
 
 - Systems are **simulated**; real SAP/Trace One connectors, scheduled syncs and write-back need client IT access.
 - A sync **overwrites** platform corrections with the system's value (section 5.2); fix at the source.
-- Sales lines have **no country** yet: every sales line counts for every regime.
-- EPR Denmark and SB 54 **rates are placeholders**; UK fees exclude recyclability modulation.
+- Sales lines without a **market** count for every regime of the workspace; the sample data has none yet.
+- EPR Denmark and SB 54 **rates are placeholders**; UK modulation factors are indicative until the published modulated fees are entered.
+- The RAM rating and PPWR grade are simplified rule sets, not a full RAM or design-for-recycling assessment; a stated rating or grade always wins.
 - **Demo accounts are shown on the sign-in page** (platform admin and Kraft Heinz org admin, with passwords) while `DEMO_SIGN_IN` is not `false`: anyone with the link can sign in. Switch it off and change those passwords before real client data.
 - A gap marked resolved by a person stays resolved even if a later value fails the rule again.
 - Gaps and results are computed on every read: fine for hundreds of products; storing computed gaps is planned for larger clients.
@@ -329,5 +336,6 @@ Platform-wide today: the gap rule library, EPR rates, the field catalogue and wo
 
 | Date | Change |
 | --- | --- |
+| 12 Nov 2026 | Per-SKU rules: RAM rating, PPWR grade, recycled content per packaging unit, markets from sales lines, fee per regime with rating modulation, status; the PPWR declaration uses the same rules. |
 | 12 Nov 2026 | Demo accounts on the sign-in page behind `DEMO_SIGN_IN` (known limits). |
 | 12 Nov 2026 | First version: architecture, tenancy, storage and lineage, import and re-sync rules, validation, gaps, compliance, configuration, operations. |

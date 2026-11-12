@@ -538,6 +538,13 @@
   "type": "Number",
   "allowed": null
  },
+ "market": {
+  "label": "Market",
+  "dp": "DP22",
+  "level": "Sales",
+  "type": "Code",
+  "allowed": "UK, DE, FR, ES, IT, DK, NL, US-CA"
+ },
  "uk_nation": {
   "label": "UK nation",
   "dp": "DP24",

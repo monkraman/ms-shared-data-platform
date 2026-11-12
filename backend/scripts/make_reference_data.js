@@ -49,8 +49,14 @@ const products = Object.values(skus).map((p) => ({
   sales: Object.values(p.sales),
 }));
 
+// Fields the platform adds to the team's set: the country a sales line was sold in, which
+// decides the SKU's markets and which EPR regime counts the line.
+const PLATFORM_FIELDS = {
+  market: { label: 'Market', dp: 'DP22', level: 'Sales', type: 'Code', allowed: 'UK, DE, FR, ES, IT, DK, NL, US-CA' },
+};
+
 const fields = Object.fromEntries(
-  Object.entries(S.fields).map(([k, f]) => [
+  Object.entries({ ...S.fields, ...PLATFORM_FIELDS }).map(([k, f]) => [
     k,
     { label: f.label, dp: f.dp || null, level: f.level, type: f.type, allowed: f.allowed || null },
   ]),
