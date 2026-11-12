@@ -1,22 +1,18 @@
 import { CurrencyPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Subject, debounceTime, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Insights, Recommendation, ScenarioChange, ScenarioResult } from '../../core/api/contracts';
+import { Insights, Recommendation, ScenarioResult } from '../../core/api/contracts';
 import { PlatformApi } from '../../core/api/platform-api';
 import { Problem, toProblem } from '../../core/api/problem';
 import { load } from '../../core/api/resource';
 import { ToastService } from '../../core/services/toast.service';
 import { SessionService } from '../../core/session/session.service';
 import { ChipTone, ErrorStateComponent, PageHeaderComponent, StatusChipComponent } from '../../shared/ui';
+import { EprId, ScenarioDraft } from './scenario-draft';
 
-type EprId = 'epr_uk' | 'epr_dk' | 'sb54_ca';
-interface DraftChange extends ScenarioChange {
-  name: string;
-  product_name: string;
-}
 
 const KIND: Record<Recommendation['kind'], { label: string; tone: ChipTone }> = {
   lightweight: { label: 'Lightweight', tone: 'green' },
@@ -26,13 +22,16 @@ const KIND: Record<Recommendation['kind'], { label: string; tone: ChipTone }> = 
 };
 const MATERIALS = ['Plastic', 'Paper/board', 'Glass', 'Steel', 'Aluminium', 'Wood', 'Fibre composite'];
 
-/** Screen 14 (first part): why the fee is what it is, what to do about it, and what-if. */
+/**
+ * Screen 14 (first part), two pages on one component (route data `view`):
+ * Hotspots — why the fee is what it is and what to do about it; Scenarios — what if.
+ */
 @Component({
   selector: 'app-insights',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, RouterLink, CurrencyPipe, PageHeaderComponent, StatusChipComponent, ErrorStateComponent],
   template: `
-    <app-page-header title="Hotspots and scenarios">
+    <app-page-header [title]="view() === 'hotspots' ? 'Hotspots' : 'Scenarios'">
       <a class="btn btn-secondary" routerLink="/app/actions">Actions</a>
     </app-page-header>
 
@@ -54,6 +53,7 @@ const MATERIALS = ['Plastic', 'Paper/board', 'Glass', 'Steel', 'Aluminium', 'Woo
         <div class="kpi"><div class="kpi-label">Recommendations</div><div class="kpi-value">{{ d.recommendations.length }}</div></div>
       </div>
 
+      @if (view() === 'hotspots') {
       <div class="grid">
         <section class="card">
           <h2 class="card-title">Where the fee comes from</h2>
@@ -88,7 +88,7 @@ const MATERIALS = ['Plastic', 'Paper/board', 'Glass', 'Steel', 'Aluminium', 'Woo
           }
         </section>
       </div>
-
+      } @else {
       <section class="card scenario" id="scenario">
         <div class="scenario-head">
           <h2 class="card-title">Scenario</h2>
@@ -96,9 +96,15 @@ const MATERIALS = ['Plastic', 'Paper/board', 'Glass', 'Steel', 'Aluminium', 'Woo
             <button type="button" class="btn btn-ghost" (click)="changes.set([])">Clear</button>
           }
         </div>
-        @if (!changes().length) {
-          <p class="muted">Pick "What if" on a component or "Try in scenario" on a recommendation.</p>
-        } @else {
+        <label class="field add">Component
+          <select [ngModel]="''" (ngModelChange)="addById($event)">
+            <option value="">Add a component</option>
+            @for (c of available(); track c.component_id) {
+              <option [value]="c.component_id">{{ c.name }} · {{ c.product_name }}</option>
+            }
+          </select>
+        </label>
+        @if (changes().length) {
           @for (ch of changes(); track ch.component_id; let i = $index) {
             <div class="change">
               <div class="who"><b>{{ ch.name }}</b><span class="muted">{{ ch.product_name }}</span></div>
@@ -127,6 +133,7 @@ const MATERIALS = ['Plastic', 'Paper/board', 'Glass', 'Steel', 'Aluminium', 'Woo
           }
         }
       </section>
+      }
 
       <h2 class="section-title">Recommendations</h2>
       <div class="recs">
@@ -235,6 +242,10 @@ const MATERIALS = ['Plastic', 'Paper/board', 'Glass', 'Steel', 'Aluminium', 'Woo
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+    .add {
+      max-width: 360px;
+      margin-bottom: 12px;
     }
     .change {
       display: grid;
@@ -354,13 +365,18 @@ export class InsightsComponent {
   private readonly api = inject(PlatformApi);
   private readonly toast = inject(ToastService);
   private readonly session = inject(SessionService);
+  private readonly router = inject(Router);
+  private readonly draft = inject(ScenarioDraft);
+
+  /** Which page this is (route data). */
+  readonly view = input<'hotspots' | 'scenarios'>('hotspots');
 
   protected readonly regimes = load(() => this.api.regimes());
   protected readonly tabs = computed(() => (this.regimes.value() ?? []).filter((r) => r.in_scope && r.id !== 'ppwr_dk'));
-  protected readonly active = signal<EprId>('epr_uk');
+  protected readonly active = this.draft.regime;
   protected readonly data = signal<Insights | null>(null);
   protected readonly problem = signal<Problem | null>(null);
-  protected readonly changes = signal<DraftChange[]>([]);
+  protected readonly changes = this.draft.changes;
   protected readonly result = signal<ScenarioResult | null>(null);
   protected readonly creating = signal<string | null>(null);
   protected readonly canAct = computed(() => this.session.can('actions.manage'));
@@ -369,6 +385,10 @@ export class InsightsComponent {
     (this.data()?.recommendations ?? [])
       .filter((r) => r.kind === 'lightweight')
       .reduce((sum, r) => sum + (r.impact_value ?? 0), 0),
+  );
+  /** Components not yet in the scenario. */
+  protected readonly available = computed(() =>
+    (this.data()?.hotspots.components ?? []).filter((c) => !this.changes().some((ch) => ch.component_id === c.component_id)),
   );
   private readonly recalc = new Subject<void>();
 
@@ -397,6 +417,8 @@ export class InsightsComponent {
         takeUntilDestroyed(),
       )
       .subscribe({ next: (r) => this.result.set(r), error: (e: unknown) => this.toast.show(toProblem(e).detail, 'error') });
+    // A scenario started from Hotspots ("What if") is calculated when Scenarios opens.
+    if (this.changes().length) queueMicrotask(() => this.recalc.next());
   }
 
   protected fetch(): void {
@@ -433,8 +455,16 @@ export class InsightsComponent {
     } else if (weight) {
       this.changes.update((list) => list.map((c) => (c.component_id === componentId ? { ...c, weight_g: weight } : c)));
     }
+    if (this.view() === 'hotspots') {
+      void this.router.navigate(['/app/scenarios']);
+      return;
+    }
     this.recalc.next();
-    document.getElementById('scenario')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  protected addById(componentId: string): void {
+    const c = this.data()?.hotspots.components.find((x) => x.component_id === componentId);
+    if (c) this.addChange(c.component_id, c.name, c.product_name);
   }
 
   protected tryScenario(r: Recommendation): void {

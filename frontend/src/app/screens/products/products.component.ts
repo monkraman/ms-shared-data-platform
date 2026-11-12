@@ -47,7 +47,7 @@ export function gradeTone(grade: string): ChipTone {
     ProductFormComponent,
   ],
   template: `
-    <app-page-header title="Products">
+    <app-page-header title="SKU library">
       <button type="button" class="btn btn-primary" (click)="formOpen.set(true)">Add product</button>
     </app-page-header>
 

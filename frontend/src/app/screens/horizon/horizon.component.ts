@@ -23,7 +23,7 @@ const SOURCES: Record<string, string> = { erp: 'ERP', plm: 'PLM', supplier: 'Sup
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, RouterLink, DatePipe, PageHeaderComponent, StatusChipComponent, ErrorStateComponent],
   template: `
-    <app-page-header title="Horizon">
+    <app-page-header title="Horizon scanning">
       <label class="lead">
         <span>Start collecting</span>
         <select aria-label="Lead time" [disabled]="!canEdit() || saving()" [ngModel]="horizon.value()?.lead_months"

@@ -44,7 +44,7 @@ Platform screens live under `/app` in the shell (`features/shell`).
 | After backend changes | `npm run api:generate` (CI fails if the committed client is out of date) |
 | Errors | `toProblem(err)` → `detail` for the page, `fields[name]` next to form fields |
 | Who is signed in | `inject(SessionService)`: `me()`, `can('perm')`, `workspaceName()`, `memberships()`, `switchWorkspace(id)`, `signOut()` |
-| Navigation | Add an entry to `core/navigation/nav-items.ts` with its permission |
+| Navigation | Add an entry to `core/navigation/nav-items.ts` with its permission (a list means any of them), in the group the mockup names (Overview, Data, Comply, Insights); a screen that belongs inside another page becomes a tab with `tabbedPage()` in `app.routes.ts` |
 | Route access | `canActivate: [permissionGuard], data: { permission: '...' }` under the `/app` route |
 | UI pieces | `shared/ui`: page header, data table, form field, status chip, empty state, error state, toast outlet; buttons are `btn btn-primary|btn-secondary|btn-ghost` |
 

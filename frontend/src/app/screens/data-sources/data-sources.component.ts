@@ -228,7 +228,7 @@ export class DataSourcesComponent {
         if (!job_id) {
           this.busy.set(null);
           this.handoff.draft.set(draft);
-          void this.router.navigate(['/app/import']);
+          void this.router.navigate(['/app/data/import']);
           return;
         }
         this.poll?.unsubscribe();

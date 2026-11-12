@@ -537,7 +537,7 @@ input, select, textarea {
   border: 1px solid var(--border);
   border-radius: 12px;
 }
-.platform .segmented button {
+.platform .segmented :is(button, a) {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -550,10 +550,10 @@ input, select, textarea {
   font-weight: 600;
   cursor: pointer;
 }
-.platform .segmented button:hover:not(.on) {
+.platform .segmented :is(button, a):hover:not(.on) {
   color: var(--ink);
 }
-.platform .segmented button.on {
+.platform .segmented :is(button, a).on {
   background: var(--ink);
   color: #fff;
 }

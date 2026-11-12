@@ -29,7 +29,7 @@ const LEVELS = ['Primary', 'Secondary', 'Transit'];
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, CurrencyPipe, DecimalPipe, DatePipe, StatusChipComponent, ErrorStateComponent, EmptyStateComponent, DrawerComponent, FieldEditorComponent],
   template: `
-    <nav class="crumbs" aria-label="Breadcrumb"><a routerLink="/app/products">Products</a><span>/</span><span>{{ sku() }}</span></nav>
+    <nav class="crumbs" aria-label="Breadcrumb"><a routerLink="/app/products">SKU library</a><span>/</span><span>{{ sku() }}</span></nav>
 
     @if (state(); as s) {
       @if (s.loading) {

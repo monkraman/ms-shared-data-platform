@@ -13,7 +13,7 @@ import { SOURCE_TONE } from '../data-points/data-points.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, RouterLink, PageHeaderComponent, StatusChipComponent, ErrorStateComponent],
   template: `
-    <app-page-header title="Data overview" />
+    <app-page-header title="Data collection" />
 
     @if (overview.error(); as problem) {
       <app-error-state [problem]="problem" (retry)="overview.reload()" />

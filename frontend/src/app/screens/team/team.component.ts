@@ -28,7 +28,7 @@ type TeamRole = MemberCreate['role'];
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, DatePipe, PageHeaderComponent, DataTableComponent, StatusChipComponent, DialogComponent, FormFieldComponent, EmptyStateComponent, ErrorStateComponent],
   template: `
-    <app-page-header [title]="'Team · ' + session.workspaceName()">
+    <app-page-header title="People">
       <button type="button" class="btn btn-primary" (click)="openAdd()">Add member</button>
     </app-page-header>
 
