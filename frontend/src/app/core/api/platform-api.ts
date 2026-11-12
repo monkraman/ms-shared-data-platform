@@ -2,51 +2,52 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from './api-client';
 import {
+  ActionCreate,
+  ActionItem,
+  ActionPatch,
   Country,
   DataOverview,
   DataPointDictionary,
+  DataSource,
+  Declaration,
+  DeclarationRow,
+  EprResult,
   FieldInfo,
   Gap,
   GapResolve,
   GapRule,
   GapRuleCreate,
+  GapStatus,
+  HomeSummary,
+  Horizon,
   ImportCreate,
   ImportDraft,
+  ImportHistoryRow,
   ImportPreview,
+  Insights,
   JobStatus,
+  Member,
+  MemberCreate,
+  MembershipIn,
   ModuleInfo,
   Product,
   ProductCreate,
+  ProductHistory,
   ProductSummary,
+  Regime,
+  ScenarioChange,
+  ScenarioResult,
+  Severity,
+  SyncStarted,
+  SyncSystem,
+  UserCreate,
+  UserPatch,
+  UserRow,
+  ValidationIssue,
   Workspace,
   WorkspaceCreate,
   WorkspacePatch,
   WorkspaceStatus,
-  SyncSystem,
-  ProductHistory,
-  ValidationIssue,
-  Horizon,
-  Insights,
-  ScenarioChange,
-  ScenarioResult,
-  ActionItem,
-  ActionCreate,
-  ActionPatch,
-  Regime,
-  EprResult,
-  DeclarationRow,
-  Declaration,
-  DataSource,
-  SyncStarted,
-  ImportHistoryRow,
-  GapStatus,
-  Severity,
-  UserCreate,
-  UserRow,
-  UserPatch,
-  MembershipIn,
-  Member,
-  MemberCreate,
 } from './contracts';
 
 /**
@@ -156,6 +157,9 @@ export class PlatformApi {
   declarations = (): Observable<DeclarationRow[]> => this.api.get('/api/v1/modules/ppwr/declarations');
   declaration = (sku: string, lang: 'en' | 'da'): Observable<Declaration> =>
     this.api.get('/api/v1/modules/ppwr/declarations/{sku}', { path: { sku }, query: { lang } });
+
+  // Home
+  home = (): Observable<HomeSummary> => this.api.get('/api/v1/home');
 
   // Screen 14 (insights, scenarios, actions)
   insights = (regime: 'epr_uk' | 'epr_dk' | 'sb54_ca', year?: string): Observable<Insights> =>

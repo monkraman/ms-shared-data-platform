@@ -143,8 +143,6 @@ async def apply(db: AsyncSession, tenant_id: uuid.UUID, batch: ImportBatch) -> d
                     passport_fields[key] = value or passport_fields.get(key, "")
                 elif level == "Component" or key == "component_id":
                     component[key] = value
-            if "weight_source" not in component and batch.source == "csv":
-                component["weight_source"] = "Imported"
             components.append(component)
         _, new = await catalog.upsert(
             db,

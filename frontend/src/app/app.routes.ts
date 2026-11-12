@@ -53,6 +53,7 @@ export const routes: Routes = [
       screen('data-explorer', 'platform.datapoints.read', 'Data explorer', () => import('./screens/data-explorer/data-explorer.component').then((m) => m.DataExplorerComponent)),
       screen('gap-rules', 'platform.rules.manage', 'Gap rules', () => import('./screens/gap-rules/gap-rules.component').then((m) => m.GapRulesComponent)),
       // Overview
+      screen('home', 'products.read', 'Home', () => import('./screens/home/home.component').then((m) => m.HomeDashboardComponent)),
       tabbedPage('setup', [
         { label: 'Data connections', path: 'connections', permission: 'imports.manage', title: 'Data connections', load: () => import('./screens/data-sources/data-sources.component').then((m) => m.DataSourcesComponent) },
         { label: 'People', path: 'people', permission: 'users.manage', title: 'People', load: () => import('./screens/team/team.component').then((m) => m.TeamComponent) },
@@ -61,6 +62,7 @@ export const routes: Routes = [
       tabbedPage('data', [
         { label: 'Overview', path: 'overview', permission: 'data.read', title: 'Data collection', load: () => import('./screens/data-overview/data-overview.component').then((m) => m.DataOverviewComponent) },
         { label: 'Import', path: 'import', permission: 'imports.manage', title: 'Import', load: () => import('./screens/import/import.component').then((m) => m.ImportComponent) },
+        { label: 'Data point map', path: 'map', permission: 'data.read', title: 'Data point map', load: () => import('./screens/data-explorer/data-explorer.component').then((m) => m.DataExplorerComponent) },
       ]),
       screen('gaps', 'gaps.read', 'Data gaps', () => import('./screens/gaps/gaps.component').then((m) => m.GapsComponent)),
       screen('validation', 'products.read', 'Data validation', () => import('./screens/validation/validation.component').then((m) => m.ValidationComponent)),

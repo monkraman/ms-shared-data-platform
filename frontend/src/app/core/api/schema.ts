@@ -441,6 +441,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/home": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The workspace on one page */
+        get: operations["get_home_api_v1_home_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/imports": {
         parameters: {
             query?: never;
@@ -863,7 +880,7 @@ export interface paths {
             cookie?: never;
         };
         /** Invalid values with suggested corrections */
-        get: operations["list_issues_api_v1_validation_get"];
+        get: operations["listissues_api_v1_validation_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1190,6 +1207,27 @@ export interface components {
             /** Name */
             name: string;
         };
+        /** DataHealth */
+        DataHealth: {
+            /** Estimated */
+            estimated: number;
+            /** Estimated Pct */
+            estimated_pct: number;
+            /** Flagged */
+            flagged: number;
+            /** Flagged Pct */
+            flagged_pct: number;
+            /** Gaps Due */
+            gaps_due: number;
+            /** Open Gaps */
+            open_gaps: number;
+            /** Values */
+            values: number;
+            /** Verified */
+            verified: number;
+            /** Verified Pct */
+            verified_pct: number;
+        };
         /** DataOverview */
         DataOverview: {
             /** By Source */
@@ -1455,6 +1493,31 @@ export interface components {
             /** Value */
             value?: string | null;
         };
+        /** FeeCard */
+        FeeCard: {
+            /** Currency */
+            currency: string;
+            /** Fee On Estimates */
+            fee_on_estimates: number;
+            /** Fee Tonnes */
+            fee_tonnes: number;
+            /** Modulated */
+            modulated: boolean;
+            /** Name */
+            name: string;
+            ram_share_pct: components["schemas"]["RamShare"];
+            /**
+             * Rates Status
+             * @enum {string}
+             */
+            rates_status: "published" | "placeholder";
+            /** Regime */
+            regime: string;
+            /** Total Fee */
+            total_fee: number;
+            /** Year */
+            year: string | null;
+        };
         /** FieldInfo */
         FieldInfo: {
             /** Allowed */
@@ -1660,6 +1723,23 @@ export interface components {
             /** Changes */
             changes: components["schemas"]["Change"][];
         };
+        /** HomeOut */
+        HomeOut: {
+            data_health: components["schemas"]["DataHealth"];
+            /** Fees */
+            fees: components["schemas"]["FeeCard"][];
+            /** Hotspots */
+            hotspots: components["schemas"]["Hotspot"][];
+            /** Hotspots Currency */
+            hotspots_currency: string | null;
+            ppwr: components["schemas"]["PpwrCard"] | null;
+            /** Savings */
+            savings: components["schemas"]["Saving"][];
+            /** Skus */
+            skus: number;
+            /** Waiting */
+            waiting: components["schemas"]["Waiting"][];
+        };
         /** Horizon */
         Horizon: {
             /** Lead Months */
@@ -1676,6 +1756,29 @@ export interface components {
         HorizonSettings: {
             /** Lead Months */
             lead_months: number;
+        };
+        /** Hotspot */
+        Hotspot: {
+            /** Component Id */
+            component_id: string;
+            /** Fee */
+            fee: number;
+            /** Impact Label */
+            impact_label: string | null;
+            /** Impact Value */
+            impact_value: number | null;
+            /** Material */
+            material: string;
+            /** Name */
+            name: string;
+            /** Product Name */
+            product_name: string;
+            /** Recommendation */
+            recommendation: string | null;
+            /** Share Pct */
+            share_pct: number;
+            /** Sku */
+            sku: string;
         };
         /** Hotspots */
         Hotspots: {
@@ -2148,6 +2251,19 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** PpwrCard */
+        PpwrCard: {
+            /** Declarations Ready */
+            declarations_ready: number;
+            /** Declarations Total */
+            declarations_total: number;
+            /** Fails 2030 */
+            fails_2030: number;
+            /** Recycled Misses */
+            recycled_misses: number;
+            /** Skus In Eu */
+            skus_in_eu: number;
+        };
         /** ProductCreate */
         ProductCreate: {
             /**
@@ -2312,6 +2428,15 @@ export interface components {
             /** Red */
             Red: number;
         };
+        /** RamShare */
+        RamShare: {
+            /** Amber */
+            Amber: number;
+            /** Green */
+            Green: number;
+            /** Red */
+            Red: number;
+        };
         /** Recommendation */
         Recommendation: {
             /** Action Id */
@@ -2417,6 +2542,15 @@ export interface components {
             units_exported: number;
             /** Units Placed */
             units_placed: number;
+        };
+        /** Saving */
+        Saving: {
+            /** Actions */
+            actions: number;
+            /** Amount */
+            amount: number;
+            /** Currency */
+            currency: string;
         };
         /** ScenarioChange */
         ScenarioChange: {
@@ -2647,6 +2781,20 @@ export interface components {
             values: {
                 [key: string]: string | null;
             };
+        };
+        /** Waiting */
+        Waiting: {
+            /** Count */
+            count: number;
+            /**
+             * Key
+             * @enum {string}
+             */
+            key: "corrections" | "gaps" | "declarations" | "actions";
+            /** Label */
+            label: string;
+            /** Link */
+            link: string;
         };
         /** Workspace */
         Workspace: {
@@ -3818,6 +3966,38 @@ export interface operations {
             };
         };
     };
+    get_home_api_v1_home_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Bearer <access token> */
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HomeOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     history_api_v1_imports_get: {
         parameters: {
             query?: never;
@@ -4873,7 +5053,7 @@ export interface operations {
             };
         };
     };
-    list_issues_api_v1_validation_get: {
+    listissues_api_v1_validation_get: {
         parameters: {
             query?: never;
             header?: {

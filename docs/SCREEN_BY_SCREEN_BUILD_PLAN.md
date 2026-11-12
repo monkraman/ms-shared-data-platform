@@ -46,7 +46,7 @@ Status values: Not started · Spec agreed · In build · In review · Done.
 | 11 | Tariffs and rule packs | SuperAdmin | 3 | Tariff library, seeded tariffs | M | Not started |
 | 12 | EPR results: runs, explanations, simulator (module SDK built here) | Org Admin | 7, 10, 11 | Simulator page, EPR engine | L | In build (EPR UK, Denmark and SB 54 fees, hotspots, recommendations, scenarios and action items on real data) |
 | 13 | Sign-off and exports (Defra RPD CSV first) | Org Admin | 12 | Board pack export | M | In build (PPWR Denmark declaration in Danish and English, print to PDF; RPD CSV next) |
-| 14 | Dashboard | Org Admin | 7, 12 | Dashboard KPI layout | M | Not started |
+| 14 | Dashboard | Org Admin | 7, 12 | Dashboard KPI layout | M | In review (Home: fees, PPWR, data health, hotspots, savings, what waits; obligations come with filings) |
 | 15 | Audit log | SuperAdmin | 1 | — | S | Not started |
 | 16 | Ingestion monitor | SuperAdmin | 5 | Batches page | S | Not started |
 | 17 | Module registry and entitlements | SuperAdmin | 12 | Module toggles | S | In build (workspace modules gate screens and APIs as module.<id> permissions) |
@@ -137,7 +137,7 @@ Screens 1 and 2 are specified in full so building can start right after Step 0; 
 
 **User stories**
 
-- As any user, I sign in with my work email and land on my home screen (SuperAdmin → Client workspaces; Org Admin → Products until the dashboard exists).
+- As any user, I sign in with my work email and land on my home screen (SuperAdmin → Client workspaces; Org Admin → Home).
 - As a user with access to several workspaces, I pick the workspace after sign-in and can switch later.
 - As a user, I am signed out after inactivity and told why; I can sign out myself.
 - As an Org Admin, I can never see or switch to another client's workspace.

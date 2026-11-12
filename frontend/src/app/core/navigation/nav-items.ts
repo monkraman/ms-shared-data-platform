@@ -58,6 +58,12 @@ export const NAV: NavGroup[] = [
     label: 'Overview',
     items: [
       {
+        label: 'Home',
+        path: '/app/home',
+        permission: 'products.read',
+        icon: 'M2.5 7 8 2.5 13.5 7v6.5h-3.5v-4h-4v4H2.5z',
+      },
+      {
         label: 'Setup',
         path: '/app/setup',
         permission: ['imports.manage', 'users.manage'],
