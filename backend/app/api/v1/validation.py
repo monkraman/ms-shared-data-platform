@@ -13,18 +13,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
-from app.catalog import reference
 from app.catalog import service as catalog
-from app.catalog.fields import value
-from app.catalog.models import FieldMap, Product
 from app.core.audit import record_audit
 from app.core.auth import Principal, TenantDB, require_permission
 from app.core.permissions import Perm
-from app.quality.validation import check
+from app.quality.validation import issues
 
 router = APIRouter(prefix="/validation", tags=["Validation"])
-
-SOURCE_NAMES = {"csv": "File import", "erp": "ERP", "plm": "PLM", "manual": "Manual", "estimate": "Estimate"}
 
 
 class Issue(BaseModel):
@@ -52,46 +47,11 @@ class ApplyResult(BaseModel):
     skipped: int
 
 
-def _issues(products: list[Product]) -> list[dict[str, object]]:
-    labels = reference.fields()
-    out: list[dict[str, object]] = []
-
-    def scan(p: Product, fields: FieldMap, component: str | None, component_name: str | None) -> None:
-        for key, stored in fields.items():
-            problem = check(key, stored.get("value"))
-            if problem is None:
-                continue
-            source = stored.get("source")
-            out.append(
-                {
-                    "id": f"{p.sku}|{component or ''}|{key}",
-                    "sku": p.sku,
-                    "product_name": value(p.fields, "product_name") or p.sku,
-                    "component_id": component,
-                    "component_name": component_name,
-                    "field": key,
-                    "field_label": labels.get(key, {}).get("label", key),
-                    "data_point": stored.get("dp"),
-                    "value": str(stored.get("value", "")),
-                    "message": problem["message"],
-                    "suggestion": problem["suggestion"],
-                    "source": source,
-                    "source_name": SOURCE_NAMES.get(source or "", "Unknown"),
-                }
-            )
-
-    for p in products:
-        scan(p, {**p.fields, **p.passport}, None, None)
-        for c in p.components:
-            scan(p, c.fields, c.code, value(c.fields, "component_name"))
-    return out
-
-
 @router.get("", response_model=list[Issue], summary="Invalid values with suggested corrections")
-async def list_issues(
+async def listissues(
     _: Annotated[Principal, Depends(require_permission(Perm.PRODUCTS_READ))], db: TenantDB
 ) -> list[dict[str, object]]:
-    return _issues(await catalog.all_products(db))
+    return issues(await catalog.all_products(db))
 
 
 @router.post("/apply", response_model=ApplyResult, summary="Apply suggested corrections")
@@ -104,7 +64,7 @@ async def apply_suggestions(
     by_sku = {p.sku: p for p in products}
     wanted = set(payload.ids) if payload.ids is not None else None
     applied = []
-    for issue in _issues(products):
+    for issue in issues(products):
         if issue["suggestion"] is None or (wanted is not None and issue["id"] not in wanted):
             continue
         product = by_sku[str(issue["sku"])]

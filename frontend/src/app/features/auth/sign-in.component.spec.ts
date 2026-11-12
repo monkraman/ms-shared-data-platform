@@ -83,7 +83,7 @@ describe('SignInComponent', () => {
     http.expectOne((r) => r.url.endsWith('/api/v1/auth/sign-in')).flush(signInResponse());
     (await vi.waitFor(() => http.expectOne((r) => r.url.endsWith('/api/v1/auth/me')))).flush(meWith([membership('t1', 'Acme')]));
     await done;
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/app/products');
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/app/home');
   });
 
   it('lands platform admins on client workspaces', async () => {

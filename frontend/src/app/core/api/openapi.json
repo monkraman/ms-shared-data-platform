@@ -771,6 +771,59 @@
         "title": "CountryOut",
         "type": "object"
       },
+      "DataHealth": {
+        "properties": {
+          "estimated": {
+            "title": "Estimated",
+            "type": "integer"
+          },
+          "estimated_pct": {
+            "title": "Estimated Pct",
+            "type": "integer"
+          },
+          "flagged": {
+            "title": "Flagged",
+            "type": "integer"
+          },
+          "flagged_pct": {
+            "title": "Flagged Pct",
+            "type": "integer"
+          },
+          "gaps_due": {
+            "title": "Gaps Due",
+            "type": "integer"
+          },
+          "open_gaps": {
+            "title": "Open Gaps",
+            "type": "integer"
+          },
+          "values": {
+            "title": "Values",
+            "type": "integer"
+          },
+          "verified": {
+            "title": "Verified",
+            "type": "integer"
+          },
+          "verified_pct": {
+            "title": "Verified Pct",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "values",
+          "verified",
+          "estimated",
+          "flagged",
+          "verified_pct",
+          "estimated_pct",
+          "flagged_pct",
+          "open_gaps",
+          "gaps_due"
+        ],
+        "title": "DataHealth",
+        "type": "object"
+      },
       "DataOverview": {
         "properties": {
           "by_source": {
@@ -1530,6 +1583,74 @@
         "title": "EstimateRule",
         "type": "object"
       },
+      "FeeCard": {
+        "properties": {
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "fee_on_estimates": {
+            "title": "Fee On Estimates",
+            "type": "number"
+          },
+          "fee_tonnes": {
+            "title": "Fee Tonnes",
+            "type": "number"
+          },
+          "modulated": {
+            "title": "Modulated",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "ram_share_pct": {
+            "$ref": "#/components/schemas/RamShare"
+          },
+          "rates_status": {
+            "enum": [
+              "published",
+              "placeholder"
+            ],
+            "title": "Rates Status",
+            "type": "string"
+          },
+          "regime": {
+            "title": "Regime",
+            "type": "string"
+          },
+          "total_fee": {
+            "title": "Total Fee",
+            "type": "number"
+          },
+          "year": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year"
+          }
+        },
+        "required": [
+          "regime",
+          "name",
+          "currency",
+          "year",
+          "total_fee",
+          "fee_tonnes",
+          "rates_status",
+          "modulated",
+          "ram_share_pct",
+          "fee_on_estimates"
+        ],
+        "title": "FeeCard",
+        "type": "object"
+      },
       "FieldInfo": {
         "properties": {
           "allowed": {
@@ -2176,6 +2297,78 @@
         "title": "HistoryEntry",
         "type": "object"
       },
+      "HomeOut": {
+        "properties": {
+          "data_health": {
+            "$ref": "#/components/schemas/DataHealth"
+          },
+          "fees": {
+            "items": {
+              "$ref": "#/components/schemas/FeeCard"
+            },
+            "title": "Fees",
+            "type": "array"
+          },
+          "hotspots": {
+            "items": {
+              "$ref": "#/components/schemas/Hotspot"
+            },
+            "title": "Hotspots",
+            "type": "array"
+          },
+          "hotspots_currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hotspots Currency"
+          },
+          "ppwr": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PpwrCard"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "savings": {
+            "items": {
+              "$ref": "#/components/schemas/Saving"
+            },
+            "title": "Savings",
+            "type": "array"
+          },
+          "skus": {
+            "title": "Skus",
+            "type": "integer"
+          },
+          "waiting": {
+            "items": {
+              "$ref": "#/components/schemas/Waiting"
+            },
+            "title": "Waiting",
+            "type": "array"
+          }
+        },
+        "required": [
+          "skus",
+          "fees",
+          "hotspots_currency",
+          "hotspots",
+          "ppwr",
+          "data_health",
+          "savings",
+          "waiting"
+        ],
+        "title": "HomeOut",
+        "type": "object"
+      },
       "Horizon": {
         "properties": {
           "lead_months": {
@@ -2216,6 +2409,85 @@
           "lead_months"
         ],
         "title": "HorizonSettings",
+        "type": "object"
+      },
+      "Hotspot": {
+        "properties": {
+          "component_id": {
+            "title": "Component Id",
+            "type": "string"
+          },
+          "fee": {
+            "title": "Fee",
+            "type": "number"
+          },
+          "impact_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Label"
+          },
+          "impact_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Value"
+          },
+          "material": {
+            "title": "Material",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "product_name": {
+            "title": "Product Name",
+            "type": "string"
+          },
+          "recommendation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recommendation"
+          },
+          "share_pct": {
+            "title": "Share Pct",
+            "type": "number"
+          },
+          "sku": {
+            "title": "Sku",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sku",
+          "product_name",
+          "component_id",
+          "name",
+          "material",
+          "fee",
+          "share_pct",
+          "recommendation",
+          "impact_value",
+          "impact_label"
+        ],
+        "title": "Hotspot",
         "type": "object"
       },
       "Hotspots": {
@@ -3457,6 +3729,39 @@
         "title": "PointReadiness",
         "type": "object"
       },
+      "PpwrCard": {
+        "properties": {
+          "declarations_ready": {
+            "title": "Declarations Ready",
+            "type": "integer"
+          },
+          "declarations_total": {
+            "title": "Declarations Total",
+            "type": "integer"
+          },
+          "fails_2030": {
+            "title": "Fails 2030",
+            "type": "integer"
+          },
+          "recycled_misses": {
+            "title": "Recycled Misses",
+            "type": "integer"
+          },
+          "skus_in_eu": {
+            "title": "Skus In Eu",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "declarations_ready",
+          "declarations_total",
+          "skus_in_eu",
+          "fails_2030",
+          "recycled_misses"
+        ],
+        "title": "PpwrCard",
+        "type": "object"
+      },
       "ProductCreate": {
         "properties": {
           "brand": {
@@ -3971,6 +4276,29 @@
         "title": "RamCounts",
         "type": "object"
       },
+      "RamShare": {
+        "properties": {
+          "Amber": {
+            "title": "Amber",
+            "type": "integer"
+          },
+          "Green": {
+            "title": "Green",
+            "type": "integer"
+          },
+          "Red": {
+            "title": "Red",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "Green",
+          "Amber",
+          "Red"
+        ],
+        "title": "RamShare",
+        "type": "object"
+      },
       "Recommendation": {
         "properties": {
           "action_id": {
@@ -4292,6 +4620,29 @@
           "units_exported"
         ],
         "title": "SalesLineOut",
+        "type": "object"
+      },
+      "Saving": {
+        "properties": {
+          "actions": {
+            "title": "Actions",
+            "type": "integer"
+          },
+          "amount": {
+            "title": "Amount",
+            "type": "number"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          }
+        },
+        "required": [
+          "currency",
+          "amount",
+          "actions"
+        ],
+        "title": "Saving",
         "type": "object"
       },
       "ScenarioChange": {
@@ -4918,6 +5269,40 @@
           "values"
         ],
         "title": "ValuesIn",
+        "type": "object"
+      },
+      "Waiting": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "key": {
+            "enum": [
+              "corrections",
+              "gaps",
+              "declarations",
+              "actions"
+            ],
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "link": {
+            "title": "Link",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "count",
+          "link"
+        ],
+        "title": "Waiting",
         "type": "object"
       },
       "Workspace": {
@@ -7133,6 +7518,57 @@
         ]
       }
     },
+    "/api/v1/home": {
+      "get": {
+        "operationId": "get_home_api_v1_home_get",
+        "parameters": [
+          {
+            "description": "Bearer <access token>",
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Bearer <access token>",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomeOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "The workspace on one page",
+        "tags": [
+          "Home"
+        ]
+      }
+    },
     "/api/v1/imports": {
       "get": {
         "operationId": "history_api_v1_imports_get",
@@ -9046,7 +9482,7 @@
     },
     "/api/v1/validation": {
       "get": {
-        "operationId": "list_issues_api_v1_validation_get",
+        "operationId": "listissues_api_v1_validation_get",
         "parameters": [
           {
             "description": "Bearer <access token>",
@@ -9075,7 +9511,7 @@
                   "items": {
                     "$ref": "#/components/schemas/Issue"
                   },
-                  "title": "Response List Issues Api V1 Validation Get",
+                  "title": "Response Listissues Api V1 Validation Get",
                   "type": "array"
                 }
               }

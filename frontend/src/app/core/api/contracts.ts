@@ -116,6 +116,10 @@ export type ActionItem = Schemas['ActionOut'];
 export type ActionCreate = Schemas['ActionCreate'];
 export type ActionPatch = Schemas['ActionPatch'];
 
+// --- Home — built, GET /home ----------------------------------------------------------
+
+export type HomeSummary = Schemas['HomeOut'];
+
 // --- Horizon scanning — built, GET /modules/horizon, PUT /modules/horizon/settings ------
 
 export type Horizon = Schemas['Horizon'];

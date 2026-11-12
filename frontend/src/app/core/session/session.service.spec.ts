@@ -83,7 +83,7 @@ describe('SessionService', () => {
     session.accept(signInResponse('superadmin'));
     expect(session.home()).toBe('/app/workspaces');
     session.accept(signInResponse('org_admin'));
-    expect(session.home()).toBe('/app/products');
+    expect(session.home()).toBe('/app/home');
   });
 
   it('shows the API message for failures', () => {

@@ -224,7 +224,7 @@ export class WorkspacesComponent {
     this.opening.set(true);
     try {
       await this.session.switchWorkspace(ws.id);
-      await this.router.navigate(['/app/products']);
+      await this.router.navigate(['/app/home']);
     } catch (e) {
       this.toast.show(toProblem(e).detail, 'error');
     } finally {

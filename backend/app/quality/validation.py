@@ -23,6 +23,8 @@ from datetime import date
 from typing import Any
 
 from app.catalog import reference
+from app.catalog.fields import FieldMap, value
+from app.catalog.models import Product
 
 NOT_APPLICABLE = {"n/a", "na", "not applicable"}
 _MONTHS = {
@@ -166,4 +168,43 @@ def check_all(values: dict[str, Any]) -> dict[str, dict[str, str | None]]:
         problem = check(key, raw)
         if problem:
             out[key] = problem
+    return out
+
+
+SOURCE_NAMES = {"csv": "File import", "erp": "ERP", "plm": "PLM", "manual": "Manual", "estimate": "Estimate"}
+
+
+def issues(products: list[Product]) -> list[dict[str, object]]:
+    """Every stored value the catalogue does not accept, with its suggested correction."""
+    labels = reference.fields()
+    out: list[dict[str, object]] = []
+
+    def scan(p: Product, fields: FieldMap, component: str | None, component_name: str | None) -> None:
+        for key, stored in fields.items():
+            problem = check(key, stored.get("value"))
+            if problem is None:
+                continue
+            source = stored.get("source")
+            out.append(
+                {
+                    "id": f"{p.sku}|{component or ''}|{key}",
+                    "sku": p.sku,
+                    "product_name": value(p.fields, "product_name") or p.sku,
+                    "component_id": component,
+                    "component_name": component_name,
+                    "field": key,
+                    "field_label": labels.get(key, {}).get("label", key),
+                    "data_point": stored.get("dp"),
+                    "value": str(stored.get("value", "")),
+                    "message": problem["message"],
+                    "suggestion": problem["suggestion"],
+                    "source": source,
+                    "source_name": SOURCE_NAMES.get(source or "", "Unknown"),
+                }
+            )
+
+    for p in products:
+        scan(p, {**p.fields, **p.passport}, None, None)
+        for c in p.components:
+            scan(p, c.fields, c.code, value(c.fields, "component_name"))
     return out

@@ -68,12 +68,12 @@ reference-docs-teams/        reference material and data sets (input, not app co
 The sidebar (`core/navigation/nav-items.ts`) shows only what the user's permissions and the workspace's modules allow:
 
 - **Platform** (Monk Spaces): Client workspaces, Users, Data points, Data explorer, Gap rules.
-- **Overview:** Setup (`/app/setup`: tabs Data connections and People).
-- **Data:** Data collection (`/app/data`: tabs Overview and Import), Data gaps, Data validation, SKU library (`/app/products`).
+- **Overview:** Home (`/app/home`, where org users land), Setup (`/app/setup`: tabs Data connections and People).
+- **Data:** Data collection (`/app/data`: tabs Overview, Import and Data point map, the team's explorer), Data gaps, Data validation, SKU library (`/app/products`).
 - **Comply:** Compliance.
 - **Insights:** Hotspots (`/app/insights`), Scenarios (`/app/scenarios`, the same component with `data.view`; the scenario in progress is shared through `ScenarioDraft`), Horizon scanning, Actions.
 
-A page made of existing screens uses `TabbedPageComponent` (`shared/ui`) via `tabbedPage()` in `app.routes.ts`; earlier addresses (`/app/team`, `/app/data-sources`, `/app/import`, `/app/data-overview`) redirect. Home is added with the dashboard.
+A page made of existing screens uses `TabbedPageComponent` (`shared/ui`) via `tabbedPage()` in `app.routes.ts`; earlier addresses (`/app/team`, `/app/data-sources`, `/app/import`, `/app/data-overview`) redirect.
 
 ## What each client can configure (SaaS)
 
@@ -103,6 +103,7 @@ Screens 3–8 run on the backend (there is no mock API any more):
 - **Per-SKU rules** (`app/modules/assessment.py`, `skus.py`, rules in `reference/assessment.json`): UK RAM rating per component, PPWR recyclability grade A–E per packaging unit, 2030 recycled-content targets per unit, markets, fee per regime and a status with reasons. `GET /products` returns them (the SKU library) and each component carries its `assessment`; the PPWR declaration uses the same rules.
 - **Hotspots and scenarios** (`app/modules/insights.py`): hotspots are the components, products and materials carrying the fee, each with its arithmetic. Recommendations: lightweight (heavier than similar components of the same kind and material, per ml for primary containers), measure (fee on estimated weights), recyclability, recycled content. A scenario recalculates the fee with changed weights or materials without saving (`epr.calculate(..., overrides)`). Recommendations become action items (`action_items`, tenant RLS, one per recommendation).
 - **Horizon scanning** (`app/modules/horizon.py`): milestones in `app/modules/reference/horizon.json` group data points by their dictionary date (`applies_from`). Rule: a workspace collects a requirement's data from `horizon_lead_months` (default 3, org admins change it) before it applies. Every gap has a `phase`: `now` (in force), `collecting` (inside the lead time) or `upcoming`; the Gaps screen shows due gaps first.
+- **Home** (`app/modules/home.py`, `GET /home`): fees per EPR regime with the fee's split by RAM rating, PPWR declarations ready and SKUs failing 2030, data health (stored values verified, estimated or flagged by validation; open gaps), the top hotspots with their best recommendation, savings in open actions, and what waits (corrections, gaps due, declarations to review, open actions). All from the same engines as the screens. Filing obligations come later, with the filing work.
 - **Improvements we postponed** are listed in [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md).
 - **Platform admins** open a client's workspace from Client workspaces (Open workspace) to see its products, imports and gaps; their token then carries that workspace.
 

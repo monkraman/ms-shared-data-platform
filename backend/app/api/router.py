@@ -9,6 +9,7 @@ from app.api.v1 import (
     data_sources,
     gaps,
     health,
+    home,
     horizon,
     imports,
     insights,
@@ -23,6 +24,7 @@ api_router = APIRouter()
 
 api_router.include_router(health.router, prefix="", tags=["System Health"])
 api_router.include_router(auth.router)  # screen 1
+api_router.include_router(home.router)  # home: the workspace on one page
 api_router.include_router(users.router)  # screen 9
 api_router.include_router(workspaces.router)  # screen 2
 api_router.include_router(data_points.router)  # screen 3

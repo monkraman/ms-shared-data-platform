@@ -272,6 +272,16 @@ def test_epr_and_ppwr_results_come_from_the_workspace_data(db_client: TestClient
     detail = res.json()
     assert detail["grade"] == "A" and detail["ram"] in ("Green", "Red")  # secondary film still unassessed
     assert detail["components"][0]["assessment"]["ram"] == "Green"
+
+    # Home uses the same engines: the fees match the regime results and the hotspots carry the fee.
+    summary = db_client.get("/api/v1/home", headers=viewer)
+    assert summary.status_code == 200, summary.text
+    home = summary.json()
+    fees = {f["regime"]: f for f in home["fees"]}
+    uk_now = db_client.get("/api/v1/modules/epr/epr_uk", headers=viewer).json()
+    assert fees["epr_uk"]["total_fee"] == uk_now["total_fee"]
+    assert home["skus"] == len(skus) and home["hotspots"] and home["ppwr"]["declarations_total"] == len(skus)
+    assert sum(home["data_health"][k] for k in ("verified", "estimated", "flagged")) == home["data_health"]["values"]
     assert db_client.get("/api/v1/modules/ppwr/declarations/HLA-KET-460", headers=b).status_code == 404
 
     assert db_client.get("/api/v1/modules/regimes", headers=h).json()

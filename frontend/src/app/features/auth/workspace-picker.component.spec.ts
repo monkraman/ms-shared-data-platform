@@ -47,7 +47,7 @@ describe('WorkspacePickerComponent', () => {
     expect(req.request.body).toEqual({ tenant_id: 't2' });
     req.flush(signInResponse('org_admin', 'tok-t2'));
     (await vi.waitFor(() => http.expectOne((r) => r.url.endsWith('/api/v1/auth/me')))).flush(meWith([membership('t2', 'Beta Drinks')]));
-    await vi.waitFor(() => expect(router.navigateByUrl).toHaveBeenCalledWith('/app/products'));
+    await vi.waitFor(() => expect(router.navigateByUrl).toHaveBeenCalledWith('/app/home'));
     expect(session.token()).toBe('tok-t2');
   });
 
@@ -55,7 +55,7 @@ describe('WorkspacePickerComponent', () => {
     const el = render().nativeElement as HTMLElement;
     buttons(el)[0].click();
     http.expectNone((r) => r.url.endsWith('/api/v1/auth/switch-tenant'));
-    await vi.waitFor(() => expect(router.navigateByUrl).toHaveBeenCalledWith('/app/products'));
+    await vi.waitFor(() => expect(router.navigateByUrl).toHaveBeenCalledWith('/app/home'));
   });
 
   it('shows why a switch failed', async () => {

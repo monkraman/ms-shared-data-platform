@@ -123,7 +123,7 @@ export class SessionService {
 
   /** Home screen for the signed-in user: workspaces for platform admins, products otherwise. */
   home(): string {
-    return this.profile()?.role === 'superadmin' ? '/app/workspaces' : '/app/products';
+    return this.profile()?.role === 'superadmin' ? '/app/workspaces' : '/app/home';
   }
 
   accept(res: SignInResponse): void {

@@ -4,7 +4,7 @@ How the platform is built, how client data flows through it, how it is stored, c
 
 **Keep it current.** This document describes the code on `main`. Any change to storage, the import or sync pipeline, validation, gaps, compliance calculations, permissions or deployment updates this file in the same commit (rule 6 in [AGENTS.md](../AGENTS.md)). The "Last reviewed" line and the change log at the end say when.
 
-Last reviewed: 12 Nov 2026 (per-SKU rules; data explorer for platform admins).
+Last reviewed: 12 Nov 2026 (Home; CSV imports no longer set a weight source).
 
 ---
 
@@ -279,6 +279,7 @@ All results are calculated on read from the stored values (`app/modules`).
 - **PPWR declaration** (`ppwr_doc.py`): built per product in Danish or English from its fields; checks substances (PFAS in food contact, heavy metals), recyclability (the PPWR grade above), recycled content (the per-unit targets above, with certificates), minimisation and labelling, showing the evidence for each; "ready" or "draft" with what is missing. Printed to PDF from the browser.
 - **Hotspots and recommendations** (`insights.py`): the components, products and materials carrying the fee, each with its arithmetic; rule-based recommendations (lightweight against similar components, measure estimated weights, recyclability redesign, recycled content) with their impact. Recommendations become **action items**.
 - **Scenarios:** the same EPR calculation with changed weights or materials, not saved.
+- **Home** (`home.py`, `GET /home`): the workspace on one page from the same engines: fees per EPR regime and their split by RAM rating, PPWR declarations ready and SKUs failing 2030, data health (stored values verified, estimated, or flagged by validation), top hotspots with their best recommendation, savings in open actions, and what waits for the user.
 - **Horizon:** milestones from the dictionary dates (PPWR 12 Aug 2026, labelling 12 Aug 2028, recyclability and recycled content 2030, UK DRS Oct 2027, SB 54 2032), when data collection starts, and how ready the workspace's data is.
 
 ---
@@ -336,6 +337,7 @@ Platform-wide today: the gap rule library, EPR rates, the field catalogue and wo
 
 | Date | Change |
 | --- | --- |
+| 12 Nov 2026 | Home (`GET /home`). A CSV import no longer sets the weight source to "Imported" (not an allowed value); the value's lineage already records the file. |
 | 12 Nov 2026 | Per-SKU rules: RAM rating, PPWR grade, recycled content per packaging unit, markets from sales lines, fee per regime with rating modulation, status; the PPWR declaration uses the same rules. |
 | 12 Nov 2026 | Migration 0011 recreates the `compliance_rls` role on databases that lack it; readiness checks the role. |
 | 12 Nov 2026 | Data explorer: the team's data point explorer served as-is at `/datapoints/`, shown to platform admins. |
