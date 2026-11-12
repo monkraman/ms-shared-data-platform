@@ -6,6 +6,7 @@ Start with [../AGENTS.md](../AGENTS.md) for the repository map and the rules eve
 
 | Document | What it covers |
 | --- | --- |
+| [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md) | **System design (HLD):** architecture, tenancy, storage and lineage, import and re-sync rules, validation, gaps, compliance, operations. Kept current with every change |
 | [SCREEN_BY_SCREEN_BUILD_PLAN.md](SCREEN_BY_SCREEN_BUILD_PLAN.md) | Screen order, status, definition of done, specs for screens 1–2 |
 | [TARGET_ARCHITECTURE_AND_IMPROVEMENT_PLAN.md](TARGET_ARCHITECTURE_AND_IMPROVEMENT_PLAN.md) | Target architecture: modules, data model, ingestion, quality, tenancy, roadmap |
 | [FOUNDATION_GUIDE.md](FOUNDATION_GUIDE.md) | How a screen uses the foundation (backend and frontend), with checklists |
