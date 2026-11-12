@@ -4,7 +4,7 @@ How the platform is built, how client data flows through it, how it is stored, c
 
 **Keep it current.** This document describes the code on `main`. Any change to storage, the import or sync pipeline, validation, gaps, compliance calculations, permissions or deployment updates this file in the same commit (rule 6 in [AGENTS.md](../AGENTS.md)). The "Last reviewed" line and the change log at the end say when.
 
-Last reviewed: 12 Nov 2026 (`main` at the merge of product editing and validation).
+Last reviewed: 12 Nov 2026 (demo accounts shown on the sign-in page).
 
 ---
 
@@ -318,6 +318,7 @@ Platform-wide today: the gap rule library, EPR rates, the field catalogue and wo
 - A sync **overwrites** platform corrections with the system's value (section 5.2); fix at the source.
 - Sales lines have **no country** yet: every sales line counts for every regime.
 - EPR Denmark and SB 54 **rates are placeholders**; UK fees exclude recyclability modulation.
+- **Demo accounts are shown on the sign-in page** (platform admin and Kraft Heinz org admin, with passwords) while `DEMO_SIGN_IN` is not `false`: anyone with the link can sign in. Switch it off and change those passwords before real client data.
 - A gap marked resolved by a person stays resolved even if a later value fails the rule again.
 - Gaps and results are computed on every read: fine for hundreds of products; storing computed gaps is planned for larger clients.
 - Invitation and password emails wait for the email service.
@@ -328,4 +329,5 @@ Platform-wide today: the gap rule library, EPR rates, the field catalogue and wo
 
 | Date | Change |
 | --- | --- |
+| 12 Nov 2026 | Demo accounts on the sign-in page behind `DEMO_SIGN_IN` (known limits). |
 | 12 Nov 2026 | First version: architecture, tenancy, storage and lineage, import and re-sync rules, validation, gaps, compliance, configuration, operations. |

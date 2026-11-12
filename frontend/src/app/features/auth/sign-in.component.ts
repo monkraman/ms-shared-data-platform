@@ -11,10 +11,14 @@ const NOTICES: Record<SignInReason, string> = {
   'signed-out': 'You signed out.',
 };
 
-/** Development builds only: demo users from the prototype store. */
+/**
+ * Demo accounts (backend/seeds/bootstrap_users.json) shown as one-click sign-in buttons while
+ * `environment.demoSignIn` is on. Turn it off (DEMO_SIGN_IN=false) before real client data.
+ */
+const DEMO_PASSWORD = 'password123';
 const PRESETS = [
   { label: 'Platform admin', email: 'superadmin@monkspaces.com' },
-  { label: 'Org admin', email: 'compliance.officer@kraftheinz.com' },
+  { label: 'Kraft Heinz · Org admin', email: 'compliance.officer@kraftheinz.com' },
 ];
 
 @Component({
@@ -33,7 +37,8 @@ export class SignInComponent {
   readonly authenticating = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly showPassword = signal(false);
-  readonly presets = environment.enableDebugTools ? PRESETS : [];
+  readonly presets = environment.demoSignIn ? PRESETS : [];
+  readonly demoPassword = DEMO_PASSWORD;
 
   private readonly reason = this.route.snapshot.queryParamMap.get('reason') as SignInReason | null;
   readonly notice = computed(() => (this.errorMessage() || !this.reason ? null : (NOTICES[this.reason] ?? null)));
@@ -47,9 +52,11 @@ export class SignInComponent {
     this.showPassword.update((v) => !v);
   }
 
-  applyPreset(email: string): void {
+  /** Fills in a demo account and signs in. */
+  signInAs(email: string): void {
     this.errorMessage.set(null);
-    this.signInForm.patchValue({ email, password: 'password123' });
+    this.signInForm.patchValue({ email, password: DEMO_PASSWORD });
+    void this.onSubmit();
   }
 
   fieldError(name: 'email' | 'password'): string | null {

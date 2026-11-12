@@ -59,6 +59,7 @@ reference-docs-teams/        reference material and data sets (input, not app co
 - `POST /api/v1/auth/sign-in` returns a 15-minute access token and sets an 8-hour httpOnly refresh cookie (`ch_refresh`). The frontend keeps the access token in sessionStorage only, never localStorage.
 - On a 401, `session.interceptor.ts` refreshes once and retries; if that fails the user signs in again and returns to the same page. After 30 minutes without input the session ends.
 - Switching workspace (`POST /auth/switch-tenant`) issues a new token; the workspace is never sent as a header .
+- **Demo accounts on the sign-in page (temporary):** while `environment.demoSignIn` is on, the page shows the platform admin and the Kraft Heinz org admin with their email and password; a click signs in. Anyone with the link can then sign in, so set `DEMO_SIGN_IN=false` in Vercel and rebuild before real client data, and change those passwords.
 - Production builds call the API on the same origin (`/api`, proxied by `vercel.json`) so the refresh cookie is first-party. Do not set `API_BASE_URL` to the Render URL.
 
 ## What each client can configure (SaaS)
