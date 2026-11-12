@@ -73,6 +73,8 @@ class ImportPreview(BaseModel):
     new_products: int
     updated_products: int
     issues: list[ImportIssue]
+    # Imported as they are; the Validation screen suggests the correction.
+    warnings: list[ImportIssue]
 
 
 class JobStarted(BaseModel):

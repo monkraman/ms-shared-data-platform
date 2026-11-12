@@ -15,6 +15,7 @@ from app.api.v1 import (
     jobs,
     products,
     users,
+    validation,
     workspaces,
 )
 
@@ -28,6 +29,7 @@ api_router.include_router(data_points.router)  # screen 3
 api_router.include_router(products.router)  # screen 4
 api_router.include_router(imports.router)  # screen 5
 api_router.include_router(gaps.router)  # screens 6-8
+api_router.include_router(validation.router)  # data validation
 api_router.include_router(data_sources.router)  # screen 18
 api_router.include_router(compliance.router)  # screens 12-13
 api_router.include_router(insights.router)  # screen 14

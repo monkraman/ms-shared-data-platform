@@ -79,19 +79,47 @@ def detail(p: Product, open_gaps: int = 0) -> dict[str, Any]:
     }
 
 
-def fv(key: str, raw: Any) -> dict[str, Any]:
-    """One stored value, tagged with its data point from the field catalogue."""
-    return {"dp": reference.field_dp(key), "value": "" if raw is None else str(raw)}
+# Where a value came from (lineage): a file, a system sync, a person, an estimate or a
+# suggested correction. Stored with each value as "source".
+Source = str  # csv | erp | plm | manual | estimate | correction
 
 
-def merge(current: FieldMap, incoming: dict[str, Any], *, keep_blank: bool = True) -> FieldMap:
+def fv(key: str, raw: Any, source: Source | None = None) -> dict[str, Any]:
+    """One stored value, tagged with its data point from the field catalogue and its source."""
+    out = {"dp": reference.field_dp(key), "value": "" if raw is None else str(raw)}
+    if source:
+        out["source"] = source
+    return out
+
+
+def merge(current: FieldMap, incoming: dict[str, Any], *, source: Source | None = None) -> FieldMap:
     """New map with incoming values; a blank incoming value never wipes a stored one."""
     out = dict(current)
     for key, raw in incoming.items():
         text = "" if raw is None else str(raw).strip()
-        if text or (keep_blank and key not in out):
-            out[key] = fv(key, text)
+        if text or key not in out:
+            out[key] = fv(key, text, source if text else None)
     return out
+
+
+def set_values(current: FieldMap, incoming: dict[str, Any], *, source: Source) -> FieldMap:
+    """New map with exactly these values: an edit, where an empty value clears the field."""
+    out = dict(current)
+    for key, raw in incoming.items():
+        text = "" if raw is None else str(raw).strip()
+        out[key] = fv(key, text, source if text else None)
+    return out
+
+
+def assign(product: Product, key: str, raw: Any, *, component: str | None = None, source: Source) -> None:
+    """Write one value where it belongs: on a component, in the passport or on the product."""
+    if component:
+        target = next(c for c in product.components if c.code == component)
+        target.fields = set_values(target.fields, {key: raw}, source=source)
+    elif reference.field_level(key) == "Passport":
+        product.passport = set_values(product.passport, {key: raw}, source=source)
+    else:
+        product.fields = set_values(product.fields, {key: raw}, source=source)
 
 
 async def get_by_sku(db: AsyncSession, sku: str) -> Product | None:
@@ -118,8 +146,8 @@ async def upsert(
     if product is None:
         product = Product(tenant_id=tenant_id, sku=sku, fields={}, passport={}, components=[], sales=[])
         db.add(product)
-    product.fields = merge(product.fields, product_fields)
-    product.passport = merge(product.passport, passport_fields)
+    product.fields = merge(product.fields, product_fields, source=source)
+    product.passport = merge(product.passport, passport_fields, source=source)
     product.source = source
 
     for row in components:
@@ -132,7 +160,7 @@ async def upsert(
             position = len(product.components) + 1
             match = Component(tenant_id=tenant_id, code=code or f"{sku}-{position:02d}", position=position, fields={})
             product.components.append(match)
-        match.fields = merge(match.fields, row)
+        match.fields = merge(match.fields, row, source=source)
 
     for row in sales or []:
         code = str(row.pop("id", "") or "").strip() or f"{sku}-S{len(product.sales) + 1}"
@@ -140,7 +168,7 @@ async def upsert(
         if line is None:
             line = SalesLine(tenant_id=tenant_id, code=code, fields={})
             product.sales.append(line)
-        line.fields = merge(line.fields, row)
+        line.fields = merge(line.fields, row, source=source)
 
     await db.flush()
     return product, created

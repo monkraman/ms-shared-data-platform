@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.catalog import reference
 from app.catalog import service as catalog
 from app.ingestion.models import ImportBatch
+from app.quality.validation import check
 
 # Only what places a row; other missing values are imported empty and show up as gaps.
 REQUIRED = ("sku", "product_name", "component_name")
@@ -30,7 +31,6 @@ ALIASES = {
     "recycled_content_pct": ("recycledcontent", "recycled", "pcr", "recycledpct"),
     "gtin": ("ean", "barcode", "upc"),
 }
-NUMBERS = ("weight_g", "units_per_pack", "recycled_content_pct", "heavy_metals_mgkg", "empty_space_ratio_pct")
 LEVELS = ("Product", "Passport", "Component")
 MAX_ISSUES = 50
 
@@ -64,7 +64,12 @@ def suggest_mapping(columns: list[str]) -> dict[str, str | None]:
 
 
 def parse(batch: ImportBatch) -> list[dict[str, Any]]:
-    """Each row's mapped values and problems (row numbers count the header as row 1)."""
+    """Each row's mapped values and problems (row numbers count the header as row 1).
+
+    Only a missing SKU, product name or component rejects a row. Values the catalogue does
+    not accept ("26 g", "plastic") are imported as they are and listed as warnings: the
+    Validation screen suggests the correction.
+    """
     labels = {t["key"]: t["label"] for t in targets()}
     out = []
     for i, row in enumerate(batch.rows):
@@ -76,13 +81,29 @@ def parse(batch: ImportBatch) -> list[dict[str, Any]]:
         issues = [
             {"row": i + 2, "column": labels.get(k, k), "message": "Missing"} for k in REQUIRED if not values.get(k)
         ]
-        for key in NUMBERS:
-            if values.get(key):
-                try:
-                    float(values[key])
-                except ValueError:
-                    issues.append({"row": i + 2, "column": labels.get(key, key), "message": "Not a number"})
-        out.append({"values": values, "issues": issues, "ok": not issues})
+        warnings = []
+        for key, raw in values.items():
+            problem = check(key, raw)
+            if problem:
+                hint = f" (use {problem['suggestion']})" if problem["suggestion"] else ""
+                warnings.append(
+                    {"row": i + 2, "column": labels.get(key, key), "message": f"{problem['message']}{hint}"}
+                )
+        out.append({"values": values, "issues": issues, "warnings": warnings, "ok": not issues})
+    return out
+
+
+def _first_per_product(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """A product value repeats on each of its component rows: report it once per product."""
+    seen, out = set(), []
+    for r in rows:
+        if not r["ok"]:
+            continue
+        for w in r["warnings"]:
+            key = (r["values"].get("sku"), w["column"], w["message"])
+            if key not in seen:
+                seen.add(key)
+                out.append(w)
     return out
 
 
@@ -96,6 +117,7 @@ def preview(batch: ImportBatch, existing_skus: set[str]) -> dict[str, Any]:
         "new_products": len(skus - existing_skus),
         "updated_products": len(skus & existing_skus),
         "issues": [i for r in rows for i in r["issues"]][:MAX_ISSUES],
+        "warnings": _first_per_product(rows)[:MAX_ISSUES],
     }
 
 

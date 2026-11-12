@@ -3,17 +3,22 @@
 from __future__ import annotations
 
 import re
-from typing import Annotated, Literal
+from datetime import datetime
+from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel, Field
+from sqlalchemy import select
 
+from app.catalog import reference
 from app.catalog import service as catalog
-from app.core.audit import record_audit
+from app.catalog.fields import value as field_value
+from app.core.audit import AuditEvent, record_audit
 from app.core.auth import Principal, TenantDB, require_permission
-from app.core.errors import ProblemError, invalid_field
+from app.core.errors import ProblemError, invalid_field, invalid_fields
 from app.core.permissions import Perm
 from app.quality import service as quality
+from app.quality.validation import check_all
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
@@ -24,6 +29,8 @@ GTIN = re.compile(r"^\d{8,14}$")
 class FieldValue(BaseModel):
     dp: str | None
     value: str
+    # Where the value came from: csv, erp, plm, manual, estimate or correction.
+    source: str | None = None
 
 
 class ComponentOut(BaseModel):
@@ -159,3 +166,167 @@ async def create_product(payload: ProductCreate, principal: Manager, db: TenantD
 def _plain(n: float) -> str:
     """2.0 → "2", 2.5 → "2.5"."""
     return str(int(n)) if float(n).is_integer() else str(n)
+
+
+# --- Editing ----------------------------------------------------------------------------
+
+
+class ValuesIn(BaseModel):
+    """Field key -> new value; an empty value clears the field."""
+
+    values: dict[str, str | None] = Field(max_length=200)
+
+
+class Change(BaseModel):
+    field: str
+    label: str
+    component: str | None
+    before: str
+    after: str
+
+
+class HistoryEntry(BaseModel):
+    at: datetime
+    by: str | None
+    action: str
+    changes: list[Change]
+
+
+EDITABLE_LEVELS = {"product": ("Product", "Passport"), "component": ("Component",)}
+
+
+def _check(values: dict[str, str | None], scope: str) -> None:
+    """Known fields of the right level only, and values the catalogue accepts."""
+    fields = reference.fields()
+    for key in values:
+        if key not in fields or fields[key]["level"] not in EDITABLE_LEVELS[scope]:
+            raise invalid_field(key, "Not a field you can edit here")
+    problems = check_all(values)
+    if problems:
+        raise invalid_fields(
+            {
+                k: str(p["message"]) + (f". Did you mean {p['suggestion']}?" if p["suggestion"] else "")
+                for k, p in problems.items()
+            }
+        )
+
+
+def _diff(before: dict[str, Any], values: dict[str, str | None], component: str | None) -> list[dict[str, Any]]:
+    labels = reference.fields()
+    return [
+        {
+            "field": k,
+            "label": labels.get(k, {}).get("label", k),
+            "component": component,
+            "before": field_value(before, k),
+            "after": (v or "").strip(),
+        }
+        for k, v in values.items()
+        if field_value(before, k) != (v or "").strip()
+    ]
+
+
+async def _load(db: TenantDB, sku: str) -> Any:
+    product = await catalog.get_by_sku(db, sku)
+    if product is None:
+        raise ProblemError(404, "Product not found.")
+    return product
+
+
+async def _saved(db: TenantDB, product: Any, principal: Principal, changes: list[dict[str, Any]], action: str) -> Any:
+    await db.flush()
+    if changes:
+        await record_audit(
+            db,
+            principal=principal,
+            action=action,
+            entity_type="product",
+            entity_id=product.sku,
+            after={"changes": changes},
+        )
+    open_gaps = quality.open_by_sku(await quality.gaps(db, [product]))
+    return catalog.detail(product, open_gaps[product.sku])
+
+
+@router.patch("/{sku}", response_model=ProductOut, summary="Edit product and passport values")
+async def edit_product(sku: str, payload: ValuesIn, principal: Manager, db: TenantDB) -> Any:
+    _check(payload.values, "product")
+    product = await _load(db, sku)
+    if "product_name" in payload.values and not (payload.values["product_name"] or "").strip():
+        raise invalid_field("product_name", "Enter a name")
+    changes = _diff({**product.fields, **product.passport}, payload.values, None)
+    for key, raw in payload.values.items():
+        catalog.assign(product, key, raw, source="manual")
+    return await _saved(db, product, principal, changes, "product.edited")
+
+
+@router.patch("/{sku}/components/{code}", response_model=ProductOut, summary="Edit a packaging component")
+async def edit_component(sku: str, code: str, payload: ValuesIn, principal: Manager, db: TenantDB) -> Any:
+    _check(payload.values, "component")
+    product = await _load(db, sku)
+    component = next((c for c in product.components if c.code == code), None)
+    if component is None:
+        raise ProblemError(404, "Component not found.")
+    if "component_name" in payload.values and not (payload.values["component_name"] or "").strip():
+        raise invalid_field("component_name", "Enter a name")
+    changes = _diff(component.fields, payload.values, code)
+    for key, raw in payload.values.items():
+        catalog.assign(product, key, raw, component=code, source="manual")
+    return await _saved(db, product, principal, changes, "product.component_edited")
+
+
+@router.post(
+    "/{sku}/components", response_model=ProductOut, status_code=status.HTTP_201_CREATED, summary="Add a component"
+)
+async def add_component(sku: str, payload: ValuesIn, principal: Manager, db: TenantDB) -> Any:
+    _check(payload.values, "component")
+    name = (payload.values.get("component_name") or "").strip()
+    if not name:
+        raise invalid_field("component_name", "Enter a name")
+    product = await _load(db, sku)
+    if any(field_value(c.fields, "component_name") == name for c in product.components):
+        raise invalid_field("component_name", "This product already has a component with this name")
+    assert principal.tenant_id is not None
+    await catalog.upsert(
+        db,
+        principal.tenant_id,
+        sku,
+        product_fields={},
+        passport_fields={},
+        components=[{k: v for k, v in payload.values.items() if v}],
+        source="manual",
+    )
+    changes = [{"field": "component_name", "label": "Component", "component": None, "before": "", "after": name}]
+    return await _saved(db, product, principal, changes, "product.component_added")
+
+
+@router.delete("/{sku}/components/{code}", response_model=ProductOut, summary="Remove a component")
+async def remove_component(sku: str, code: str, principal: Manager, db: TenantDB) -> Any:
+    product = await _load(db, sku)
+    component = next((c for c in product.components if c.code == code), None)
+    if component is None:
+        raise ProblemError(404, "Component not found.")
+    name = field_value(component.fields, "component_name")
+    product.components.remove(component)
+    changes = [{"field": "component_name", "label": "Component", "component": code, "before": name, "after": ""}]
+    return await _saved(db, product, principal, changes, "product.component_removed")
+
+
+@router.get("/{sku}/history", response_model=list[HistoryEntry], summary="Who changed what, newest first")
+async def product_history(sku: str, _: Reader, db: TenantDB) -> list[HistoryEntry]:
+    await _load(db, sku)
+    events = await db.scalars(
+        select(AuditEvent)
+        .where(AuditEvent.entity_type == "product", AuditEvent.entity_id == sku)
+        .order_by(AuditEvent.created_at.desc())
+        .limit(100)
+    )
+    return [
+        HistoryEntry(
+            at=e.created_at,
+            by=e.actor_email,
+            action=e.action,
+            changes=[Change(**c) for c in (e.after or {}).get("changes", [])],
+        )
+        for e in events
+    ]

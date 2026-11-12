@@ -11,6 +11,7 @@ from sqlalchemy import func, select
 
 from app.catalog import reference
 from app.catalog import service as catalog
+from app.catalog.fields import NOT_MEASURED_SOURCES
 from app.catalog.models import DataPoint
 from app.core.audit import record_audit
 from app.core.auth import PlatformDB, Principal, TenantDB, require_permission
@@ -19,6 +20,7 @@ from app.core.permissions import Perm
 from app.platform.reference import COUNTRY_CODES, ModuleId
 from app.quality import service as quality
 from app.quality.models import GapRule, GapState
+from app.quality.validation import check
 
 router = APIRouter(tags=["Gaps"])
 
@@ -248,15 +250,13 @@ async def resolve_gap(
         value = (payload.value or "").strip()
         if not value:
             raise invalid_field("value", "Enter a value")
+        problem = check(gap["field"], value)
+        if problem:
+            hint = f". Did you mean {problem['suggestion']}?" if problem["suggestion"] else ""
+            raise invalid_field("value", f"{problem['message']}{hint}")
         product = await catalog.get_by_sku(db, gap["sku"])
         assert product is not None
-        if gap["component_id"]:
-            component = next(c for c in product.components if c.code == gap["component_id"])
-            component.fields = catalog.merge(component.fields, {gap["field"]: value})
-        elif reference.field_level(gap["field"]) == "Passport":
-            product.passport = catalog.merge(product.passport, {gap["field"]: value})
-        else:
-            product.fields = catalog.merge(product.fields, {gap["field"]: value})
+        catalog.assign(product, gap["field"], value, component=gap["component_id"], source="manual")
         new_status = "resolved"
     else:
         new_status = "requested" if payload.action == "request_supplier" else "resolved"
@@ -308,16 +308,9 @@ async def fill_estimates(
     filled = []
     for g in targets:
         product, value = by_sku[g["sku"]], g["estimate"]["value"]
-        if g["component_id"]:
-            component = next(c for c in product.components if c.code == g["component_id"])
-            updates = {g["field"]: value}
-            if g["field"] == "weight_g":
-                updates["weight_source"] = "Estimated"
-            component.fields = catalog.merge(component.fields, updates)
-        elif reference.field_level(g["field"]) == "Passport":
-            product.passport = catalog.merge(product.passport, {g["field"]: value})
-        else:
-            product.fields = catalog.merge(product.fields, {g["field"]: value})
+        catalog.assign(product, g["field"], value, component=g["component_id"], source="estimate")
+        if g["field"] == "weight_g":
+            catalog.assign(product, "weight_source", "Estimate", component=g["component_id"], source="estimate")
         state = states.get(g["id"]) or GapState(tenant_id=principal.tenant_id, gap_id=g["id"], status="resolved")
         state.status, state.note, state.updated_by = (
             "resolved",
@@ -359,7 +352,7 @@ async def data_overview(
             source = (c.fields.get("weight_source") or {}).get("value")
             for key, v in c.fields.items():
                 if v.get("dp"):
-                    estimated = key == "weight_g" and source in ("Spec", "Estimated")
+                    estimated = key == "weight_g" and source in NOT_MEASURED_SOURCES
                     values.append((v["dp"], str(v.get("value", "")), estimated))
 
     coverage = []

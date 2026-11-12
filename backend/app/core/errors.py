@@ -102,6 +102,13 @@ def register_error_handlers(app: FastAPI) -> None:
 
 def invalid_field(field: str, msg: str) -> ProblemError:
     """422 with one field error, shown next to that field in the UI (``toProblem().fields``)."""
+    return invalid_fields({field: msg})
+
+
+def invalid_fields(messages: dict[str, str]) -> ProblemError:
+    """422 with one error per field."""
     return ProblemError(
-        422, "The request has invalid fields.", extra={"errors": [{"loc": ["body", field], "msg": msg}]}
+        422,
+        "The request has invalid fields.",
+        extra={"errors": [{"loc": ["body", field], "msg": msg} for field, msg in messages.items()]},
     )
