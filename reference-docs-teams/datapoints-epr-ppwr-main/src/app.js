@@ -2,6 +2,23 @@
 (function () {
   "use strict";
   const { DP, SOURCES, OUTPUTS, OUT_LABEL, COUNTRIES, DPP_NOTE } = window.EPR_DATA;
+  const PROFILES = window.EPR_DATA.PROFILES || { generic: { name: "Generic", short: "Generic" } };
+  // keep the generic source and field per data point, so switching profile can restore them
+  DP.forEach(d => { d._gen = { src: d.src, field: d.field }; });
+  const GEN_SRC = Object.fromEntries(Object.entries(SOURCES).map(([k, s]) => [k, { name: s.name, short: s.short }]));
+  // a client profile renames the sources after the client's systems and gives each data point the client's system and field
+  function applyProfile(key) {
+    const pr = PROFILES[key] && PROFILES[key].dp ? PROFILES[key] : null;
+    DP.forEach(d => {
+      const m = pr && pr.dp[d.id];
+      d.src = m ? m.src : d._gen.src;
+      d.field = m ? m.field : d._gen.field;
+    });
+    Object.keys(SOURCES).forEach(k => {
+      const n = pr && pr.sources && pr.sources[k] ? pr.sources[k] : GEN_SRC[k];
+      SOURCES[k].name = n.name; SOURCES[k].short = n.short;
+    });
+  }
   const EU = COUNTRIES.filter(c => c.eu).map(c => c.code);
   const ALL_CODES = COUNTRIES.map(c => c.code);
   const OUT_ORDER = ["rep", "fee", "evid", "doc", "lab", "dpp"];
@@ -38,7 +55,7 @@
     countries: new Set(["DK"]), regs: new Set(REGS.map(r => r.key)),
     srcs: new Set(COL_ORDER), outs: new Set(Object.keys(OUTPUTS)),
     timing: new Set(TIMING.map(t => t.key)), scope: new Set(SCOPE.map(s => s.key)),
-    useCl: true, cstat: new Set(STATUS.map(s => s.key)), q: "",
+    useCl: true, cstat: new Set(STATUS.map(s => s.key)), q: "", profile: "generic",
   });
   let F = defaults();
   const ui = { view: "flow", sel: null, drawerMin: false, hover: null, focusOut: null, filtersOpen: window.innerWidth > 1000 };
@@ -54,12 +71,13 @@
       const d = defaults();
       SETS.forEach(k => { if (Array.isArray(saved[k])) d[k] = new Set(saved[k]); });
       if (typeof saved.useCl === "boolean") d.useCl = saved.useCl;
+      if (saved.profile && PROFILES[saved.profile]) d.profile = saved.profile;
       F = d;
     }
   } catch (e) { /* storage unavailable: use defaults */ }
   function save() {
     try {
-      const o = { useCl: F.useCl };
+      const o = { useCl: F.useCl, profile: F.profile };
       SETS.forEach(k => { o[k] = [...F[k]]; });
       localStorage.setItem(STORE, JSON.stringify(o));
     } catch (e) { /* ignore */ }
@@ -144,12 +162,12 @@
   function group(id, title, items, isOn, open = true) {
     const on = items.filter(i => isOn(i)).length;
     return `<details class="fgroup" data-group="${id}" ${open ? "open" : ""}>
-      <summary><span><span class="chev">›</span>${esc(title)}</span><span class="n">${on}/${items.length}</span></summary>
+      <summary><span><span class="chev">›</span>${esc(title)}</span></summary>
       <div class="fbody">
         ${items.length > 1 ? `<div class="fquick"><button type="button" class="link" data-all="${id}">Select all</button><button type="button" class="link" data-none="${id}">Clear</button></div>` : ""}
         ${items.map(i => `<label class="check${i.disabled ? " disabled" : ""}" title="${esc(i.title || "")}">
           <input type="checkbox" data-f="${id}" value="${esc(i.key)}" ${isOn(i) ? "checked" : ""} ${i.disabled ? "disabled" : ""}>
-          ${i.color ? `<span class="dot" style="background:${v(i.color)}"></span>` : ""}<span>${esc(i.name)}</span>${i.cnt != null ? `<span class="cnt">${i.cnt}</span>` : ""}
+          ${i.color ? `<span class="dot" style="background:${v(i.color)}"></span>` : ""}<span>${esc(i.name)}</span>
         </label>`).join("")}
       </div></details>`;
   }
@@ -205,8 +223,9 @@
     const cc = clCounts(applicable());
     const prog = F.useCl ? `<span class="clsum" title="Checklist answers for the selected countries">${CL.client ? `<b>${esc(CL.client)}</b> · ` : ""}${STATUS.map(s =>
       `<span style="color:${v(s.color)}">${s.mark} ${cc[s.key]}</span>`).join(" ")}</span>` : "";
-    $("chips").innerHTML = (chips.length ? chips.map(c => `<span class="chip">${esc(c.t)}<button type="button" data-chip-g="${c.g}" data-chip-k="${esc(c.k)}" data-chip-off="${c.off ? 1 : 0}" aria-label="${c.off ? "Show again" : "Remove"} ${esc(c.t)}">×</button></span>`).join("")
-      : `<span class="note">No country selected. Tick one or more countries in the filters.</span>`)
+    $("chips").innerHTML = (isClientProfile() ? `<span class="chip prof" title="${esc(PROFILES[F.profile].note || "")}">${esc(PROFILES[F.profile].name)}</span>` : "")
+      + (chips.length ? chips.map(c => `<span class="chip">${esc(c.t)}<button type="button" data-chip-g="${c.g}" data-chip-k="${esc(c.k)}" data-chip-off="${c.off ? 1 : 0}" aria-label="${c.off ? "Show again" : "Remove"} ${esc(c.t)}">×</button></span>`).join("")
+      : `<span class="note">No country selected</span>`)
       + prog + `<span class="count">${list.length} data points · ${links} links</span>`;
   }
 
@@ -295,8 +314,8 @@
       const p = lay.outPos[o];
       const feeding = list.filter(d => outsFor(d).includes(o));
       const gaps = F.useCl ? feeding.filter(d => statusOf(d) !== "have").length : 0;
-      html.push(`<button type="button" class="outnode${ui.focusOut === o ? " focus" : ""}" data-out="${o}" style="left:${p.x}px;top:${p.y}px;width:${L.OUTW}px;height:${L.OUTH}px;border-color:${v(OUTPUTS[o].color)};color:${v(OUTPUTS[o].color)}">
-        <b>${esc(OUTPUTS[o].name)}</b><span class="lbl">${esc(outLabel(o))}</span>
+      html.push(`<button type="button" class="outnode${ui.focusOut === o ? " focus" : ""}" data-out="${o}" title="${esc(outLabel(o))}" style="left:${p.x}px;top:${p.y}px;width:${L.OUTW}px;height:${L.OUTH}px;border-color:${v(OUTPUTS[o].color)};color:${v(OUTPUTS[o].color)}">
+        <b>${esc(OUTPUTS[o].name)}</b>
         <span class="cnt">${feeding.length} data points${F.useCl ? ` · <span style="color:${gaps ? "var(--st-missing)" : "var(--st-have)"}">${gaps ? gaps + " not in hand" : "all in hand"}</span>` : ""}</span></button>`);
     });
     $("nodes").innerHTML = html.join("");
@@ -415,23 +434,22 @@
     $("cl-progress").innerHTML = `<div class="bar2" role="img" aria-label="${done} of ${list.length} answered">${["have", "get", "missing"].map(k =>
       `<span style="width:${list.length ? cc[k] / list.length * 100 : 0}%;background:${v(ST[k].color)}"></span>`).join("")}</div>
       <div class="legend">${STATUS.map(s => `<span><i style="background:${v(s.color)}"></i>${esc(s.name)} <b>${cc[s.key]}</b></span>`).join("")}
-      <span class="muted">${done} of ${list.length} answered for ${selCountries().map(countryName).join(", ") || "no country"}</span></div>`;
+      <span class="muted">${done}/${list.length} answered</span></div>`;
     const groups = Object.keys(SOURCES).map(k => ({ k, items: list.filter(d => d.src === k) })).filter(g => g.items.length);
     $("cl-groups").innerHTML = groups.length ? groups.map(g => `<section class="clgroup">
-      <header><span class="dot" style="background:${v(SOURCES[g.k].color)}"></span><b>Usually from ${esc(SOURCES[g.k].name)}</b><span class="muted">${g.items.length}</span>
+      <header><span class="dot" style="background:${v(SOURCES[g.k].color)}"></span><b>${esc(SOURCES[g.k].name)}</b><span class="muted">${g.items.length}</span>
         <span class="clquick">Mark all: ${STATUS.slice(0, 3).map(s => `<button type="button" class="link" data-cl-all="${g.k}" data-cl-status="${s.key}">${esc(s.short)}</button>`).join("")}</span></header>
       ${g.items.map(d => {
         const a = ans(d.id), st = statusOf(d);
         return `<div class="clrow st-${st}" data-row="${d.id}">
           <div class="clname"><button type="button" class="link mono" data-dp="${d.id}" title="Open details">${d.id}</button> <b>${esc(d.name)}</b>
-            <p>${esc(d.desc)}</p>
-            <p class="muted">${outsFor(d).map(o => `<span class="tag" style="color:${v(OUTPUTS[o].color)};border-color:${v(OUTPUTS[o].color)}">${esc(OUTPUTS[o].name)}</span>`).join("")}</p></div>
+</div>
           <div class="clans">${statusButtons(d.id, st)}
             <div class="clsrc"><label>Where they get it ${srcSelect(d.id, d)}</label>
             <input type="text" data-cl-id="${d.id}" data-cl-note value="${esc(a.note || "")}" placeholder="System, owner or note" aria-label="Note for ${esc(d.name)}"></div></div>
         </div>`;
       }).join("")}</section>`).join("")
-      : `<p class="note" style="padding:24px">No data points apply. Tick a country and a regulation in the filters.</p>`;
+      : `<p class="note" style="padding:24px">No data points apply.</p>`;
   }
 
   // ---------- drawer ----------
@@ -462,10 +480,10 @@
           <div class="clsrc" style="margin-top:8px"><label>Where they get it ${srcSelect(d.id, d)}</label>
           <input type="text" data-cl-id="${d.id}" data-cl-note value="${esc(a.note || "")}" placeholder="System, owner or note" aria-label="Note"></div></dd></div>
         <div><dt>Usually comes from</dt><dd><span class="tag" style="color:${v(s.color)};border-color:${v(s.color)}">${esc(s.name)}</span></dd></div>
-        <div><dt>System / field (example)</dt><dd class="mono">${esc(d.field)}</dd></div>
+        <div><dt>${fieldLabel()}</dt><dd class="mono">${esc(d.field)}</dd></div>
         <div><dt>Goes into, by selected country</dt><dd>${rows ? `<table class="ctable"><tbody>${rows}</tbody></table>` : "Not needed in the selected countries."}</dd></div>
         ${d.out.some(isPPWR) ? `<div><dt>PPWR applies from</dt><dd class="mono">${esc(d.from || "12 Aug 2026")}</dd></div>` : ""}
-        ${d.out.some(isDPP) ? `<div><dt>Digital Product Passport</dt><dd>${esc(d.dpp || "")}<p class="note" style="margin-top:4px">Applies from: ${esc(d.dppFrom || "TBC")}. ${esc(DPP_NOTE || "")}</p></dd></div>` : ""}
+        ${d.out.some(isDPP) ? `<div><dt>Digital Product Passport</dt><dd>${esc(d.dpp || "")}</dd></div><div><dt>DPP applies from</dt><dd class="mono">${esc(d.dppFrom || "TBC")}</dd></div>` : ""}
         <div><dt>Needed in</dt><dd>${d.countries.map(c => `<span class="tag" style="color:${F.countries.has(c) ? "var(--accent)" : "var(--muted)"};border-color:${F.countries.has(c) ? "var(--accent)" : "var(--rule)"}">${c}</span>`).join("")}</dd></div>
       </dl>`;
     $("d-min").onclick = () => { ui.drawerMin = true; renderDrawer(); };
@@ -473,7 +491,18 @@
   }
 
   // ---------- render ----------
+  const isClientProfile = () => !!(PROFILES[F.profile] && PROFILES[F.profile].dp);
+  const fieldLabel = () => isClientProfile() ? `${PROFILES[F.profile].short} system / field` : "System / field (example)";
+  function renderProfile() {
+    const sel = $("profile");
+    if (!sel.options.length) sel.innerHTML = Object.entries(PROFILES).map(([k, p]) => `<option value="${k}">${esc(p.name)}</option>`).join("");
+    sel.value = F.profile;
+    const pr = PROFILES[F.profile];
+    $("th-field").textContent = isClientProfile() ? `${pr.short} system / field` : "System / field (example)";
+  }
   function renderAll() {
+    applyProfile(F.profile);
+    renderProfile();
     const list = visible();
     if (ui.sel && !DP.some(d => d.id === ui.sel)) ui.sel = null;
     renderFilters();
@@ -483,9 +512,11 @@
     $("canvas").hidden = ui.view !== "flow";
     $("tableview").hidden = ui.view !== "table";
     $("clview").hidden = ui.view !== "check";
-    $("zoom").style.visibility = ui.view === "flow" ? "visible" : "hidden";
-    ["flow", "table", "check"].forEach(k => $("v-" + k).setAttribute("aria-pressed", String(ui.view === k)));
-    if (ui.view === "flow") renderFlow(list); else if (ui.view === "table") renderTable(list); else renderChecklist();
+    $("skuview").hidden = ui.view !== "sku";
+    $("zoom").style.display = ui.view === "flow" ? "" : "none";
+    ["flow", "table", "check", "sku"].forEach(k => $("v-" + k).setAttribute("aria-pressed", String(ui.view === k)));
+    if (ui.view === "flow") renderFlow(list); else if (ui.view === "table") renderTable(list);
+    else if (ui.view === "check") renderChecklist(); else if (window.SKU_VIEW) window.SKU_VIEW.render();
     renderDrawer();
     save();
   }
@@ -520,13 +551,14 @@
   const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   function fileBase(kind = "data-points") {
     const cs = selCountries();
-    return `epr-ppwr-dpp-${kind}_${CL.client ? slug(CL.client) + "_" : ""}${cs.length ? cs.join("-") : "no-country"}_${stamp()}`;
+    return `epr-ppwr-dpp-${kind}_${isClientProfile() ? PROFILES[F.profile].short.toLowerCase() + "_" : ""}${CL.client ? slug(CL.client) + "_" : ""}${cs.length ? cs.join("-") : "no-country"}_${stamp()}`;
   }
   function filterSummary() {
     const cs = selCountries();
     const off = (keys, set, name) => keys.filter(k => !set.has(k)).map(name);
     const anyEU = cs.some(isEU);
     const parts = [
+      `Client profile: ${PROFILES[F.profile].name}`,
       `Countries: ${cs.length ? cs.map(countryName).join(", ") : "none"}`,
       `Regulation: ${REGS.filter(r => F.regs.has(r.key) && (!r.eu || anyEU)).map(r => r.name).join(", ") || "none"}`,
     ];
@@ -635,7 +667,7 @@
   const clCols = d => { const a = ans(d.id); return [ST[statusOf(d)].name, a.src ? SOURCES[a.src].name : "", a.note || ""]; };
   function tableRows() {
     const list = visible();
-    const head = ["ID", "Data point", "Description", "Usually comes from", "System / field (example)", "Goes into", "Regulation", "Countries", "Applies from", "DPP use",
+    const head = ["ID", "Data point", "Description", "Usually comes from", isClientProfile() ? `${PROFILES[F.profile].short} system / field (to confirm)` : "System / field (example)", "Goes into", "Regulation", "Countries", "Applies from", "DPP use",
       "Client has it?", "Client gets it from", "Client note"];
     const rows = list.map(d => {
       const outs = outsFor(d);
@@ -787,8 +819,6 @@
   $("exp-xlsx").addEventListener("click", () => { setMenu(false); exportXLSX(); });
   $("exp-cl-xlsx").addEventListener("click", () => { setMenu(false); exportChecklistXLSX(); });
   $("exp-cl-csv").addEventListener("click", () => { setMenu(false); exportChecklistCSV(); });
-  $("cl-xlsx").addEventListener("click", exportChecklistXLSX);
-  $("cl-csv").addEventListener("click", exportChecklistCSV);
   $("cl-import").addEventListener("click", () => $("cl-file").click());
   $("cl-file").addEventListener("change", e => {
     const f = e.target.files[0]; if (!f) return;
@@ -845,12 +875,19 @@
   $("nodes").addEventListener("pointerleave", () => { ui.hover = null; drawWires(); });
   $("toggle-filters").addEventListener("click", () => { ui.filtersOpen = !ui.filtersOpen; view.auto = true; renderAll(); });
   $("hide-filters").addEventListener("click", () => { ui.filtersOpen = false; view.auto = true; renderAll(); });
-  $("reset").addEventListener("click", () => { F = defaults(); $("q").value = ""; ui.sel = null; ui.focusOut = null; view.auto = true; renderAll(); });
+  $("profile").addEventListener("change", e => {
+    const pr = PROFILES[e.target.value];
+    F.profile = e.target.value;
+    if (pr && pr.countries) F.countries = new Set(pr.countries);
+    view.auto = true; renderAll();
+  });
+  $("reset").addEventListener("click", () => { const prof = F.profile; F = defaults(); F.profile = prof; $("q").value = ""; ui.sel = null; ui.focusOut = null; view.auto = true; renderAll(); });
   $("drawer-tab").addEventListener("click", () => { ui.drawerMin = false; renderDrawer(); });
   $("q").addEventListener("input", e => { F.q = e.target.value; view.auto = true; renderAll(); });
   $("v-flow").addEventListener("click", () => { ui.view = "flow"; view.auto = true; renderAll(); });
   $("v-table").addEventListener("click", () => { ui.view = "table"; renderAll(); });
   $("v-check").addEventListener("click", () => { ui.view = "check"; renderAll(); });
+  $("v-sku").addEventListener("click", () => { ui.view = "sku"; renderAll(); });
   $("z-in").addEventListener("click", () => zoomAt(1.2));
   $("z-out").addEventListener("click", () => zoomAt(1 / 1.2));
   $("z-fit").addEventListener("click", fit);
@@ -860,5 +897,20 @@
   new ResizeObserver(() => { if (view.auto) fit(); }).observe($("canvas"));
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (view.auto) fit(); });
 
+  // small API for the SKU data view (src/sku.js)
+  window.EXPLORER = {
+    DP, SOURCES, OUTPUTS, COUNTRIES, PROFILES, isEU, profile: () => F.profile, esc, toast, download, toCSV, parseCSV, loadScript, LIBS, stamp, slug,
+    answerCount: () => Object.keys(CL.answers).length,
+    // replace checklist answers with ones worked out from SKU data, show that country and open the flowchart
+    applyChecklist(client, answers, country, goFlow) {
+      CL.client = client; CL.answers = answers; saveCL();
+      $("cl-client").value = client;
+      if (country) F.countries = new Set([country]);
+      F.useCl = true; F.cstat = new Set(STATUS.map(s => s.key)); F.srcs = new Set(COL_ORDER);
+      if (goFlow) { ui.view = "flow"; view.auto = true; }
+      renderAll();
+    },
+    rerender: () => renderAll(),
+  };
   renderAll();
 })();

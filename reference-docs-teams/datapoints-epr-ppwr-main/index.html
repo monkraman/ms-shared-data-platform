@@ -15,11 +15,12 @@
     <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 5h14M6 10h8M8.5 15h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
     <span>Filters</span>
   </button>
-  <div class="brand"><b>EPR, PPWR and DPP Data Explorer</b><span>Monk Spaces · prototype</span></div>
+  <div class="brand"><b>EPR, PPWR and DPP Explorer</b></div>
   <div class="views" role="group" aria-label="View">
     <button type="button" id="v-flow" aria-pressed="true">Flowchart</button>
     <button type="button" id="v-table" aria-pressed="false">Table</button>
     <button type="button" id="v-check" aria-pressed="false">Checklist</button>
+    <button type="button" id="v-sku" aria-pressed="false">SKU data</button>
   </div>
   <div class="zoom" id="zoom" role="group" aria-label="Zoom">
     <button type="button" class="iconbtn" id="z-out" title="Zoom out" aria-label="Zoom out">−</button>
@@ -33,16 +34,16 @@
       <span>Export</span>
     </button>
     <div class="export-menu" id="export-menu" role="menu" hidden>
-      <span class="export-h">Flowchart</span>
-      <button type="button" role="menuitem" id="exp-pdf">Download as PDF</button>
-      <button type="button" role="menuitem" id="exp-print">Print</button>
-      <span class="export-h">Table</span>
-      <button type="button" role="menuitem" id="exp-csv">Download as CSV</button>
-      <button type="button" role="menuitem" id="exp-xlsx">Download as Excel</button>
-      <span class="export-h">Client checklist</span>
-      <button type="button" role="menuitem" id="exp-cl-xlsx">Checklist as Excel</button>
-      <button type="button" role="menuitem" id="exp-cl-csv">Checklist as CSV</button>
-      <span class="export-note">Exports use the filters you have applied.</span>
+      <button type="button" role="menuitem" id="exp-pdf">Flowchart PDF</button>
+      <button type="button" role="menuitem" id="exp-print">Print flowchart</button>
+      <button type="button" role="menuitem" id="exp-xlsx">Table Excel</button>
+      <button type="button" role="menuitem" id="exp-csv">Table CSV</button>
+      <button type="button" role="menuitem" id="exp-cl-xlsx">Checklist Excel</button>
+      <button type="button" role="menuitem" id="exp-cl-csv">Checklist CSV</button>
+      <hr class="sku-exp" hidden>
+      <button type="button" role="menuitem" class="sku-exp" id="exp-sku-xlsx" hidden>SKU data Excel</button>
+      <button type="button" role="menuitem" class="sku-exp" id="exp-sku-plat" hidden>Platform import CSV</button>
+      <button type="button" role="menuitem" class="sku-exp" id="exp-sku-map" hidden>Values and sources CSV</button>
     </div>
   </div>
 </header>
@@ -60,8 +61,11 @@
         <button type="button" class="iconbtn small" id="hide-filters" title="Hide filters" aria-label="Hide filters">×</button>
       </div>
     </div>
+    <div class="profile">
+      <label for="profile"><b>Client profile</b></label>
+      <select id="profile"></select>
+    </div>
     <div id="filter-groups"></div>
-    <p class="note">Sample data for the prototype. Country rules and field mappings are indicative and need checking before use. DPP content and dates depend on ESPR delegated acts not yet adopted for drinks or packaging.</p>
   </aside>
 
   <main class="workspace">
@@ -70,12 +74,11 @@
         <svg class="wires" id="wires" aria-hidden="true"></svg>
         <div id="nodes"></div>
       </div>
-      <div class="hint" id="hint">Drag to move · Ctrl + scroll to zoom · Click a box for details</div>
-      <div class="empty" id="empty" hidden>No data points match these filters. Tick more boxes on the left, or press Reset.</div>
+      <div class="empty" id="empty" hidden>No data points match.</div>
     </section>
     <section class="tableview" id="tableview" hidden>
       <table>
-        <thead><tr><th>ID</th><th>Data point</th><th>Client has it?</th><th>Comes from</th><th>System / field (example)</th><th>Goes into</th><th>Countries</th><th>Applies from</th></tr></thead>
+        <thead><tr><th>ID</th><th>Data point</th><th>Client has it?</th><th>Comes from</th><th id="th-field">System / field (example)</th><th>Goes into</th><th>Countries</th><th>Applies from</th></tr></thead>
         <tbody id="tbody"></tbody>
       </table>
     </section>
@@ -85,18 +88,16 @@
           <label class="clclient">Client <input type="text" id="cl-client" placeholder="Client name" autocomplete="off"></label>
           <div class="clactions">
             <button type="button" class="iconbtn" id="cl-goflow">Show in flowchart</button>
-            <button type="button" class="iconbtn" id="cl-xlsx">Download Excel</button>
-            <button type="button" class="iconbtn" id="cl-csv">Download CSV</button>
             <button type="button" class="iconbtn" id="cl-import">Import CSV</button>
             <button type="button" class="link" id="cl-clear">Clear answers</button>
             <input type="file" id="cl-file" accept=".csv,text/csv" hidden>
           </div>
         </div>
-        <p class="note">For each data point, mark whether the client has it, can get it, or does not have it, and where they get it if that differs from the usual source. The flowchart then places each data point under the client's own source and moves what they don't have into a "Not available yet" column. Answers are saved in this browser only: download the checklist to share it, and import it on another device.</p>
         <div id="cl-progress"></div>
       </div>
       <div id="cl-groups"></div>
     </section>
+    <section class="skuview" id="skuview" hidden aria-label="SKU data"></section>
   </main>
 
   <aside class="drawer" id="drawer" hidden aria-live="polite"></aside>
@@ -104,6 +105,8 @@
 </div>
 
 <script src="src/data.js"></script>
+<script src="src/skudata.js"></script>
 <script src="src/app.js"></script>
+<script src="src/sku.js"></script>
 </body>
 </html>

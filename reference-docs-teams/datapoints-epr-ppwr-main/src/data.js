@@ -1,4 +1,4 @@
-// EPR, PPWR and DPP data point library (sample data; country rules, field mappings and dates are indicative).
+// EPR, PPWR and DPP data point library (sample data; country rules, field mappings and dates are indicative). Includes client profiles (KHC: Trace One Devex and Snowflake, fields to confirm).
 // Later steps replace this file with data served by the ERP / supplier API layer.
 window.EPR_DATA = {
  "DP": [
@@ -1207,6 +1207,51 @@ window.EPR_DATA = {
    "notes": {},
    "dpp": "The EU registry stores the identifiers of all passports.",
    "dppFrom": "Set by delegated act (TBC)"
+  },
+  {
+   "id": "DP55",
+   "name": "DoC manufacturer and signatory",
+   "desc": "The manufacturer responsible for the Declaration of Conformity (usually the brand owner) and the person authorised to sign it for them.",
+   "src": "man",
+   "field": "DoC record · manufacturer, signatory and role",
+   "out": [
+    "doc"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "from": "12 Aug 2026",
+   "notes": {
+    "_": "A brand owner that has packaging made or filled under its own name or trademark is generally the manufacturer, even when production is outsourced. Support from iNext, a lab or an authorised representative does not move that responsibility."
+   }
+  },
+  {
+   "id": "DP56",
+   "name": "Document retention period",
+   "desc": "How long the DoC and technical file must be kept: 5 years after single-use packaging was last placed on the market, 10 years for reusable packaging.",
+   "src": "man",
+   "field": "DoC record · retention until",
+   "out": [
+    "doc",
+    "evid"
+   ],
+   "countries": [
+    "DE",
+    "FR",
+    "ES",
+    "IT",
+    "DK",
+    "NL"
+   ],
+   "from": "12 Aug 2026",
+   "notes": {
+    "_": "Retention is not an expiry date. The DoC has no fixed validity and must be updated when the packaging, supplier, materials or evidence change; earlier versions stay on file."
+   }
   }
  ],
  "SOURCES": {
@@ -1336,5 +1381,263 @@ window.EPR_DATA = {
    "eu": true
   }
  ],
- "DPP_NOTE": "Passport content and dates are set product group by product group in ESPR delegated acts."
+ "DPP_NOTE": "Passport content and dates are set product group by product group in ESPR delegated acts.",
+ "PROFILES": {
+  "generic": {
+   "name": "Generic (SAP S/4HANA example)",
+   "short": "Generic"
+  },
+  "khc": {
+   "name": "Kraft Heinz (KHC)",
+   "short": "KHC",
+   "countries": [
+    "DK"
+   ],
+   "sources": {
+    "erp": {
+     "name": "Snowflake · product master and sales",
+     "short": "Snowflake"
+    },
+    "plm": {
+     "name": "Trace One Devex · specifications",
+     "short": "Trace One"
+    },
+    "supplier": {
+     "name": "Supplier · certificates",
+     "short": "Supplier"
+    },
+    "man": {
+     "name": "Manual · KHC team",
+     "short": "Manual"
+    }
+   },
+   "note": "KHC systems from the Monk Spaces integration approach: Trace One Devex (API or scheduled export) and Snowflake (read-only connection or Secure Data Share), read without changing KHC systems. Objects and field names are placeholders to confirm with KHC IT. Denmark first; the UK follows.",
+   "dp": {
+    "DP01": {
+     "src": "erp",
+     "field": "Snowflake · PRODUCT_MASTER.SKU_ID"
+    },
+    "DP02": {
+     "src": "erp",
+     "field": "Snowflake · PRODUCT_MASTER.GTIN"
+    },
+    "DP03": {
+     "src": "plm",
+     "field": "Trace One Devex · packaging specification › component list"
+    },
+    "DP04": {
+     "src": "plm",
+     "field": "Trace One Devex · component › packaging level"
+    },
+    "DP05": {
+     "src": "plm",
+     "field": "Trace One Devex · component › quantity per pack"
+    },
+    "DP06": {
+     "src": "plm",
+     "field": "Trace One Devex · component › material"
+    },
+    "DP07": {
+     "src": "plm",
+     "field": "Trace One Devex · component › polymer"
+    },
+    "DP08": {
+     "src": "plm",
+     "field": "Trace One Devex · component › material composition %"
+    },
+    "DP09": {
+     "src": "plm",
+     "field": "Trace One Devex · component › net weight (g)"
+    },
+    "DP10": {
+     "src": "plm",
+     "field": "Trace One Devex · component › colour and opacity"
+    },
+    "DP11": {
+     "src": "plm",
+     "field": "Trace One Devex · component › inks, coatings and adhesives"
+    },
+    "DP12": {
+     "src": "plm",
+     "field": "Trace One Devex · component › recyclability assessment"
+    },
+    "DP13": {
+     "src": "plm",
+     "field": "Trace One Devex · supplier questionnaire › recycled content %"
+    },
+    "DP14": {
+     "src": "supplier",
+     "field": "Supplier · recycled content certificate (ISCC PLUS or equivalent)"
+    },
+    "DP15": {
+     "src": "plm",
+     "field": "Trace One Devex · specification › reusable or single-use"
+    },
+    "DP16": {
+     "src": "plm",
+     "field": "Trace One Devex · specification › food-contact use"
+    },
+    "DP17": {
+     "src": "plm",
+     "field": "Trace One Devex · supplier document › PFAS declaration"
+    },
+    "DP18": {
+     "src": "plm",
+     "field": "Trace One Devex · supplier document › heavy metals test report"
+    },
+    "DP19": {
+     "src": "plm",
+     "field": "Trace One Devex · supplier document › substances of concern (SVHC)"
+    },
+    "DP20": {
+     "src": "plm",
+     "field": "Trace One Devex · specification › minimisation assessment"
+    },
+    "DP21": {
+     "src": "plm",
+     "field": "Trace One Devex · specification › volume and empty space"
+    },
+    "DP22": {
+     "src": "erp",
+     "field": "Snowflake · SALES.UNITS by country and period"
+    },
+    "DP23": {
+     "src": "erp",
+     "field": "Snowflake · SALES.CHANNEL (customer group)"
+    },
+    "DP24": {
+     "src": "erp",
+     "field": "Snowflake · SALES.SHIP_TO_REGION"
+    },
+    "DP25": {
+     "src": "erp",
+     "field": "Snowflake · SALES.DESTINATION_COUNTRY"
+    },
+    "DP26": {
+     "src": "man",
+     "field": "Manual · deposit scheme flag"
+    },
+    "DP27": {
+     "src": "erp",
+     "field": "Snowflake · PURCHASING.VENDOR_COUNTRY"
+    },
+    "DP28": {
+     "src": "man",
+     "field": "Manual · legal entity and producer role"
+    },
+    "DP29": {
+     "src": "man",
+     "field": "Manual · registration record"
+    },
+    "DP30": {
+     "src": "man",
+     "field": "Manual · compliance scheme contract"
+    },
+    "DP31": {
+     "src": "man",
+     "field": "Manual · authorised representative appointment"
+    },
+    "DP32": {
+     "src": "erp",
+     "field": "Snowflake · FINANCE.TURNOVER and packaging tonnage"
+    },
+    "DP33": {
+     "src": "man",
+     "field": "Manual · reporting period"
+    },
+    "DP34": {
+     "src": "man",
+     "field": "Manual · auditor report"
+    },
+    "DP35": {
+     "src": "plm",
+     "field": "Trace One Devex · artwork › label elements"
+    },
+    "DP36": {
+     "src": "plm",
+     "field": "Trace One Devex · artwork › label elements"
+    },
+    "DP37": {
+     "src": "man",
+     "field": "Manual · CONAI classification"
+    },
+    "DP38": {
+     "src": "plm",
+     "field": "Trace One Devex · supplier questionnaire › virgin plastic weight"
+    },
+    "DP39": {
+     "src": "plm",
+     "field": "Trace One Devex · artwork › harmonised material label"
+    },
+    "DP40": {
+     "src": "plm",
+     "field": "Trace One Devex · artwork › data carrier (QR) content"
+    },
+    "DP41": {
+     "src": "man",
+     "field": "Manual · DoC record from iNext › reference and version"
+    },
+    "DP42": {
+     "src": "plm",
+     "field": "Trace One Devex · supplier document › technical file references"
+    },
+    "DP43": {
+     "src": "erp",
+     "field": "Snowflake · PURCHASING.SUPPLIER_ID per component"
+    },
+    "DP44": {
+     "src": "plm",
+     "field": "Trace One Devex · component › weight source"
+    },
+    "DP45": {
+     "src": "man",
+     "field": "Manual · approver"
+    },
+    "DP46": {
+     "src": "erp",
+     "field": "Snowflake · PRODUCT_MASTER.SKU_ID and batch"
+    },
+    "DP47": {
+     "src": "erp",
+     "field": "Snowflake · LEGAL_ENTITY.OPERATOR_ID"
+    },
+    "DP48": {
+     "src": "erp",
+     "field": "Snowflake · PLANT.FACILITY_ID"
+    },
+    "DP49": {
+     "src": "man",
+     "field": "Manual · passport level"
+    },
+    "DP50": {
+     "src": "supplier",
+     "field": "Supplier · LCA study (kg CO2e per unit)"
+    },
+    "DP51": {
+     "src": "plm",
+     "field": "Trace One Devex · artwork › end-of-life text"
+    },
+    "DP52": {
+     "src": "erp",
+     "field": "Snowflake · PRODUCT_MASTER.COMMODITY_CODE"
+    },
+    "DP53": {
+     "src": "man",
+     "field": "Manual · passport hosting and access"
+    },
+    "DP54": {
+     "src": "man",
+     "field": "Manual · registry record"
+    },
+    "DP55": {
+     "src": "man",
+     "field": "Manual · DoC record from iNext › manufacturer and signatory"
+    },
+    "DP56": {
+     "src": "man",
+     "field": "Manual · DoC record from iNext › retention until"
+    }
+   }
+  }
+ }
 };
