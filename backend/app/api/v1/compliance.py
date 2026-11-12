@@ -80,6 +80,8 @@ class EprResult(BaseModel):
     rates_status: Literal["published", "placeholder"]
     rates_note: str
     fee_channels: list[str]
+    modulated: bool
+    modulation_note: str | None
     total_fee: float
     total_tonnes: float
     fee_tonnes: float
@@ -138,12 +140,8 @@ class Declaration(BaseModel):
 @router.get("/regimes", response_model=list[Regime], summary="Regimes this workspace covers")
 async def list_regimes(_: Reader, db: TenantDB) -> list[Regime]:
     tenant = await current_tenant(db)
-    modules = set(tenant.modules) if tenant else set()
-    countries = set(tenant.countries) if tenant else set()
     out = []
     for rid, r in epr.regimes().items():
-        # SB 54 is shown to every EPR workspace as a preview: no workspace lists US states yet.
-        in_country = r["country"] in countries or r["country"] == "US-CA"
         out.append(
             Regime(
                 id=rid,
@@ -151,7 +149,7 @@ async def list_regimes(_: Reader, db: TenantDB) -> list[Regime]:
                 kind=r["kind"],
                 module=r["module"],
                 country=r["country"],
-                in_scope=(not modules or r["module"] in modules) and (not countries or in_country),
+                in_scope=epr.in_scope(r, tenant, preview=True),
                 rates_status=r.get("rates_status"),
             )
         )

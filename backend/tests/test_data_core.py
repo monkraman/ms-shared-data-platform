@@ -250,6 +250,28 @@ def test_epr_and_ppwr_results_come_from_the_workspace_data(db_client: TestClient
     doc = db_client.get("/api/v1/modules/ppwr/declarations/HLA-KET-460", params={"lang": "da"}, headers=h).json()
     assert doc["text"]["title"] == "EU-overensstemmelseserklæring"
     assert doc["components"] and {r["key"] for r in doc["requirements"]} >= {"substances", "recyclability"}
+
+    # SKU library: fee per regime the workspace covers, RAM rating, PPWR grade, markets, status.
+    # Recyclability is vendor data the simulated syncs do not send: components are not assessed
+    # (Red under RAM, no PPWR grade) until it is entered.
+    skus = {r["sku"]: r for r in db_client.get("/api/v1/products", headers=viewer).json()}
+    sachet = skus["HLA-PORT-10"]
+    assert {f["regime"] for f in sachet["fees"]} == {"epr_uk", "epr_dk"}
+    assert sachet["markets"] == ["DK", "UK"] and sachet["markets_assumed"] and sachet["ppwr_in_scope"]
+    assert sachet["ram"] == "Red" and sachet["grade"] is None and sachet["status"] != "ok"
+    detail = db_client.get("/api/v1/products/HLA-BEAN-415", headers=viewer).json()
+    assert detail["components"][0]["assessment"]["ram_reason"] == "Not assessed"
+    for c in detail["components"]:
+        if c["level"] == "Primary":
+            res = db_client.patch(
+                f"/api/v1/products/HLA-BEAN-415/components/{c['id']}",
+                json={"values": {"recyclability_result": "Good"}},
+                headers=h,
+            )
+            assert res.status_code == 200, res.text
+    detail = res.json()
+    assert detail["grade"] == "A" and detail["ram"] in ("Green", "Red")  # secondary film still unassessed
+    assert detail["components"][0]["assessment"]["ram"] == "Green"
     assert db_client.get("/api/v1/modules/ppwr/declarations/HLA-KET-460", headers=b).status_code == 404
 
     assert db_client.get("/api/v1/modules/regimes", headers=h).json()

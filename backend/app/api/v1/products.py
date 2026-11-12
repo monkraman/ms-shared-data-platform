@@ -17,6 +17,8 @@ from app.core.audit import AuditEvent, record_audit
 from app.core.auth import Principal, TenantDB, require_permission
 from app.core.errors import ProblemError, invalid_field, invalid_fields
 from app.core.permissions import Perm
+from app.modules import skus
+from app.platform.repository import current_tenant
 from app.quality import service as quality
 from app.quality.validation import check_all
 
@@ -33,6 +35,28 @@ class FieldValue(BaseModel):
     source: str | None = None
 
 
+Ram = Literal["Red", "Amber", "Green"]
+Grade = Literal["A", "B", "C", "D", "E"]
+
+
+class ComponentAssessment(BaseModel):
+    ram: Ram | None
+    ram_reason: str
+    grade: Grade | None
+    recyclable_pct: float | None
+    grade_reason: str
+
+
+class RecycledUnit(BaseModel):
+    level: str
+    plastic_g: float
+    recycled_pct: float | None
+    target_pct: float
+    basis: str
+    exempt: bool
+    met: bool | None
+
+
 class ComponentOut(BaseModel):
     id: str
     name: str
@@ -46,14 +70,31 @@ class ComponentOut(BaseModel):
     recyclability: str
     supplier_id: str
     fields: dict[str, FieldValue]
+    assessment: ComponentAssessment
 
 
 class SalesLineOut(BaseModel):
     id: str
     period: str
     channel: str
+    market: str
     units_placed: float
     units_exported: float
+
+
+class SkuFee(BaseModel):
+    regime: str
+    name: str
+    currency: str
+    year: str | None
+    fee: float
+    tonnes: float
+
+
+class RamCounts(BaseModel):
+    Green: int
+    Amber: int
+    Red: int
 
 
 class ProductSummary(BaseModel):
@@ -66,6 +107,21 @@ class ProductSummary(BaseModel):
     materials: list[str]
     completeness_pct: int
     open_gaps: int
+    # Calculated on read (app/modules/assessment.py): markets from the sales lines (lines without
+    # a market count for every workspace country), fee per EPR regime, worst RAM rating, PPWR grade.
+    markets: list[str]
+    markets_assumed: bool
+    ppwr_in_scope: bool
+    fees: list[SkuFee]
+    ram: Ram | None
+    ram_counts: RamCounts
+    grade: Grade | None
+    recyclable_pct: float | None
+    grade_reason: str
+    recycled_content: list[RecycledUnit]
+    recycled_target_misses: int
+    status: Literal["ok", "issue", "at_risk"]
+    status_reasons: list[str]
 
 
 class ProductOut(ProductSummary):
@@ -103,7 +159,8 @@ async def list_products(
 ) -> list[dict[str, object]]:
     products = await catalog.all_products(db)
     open_gaps = quality.open_by_sku(await quality.gaps(db, products))
-    rows = [catalog.summary(p, open_gaps[p.sku]) for p in products]
+    assessed = skus.assess(products, await current_tenant(db), open_gaps)
+    rows = [_with_assessment(catalog.summary(p, open_gaps[p.sku]), assessed[p.sku]) for p in products]
     if q:
         needle = q.lower()
         rows = [r for r in rows if any(needle in str(r[k]).lower() for k in ("sku", "name", "brand", "gtin"))]
@@ -115,8 +172,7 @@ async def get_product(sku: str, _: Reader, db: TenantDB) -> dict[str, object]:
     product = await catalog.get_by_sku(db, sku)
     if product is None:
         raise ProblemError(404, "Product not found.")
-    open_gaps = quality.open_by_sku(await quality.gaps(db, [product]))
-    return catalog.detail(product, open_gaps[sku])
+    return await _detail(db, product)
 
 
 @router.post("", response_model=ProductOut, status_code=status.HTTP_201_CREATED, summary="Add a product by hand")
@@ -159,8 +215,22 @@ async def create_product(payload: ProductCreate, principal: Manager, db: TenantD
         entity_id=product.sku,
         after={"sku": product.sku, "components": len(product.components)},
     )
+    return await _detail(db, product)
+
+
+def _with_assessment(row: dict[str, Any], assessed: dict[str, Any]) -> dict[str, Any]:
+    """A product row plus its calculated columns; components get their own assessment."""
+    per_component = assessed["components"]
+    out = {**row, **{k: v for k, v in assessed.items() if k != "components"}}
+    if "components" in row:
+        out["components"] = [{**c, "assessment": per_component[c["id"]]} for c in row["components"]]
+    return out
+
+
+async def _detail(db: TenantDB, product: Any) -> dict[str, Any]:
     open_gaps = quality.open_by_sku(await quality.gaps(db, [product]))
-    return catalog.detail(product, open_gaps[product.sku])
+    assessed = skus.assess([product], await current_tenant(db), open_gaps)
+    return _with_assessment(catalog.detail(product, open_gaps[product.sku]), assessed[product.sku])
 
 
 def _plain(n: float) -> str:
@@ -244,8 +314,7 @@ async def _saved(db: TenantDB, product: Any, principal: Principal, changes: list
             entity_id=product.sku,
             after={"changes": changes},
         )
-    open_gaps = quality.open_by_sku(await quality.gaps(db, [product]))
-    return catalog.detail(product, open_gaps[product.sku])
+    return await _detail(db, product)
 
 
 @router.patch("/{sku}", response_model=ProductOut, summary="Edit product and passport values")

@@ -1,9 +1,12 @@
 """EPR fee calculation from the workspace's products, packaging components and sales.
 
-For each sales line in the year: units on the market = placed − exported; each component
-adds units × weight per pack ÷ units per pack to its material's tonnage. Fees apply to the
-regime's channels (UK: household packaging only). Components without a weight or material
-are counted as data issues, never guessed here (estimation is the gaps module's job).
+For each sales line in the year sold in the regime's country (a line without a market counts
+for every regime): units on the market = placed − exported; each component adds units × weight
+per pack ÷ units per pack to its material's tonnage. Fees apply to the regime's channels (UK:
+household packaging only). From the regime's ``modulation.from_year`` the rate per tonne is
+multiplied by the component's rating factor (RAM Red, Amber or Green; see ``assessment``).
+Components without a weight or material are counted as data issues, never guessed here
+(estimation is the gaps module's job).
 """
 
 from __future__ import annotations
@@ -16,6 +19,7 @@ from typing import Any
 
 from app.catalog.fields import NOT_MEASURED_SOURCES, number, value
 from app.catalog.models import Product
+from app.modules import assessment
 
 _REFERENCE = Path(__file__).resolve().parent / "reference" / "regimes.json"
 
@@ -34,6 +38,28 @@ def material_code(material: str) -> str | None:
     if not text:
         return None
     return reference()["material_aliases"].get(text, "OT")
+
+
+def modulation(regime: dict[str, Any], year: str | None) -> dict[str, float] | None:
+    """Rating factors for the year, or None when the regime does not modulate fees that year."""
+    mod = regime.get("modulation")
+    if not mod or not year or not year[:4].isdigit() or int(year[:4]) < mod["from_year"]:
+        return None
+    return mod["factors"]
+
+
+def in_scope(regime: dict[str, Any], tenant: Any, *, preview: bool = False) -> bool:
+    """Whether the workspace (a Tenant, or None for all) covers the regime: its module is on and
+    its country is one of the workspace's. ``preview`` also shows SB 54 to every EPR workspace
+    (no workspace lists US states yet)."""
+    modules = set(tenant.modules) if tenant else set()
+    countries = set(tenant.countries) if tenant else set()
+    in_country = regime["country"] in countries or (preview and regime["country"] == "US-CA")
+    return (not modules or regime["module"] in modules) and (not countries or in_country)
+
+
+def in_market(market: str, regime: dict[str, Any]) -> bool:
+    return not market or market.upper() == regime["country"]
 
 
 def years(products: list[Product]) -> list[str]:
@@ -57,15 +83,19 @@ def calculate(
     fee_channels = set(regime["fee_channels"])
     available = years(products)
     year = year or (available[0] if available else None)
+    factors = modulation(regime, year)
 
     tonnes: dict[str, float] = defaultdict(float)  # all packaging placed, by material
     fee_tonnes: dict[str, float] = defaultdict(float)  # in scope for fees, by material
+    fees: dict[str, float] = defaultdict(float)  # fee by material, after modulation
     by_product: list[dict[str, Any]] = []
     by_component: list[dict[str, Any]] = []
     missing_weight = estimated = components = without_sales = 0
 
     for p in products:
-        lines = [s for s in p.sales if value(s.fields, "period") == year]
+        lines = [
+            s for s in p.sales if value(s.fields, "period") == year and in_market(value(s.fields, "market"), regime)
+        ]
         if not lines:
             without_sales += 1
         p_tonnes = p_fee = 0.0
@@ -82,6 +112,9 @@ def calculate(
             if value(c.fields, "weight_source") in NOT_MEASURED_SOURCES:
                 estimated += 1
             per_unit_g = weight / (number(value(c.fields, "units_per_pack")) or 1)
+            rating = assessment.component(c.fields, material)["ram"]
+            factor = factors.get(rating or "Red", 1.0) if factors else 1.0
+            rate = rates.get(code, rates["OT"]) * factor
             c_tonnes = c_fee = c_units = 0.0
             for s in lines:
                 units = max(
@@ -94,8 +127,9 @@ def calculate(
                 c_tonnes += t
                 if value(s.fields, "channel") in fee_channels:
                     fee_tonnes[code] += t
-                    p_fee += t * rates.get(code, rates["OT"])
-                    c_fee += t * rates.get(code, rates["OT"])
+                    fees[code] += t * rate
+                    p_fee += t * rate
+                    c_fee += t * rate
                     c_units += units
             by_component.append(
                 {
@@ -112,6 +146,8 @@ def calculate(
                     "tonnes": c_tonnes,
                     "fee": c_fee,
                     "rate": rates.get(code, rates["OT"]),
+                    "ram": rating,
+                    "factor": factor,
                     "estimated": value(c.fields, "weight_source") in NOT_MEASURED_SOURCES,
                     "recyclability": value(c.fields, "recyclability_result"),
                     "recycled_content_pct": number(value(c.fields, "recycled_content_pct")),
@@ -128,7 +164,7 @@ def calculate(
             }
         )
 
-    total_fee = sum(fee_tonnes[m] * rates.get(m, rates["OT"]) for m in fee_tonnes)
+    total_fee = sum(fees.values())
     by_material = [
         {
             "code": m,
@@ -136,10 +172,10 @@ def calculate(
             "tonnes": round(tonnes[m], 3),
             "fee_tonnes": round(fee_tonnes[m], 3),
             "rate": rates.get(m, rates["OT"]),
-            "fee": round(fee_tonnes[m] * rates.get(m, rates["OT"]), 2),
-            "share_pct": round(fee_tonnes[m] * rates.get(m, rates["OT"]) / total_fee * 100, 1) if total_fee else 0,
+            "fee": round(fees[m], 2),
+            "share_pct": round(fees[m] / total_fee * 100, 1) if total_fee else 0,
         }
-        for m in sorted(tonnes, key=lambda m: -fee_tonnes[m] * rates.get(m, rates["OT"]))
+        for m in sorted(tonnes, key=lambda m: -fees[m])
     ]
     return {
         "regime": regime_id,
@@ -150,6 +186,8 @@ def calculate(
         "rates_status": regime["rates_status"],
         "rates_note": regime["rates_note"],
         "fee_channels": sorted(fee_channels),
+        "modulated": factors is not None,
+        "modulation_note": (regime.get("modulation") or {}).get("note") if factors else None,
         "total_fee": round(total_fee, 2),
         "total_tonnes": round(sum(tonnes.values()), 3),
         "fee_tonnes": round(sum(fee_tonnes.values()), 3),

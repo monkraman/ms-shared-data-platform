@@ -1074,6 +1074,19 @@ export interface components {
             /** Label */
             label: string;
         };
+        /** ComponentAssessment */
+        ComponentAssessment: {
+            /** Grade */
+            grade: ("A" | "B" | "C" | "D" | "E") | null;
+            /** Grade Reason */
+            grade_reason: string;
+            /** Ram */
+            ram: ("Red" | "Amber" | "Green") | null;
+            /** Ram Reason */
+            ram_reason: string;
+            /** Recyclable Pct */
+            recyclable_pct: number | null;
+        };
         /** ComponentHotspot */
         ComponentHotspot: {
             /** Component Id */
@@ -1123,6 +1136,7 @@ export interface components {
         };
         /** ComponentOut */
         ComponentOut: {
+            assessment: components["schemas"]["ComponentAssessment"];
             /** Fields */
             fields: {
                 [key: string]: components["schemas"]["FieldValue"];
@@ -1388,6 +1402,10 @@ export interface components {
             fee_channels: string[];
             /** Fee Tonnes */
             fee_tonnes: number;
+            /** Modulated */
+            modulated: boolean;
+            /** Modulation Note */
+            modulation_note: string | null;
             /** Name */
             name: string;
             /** Products */
@@ -2185,12 +2203,22 @@ export interface components {
             component_count: number;
             /** Components */
             components: components["schemas"]["ComponentOut"][];
+            /** Fees */
+            fees: components["schemas"]["SkuFee"][];
             /** Fields */
             fields: {
                 [key: string]: components["schemas"]["FieldValue"];
             };
+            /** Grade */
+            grade: ("A" | "B" | "C" | "D" | "E") | null;
+            /** Grade Reason */
+            grade_reason: string;
             /** Gtin */
             gtin: string;
+            /** Markets */
+            markets: string[];
+            /** Markets Assumed */
+            markets_assumed: boolean;
             /** Materials */
             materials: string[];
             /** Name */
@@ -2203,10 +2231,28 @@ export interface components {
             passport: {
                 [key: string]: components["schemas"]["FieldValue"];
             };
+            /** Ppwr In Scope */
+            ppwr_in_scope: boolean;
+            /** Ram */
+            ram: ("Red" | "Amber" | "Green") | null;
+            ram_counts: components["schemas"]["RamCounts"];
+            /** Recyclable Pct */
+            recyclable_pct: number | null;
+            /** Recycled Content */
+            recycled_content: components["schemas"]["RecycledUnit"][];
+            /** Recycled Target Misses */
+            recycled_target_misses: number;
             /** Sales */
             sales: components["schemas"]["SalesLineOut"][];
             /** Sku */
             sku: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ok" | "issue" | "at_risk";
+            /** Status Reasons */
+            status_reasons: string[];
         };
         /** ProductSummary */
         ProductSummary: {
@@ -2216,8 +2262,18 @@ export interface components {
             completeness_pct: number;
             /** Component Count */
             component_count: number;
+            /** Fees */
+            fees: components["schemas"]["SkuFee"][];
+            /** Grade */
+            grade: ("A" | "B" | "C" | "D" | "E") | null;
+            /** Grade Reason */
+            grade_reason: string;
             /** Gtin */
             gtin: string;
+            /** Markets */
+            markets: string[];
+            /** Markets Assumed */
+            markets_assumed: boolean;
             /** Materials */
             materials: string[];
             /** Name */
@@ -2226,8 +2282,35 @@ export interface components {
             open_gaps: number;
             /** Packaging G Per Unit */
             packaging_g_per_unit: number;
+            /** Ppwr In Scope */
+            ppwr_in_scope: boolean;
+            /** Ram */
+            ram: ("Red" | "Amber" | "Green") | null;
+            ram_counts: components["schemas"]["RamCounts"];
+            /** Recyclable Pct */
+            recyclable_pct: number | null;
+            /** Recycled Content */
+            recycled_content: components["schemas"]["RecycledUnit"][];
+            /** Recycled Target Misses */
+            recycled_target_misses: number;
             /** Sku */
             sku: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ok" | "issue" | "at_risk";
+            /** Status Reasons */
+            status_reasons: string[];
+        };
+        /** RamCounts */
+        RamCounts: {
+            /** Amber */
+            Amber: number;
+            /** Green */
+            Green: number;
+            /** Red */
+            Red: number;
         };
         /** Recommendation */
         Recommendation: {
@@ -2258,6 +2341,23 @@ export interface components {
             sku: string;
             /** Title */
             title: string;
+        };
+        /** RecycledUnit */
+        RecycledUnit: {
+            /** Basis */
+            basis: string;
+            /** Exempt */
+            exempt: boolean;
+            /** Level */
+            level: string;
+            /** Met */
+            met: boolean | null;
+            /** Plastic G */
+            plastic_g: number;
+            /** Recycled Pct */
+            recycled_pct: number | null;
+            /** Target Pct */
+            target_pct: number;
         };
         /** Regime */
         Regime: {
@@ -2309,6 +2409,8 @@ export interface components {
             channel: string;
             /** Id */
             id: string;
+            /** Market */
+            market: string;
             /** Period */
             period: string;
             /** Units Exported */
@@ -2363,6 +2465,21 @@ export interface components {
             lines: components["schemas"]["ScenarioLine"][];
             /** Scenario Fee */
             scenario_fee: number;
+            /** Year */
+            year: string | null;
+        };
+        /** SkuFee */
+        SkuFee: {
+            /** Currency */
+            currency: string;
+            /** Fee */
+            fee: number;
+            /** Name */
+            name: string;
+            /** Regime */
+            regime: string;
+            /** Tonnes */
+            tonnes: number;
             /** Year */
             year: string | null;
         };
