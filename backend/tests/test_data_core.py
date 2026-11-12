@@ -276,7 +276,7 @@ def test_fill_estimates_writes_marked_values(db_client: TestClient, ws: dict[str
     if weight_gap:
         product = db_client.get(f"/api/v1/products/{weight_gap['sku']}", headers=h).json()
         component = next(c for c in product["components"] if c["id"] == weight_gap["component_id"])
-        assert component["weight_source"] == "Estimated"
+        assert component["weight_source"] == "Estimate"
         assert str(component["weight_g"]).rstrip("0").rstrip(".") == weight_gap["estimate"]["value"].rstrip("0").rstrip(
             "."
         )

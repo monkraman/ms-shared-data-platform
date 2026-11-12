@@ -39,14 +39,14 @@ describe('AppShellComponent', () => {
     expect(el.querySelector('.brand .workspace')?.textContent?.trim()).toBe('Acme Foods');
     expect(el.querySelector('.user .name')?.textContent?.trim()).toBe('Ana Lima');
     expect(groups(el)).toEqual(['Data']);
-    expect(links(el)).toEqual(['Products', 'Gaps']);
+    expect(links(el)).toEqual(['Products', 'Validation', 'Gaps']);
   });
 
   it('shows the platform group to platform admins', () => {
     session.me.set(me(['platform.tenants.read', 'products.read'], true));
     const el = render();
     expect(groups(el)).toEqual(['Platform', 'Data']);
-    expect(links(el)).toEqual(['Client workspaces', 'Products']);
+    expect(links(el)).toEqual(['Client workspaces', 'Products', 'Validation']);
   });
 
   it('signs out', async () => {

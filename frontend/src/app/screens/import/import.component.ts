@@ -91,6 +91,14 @@ const TEMPLATE = [
             <div class="kpi"><div class="kpi-label">New products</div><div class="kpi-value">{{ p.new_products }}</div></div>
             <div class="kpi"><div class="kpi-label">Updated products</div><div class="kpi-value">{{ p.updated_products }}</div></div>
           </div>
+          @if (p.warnings.length) {
+            <section class="card">
+              <h2 class="card-title">Imported as they are, to correct in Validation</h2>
+              @for (w of p.warnings; track $index) {
+                <div class="issue"><span class="mono">Row {{ w.row }}</span><span>{{ w.column }}</span><app-status-chip tone="amber">{{ w.message }}</app-status-chip></div>
+              }
+            </section>
+          }
           @if (p.issues.length) {
             <section class="card">
               <h2 class="card-title">Rows that will be skipped</h2>

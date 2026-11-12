@@ -32,6 +32,7 @@ export const routes: Routes = [
       screen('products/:sku', 'products.read', 'Product', () => import('./screens/products/product-detail.component').then((m) => m.ProductDetailComponent)),
       screen('data-sources', 'imports.manage', 'Data sources', () => import('./screens/data-sources/data-sources.component').then((m) => m.DataSourcesComponent)),
       screen('import', 'imports.manage', 'Import', () => import('./screens/import/import.component').then((m) => m.ImportComponent)),
+      screen('validation', 'products.read', 'Validation', () => import('./screens/validation/validation.component').then((m) => m.ValidationComponent)),
       screen('gaps', 'gaps.read', 'Gaps', () => import('./screens/gaps/gaps.component').then((m) => m.GapsComponent)),
       screen('compliance', 'compliance.read', 'Compliance', () => import('./screens/compliance/compliance.component').then((m) => m.ComplianceComponent)),
       screen('compliance/declarations/:sku', 'module.ppwr', 'Declaration of Conformity', () => import('./screens/compliance/declaration.component').then((m) => m.DeclarationComponent)),

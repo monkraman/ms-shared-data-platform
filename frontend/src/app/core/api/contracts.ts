@@ -56,6 +56,11 @@ export type SalesLine = Schemas['SalesLineOut'];
 export type ProductSummary = Schemas['ProductSummary'];
 export type Product = Schemas['ProductOut'];
 export type ProductCreate = Schemas['ProductCreate'];
+export type ProductHistory = Schemas['HistoryEntry'];
+
+// --- Data validation — built, GET /validation, POST /validation/apply ---------------------
+
+export type ValidationIssue = Schemas['Issue'];
 
 // --- Screen 5: import — built, POST /imports, POST /imports/sync, PUT …/mapping, POST …/approve
 
