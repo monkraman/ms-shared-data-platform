@@ -33,6 +33,7 @@ backend/                     FastAPI, Python 3.12
   app/quality, modules/
   migrations/                Alembic; every tenant table gets enable_tenant_rls()
   seeds/demo/                demo fixtures for `python -m app.seed demo`
+  seeds/csv-tests/           CSV import test pack with expected results (scripts/make_csv_tests.py)
   tests/                     pytest; DB tests need TEST_DATABASE_URL (CI provides Postgres)
 frontend/                    Angular 22, standalone components, signals
   src/app/core/api/          ApiClient (typed from OpenAPI), contracts.ts (names for schema types), platform-api.ts
@@ -62,8 +63,8 @@ reference-docs-teams/        reference material and data sets (input, not app co
 - Switching workspace (`POST /auth/switch-tenant`) issues a new token; the workspace is never sent as a header .
 - **Demo accounts on the sign-in page (temporary):** while `environment.demoSignIn` is on, the page shows the platform admin and the Kraft Heinz org admin with their email and password; a click signs in. Anyone with the link can then sign in, so set `DEMO_SIGN_IN=false` in Vercel and rebuild before real client data, and change those passwords.
 - Production builds call the API on the same origin (`/api`, proxied by `vercel.json`) so the refresh cookie is first-party. Do not set `API_BASE_URL` to the Render URL.
-
 - **Other frontends:** the API allows browser calls only from the origins listed in `backend/app/main.py` (our Vercel app, `*.vercel.app`, localhost (4200, 3000, and 5173 for the Trace frontend in development) and `https://trace.monkspaces.com`, the Trace team's frontend, which uses our sign-in). A frontend that calls Render directly gets no refresh cookie (it is cross-site); proxying `/api` through its own domain avoids that.
+
 ## Navigation (names follow the client-approved mockup)
 
 The sidebar (`core/navigation/nav-items.ts`) shows only what the user's permissions and the workspace's modules allow:
@@ -125,6 +126,8 @@ npm run build                        # production build (runs scripts/set-env.js
 ```
 
 Demo accounts are listed with Argon2 hashes in `backend/seeds/bootstrap_users.json` and created on their first sign-in (`app/platform/bootstrap.py`); `python -m app.seed demo` loads full demo workspaces. To give a workspace products, sync SAP and Trace One on Data sources, then import `backend/seeds/demo/vendor-declarations.csv` and `compliance-register.csv` on Import (vendor data and the client's own entries, with a few values left out so gaps show; rebuilt by `python backend/scripts/make_demo_csvs.py`). Platform admins land on Client workspaces, org admins on Home; users in several workspaces choose one first.
+
+To test the CSV import by hand, import the nine files in `backend/seeds/csv-tests/` into an empty EPR + PPWR workspace and compare with `EXPECTED.md` (steps in that folder's README; rebuilt by `python backend/scripts/make_csv_tests.py` from the platform's own import, validation and gap code). `complete-client.csv` there is one fully filled client (every data point a CSV can carry, 42 of 56; see `COMPLETE_CLIENT.md`), checked by `python backend/scripts/make_complete_client_csv.py`. Sales lines and company/market details cannot come from a CSV yet.
 
 ## Deploys
 

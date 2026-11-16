@@ -1,0 +1,18 @@
+sku,product_name,brand,gtin,component_id,component_name,packaging_level,units_per_pack,material,polymer,weight_g,weight_source,recycled_content_pct,recycled_content_cert,food_contact,pfas_declaration_ref,recyclability_result,supplier_id
+TST-KET-500,Test Tomato Ketchup 500ml,Test Foods,5700000000011,TST-KET-500-01,Squeeze bottle,Primary,1,Plastic,PET,30,Measured,30,RC-PET-001,Yes,PFAS-001,Good,SUP-01
+TST-KET-500,Test Tomato Ketchup 500ml,Test Foods,5700000000011,TST-KET-500-02,Flip-top cap,Primary,1,Plastic,PP,3,Measured,0,n/a,Yes,PFAS-002,Good,SUP-02
+TST-KET-500,Test Tomato Ketchup 500ml,Test Foods,5700000000011,TST-KET-500-03,Shipper case,Secondary,0.083,Paper/board,,140,Measured,70,FSC-RC-01,No,,Good,SUP-03
+TST-MAYO-250,Test Mayonnaise 250ml jar,Test Foods,5700000000028,TST-MAYO-250-01,Glass jar,Primary,1,Glass,,180,Measured,40,GL-RC-01,Yes,PFAS-003,Good,SUP-04
+TST-MAYO-250,Test Mayonnaise 250ml jar,Test Foods,5700000000028,TST-MAYO-250-02,Twist-off lid,Primary,1,Steel,,8,Measured,0,n/a,Yes,PFAS-004,Good,SUP-05
+TST-MAYO-250,Test Mayonnaise 250ml jar,Test Foods,5700000000028,TST-MAYO-250-03,Paper label,Primary,1,Paper/board,,1.5,Measured,0,n/a,No,,Good,SUP-06
+TST-BEAN-400,Test Baked Beans 400g,Test Foods,5700000000035,TST-BEAN-400-01,Steel can,Primary,1,Steel,,45,Measured,25,ST-RC-01,Yes,PFAS-005,Good,SUP-07
+TST-BEAN-400,Test Baked Beans 400g,Test Foods,5700000000035,TST-BEAN-400-02,Paper label,Primary,1,Paper/board,,2,Measured,0,n/a,No,,Good,SUP-06
+TST-BEAN-400,Test Baked Beans 400g,Test Foods,5700000000035,TST-BEAN-400-03,Shrink film,Secondary,0.25,Plastic,LDPE,6,Measured,0,n/a,No,,Good,SUP-08
+TST-SOUP-500,Test Tomato Soup 500ml pouch,Test Foods,5700000000042,TST-SOUP-500-01,Stand-up pouch,Primary,1,Plastic,PP,12,Measured,0,n/a,Yes,PFAS-006,Good,SUP-09
+TST-SOUP-500,Test Tomato Soup 500ml pouch,Test Foods,5700000000042,TST-SOUP-500-02,Screw cap,Primary,1,Plastic,PP,2.5,Measured,0,n/a,Yes,PFAS-007,Good,SUP-02
+TST-SOUP-500,Test Tomato Soup 500ml pouch,Test Foods,5700000000042,TST-SOUP-500-03,Display tray,Secondary,0.1,Paper/board,,95,Measured,80,FSC-RC-02,No,,Good,SUP-03
+TST-SAUCE-300,Test BBQ Sauce 300ml,Test Foods,5700000000059,TST-SAUCE-300-01,Glass bottle,Primary,1,Glass,,220,Measured,35,GL-RC-01,Yes,PFAS-008,Good,SUP-04
+TST-SAUCE-300,Test BBQ Sauce 300ml,Test Foods,5700000000059,TST-SAUCE-300-02,Aluminium cap,Primary,1,Aluminium,,4,Measured,0,n/a,Yes,PFAS-009,Good,SUP-10
+TST-SAUCE-300,Test BBQ Sauce 300ml,Test Foods,5700000000059,TST-SAUCE-300-03,Paper label,Primary,1,Paper/board,,1.8,Measured,0,n/a,No,,Good,SUP-06
+TST-JUICE-1L,Test Apple Juice 1L,Test Drinks,5700000000066,TST-JUICE-1L-01,PET bottle,Primary,1,Plastic,PET,38,Measured,50,RC-PET-002,Yes,PFAS-010,Good,SUP-01
+TST-JUICE-1L,Test Apple Juice 1L,Test Drinks,5700000000066,TST-JUICE-1L-02,HDPE cap,Primary,1,Plastic,HDPE,2.8,Measured,0,n/a,Yes,PFAS-011,Good,SUP-02

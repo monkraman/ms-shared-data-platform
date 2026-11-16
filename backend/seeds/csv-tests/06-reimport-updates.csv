@@ -1,0 +1,6 @@
+sku,product_name,brand,component_id,component_name,material,weight_g,packaging_level
+TST-KET-500,Test Tomato Ketchup 500ml,Test Foods,TST-KET-500-01,Squeeze bottle,Plastic,28,Primary
+TST-KET-500,Test Tomato Ketchup 500ml,Test Foods,TST-KET-500-02,Flip-top cap,Plastic,,Primary
+TST-KET-500,Test Tomato Ketchup 500ml,Test Foods,TST-KET-500-04,Shrink sleeve,Plastic,1.2,Primary
+TST-MAYO-250,Test Mayonnaise 250ml jar,Test Foods Premium,,Glass jar,Glass,175,Primary
+TST-NEW-01,Test Mustard 200ml,Test Foods,,Squeeze bottle,Plastic,18,Primary

@@ -1,0 +1,498 @@
+<title>Heinz Data Onboarding</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column, a flow diagram up top, then the journey in order; status chips mark what is live vs to build */
+:root {
+  --bg: #f5f7f6;
+  --surface: #ffffff;
+  --fg: #15211c;
+  --muted: #5a6a63;
+  --line: #d9e1dd;
+  --accent: #1d6b51;
+  --accent-soft: #e2f0ea;
+  --amber: #9a5b00;
+  --amber-soft: #fbefdc;
+  --red: #a83a2c;
+  --red-soft: #f8e3df;
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1412; --surface: #151d1a; --fg: #e3ebe7; --muted: #93a49c; --line: #26332e;
+    --accent: #62c39d; --accent-soft: #17332a; --amber: #e3a54a; --amber-soft: #33270f;
+    --red: #ec8a7c; --red-soft: #3a1d19; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1412; --surface: #151d1a; --fg: #e3ebe7; --muted: #93a49c; --line: #26332e;
+  --accent: #62c39d; --accent-soft: #17332a; --amber: #e3a54a; --amber-soft: #33270f;
+  --red: #ec8a7c; --red-soft: #3a1d19; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body);
+  font-size: 15.5px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 80px;
+}
+.wrap { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.2; }
+h1 { font-size: clamp(30px, 5vw, 42px); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 24px; font-weight: 600; letter-spacing: -0.01em; }
+h3 { font-size: 17px; font-weight: 600; }
+p { margin: 0; max-width: 68ch; }
+a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+code, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+section { display: flex; flex-direction: column; gap: 18px; scroll-margin-top: 20px; }
+.eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
+.lead { font-size: 18px; color: var(--fg); max-width: 62ch; }
+.muted { color: var(--muted); }
+header { display: flex; flex-direction: column; gap: 14px; }
+
+nav.toc { display: flex; flex-wrap: wrap; gap: 6px 8px; }
+nav.toc a {
+  text-decoration: none; color: var(--fg); font-size: 13.5px; padding: 5px 11px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--surface);
+}
+nav.toc a:hover { border-color: var(--accent); color: var(--accent); }
+
+.chip { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; letter-spacing: 0.01em; }
+.live { background: var(--accent-soft); color: var(--accent); }
+.build { background: var(--amber-soft); color: var(--amber); }
+.need { background: var(--red-soft); color: var(--red); }
+
+.scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 620px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
+tbody tr:last-child td { border-bottom: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.panel.scroll { padding: 4px 4px; }
+
+.diagram { padding: 18px 12px; }
+.diagram svg { display: block; min-width: 780px; width: 100%; height: auto; }
+.d-box { fill: var(--surface); stroke: var(--line); stroke-width: 1.2; }
+.d-src { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.2; }
+.d-title { fill: var(--fg); font-family: var(--font-display); font-weight: 600; font-size: 14px; }
+.d-text { fill: var(--muted); font-family: var(--font-body); font-size: 11.5px; }
+.d-arrow { stroke: var(--accent); stroke-width: 1.6; fill: none; }
+.d-back { stroke: var(--amber); stroke-width: 1.6; fill: none; stroke-dasharray: 5 4; }
+.d-head { fill: var(--accent); }
+.d-head-b { fill: var(--amber); }
+.d-back-label { fill: var(--amber); font-family: var(--font-body); font-size: 12px; font-weight: 600; }
+
+.ways { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.way { padding: 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.way .for { font-size: 13px; color: var(--muted); }
+.way ul { margin: 0; padding-left: 18px; font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+.way.pick { border-color: var(--accent); }
+@media (max-width: 760px) { .ways { grid-template-columns: 1fr; } }
+
+ol.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+ol.steps > li { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px; padding: 16px 0; border-top: 1px solid var(--line); }
+ol.steps > li:first-child { border-top: 0; padding-top: 4px; }
+.num {
+  width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: 600; font-size: 14px;
+  background: var(--accent-soft); color: var(--accent);
+}
+.step-body { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.step-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 10px; }
+.when { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.note { padding: 14px 16px; border-radius: 8px; background: var(--accent-soft); font-size: 14.5px; }
+.note.warn { background: var(--amber-soft); }
+.note strong { font-weight: 600; }
+
+.checklist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 24px; }
+.checklist li { padding-left: 26px; position: relative; font-size: 14.5px; }
+.checklist li::before { content: ""; position: absolute; left: 0; top: 4px; width: 14px; height: 14px; border: 1.5px solid var(--accent); border-radius: 3px; }
+@media (max-width: 640px) { .checklist { grid-template-columns: 1fr; } }
+
+.loop { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.loop div { padding: 12px; font-size: 13.5px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.loop b { font-family: var(--font-display); font-weight: 600; font-size: 14px; }
+@media (max-width: 760px) { .loop { grid-template-columns: 1fr; } }
+
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.two .panel { padding: 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.two ul { margin: 0; padding-left: 18px; font-size: 14.5px; display: flex; flex-direction: column; gap: 5px; }
+@media (max-width: 680px) { .two { grid-template-columns: 1fr; } }
+
+footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 18px; }
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Compliance Hub · Demo step 1–4 · Team brief</span>
+  <h1>How Heinz's data gets into Compliance Hub</h1>
+  <p class="lead">Heinz keeps product, packaging and sales data in several systems (SAP, Snowflake, Trace One, supplier files). We do not replace any of them. We connect once, map their columns to our data points, check what is missing or wrong, and send the fixes back to the system that owns the data.</p>
+  <nav class="toc" aria-label="Sections">
+    <a href="#flow">The flow</a>
+    <a href="#where">Where Heinz data lives</a>
+    <a href="#onboarding">Onboarding plan</a>
+    <a href="#connect">How we connect</a>
+    <a href="#first-load">First load</a>
+    <a href="#sync">Every sync after</a>
+    <a href="#gaps">Gaps</a>
+    <a href="#validation">Validation and fix-back</a>
+    <a href="#who">Who does what</a>
+    <a href="#ask">What we ask Heinz IT</a>
+    <a href="#status">Built vs to build</a>
+    <a href="#demo">Demo script</a>
+  </nav>
+</header>
+
+<!-- 1. FLOW -->
+<section id="flow">
+  <span class="eyebrow">The idea</span>
+  <h2>Collect once, check, reuse everywhere</h2>
+  <div class="panel scroll diagram">
+    <svg viewBox="0 0 880 300" role="img" aria-label="Heinz systems feed connectors, which feed mapping, then checks, then compliance results. Corrections flow back to Heinz systems.">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        <marker id="ahb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="d-head-b"/></marker>
+      </defs>
+      <!-- Sources -->
+      <rect x="10" y="20" width="160" height="200" rx="10" class="d-src"/>
+      <text x="26" y="46" class="d-title">Heinz systems</text>
+      <text x="26" y="74" class="d-text">SAP S/4HANA</text>
+      <text x="26" y="94" class="d-text">Snowflake</text>
+      <text x="26" y="114" class="d-text">Trace One PLM</text>
+      <text x="26" y="134" class="d-text">Devex / other tools</text>
+      <text x="26" y="154" class="d-text">Supplier declarations</text>
+      <text x="26" y="174" class="d-text">Packaging team (manual)</text>
+
+      <!-- Connect -->
+      <rect x="205" y="60" width="140" height="120" rx="10" class="d-box"/>
+      <text x="221" y="86" class="d-title">1 · Connect</text>
+      <text x="221" y="112" class="d-text">API pull</text>
+      <text x="221" y="130" class="d-text">Snowflake view</text>
+      <text x="221" y="148" class="d-text">CSV / vendor form</text>
+
+      <!-- Map -->
+      <rect x="375" y="60" width="140" height="120" rx="10" class="d-box"/>
+      <text x="391" y="86" class="d-title">2 · Map</text>
+      <text x="391" y="112" class="d-text">Their column →</text>
+      <text x="391" y="130" class="d-text">our field + DP code</text>
+      <text x="391" y="148" class="d-text">Saved per source</text>
+
+      <!-- Check -->
+      <rect x="545" y="60" width="140" height="120" rx="10" class="d-box"/>
+      <text x="561" y="86" class="d-title">3 · Check</text>
+      <text x="561" y="112" class="d-text">Gaps (missing)</text>
+      <text x="561" y="130" class="d-text">Validation (wrong)</text>
+      <text x="561" y="148" class="d-text">Estimates</text>
+
+      <!-- Use -->
+      <rect x="715" y="60" width="155" height="120" rx="10" class="d-box"/>
+      <text x="731" y="86" class="d-title">4 · Use</text>
+      <text x="731" y="112" class="d-text">EPR UK / DK / SB 54</text>
+      <text x="731" y="130" class="d-text">PPWR DoC (DA / EN)</text>
+      <text x="731" y="148" class="d-text">Hotspots, scenarios</text>
+
+      <line x1="170" y1="120" x2="203" y2="120" class="d-arrow" marker-end="url(#ah)"/>
+      <line x1="345" y1="120" x2="373" y2="120" class="d-arrow" marker-end="url(#ah)"/>
+      <line x1="515" y1="120" x2="543" y2="120" class="d-arrow" marker-end="url(#ah)"/>
+      <line x1="685" y1="120" x2="713" y2="120" class="d-arrow" marker-end="url(#ah)"/>
+
+      <!-- Back loop -->
+      <path d="M615,180 L615,262 L90,262 L90,222" class="d-back" marker-end="url(#ahb)"/>
+      <text x="250" y="284" class="d-back-label">Corrections list per source system → Heinz fixes it at the source → next sync confirms</text>
+    </svg>
+  </div>
+  <p class="muted">Every value we store remembers where it came from (<code>erp</code>, <code>plm</code>, <code>csv</code>, <code>manual</code>, <code>estimate</code>, <code>correction</code>) and which data point (DP01, DP02 …) it answers. EPR, PPWR, DPP and hotspots all read the same record.</p>
+</section>
+
+<!-- 2. WHERE -->
+<section id="where">
+  <span class="eyebrow">Discovery</span>
+  <h2>Where Heinz data lives, and how we reach it</h2>
+  <p>The first workshop with Heinz fills this table. Our data point dictionary already says which kind of system each data point normally comes from, so we go in with a draft and they correct it.</p>
+  <div class="panel scroll">
+    <table>
+      <thead><tr><th>System</th><th>What it holds for us</th><th>Data points (examples)</th><th>How we connect</th></tr></thead>
+      <tbody>
+        <tr><td><b>SAP S/4HANA</b> (ERP)</td><td>Product master: SKU, name, brand, GTIN. Sales and exports per market.</td><td>DP02 GTIN, units placed, units exported, market, channel</td><td>Through Snowflake if SAP is already replicated there; otherwise SAP OData API, read-only</td></tr>
+        <tr><td><b>Snowflake</b> (data warehouse)</td><td>Usually a copy of SAP plus sales from other channels, already cleaned and joined</td><td>Same as SAP, often with market and channel ready</td><td>Read-only service user on views Heinz builds for us (recommended first choice)</td></tr>
+        <tr><td><b>Trace One</b> (PLM)</td><td>Packaging specs: components, packaging level, material, polymer, weight</td><td>DP03 component, DP04 level, DP06 material, DP07 polymer, DP09 empty weight</td><td>Trace One API, read-only; or a scheduled export to Snowflake</td></tr>
+        <tr><td><b>Devex / other tools</b></td><td>To confirm with Heinz in the workshop</td><td>Whatever it holds that the dictionary needs</td><td>Same three options: API, warehouse view or file</td></tr>
+        <tr><td><b>Suppliers</b></td><td>Recycled content, certificates, PFAS and heavy-metal declarations</td><td>Recycled content %, certificates, substance declarations</td><td>Vendor form or vendor CSV template, imported on Data collection</td></tr>
+        <tr><td><b>Heinz packaging team</b></td><td>What no system holds: labelling, DoC signatory, minimisation reference</td><td>DP39 EU label, DP41 DoC reference, DP55 signatory</td><td>Entered in the app on the product page or when fixing a gap</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>One key ties everything together: the SKU.</strong> We agree in week 1 which SAP material number is the SKU, and that Trace One and suppliers use the same one. If they do not, Heinz gives us a cross-reference table and we load it first.</div>
+</section>
+
+<!-- 3. ONBOARDING -->
+<section id="onboarding">
+  <span class="eyebrow">Onboarding plan</span>
+  <h2>From kick-off to live data in about four weeks</h2>
+  <ol class="steps">
+    <li><span class="num">1</span><div class="step-body">
+      <div class="step-head"><h3>Set up the workspace</h3><span class="when">Day 1</span><span class="chip live">Live in app</span></div>
+      <p>A Monk Spaces platform admin creates the Heinz workspace on <b>Client workspaces</b>: name, logo, brand colour, legal entities, countries (UK, Denmark, California), modules (EPR, PPWR, later DPP and LCA). Then invites the Heinz org admin and assigns our consultants on <b>Users</b>. The Heinz org admin adds their own team on <b>Setup → People</b>.</p>
+    </div></li>
+    <li><span class="num">2</span><div class="step-body">
+      <div class="step-head"><h3>Data inventory workshop</h3><span class="when">Week 1</span></div>
+      <p>We walk Heinz through the data points their modules and countries need (the <b>Data point map</b> tab shows them) and fill the table above: for each data point, which system holds it and who owns it. We agree the SKU key and a pilot scope, for example 50 SKUs sold in the UK and Denmark.</p>
+    </div></li>
+    <li><span class="num">3</span><div class="step-body">
+      <div class="step-head"><h3>Access and security</h3><span class="when">Week 1–2</span><span class="chip build">Real connectors to build</span></div>
+      <p>Heinz IT gives read-only access (see the checklist below) and answers or sends their security questionnaire. While IT works on access, the packaging team sends a CSV extract of the pilot SKUs so we can start mapping on day one instead of waiting.</p>
+    </div></li>
+    <li><span class="num">4</span><div class="step-body">
+      <div class="step-head"><h3>First load of the pilot</h3><span class="when">Week 2</span><span class="chip live">Live in app</span></div>
+      <p>We run the first import per source, review the mapping together with Heinz and approve it. The mapping is saved, so every later sync maps itself. Details below.</p>
+    </div></li>
+    <li><span class="num">5</span><div class="step-body">
+      <div class="step-head"><h3>Gaps and validation review</h3><span class="when">Week 3</span><span class="chip live">Live in app</span></div>
+      <p>We go through <b>Data gaps</b> and <b>Data validation</b> with Heinz: fill estimable gaps, send supplier requests for the rest, export the corrections list for SAP and Trace One owners.</p>
+    </div></li>
+    <li><span class="num">6</span><div class="step-body">
+      <div class="step-head"><h3>Full scope and scheduled sync</h3><span class="when">Week 4 onward</span><span class="chip build">Schedule to build</span></div>
+      <p>Widen from the pilot to all SKUs and markets, switch on auto-approve for sources whose syncs come in clean, and run syncs on a schedule (nightly or weekly, agreed with Heinz).</p>
+    </div></li>
+  </ol>
+</section>
+
+<!-- 4. CONNECT -->
+<section id="connect">
+  <span class="eyebrow">Connecting</span>
+  <h2>Three ways data reaches us</h2>
+  <p>All three end in the same import pipeline (draft → mapping → preview → approve), so the rest of the platform does not care how the data came in.</p>
+  <div class="ways">
+    <div class="panel way pick">
+      <div class="step-head"><h3>Warehouse view</h3><span class="chip build">To build</span></div>
+      <span class="for">Snowflake. Our recommended first choice for Heinz.</span>
+      <ul>
+        <li>Heinz creates a schema with three views: products, components, sales</li>
+        <li>They give us a service user with a read-only role on that schema only, key-pair login</li>
+        <li>We run <code>SELECT</code> on the views; each view has an <code>UPDATED_AT</code> column so later syncs pull only changed rows</li>
+        <li>Heinz controls exactly what we see; nothing else in their warehouse is exposed</li>
+      </ul>
+    </div>
+    <div class="panel way">
+      <div class="step-head"><h3>System API</h3><span class="chip build">Simulated today</span></div>
+      <span class="for">SAP OData, Trace One API. When the data is not in Snowflake.</span>
+      <ul>
+        <li>Technical user with read-only permission on the needed objects</li>
+        <li>We pull only the fields whose data point comes from that system</li>
+        <li>Credentials stored encrypted per workspace, never in the browser</li>
+        <li>In the demo, SAP and Trace One syncs are simulated with sample data</li>
+      </ul>
+    </div>
+    <div class="panel way">
+      <div class="step-head"><h3>File or vendor form</h3><span class="chip live">Live in app</span></div>
+      <span class="for">CSV extracts, supplier declarations, one-off data.</span>
+      <ul>
+        <li>Upload on <b>Data collection → Import</b></li>
+        <li>A file with the same columns as an earlier one reuses its mapping</li>
+        <li>Suppliers fill our vendor template; today we import it, a supplier link is to build</li>
+        <li>Also the fallback while IT access is pending</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note warn"><strong>Why the view, not raw tables.</strong> If Heinz builds views with the column names we agree, our mapping is almost one-to-one and their internal table changes do not break our sync. It is also the easiest thing for their security team to approve: read-only, one schema, no write access.</div>
+</section>
+
+<!-- 5. FIRST LOAD -->
+<section id="first-load">
+  <span class="eyebrow">First load</span>
+  <h2>How we read and map their data the first time</h2>
+  <div class="loop">
+    <div class="panel"><b>Draft</b><span class="muted">Rows arrive and are stored as an import batch. Nothing touches products yet.</span></div>
+    <div class="panel"><b>Mapping</b><span class="muted">Each column is matched to a field. We suggest from names ("EAN" → GTIN); a person confirms.</span></div>
+    <div class="panel"><b>Preview</b><span class="muted">Shows new and updated products, rejected rows and warnings before anything is saved.</span></div>
+    <div class="panel"><b>Approve</b><span class="muted">A background job writes the rows. The mapping is saved for next time.</span></div>
+    <div class="panel"><b>Result</b><span class="muted">Products, components and sales appear; gaps and fees update at once.</span></div>
+  </div>
+  <h3>Mapping example (illustrative column names)</h3>
+  <div class="panel scroll">
+    <table>
+      <thead><tr><th>Heinz column</th><th>Sample value</th><th>Our field</th><th>Data point</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">MATNR</td><td class="mono">KH-57000-01</td><td>SKU</td><td class="mono">key</td></tr>
+        <tr><td class="mono">MAKTX</td><td class="mono">Heinz Tomato Ketchup 460g</td><td>Product name</td><td class="mono">—</td></tr>
+        <tr><td class="mono">EAN11</td><td class="mono">5000157024671</td><td>GTIN / barcode</td><td class="mono">DP02</td></tr>
+        <tr><td class="mono">COMP_DESC</td><td class="mono">Squeeze bottle</td><td>Component name</td><td class="mono">DP03</td></tr>
+        <tr><td class="mono">PACK_LEVEL</td><td class="mono">Primary</td><td>Packaging level</td><td class="mono">DP04</td></tr>
+        <tr><td class="mono">MAT_CLASS</td><td class="mono">Plastic</td><td>Material</td><td class="mono">DP06</td></tr>
+        <tr><td class="mono">POLYMER</td><td class="mono">PET</td><td>Polymer</td><td class="mono">DP07</td></tr>
+        <tr><td class="mono">NET_WT_G</td><td class="mono">26 g</td><td>Empty weight (g)</td><td class="mono">DP09</td></tr>
+        <tr><td class="mono">MARKET</td><td class="mono">GB</td><td>Market (sales)</td><td class="mono">—</td></tr>
+        <tr><td class="mono">QTY_PLACED</td><td class="mono">1 240 000</td><td>Units placed</td><td class="mono">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><b>Rules on the first load:</b> one row is one packaging component, product values repeat on each row. A row without SKU, product name or component is rejected with its row and column. Everything else comes in, even if it looks wrong: <code>26 g</code> is imported as it is and listed as a validation warning with the suggestion <code>26</code>. We never drop a row over formatting.</p>
+</section>
+
+<!-- 6. SYNC -->
+<section id="sync">
+  <span class="eyebrow">Ongoing</span>
+  <h2>What happens on every sync after the first</h2>
+  <p>The source remembers its last approved mapping, so a sync maps itself. With <b>auto-approve</b> on, a sync with no rejected rows imports straight away; otherwise it waits in Data collection for a person to approve. Every sync is kept in the sync history.</p>
+  <div class="two">
+    <div class="panel">
+      <h3>How rows are matched</h3>
+      <ul>
+        <li>Products by <b>SKU</b>; a new SKU creates a product</li>
+        <li>Components by the system's <b>component ID</b>, then by name; otherwise added</li>
+        <li>Sales lines by their ID; otherwise added</li>
+        <li>Nothing is deleted by a sync; removals are done on the product page</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>How values are merged</h3>
+      <ul>
+        <li>Incoming value present → it <b>replaces</b> what we had, even a manual edit or an estimate</li>
+        <li>Incoming value empty, we have one → we <b>keep</b> ours; an empty cell never wipes data</li>
+        <li>Both empty → stored as missing, which becomes a gap</li>
+        <li>Gap decisions (requested, accepted) survive re-syncs</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note"><strong>The source system wins.</strong> This is deliberate: SAP and Trace One stay the single source of truth. A correction made only in our platform is overwritten by the next sync if SAP still has the old value. That is why every correction goes back to the source (see Validation).</div>
+</section>
+
+<!-- 7. GAPS -->
+<section id="gaps">
+  <span class="eyebrow">Demo step 3</span>
+  <h2>How gaps are found and fixed</h2>
+  <p>A gap is a value a rule says is missing or not good enough. The rule library runs over every product on every read, filtered to Heinz's modules and countries. So a gap appears the moment data is missing and disappears by itself when a sync brings a valid value.</p>
+  <div class="panel scroll">
+    <table>
+      <thead><tr><th>Kind</th><th>Example</th><th>How it is filled</th><th>Who</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip live">Estimable</span></td><td>Weight of a cap missing in PLM</td><td>Average of components of the same material and packaging level (<code>similar_average</code>); marked <i>Estimated</i> until real data arrives</td><td>Monk Spaces proposes, Heinz accepts</td></tr>
+        <tr><td><span class="chip live">Estimable</span></td><td>Recycled content not declared</td><td>Fixed value, e.g. 0% (<code>fixed</code>), the safe assumption for fees</td><td>Monk Spaces proposes, Heinz accepts</td></tr>
+        <tr><td><span class="chip need">Needs data</span></td><td>PFAS declaration, recycled-content certificate</td><td>Request from supplier; gap shows as requested until the vendor file comes in</td><td>Heinz procurement → supplier</td></tr>
+        <tr><td><span class="chip need">Needs data</span></td><td>GTIN, DoC signatory, EU label</td><td>Fixed at the source (SAP) or entered on the product page</td><td>Heinz data owner</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Each gap also has a <b>phase</b> from horizon scanning: <i>due now</i> (rule in force), <i>collecting</i> (inside the lead time, 3 months by default) or <i>upcoming</i>. Due gaps are listed first, so Heinz works on what matters for the next deadline.</p>
+</section>
+
+<!-- 8. VALIDATION -->
+<section id="validation">
+  <span class="eyebrow">Demo step 4</span>
+  <h2>Validation and fixing it at the source</h2>
+  <p>Validation checks every stored value against the field catalogue and works out the correction where it can.</p>
+  <div class="panel scroll">
+    <table>
+      <thead><tr><th>Arrives as</th><th>Problem</th><th>Suggested</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">26 g</td><td>Number with a unit</td><td class="mono">26</td></tr>
+        <tr><td class="mono">0.026 kg</td><td>Wrong unit</td><td class="mono">26</td></tr>
+        <tr><td class="mono">plastik</td><td>Not an allowed material</td><td class="mono">Plastic</td></tr>
+        <tr><td class="mono">10/08/2026</td><td>Date format</td><td class="mono">2026-08-10</td></tr>
+        <tr><td class="mono">5000157024670</td><td>GTIN check digit fails</td><td>Flagged, no guess</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ol class="steps">
+    <li><span class="num">1</span><div class="step-body"><div class="step-head"><h3>Apply in the platform</h3><span class="chip live">Live in app</span></div><p>One by one or all at once. Stored with source <code>correction</code> and written to the audit log, so the numbers are right today.</p></div></li>
+    <li><span class="num">2</span><div class="step-body"><div class="step-head"><h3>Export per source system</h3><span class="chip live">Live in app</span></div><p>Data validation → Export gives one list for SAP owners, one for Trace One owners, one per file. Heinz fixes the values in their own system.</p></div></li>
+    <li><span class="num">3</span><div class="step-body"><div class="step-head"><h3>Next sync confirms</h3><span class="chip live">Live in app</span></div><p>The fixed value comes back from SAP or Trace One, the warning disappears, and the source is the single truth again.</p></div></li>
+    <li><span class="num">4</span><div class="step-body"><div class="step-head"><h3>Write-back</h3><span class="chip build">To build</span></div><p>Later, with Heinz's approval and write access, the platform can push approved corrections straight into the source system instead of an export.</p></div></li>
+  </ol>
+</section>
+
+<!-- 9. WHO -->
+<section id="who">
+  <span class="eyebrow">Roles</span>
+  <h2>Who does what</h2>
+  <div class="panel scroll">
+    <table>
+      <thead><tr><th>Task</th><th>Monk Spaces</th><th>Heinz IT</th><th>Heinz packaging / data team</th><th>Suppliers</th></tr></thead>
+      <tbody>
+        <tr><td>Workspace, modules, users</td><td>Does it</td><td>—</td><td>Adds own team</td><td>—</td></tr>
+        <tr><td>Data inventory (which system holds what)</td><td>Leads, brings dictionary</td><td>Confirms systems</td><td>Confirms owners</td><td>—</td></tr>
+        <tr><td>Read-only access, views</td><td>Specifies</td><td>Builds and grants</td><td>—</td><td>—</td></tr>
+        <tr><td>Mapping and first load</td><td>Does it</td><td>—</td><td>Reviews and approves</td><td>—</td></tr>
+        <tr><td>Estimable gaps</td><td>Proposes estimates</td><td>—</td><td>Accepts</td><td>—</td></tr>
+        <tr><td>Gaps that need data</td><td>Sends template</td><td>—</td><td>Requests and chases</td><td>Fill the vendor form</td></tr>
+        <tr><td>Corrections at source</td><td>Exports list</td><td>—</td><td>Fixes in SAP / Trace One</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 10. ASK -->
+<section id="ask">
+  <span class="eyebrow">Checklist</span>
+  <h2>What we ask Heinz IT for</h2>
+  <ul class="checklist">
+    <li>List of systems holding product, packaging, sales and supplier data</li>
+    <li>Agreed SKU key, and a cross-reference if systems differ</li>
+    <li>Snowflake: schema with products, components and sales views</li>
+    <li>Snowflake: service user, read-only role, key-pair login</li>
+    <li>An <code>UPDATED_AT</code> column on each view</li>
+    <li>SAP / Trace One API user, read-only, if not in Snowflake</li>
+    <li>Network allowlist for our server IPs, if they restrict access</li>
+    <li>Sample CSV of the pilot SKUs while access is pending</li>
+    <li>Data owner per system for corrections</li>
+    <li>Their security questionnaire and data processing agreement</li>
+  </ul>
+</section>
+
+<!-- 11. STATUS -->
+<section id="status">
+  <span class="eyebrow">Honest status</span>
+  <h2>What is built and what is still to build</h2>
+  <div class="two">
+    <div class="panel">
+      <div class="step-head"><h3>Works in the app today</h3><span class="chip live">Live</span></div>
+      <ul>
+        <li>Workspace setup: identity, countries, modules, users</li>
+        <li>CSV import with suggested and saved mapping</li>
+        <li>SAP and Trace One syncs (simulated with sample data)</li>
+        <li>Saved mapping per source, auto-approve, sync history</li>
+        <li>Matching and merge rules on re-sync</li>
+        <li>Gap rules, estimable vs needs data, fill estimates</li>
+        <li>Validation, suggested corrections, export per source</li>
+        <li>Lineage and audit of every value</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <div class="step-head"><h3>To build for a real client</h3><span class="chip build">Next</span></div>
+      <ul>
+        <li>Snowflake connector (read views, incremental pull)</li>
+        <li>Real SAP OData and Trace One API connectors</li>
+        <li>Encrypted credential storage per workspace</li>
+        <li>Scheduled syncs (nightly / weekly)</li>
+        <li>Supplier link: vendor fills the form without an account</li>
+        <li>Email for invitations and supplier requests</li>
+        <li>Write-back of corrections to the source system</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 12. DEMO -->
+<section id="demo">
+  <span class="eyebrow">For the demo</span>
+  <h2>How to show steps 1 to 4 today</h2>
+  <ol class="steps">
+    <li><span class="num">1</span><div class="step-body"><h3>Setup</h3><p>As platform admin, open <b>Client workspaces</b>, show Kraft Heinz: logo, countries, modules. Open <b>Users</b> to show the org admin and consultant. Say: "This is day one of onboarding."</p></div></li>
+    <li><span class="num">2</span><div class="step-body"><h3>Data collection, API</h3><p>Open the workspace, go to <b>Setup → Data connections</b>, sync SAP S/4HANA, then Trace One. Show the mapping, the preview and the sync history. Say: "In production this is their Snowflake view or the SAP API; the screen and the rules are the same."</p></div></li>
+    <li><span class="num">3</span><div class="step-body"><h3>Data collection, vendor forms</h3><p>On <b>Data collection → Import</b>, upload <code>vendor-declarations.csv</code> and <code>compliance-register.csv</code>. Show that the mapping is suggested and the rows land on the same products.</p></div></li>
+    <li><span class="num">4</span><div class="step-body"><h3>Gaps</h3><p><b>Data gaps</b>: show estimable vs needs data, fill estimates, mark a supplier request. Show a gap's phase.</p></div></li>
+    <li><span class="num">5</span><div class="step-body"><h3>Validation</h3><p><b>Data validation</b>: show "26 g → 26", apply all, export the SAP list. Say: "This list goes to their SAP owner; the next sync confirms it."</p></div></li>
+  </ol>
+</section>
+
+<footer>Based on the platform's system design (docs/SYSTEM_DESIGN.md). Column names in the mapping example are illustrative; real ones come from the Heinz data inventory workshop.</footer>
+
+</div>

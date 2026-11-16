@@ -1,0 +1,5 @@
+sku,product_name,gtin,component_id,component_name,packaging_level,material,weight_g,recycled_content_pct,food_contact,pfas_declaration_ref,doc_issue_date,data_carrier_url
+TST-VAL-01,Test Vinegar 500ml,570-0000-002013,TST-VAL-01-01,Glass bottle,primary,glass,260 g,30%,ja,PFAS-020,10/08/2026,id.example.com/01/5700000002013
+TST-VAL-01,Test Vinegar 500ml,570-0000-002013,TST-VAL-01-02,Cap,Primary,Plastik,0.003 kg,0,Y,PFAS-021,10/08/2026,id.example.com/01/5700000002013
+TST-VAL-02,Test Olive Oil 750ml,5700000002021,TST-VAL-02-01,Glass bottle,Primary,Glass,"2,5",130,Yes,PFAS-022,10 Aug 2026,https://id.example.com/01/5700000002021
+TST-VAL-02,Test Olive Oil 750ml,5700000002021,TST-VAL-02-02,Pourer,Primary,Plastic,-4,0,Yes,PFAS-023,10 Aug 2026,https://id.example.com/01/5700000002021

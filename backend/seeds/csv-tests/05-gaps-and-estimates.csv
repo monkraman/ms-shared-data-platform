@@ -1,0 +1,7 @@
+sku,product_name,brand,gtin,component_id,component_name,packaging_level,units_per_pack,material,polymer,weight_g,weight_source,recycled_content_pct,recycled_content_cert,food_contact,pfas_declaration_ref,recyclability_result,supplier_id
+TST-GAP-01,Test Hot Sauce 150ml,Test Foods,5700000003012,TST-GAP-01-01,Squeeze bottle,Primary,1,Plastic,PET,,Measured,30,RC-PET-003,Yes,PFAS-030,Good,SUP-01
+TST-GAP-01,Test Hot Sauce 150ml,Test Foods,5700000003012,TST-GAP-01-02,Cap,Primary,1,Plastic,PP,2,Measured,,,Yes,PFAS-031,Good,SUP-02
+TST-GAP-01,Test Hot Sauce 150ml,Test Foods,5700000003012,TST-GAP-01-03,Inner seal,Primary,1,Plastic,PP,0.5,Measured,0,n/a,Yes,,Good,SUP-11
+TST-GAP-02,Test Chutney 300g,Test Foods,,TST-GAP-02-01,Glass jar,Primary,1,Glass,,200,Measured,25,,Yes,PFAS-032,Good,SUP-04
+TST-GAP-03,Test Crisps 150g,Test Snacks,5700000003029,TST-GAP-03-01,Metallised bag,Primary,1,Plastic,PP,5,Measured,0,n/a,Yes,PFAS-033,Limited,SUP-12
+TST-GAP-03,Test Crisps 150g,Test Snacks,5700000003029,TST-GAP-03-02,Shipper case,Secondary,0.05,Paper/board,,180,Spec,70,FSC-RC-01,No,,Good,SUP-03

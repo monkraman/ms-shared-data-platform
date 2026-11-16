@@ -1,0 +1,6 @@
+Article,Description,EAN,Component,Level,Units,Material,Weight (g),PCR,Plant,Comment
+TST-PEST-190,Test Pesto 190g,5700000001018,Glass jar,Primary,1,Glass,160,30,Aarhus,
+TST-PEST-190,Test Pesto 190g,5700000001018,Metal lid,Primary,1,Steel,7,0,Aarhus,
+TST-JAM-370,Test Strawberry Jam 370g,5700000001025,Glass jar,Primary,1,Glass,190,30,Odense,new recipe
+TST-JAM-370,Test Strawberry Jam 370g,5700000001025,Metal lid,Primary,1,Steel,8,0,Odense,
+TST-JAM-370,Test Strawberry Jam 370g,5700000001025,Paper label,Primary,1,Paper/board,1.2,0,Odense,

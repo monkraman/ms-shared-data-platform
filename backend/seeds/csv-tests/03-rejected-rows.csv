@@ -1,0 +1,7 @@
+sku,product_name,component_name,material,weight_g,packaging_level
+TST-RICE-1KG,Test Rice 1kg,Paper bag,Paper/board,22,Primary
+,Test Rice 1kg,Window film,Plastic,1,Primary
+TST-RICE-1KG,Test Rice 1kg,Shipper case,Paper/board,300,Secondary
+TST-OATS-500,,Carton,Paper/board,35,Primary
+TST-OATS-500,Test Oats 500g,,Plastic,4,Primary
+TST-OATS-500,Test Oats 500g,Inner bag,Plastic,6,Primary

@@ -32,6 +32,7 @@ Start with [../AGENTS.md](../AGENTS.md) for the repository map and the rules eve
 | [DATA_MODEL.md](DATA_MODEL.md), [DATABASE_SCHEMA_PLAN.md](DATABASE_SCHEMA_PLAN.md) | Data model drafts |
 | [SECURITY_AND_TENANCY.md](SECURITY_AND_TENANCY.md) | Security and tenancy |
 | [TEST_STRATEGY.md](TEST_STRATEGY.md) | Testing approach |
+| [../backend/seeds/csv-tests/README.md](../backend/seeds/csv-tests/README.md) | Manual CSV import test pack: nine files, steps and expected results |
 | [DECISIONS.md](DECISIONS.md) | Decision log |
 
 ## Code-level references
