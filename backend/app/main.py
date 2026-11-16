@@ -44,8 +44,11 @@ def create_application() -> FastAPI:
     # Cross-Origin Resource Sharing (CORS) - Configured for Vercel & Local Dev
     allowed_origins = [
         "https://ms-shared-data-platform-nine.vercel.app",
+        # Trace frontend: uses our sign-in API directly from the browser.
+        "https://trace.monkspaces.com",
         "http://localhost:4200",
         "http://localhost:3000",
+        "http://localhost:5173",  # Trace frontend (Vite) in local development
         "http://127.0.0.1:4200",
     ]
     application.add_middleware(

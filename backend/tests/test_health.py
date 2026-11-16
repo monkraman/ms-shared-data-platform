@@ -1,5 +1,6 @@
 """Automated tests for health check endpoints and API baseline."""
 
+import pytest
 from fastapi.testclient import TestClient
 
 
@@ -36,3 +37,27 @@ def test_cors_headers_on_health(client: TestClient) -> None:
     )
     assert response.status_code == 200
     assert response.headers.get("access-control-allow-origin") == origin
+
+
+@pytest.mark.parametrize("origin", ["https://trace.monkspaces.com", "http://localhost:5173"])
+def test_cors_preflight_for_trace_frontend(client: TestClient, origin: str) -> None:
+    """The Trace frontend may call the sign-in API from its site and its local dev server."""
+    response = client.options(
+        "/api/v1/auth/sign-in",
+        headers={
+            "Origin": origin,
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+    assert response.status_code == 200
+    assert response.headers.get("access-control-allow-origin") == origin
+    assert response.headers.get("access-control-allow-credentials") == "true"
+
+
+def test_cors_rejects_unknown_origin(client: TestClient) -> None:
+    response = client.options(
+        "/api/v1/auth/sign-in",
+        headers={"Origin": "https://evil.example.com", "Access-Control-Request-Method": "POST"},
+    )
+    assert response.status_code == 400
