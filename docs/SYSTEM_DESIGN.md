@@ -70,7 +70,7 @@ flowchart TB
 | Database | PostgreSQL with row-level security (RLS); Alembic migrations | `backend/migrations` |
 | Jobs | One job interface; runs in the API process, or on Celery workers when `REDIS_URL` is set | `backend/app/core/jobs.py` |
 | Hosting | Vercel (frontend, proxies `/api` to Render) and Render (API); `main` deploys automatically | `vercel.json`, `render.yaml` |
-| CORS | Browser calls allowed only from listed origins: our Vercel app, `*.vercel.app`, localhost (4200, 3000, 5173), and `https://trace.monkspaces.com` (the Trace frontend, sign-in only; 5173 is its local dev server) | `backend/app/main.py` |
+| CORS | Browser calls allowed only from listed origins: our Vercel app, `*.vercel.app`, localhost (4200, 3000, 5173), and `https://trace.monkspaces.com` (the Trace frontend, sign-in only; 5173 is its local dev server), plus one temporary `trycloudflare.com` tunnel for testing it | `backend/app/main.py` |
 | CI | GitHub Actions: lint, type check, backend tests on a real Postgres, frontend build and tests, OpenAPI client drift, secret scan | `.github/workflows/ci.yml` |
 
 ### Backend modules

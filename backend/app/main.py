@@ -49,6 +49,8 @@ def create_application() -> FastAPI:
         "http://localhost:4200",
         "http://localhost:3000",
         "http://localhost:5173",  # Trace frontend (Vite) in local development
+        # Trace frontend shared through a temporary Cloudflare tunnel for testing; remove when done.
+        "https://lion-train-twelve-require.trycloudflare.com",
         "http://127.0.0.1:4200",
     ]
     application.add_middleware(
