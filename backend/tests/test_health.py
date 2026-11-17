@@ -39,7 +39,9 @@ def test_cors_headers_on_health(client: TestClient) -> None:
     assert response.headers.get("access-control-allow-origin") == origin
 
 
-@pytest.mark.parametrize("origin", ["https://trace.monkspaces.com", "http://localhost:5173"])
+@pytest.mark.parametrize(
+    "origin", ["https://trace.monkspaces.com", "https://traces.monkspaces.com", "http://localhost:5173"]
+)
 def test_cors_preflight_for_trace_frontend(client: TestClient, origin: str) -> None:
     """The Trace frontend may call the sign-in API from its site and its local dev server."""
     response = client.options(
