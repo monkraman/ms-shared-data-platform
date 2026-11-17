@@ -1,7 +1,7 @@
 """Sign-in, session refresh, workspace switch and sign-out.
 
 * Passwords are checked against Argon2 hashes; 5 failures lock the account for 15 minutes.
-* The access token lives 15 minutes. The refresh token (8 hours) is a random secret sent as
+* The access token lives 60 minutes. The refresh token (8 hours) is a random secret sent as
   an httpOnly cookie; only its SHA-256 hash is stored, and it is replaced on every refresh.
 * Every sign-in, failure, switch and sign-out is audited.
 """

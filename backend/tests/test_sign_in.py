@@ -68,7 +68,7 @@ def test_prototype_user_moves_to_database_on_first_sign_in(api: TestClient) -> N
     assert body["user"]["role"] == "org_admin"
     assert body["user"]["organisation_slug"] == "khc-europe"
     assert body["redirect_url"] == "/dashboard"
-    assert body["expires_in_seconds"] == 15 * 60
+    assert body["expires_in_seconds"] == 60 * 60
     assert "ch_refresh" in res.cookies
 
     async def stored_hash() -> str:

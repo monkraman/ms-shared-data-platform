@@ -94,7 +94,7 @@ Rule of thumb: endpoints are thin; logic lives in the package it belongs to, and
 **One database, isolated by Postgres row-level security.** Every client table has a `tenant_id` and RLS policies (`enable_tenant_rls()` in each migration). Each request runs in a transaction that sets `app.tenant_id` from the signed token and switches to a role that cannot bypass RLS (`SET LOCAL ROLE compliance_rls`). Queries never filter by tenant by hand; the database does it, so a coding mistake cannot leak another client's rows.
 
 - **The workspace comes from the token only**, never from a header, URL or browser storage. Switching workspace issues a new token (`POST /auth/switch-tenant`).
-- **Sign-in:** 15-minute access token (kept in `sessionStorage`), 8-hour refresh token in an httpOnly cookie (stored server-side only as a SHA-256 hash, rotated on every refresh). Five wrong passwords lock an account for 15 minutes; 30 minutes without input signs the user out. Passwords are Argon2 hashes.
+- **Sign-in:** 60-minute access token (`ACCESS_TOKEN_MINUTES`) (kept in `sessionStorage`), 8-hour refresh token in an httpOnly cookie (stored server-side only as a SHA-256 hash, rotated on every refresh). Five wrong passwords lock an account for 15 minutes; 30 minutes without input signs the user out. Passwords are Argon2 hashes.
 - **Every request re-checks the user in the database**, so disabling a user, suspending a workspace or removing a membership takes effect on the next request; those actions also revoke refresh tokens.
 - **Permissions, not roles, guard every endpoint** (`require_permission(...)`, `app/core/permissions.py`):
 

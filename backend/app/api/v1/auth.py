@@ -3,7 +3,7 @@
 The paths and response shapes are the prototype's, so the existing sign-in page and IAM
 directory keep working; behind them users live in the database with Argon2 passwords.
 
-Session: a 15-minute access token in the response body, and an 8-hour refresh token in
+Session: a 60-minute access token in the response body, and an 8-hour refresh token in
 an httpOnly cookie (``ch_refresh``, path ``/api/v1/auth``) for ``POST /auth/refresh``.
 """
 

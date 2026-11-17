@@ -155,7 +155,7 @@ Screens 1 and 2 are specified in full so building can start right after Step 0; 
 
 **Screens and states.** Sign-in page (reuse current layout), workspace picker, session-expired dialog, no-permission page, sign-out.
 
-**Rules.** Access token 15 minutes, refresh token 8 hours; 5 failed attempts lock the account for 15 minutes (local login); every sign-in, failure and switch is audited.
+**Rules.** Access token 60 minutes, refresh token 8 hours; 5 failed attempts lock the account for 15 minutes (local login); every sign-in, failure and switch is audited.
 
 **Acceptance criteria**
 

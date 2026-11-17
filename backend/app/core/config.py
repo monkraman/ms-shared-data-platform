@@ -36,7 +36,7 @@ class Settings(BaseSettings):
         default=None,
         description="HS256 signing key for access tokens. Required when APP_ENV=production.",
     )
-    access_token_minutes: int = Field(default=15, description="Lifetime of platform access tokens")
+    access_token_minutes: int = Field(default=60, description="Lifetime of platform access tokens")
     database_url: str = Field(
         default="postgresql+psycopg://monkspaces_user:CHANGE_ME@localhost:5432/monkspaces_db",
         description="PostgreSQL connection string",

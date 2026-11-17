@@ -55,7 +55,7 @@ Design rules: labels and data only, with no taglines, helper text or secondary l
 ## Security notes
 
 - Every transaction runs `SET LOCAL ROLE compliance_rls` (migration 0002), a role that cannot bypass RLS, so isolation holds even though Neon's login role has BYPASSRLS. The migration user needs CREATEROLE. Never connect as a Postgres superuser: a superuser can switch roles freely and skips RLS anyway.
-- Access tokens (`ver: 2`) last 15 minutes and live in sessionStorage. Refresh tokens last 8 hours from sign-in, are httpOnly cookies, are stored only as SHA-256 hashes and are replaced on every refresh. Five wrong passwords lock an account for 15 minutes.
+- Access tokens (`ver: 2`) last 60 minutes (`ACCESS_TOKEN_MINUTES`) and live in sessionStorage. Refresh tokens last 8 hours from sign-in, are httpOnly cookies, are stored only as SHA-256 hashes and are replaced on every refresh. Five wrong passwords lock an account for 15 minutes.
 - `app.platform_access` is set only by `PlatformDB` after checking the user is a platform admin.
 
 ## Deploys
