@@ -47,6 +47,7 @@ def create_application() -> FastAPI:
         # Trace frontend: uses our sign-in API directly from the browser.
         "https://trace.monkspaces.com",
         "https://traces.monkspaces.com",
+        "https://epr-ppwr-khc-frontend.pages.dev",  # Trace frontend on Cloudflare Pages
         "http://localhost:4200",
         "http://localhost:3000",
         "http://localhost:5173",  # Trace frontend (Vite) in local development
